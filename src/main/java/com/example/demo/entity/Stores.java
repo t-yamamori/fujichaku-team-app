@@ -20,5 +20,5 @@ public class Stores {
 	//代表者
 	private String respresentaive;
 	
-	
+	//テスト
 }
