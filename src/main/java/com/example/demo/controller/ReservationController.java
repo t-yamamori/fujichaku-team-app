@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.stereotype.Controller;
@@ -9,8 +10,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.entity.Reservations;
+import com.example.demo.mapper.ReservationMapper;
+
 @Controller
 public class ReservationController {
+
+    // ReservationMapperを使えるようにする
+    private final ReservationMapper reservationMapper;
+
+    // コンストラクタ
+    public ReservationController(ReservationMapper reservationMapper) {
+        this.reservationMapper = reservationMapper;
+    }
+
 
     // ① 予約画面表示
     // ③ 予約確認
@@ -50,20 +63,46 @@ public class ReservationController {
             @RequestParam("time") String time,
             @RequestParam("number") Integer number) {
 
-        // ここで予約登録処理を行う
+        // 予約情報を作成
+        Reservations reservation = new Reservations();
 
-        // のちにDBから番号を取るから今は仮の予約番号　あとで消す
-        Long reservationId = 1L;
+        // 会員ID
+        // ※現在はテスト用に1を設定
+        reservation.setMember_id(1);
 
+        // 予約日時
+        reservation.setReservation_date(
+                LocalDateTime.parse(date + "T" + time)
+        );
+
+        // 予約状況
+        reservation.setStatus("予約済み");
+
+        // 登録時間
+        reservation.setCreated_at(LocalDateTime.now());
+
+        // 店舗ID
+        reservation.setStore_id(shopId.intValue());
+
+
+        // DBに予約情報を登録
+        reservationMapper.insertReservation(reservation);
+
+
+        // DB登録後、自動採番された予約IDを取得
+        Long reservationId = (long) reservation.getId();
+
+
+        // 予約確認画面へ
         return "redirect:/reservations/" + reservationId;
     }
-    
- // ④ 予約履歴一覧表示
+
+
+    // ④ 予約履歴一覧表示
     @GetMapping("/reservations/history")
     public String showHistory(Model model) {
 
-        // 仮の予約履歴データ
-        // DB連携する場合は後でRepositoryから取得する
+        // 現在はまだDBから取得していない
 
         return "reservations/history";
     }
