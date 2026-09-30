@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class Stores {
 
 	//ID
-	private int id;
+	private int id;//店舗のID
 	
 	//(店の)名前
 	private String name;

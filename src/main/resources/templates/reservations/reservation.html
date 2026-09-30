@@ -1,0 +1,25 @@
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>予約確認</title>
+</head>
+
+<body>
+
+    <h1>予約確認</h1>
+
+    <p>店舗の予約が完了しました。</p>
+
+    <div>
+        <p>
+            予約番号：
+            <span th:text="${reservationId}"></span>
+        </p>
+    </div>
+
+</body>
+
+</html>
