@@ -8,7 +8,6 @@ public class FujichakuProjectApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(FujichakuProjectApplication.class, args);
-	gfdfnfd
 	}
 
 }
