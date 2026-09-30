@@ -15,5 +15,4 @@ public class Members {
     private String password;
     private int point;
     private boolean is_deleted;
-
 } 

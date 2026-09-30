@@ -8,3 +8,4 @@ dtd/mybatis-3-mapper.dtd">
 <select id="selectOneReview" resultType="com.example.demo.entity.Reviews">
   select * from reviews where store_id = #{storeId} order by id desc limit 1
 </select>
+</mapper>

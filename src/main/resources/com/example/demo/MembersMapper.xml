@@ -7,4 +7,5 @@ dtd/mybatis-3-mapper.dtd">
 <select id="selectId" resultType="com.example.demo.entity.Stores">
     select id from members
 </select>
+
 </mapper>

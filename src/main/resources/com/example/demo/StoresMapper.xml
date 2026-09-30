@@ -20,4 +20,5 @@ dtd/mybatis-3-mapper.dtd">
     select id,name,mail,password,representative,is_deleted,address,description,picture_URL from stores where name = #{name}
 </select>
 
+
 </mapper>

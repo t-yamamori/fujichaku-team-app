@@ -6,4 +6,5 @@ public interface ReviewsMapper {
 	
 	List<ReviewsMapper> selectAllReviews(Integer storeId);
 	ReviewsMapper selectOneReview(Integer storeId);
+
 }

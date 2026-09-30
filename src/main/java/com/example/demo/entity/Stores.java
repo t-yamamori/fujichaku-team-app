@@ -35,5 +35,4 @@ public class Stores {
 	
 	//画像の場所
 	private String picture_URL;
-	
 }

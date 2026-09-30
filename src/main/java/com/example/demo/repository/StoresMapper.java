@@ -17,4 +17,5 @@ public interface StoresMapper {
      
      //店舗を名前で検索して詳細表示
      Stores selectDetailByName(String name);
+
 }

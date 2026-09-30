@@ -55,17 +55,17 @@ public class ShopController {
 		Stores st = storesMapper.selectDetailByName(name);
 		
 		//★★★★★試しに置いているloginIdなので完成までに削除すること★★★★★
-		int loginId = 123;
+		Integer loginId = 123;
 		
 		// Membersテーブルから全員のIDを取得
 		List<Integer> memberIds = membersMapper.selectAllIds();
 
 		List<ReviewsMapper> rv = new ArrayList<>();
 		if (loginId != null && memberIds.contains(loginId)) {
-			// loginId が Members のIDの中にある → 口コミ全件
+			// loginIdがMembersのIDの中にある→口コミ全件を表示する
 			rv = reviewsMapper.selectAllReviews(st.getId());
 		} else {
-			// ない（または null）→ 口コミ1件
+			// loginIdがMembersのIDの中にない→口コミ1件のみ表示する
 			ReviewsMapper one = reviewsMapper.selectOneReview(st.getId());
 			if (one != null) {
 				rv.add(one);
