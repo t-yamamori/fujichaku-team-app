@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.repository.ReviewMapper">
+
+    <insert id="addReview">
+        INSERT INTO review (shop_id, content)
+        VALUES (#{shopId}, #{content})
+    </insert>
+
+    <delete id="deleteReview">
+        DELETE FROM review
+        WHERE id = #{reviewId}
+        AND shop_id = #{shopId}
+    </delete>
+
+</mapper>
