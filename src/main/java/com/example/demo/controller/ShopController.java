@@ -43,10 +43,6 @@ public class ShopController {
 	public String searchShops() {
 		return "shops/search";
 	}
-<<<<<<< HEAD
-//>>>>>>> refs/heads/master
-=======
->>>>>>> branch 'master' of https://github.com/t-yamamori/fujichaku-team-app.git
 
 	//検索した店舗を表示  GET /shops/search?name=xxx
 	//検索キーワード(name)が付いているときだけこちらが呼ばれる
@@ -58,25 +54,7 @@ public class ShopController {
 		return "shops/search";
 	}
 
-<<<<<<< HEAD
-//<<<<<<< HEAD
-    // 検索した店舗を表示
-    @GetMapping("/search/{name}")
-    public String showSearchResults(
-            @PathVariable String name,
-            Model model) {
-=======
-	@GetMapping("/{name}")
-	public String showDetail(@PathVariable String name,Model model) {
-         
-		Stores st = storesMapper.selectDetailByName(name);
-		
-		  // 店舗が見つからなければ一覧画面へ戻す
-	    if (st == null) {
-	        return "redirect:/shops";
-	    }
-		
-=======
+	
 	//店舗詳細表示  GET /shops/{shopName}
 	@GetMapping("/{shopName}")
 	public String showDetail(@PathVariable("shopName") String shopName, Model model) {
@@ -88,26 +66,18 @@ public class ShopController {
 			return "redirect:/shops";
 		}
 
->>>>>>> branch 'master' of https://github.com/t-yamamori/fujichaku-team-app.git
-		//★★★★★試しに置いているloginIdなので完成までに削除すること★★★★★
+
 		Integer loginId = 123;
-<<<<<<< HEAD
+
 		
 		// Membersテーブルから全員のIDを取得
 		List<Integer> memberIds = membersMapper.selectAllIds();
-//>>>>>>> refs/heads/master
-=======
->>>>>>> branch 'master' of https://github.com/t-yamamori/fujichaku-team-app.git
-
-<<<<<<< HEAD
-//<<<<<<< HEAD
         List<Stores> st = storesMapper.selectByName(name);
-//=======
-=======
+
 		// loginIdが会員(Membersテーブル)に存在するか
 		boolean isMember = loginId != null && membersMapper.existsById(loginId);
 
->>>>>>> branch 'master' of https://github.com/t-yamamori/fujichaku-team-app.git
+
 		List<Reviews> rv = new ArrayList<>();
 		List<Reservations> rs = new ArrayList<>();
 
