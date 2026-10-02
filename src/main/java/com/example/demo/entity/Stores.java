@@ -25,7 +25,7 @@ public class Stores {
 	private String representative;
 	
 	//過去フラグ
-	private boolean is_deleted;
+	private Boolean isDeleted;
 	
 	//住所
 	private String address;
@@ -34,5 +34,5 @@ public class Stores {
 	private String description;
 	
 	//画像の場所
-	private String picture_URL;
+	private String pictureUrl;
 }

@@ -14,14 +14,14 @@ public class Reviews {
 	//口コミID
 	private int id;
 	
-	//メンバーID
+	//店舗ID
 	private int storeId;
 	
 	//メンバーID
-	private int member_id;
+	private int memberId;
 	
 	//コメント
-	private String commnet;
+	private String comment;
 	
 	//登録時間
 	private LocalDateTime createdAt;
