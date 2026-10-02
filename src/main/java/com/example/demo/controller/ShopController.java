@@ -14,6 +14,7 @@ import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Reviews;
 import com.example.demo.entity.Stores;
 import com.example.demo.mapper.MembersMapper;
+import com.example.demo.mapper.ReservationMapper;
 import com.example.demo.mapper.ReviewsMapper;
 import com.example.demo.mapper.StoresMapper;
 
@@ -130,5 +131,5 @@ public class ShopController {
 		model.addAttribute("isMember", isMember);
 		return "shops/detail";
 	}
-
+	
 }

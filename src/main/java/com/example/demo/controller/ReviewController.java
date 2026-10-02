@@ -42,14 +42,4 @@ public class ReviewController {
 
         return "redirect:/shops/" + shopId;
     }
-    
-    
-    //口コミ一覧表示
-    @
-    
-    
-    
-    
-    
-    
 }

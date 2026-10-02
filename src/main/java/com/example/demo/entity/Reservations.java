@@ -24,4 +24,5 @@ public class Reservations {
 
     // 店舗ID
     private int store_id;
+    
 }

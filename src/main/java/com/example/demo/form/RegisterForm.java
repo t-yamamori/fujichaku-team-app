@@ -26,5 +26,4 @@ public class RegisterForm {
     @Size(min = 8, message = "パスワードは8文字以上で入力してください。")
     private String password;
 
-
 }

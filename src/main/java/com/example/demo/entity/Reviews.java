@@ -28,4 +28,6 @@ public class Reviews {
 	
 	//評価
 	private int grade;
+	
+	
 }

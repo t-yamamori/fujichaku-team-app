@@ -25,4 +25,5 @@ public interface ReviewsMapper {
             @Param("id") Integer id
     );
 
+    
 }

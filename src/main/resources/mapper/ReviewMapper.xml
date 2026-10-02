@@ -24,4 +24,5 @@
         WHERE id = #{id}
     </delete>
 
+
 </mapper>
