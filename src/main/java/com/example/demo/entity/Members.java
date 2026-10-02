@@ -14,5 +14,5 @@ public class Members {
 	private String mail;
     private String password;
     private int point;
-    private Boolean isDeleted;
+    private boolean is_deleted;
 } 

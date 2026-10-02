@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.example.demo.entity.Reviews;
 import com.example.demo.entity.Stores;
 import com.example.demo.repository.MembersMapper;
 import com.example.demo.repository.ReviewsMapper;
@@ -36,7 +35,7 @@ public class ShopController {
 	}
 	
 	//店舗を検索
-	@GetMapping("/search")
+	@GetMapping("/search/{name}")
 	public String searchShops() {
 		return "shops/search";
 	}
@@ -55,24 +54,19 @@ public class ShopController {
          
 		Stores st = storesMapper.selectDetailByName(name);
 		
-		  // 店舗が見つからなければ一覧画面へ戻す
-	    if (st == null) {
-	        return "redirect:/shops";
-	    }
-		
 		//★★★★★試しに置いているloginIdなので完成までに削除すること★★★★★
 		Integer loginId = 123;
 		
 		// Membersテーブルから全員のIDを取得
 		List<Integer> memberIds = membersMapper.selectAllIds();
 
-		List<Reviews> rv = new ArrayList<>();
+		List<ReviewsMapper> rv = new ArrayList<>();
 		if (loginId != null && memberIds.contains(loginId)) {
 			// loginIdがMembersのIDの中にある→口コミ全件を表示する
 			rv = reviewsMapper.selectAllReviews(st.getId());
 		} else {
 			// loginIdがMembersのIDの中にない→口コミ1件のみ表示する
-			Reviews one = reviewsMapper.selectOneReview(st.getId());
+			ReviewsMapper one = reviewsMapper.selectOneReview(st.getId());
 			if (one != null) {
 				rv.add(one);
 			}
