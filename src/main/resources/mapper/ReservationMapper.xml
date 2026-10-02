@@ -6,13 +6,18 @@
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
-    <!-- 予約登録 -->
-    <insert id="insertReservation"
-            parameterType="com.example.demo.entity.Reservations"
-            useGeneratedKeys="true"
-            keyProperty="id">
 
-        INSERT INTO reservations
+    <!-- ================================= -->
+    <!-- 予約登録 -->
+    <!-- ================================= -->
+
+    <insert
+        id="insertReservation"
+        parameterType="com.example.demo.entity.Reservations"
+        useGeneratedKeys="true"
+        keyProperty="id">
+
+        INSERT INTO Reservations
         (
             member_id,
             reservation_date,
@@ -20,6 +25,7 @@
             created_at,
             store_id
         )
+
         VALUES
         (
             #{member_id},
@@ -32,9 +38,14 @@
     </insert>
 
 
-    <!-- 予約番号から取得 -->
-    <select id="findById"
-            resultType="com.example.demo.entity.Reservations">
+    <!-- ================================= -->
+    <!-- 予約番号から予約取得 -->
+    <!-- ================================= -->
+
+    <select
+        id="findById"
+        parameterType="int"
+        resultType="com.example.demo.entity.Reservations">
 
         SELECT
             id,
@@ -43,27 +54,44 @@
             status,
             created_at,
             store_id
-        FROM reservations
+
+        FROM Reservations
+
         WHERE id = #{reservationId}
 
     </select>
 
 
-    <!-- 予約履歴 -->
-    <select id="findByMemberId"
-            resultType="com.example.demo.entity.Reservations">
+    <!-- ================================= -->
+    <!-- 店舗詳細画面用：ログイン会員のこの店舗への今後の予約を取得 -->
+    <!-- Reservations と Stores を JOIN して取得する -->
+    <!-- ================================= -->
+
+    <select
+        id="selectByStoreIdAndMemberId"
+        resultType="com.example.demo.entity.Reservations">
 
         SELECT
-            id,
-            member_id,
-            reservation_date,
-            status,
-            created_at,
-            store_id
-        FROM reservations
-        WHERE member_id = #{memberId}
-        ORDER BY reservation_date DESC
+            r.id,
+            r.member_id,
+            r.reservation_date,
+            r.status,
+            r.created_at,
+            r.store_id
+
+        FROM Reservations r
+
+        INNER JOIN Stores s
+            ON r.store_id = s.id
+
+        WHERE s.id = #{storeId}
+          AND r.member_id = #{memberId}
+          AND s.is_deleted IS NOT TRUE
+          AND r.reservation_date &gt;= CURRENT_TIMESTAMP
+
+        ORDER BY r.reservation_date
 
     </select>
+
 
 </mapper>

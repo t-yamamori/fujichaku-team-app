@@ -1,41 +1,258 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
+
     <meta charset="UTF-8">
+
     <title>予約画面</title>
+
+    <style>
+
+        body {
+            font-family: sans-serif;
+        }
+
+        .reservation-container {
+            display: flex;
+            gap: 50px;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        .shop-info {
+            width: 450px;
+        }
+
+        .shop-image {
+            width: 400px;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .reservation-form {
+            width: 400px;
+        }
+
+        .time-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .time-table label {
+            border: 1px solid #aaa;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .time-table input {
+            margin-right: 5px;
+        }
+
+        .submit-button {
+            margin-top: 25px;
+            padding: 12px 30px;
+            cursor: pointer;
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-    <h1>予約画面</h1>
+<h1>予約画面</h1>
 
-    <p>ご予約ありがとうございます。</p>
 
-    <form method="post">
+<div class="reservation-container">
 
-        <div>
-            <label for="date">予約日：</label>
-            <input type="date" id="date" name="date">
-        </div>
 
-        <br>
+    <!-- ================================= -->
+    <!-- 左側：店舗情報 -->
+    <!-- ================================= -->
 
-        <div>
-            <label for="time">予約時間：</label>
-            <input type="time" id="time" name="time">
-        </div>
+    <div class="shop-info">
 
-        <br>
+        <h2 th:text="${store.name}">
+            店舗名
+        </h2>
 
-        <div>
-            <label for="number">人数：</label>
-            <input type="number" id="number" name="number" min="1">
-        </div>
 
-        <br>
+        <img
+            class="shop-image"
+            th:src="${store.picture_URL}"
+            alt="店舗画像">
 
-        <button type="submit">予約する</button>
 
-    </form>
+        <h3>店舗説明</h3>
+
+        <p th:text="${store.description}">
+            店舗説明
+        </p>
+
+
+        <h3>住所</h3>
+
+        <p th:text="${store.address}">
+            店舗住所
+        </p>
+
+    </div>
+
+
+
+    <!-- ================================= -->
+    <!-- 右側：予約入力 -->
+    <!-- ================================= -->
+
+    <div class="reservation-form">
+
+        <h2>予約内容</h2>
+
+
+        <form
+            th:action="@{/shops/{shopId}/reservations(shopId=${store.id})}"
+            method="post">
+
+
+            <!-- 予約日 -->
+
+            <div>
+
+                <label for="date">
+                    予約日
+                </label>
+
+                <br>
+
+                <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    required>
+
+            </div>
+
+
+            <br>
+
+
+            <!-- 予約時間 -->
+
+            <div>
+
+                <h3>予約時間</h3>
+
+
+                <div class="time-table">
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="10:00"
+                            required>
+                        10:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="11:00">
+                        11:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="12:00">
+                        12:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="13:00">
+                        13:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="14:00">
+                        14:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="15:00">
+                        15:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="16:00">
+                        16:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="17:00">
+                        17:00
+                    </label>
+
+
+                    <label>
+                        <input
+                            type="radio"
+                            name="time"
+                            value="18:00">
+                        18:00
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- 送信 -->
+
+            <button
+                type="submit"
+                class="submit-button">
+
+                予約を確定
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</div>
 
 </body>
+
 </html>

@@ -1,24 +1,94 @@
-```html
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+
     <meta charset="UTF-8">
+
     <title>予約確認</title>
+
 </head>
 
 <body>
 
-    <h1>予約確認</h1>
+<h1>予約完了</h1>
 
-    <p>店舗の予約が完了しました。</p>
 
-    <div>
-        <p>
-            予約番号：
-            <span th:text="${reservationId}"></span>
-        </p>
-    </div>
+<p>
+    ご予約ありがとうございます。
+</p>
+
+
+<hr>
+
+
+<!-- 店舗情報 -->
+
+<h2>店舗情報</h2>
+
+<p>
+    店舗名：
+    <span th:text="${store.name}">
+        店舗名
+    </span>
+</p>
+
+
+<p>
+    住所：
+    <span th:text="${store.address}">
+        住所
+    </span>
+</p>
+
+
+<hr>
+
+
+<!-- 予約情報 -->
+
+<h2>予約内容</h2>
+
+
+<p>
+    <strong>予約番号：</strong>
+
+    <span th:text="${reservation.id}">
+        予約番号
+    </span>
+</p>
+
+
+<p>
+    <strong>予約日時：</strong>
+
+    <span th:text="${reservation.reservation_date}">
+        予約日時
+    </span>
+</p>
+
+
+<p>
+    <strong>予約状況：</strong>
+
+    <span th:text="${reservation.status}">
+        予約状況
+    </span>
+</p>
+
+
+<hr>
+
+
+<p>
+    予約が正常に登録されました。
+</p>
+
+
+<a href="/shops">
+    店舗一覧へ戻る
+</a>
+
 
 </body>
 
