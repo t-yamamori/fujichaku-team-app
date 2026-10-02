@@ -22,11 +22,20 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/shops")
 public class ShopController {
 
-	//フィールド
-	private final StoresMapper storesMapper;
-	private final MembersMapper membersMapper;
-	private final ReviewsMapper reviewsMapper;
+    // フィールド
+    private final StoresMapper storesMapper;
+    private final MembersMapper membersMapper;
+    private final ReviewsMapper reviewsMapper;
 
+<<<<<<< HEAD
+    // 店舗一覧表示
+    @GetMapping("")
+    public String showShops(Model model) {
+        List<Stores> st = storesMapper.selectList();
+        model.addAttribute("stores", st);
+        return "shops";
+    }
+=======
 	//店舗一覧表示
 	@GetMapping("")
 	public String showShops(Model model) {
@@ -40,16 +49,21 @@ public class ShopController {
 	public String searchShops() {
 		return "shops/search";
 	}
+>>>>>>> refs/heads/master
 
-	//検索した店舗を表示
-	@GetMapping("/search/{name}")
-	public String showSearchResults(@PathVariable String name,Model model) {
-		List<Stores> st = storesMapper.selectByName(name);
-		model.addAttribute("stores",st);
-		model.addAttribute("name", name);
-		return "shops/search";
-	}
+    // 店舗を検索する画面
+    @GetMapping("/search")
+    public String searchShops() {
+        return "shops/search";
+    }
 
+<<<<<<< HEAD
+    // 検索した店舗を表示
+    @GetMapping("/search/{name}")
+    public String showSearchResults(
+            @PathVariable String name,
+            Model model) {
+=======
 	@GetMapping("/{name}")
 	public String showDetail(@PathVariable String name,Model model) {
          
@@ -65,7 +79,11 @@ public class ShopController {
 		
 		// Membersテーブルから全員のIDを取得
 		List<Integer> memberIds = membersMapper.selectAllIds();
+>>>>>>> refs/heads/master
 
+<<<<<<< HEAD
+        List<Stores> st = storesMapper.selectByName(name);
+=======
 		List<Reviews> rv = new ArrayList<>();
 		if (loginId != null && memberIds.contains(loginId)) {
 			// loginIdがMembersのIDの中にある→口コミ全件を表示する
@@ -77,10 +95,50 @@ public class ShopController {
 				rv.add(one);
 			}
 		}
+>>>>>>> refs/heads/master
 
-		model.addAttribute("stores", st);
-		model.addAttribute("reviews", rv);
-		return "shops/detail";
-	}
+        model.addAttribute("stores", st);
+        model.addAttribute("name", name);
 
+        return "shops/search";
+    }
+
+    // 店舗詳細
+    @GetMapping("/{name}")
+    public String showDetail(
+            @PathVariable String name,
+            Model model) {
+
+        Stores st = storesMapper.selectDetailByName(name);
+
+        // ★★★★★試しに置いているloginIdなので完成までに削除すること★★★★★
+        Integer loginId = 123;
+
+        // Membersテーブルから全員のIDを取得
+        List<Integer> memberIds = membersMapper.selectAllIds();
+
+        List<ReviewsMapper> rv = new ArrayList<>();
+
+        if (loginId != null && memberIds.contains(loginId)) {
+
+            // loginIdがMembersのIDの中にある
+            // →口コミ全件を表示する
+            rv = reviewsMapper.selectAllReviews(st.getId());
+
+        } else {
+
+            // loginIdがMembersのIDの中にない
+            // →口コミ1件のみ表示する
+            ReviewsMapper one = reviewsMapper.selectOneReview(st.getId());
+
+            if (one != null) {
+                rv.add(one);
+            }
+        }
+
+        model.addAttribute("stores", st);
+        model.addAttribute("reviews", rv);
+
+        return "shops/detail";
+    }
 }

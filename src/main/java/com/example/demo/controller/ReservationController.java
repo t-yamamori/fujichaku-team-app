@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,99 +10,171 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.entity.Reservations;
+import com.example.demo.entity.Stores;
 import com.example.demo.mapper.ReservationMapper;
+import com.example.demo.mapper.StoresMapper;
 
 @Controller
 public class ReservationController {
 
-    // ReservationMapperを使えるようにする
     private final ReservationMapper reservationMapper;
 
-    // コンストラクタ
-    public ReservationController(ReservationMapper reservationMapper) {
+    private final StoresMapper storesMapper;
+
+
+    public ReservationController(
+            ReservationMapper reservationMapper,
+            StoresMapper storesMapper) {
+
         this.reservationMapper = reservationMapper;
+        this.storesMapper = storesMapper;
     }
 
 
-    // ① 予約画面表示
-    // ③ 予約確認
-    @GetMapping({
-        "/shops/{shopId}/reservations/new",
-        "/reservations/{reservationId}"
-    })
+    /*
+     * =========================================
+     * ① 予約画面表示
+     *
+     * GET
+     * /shops/{shopId}/reservations/new
+     * =========================================
+     */
+
+    @GetMapping("/shops/{shopId}/reservations/new")
     public String showReservation(
-            @PathVariable Map<String, String> pathVariables,
+            @PathVariable("shopId") int shopId,
             Model model) {
 
-        // 予約画面
-        if (pathVariables.containsKey("shopId")) {
 
-            Long shopId = Long.valueOf(pathVariables.get("shopId"));
+        // 店舗IDから店舗情報を取得
+        Stores store = storesMapper.selectById(shopId);
 
-            model.addAttribute("shopId", shopId);
 
-            return "reservations/newreserve";
+        // 店舗が存在しない場合
+        if (store == null) {
+
+            return "redirect:/shops";
         }
 
-        // 予約確認画面
-        Long reservationId =
-                Long.valueOf(pathVariables.get("reservationId"));
 
-        model.addAttribute("reservationId", reservationId);
+        // HTMLへ店舗情報を渡す
+        model.addAttribute("store", store);
 
-        return "reservations/reservation";
+
+        // 予約画面
+        return "reservations/newreserve";
     }
 
 
-    // ② 店舗予約する
+
+    /*
+     * =========================================
+     * ② 予約登録
+     *
+     * POST
+     * /shops/{shopId}/reservations
+     * =========================================
+     */
+
     @PostMapping("/shops/{shopId}/reservations")
     public String reserve(
-            @PathVariable Long shopId,
+            @PathVariable("shopId") int shopId,
             @RequestParam("date") String date,
-            @RequestParam("time") String time,
-            @RequestParam("number") Integer number) {
+            @RequestParam("time") String time) {
+
 
         // 予約情報を作成
         Reservations reservation = new Reservations();
 
-        // 会員ID
-        // ※現在はテスト用に1を設定
+
+        /*
+         * 現在はログイン機能と接続していないため
+         * テスト用として会員ID「1」を使用
+         */
         reservation.setMember_id(1);
 
-        // 予約日時
-        reservation.setReservation_date(
-                LocalDateTime.parse(date + "T" + time)
-        );
-
-        // 予約状況
-        reservation.setStatus("予約済み");
-
-        // 登録時間
-        reservation.setCreated_at(LocalDateTime.now());
 
         // 店舗ID
-        reservation.setStore_id(shopId.intValue());
+        reservation.setStore_id(shopId);
 
 
-        // DBに予約情報を登録
+        // 予約日時
+        LocalDateTime reservationDate =
+                LocalDateTime.parse(date + "T" + time);
+
+        reservation.setReservation_date(reservationDate);
+
+
+        // 予約状態
+        reservation.setStatus("予約確定");
+
+
+        // 登録日時
+        reservation.setCreated_at(LocalDateTime.now());
+
+
+        // DBへ登録
         reservationMapper.insertReservation(reservation);
 
 
-        // DB登録後、自動採番された予約IDを取得
-        Long reservationId = (long) reservation.getId();
+        /*
+         * DB登録後に自動採番された
+         * 予約番号を使って予約確認画面へ移動
+         */
 
-
-        // 予約確認画面へ
-        return "redirect:/reservations/" + reservationId;
+        return "redirect:/reservations/" + reservation.getId();
     }
 
 
-    // ④ 予約履歴一覧表示
-    @GetMapping("/reservations/history")
-    public String showHistory(Model model) {
 
-        // 現在はまだDBから取得していない
+    /*
+     * =========================================
+     * ③ 予約確認
+     *
+     * GET
+     * /reservations/{reservationId}
+     * =========================================
+     */
 
-        return "reservations/history";
+    @GetMapping("/reservations/{reservationId}")
+    public String showReservation(
+            @PathVariable("reservationId") int reservationId,
+            Model model) {
+
+
+        // 予約番号から予約情報取得
+        Reservations reservation =
+                reservationMapper.findById(reservationId);
+
+
+        // 予約が存在しない場合
+        if (reservation == null) {
+
+            return "redirect:/shops";
+        }
+
+
+        // 予約に紐づく店舗を取得
+        Stores store =
+                storesMapper.selectById(
+                        reservation.getStore_id()
+                );
+
+
+        // HTMLへ渡す
+        model.addAttribute(
+                "reservation",
+                reservation
+        );
+
+        model.addAttribute(
+                "store",
+                store
+        );
+
+
+        // 予約確認画面
+        return "reservations/reservation";
     }
+
 }

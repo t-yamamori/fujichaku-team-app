@@ -1,4 +1,4 @@
-package com.example.demo.repository;
+package com.example.demo.mapper;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface MembersMapper {
-   
-	List<Integer> selectAllIds();
+
+    List<Integer> selectAllIds();
 
 }

@@ -4,7 +4,7 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.repository.ReviewMapper">
+<mapper namespace="com.example.demo.mapper.ReviewMapper">
 
     <insert id="addReview">
         INSERT INTO review (shop_id, content)

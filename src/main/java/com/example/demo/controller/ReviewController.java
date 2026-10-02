@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.demo.repository.ReviewMapper;
+import com.example.demo.mapper.ReviewMapper;
 
 import lombok.RequiredArgsConstructor;
 
