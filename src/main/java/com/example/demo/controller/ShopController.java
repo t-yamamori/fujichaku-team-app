@@ -49,7 +49,7 @@ public class ShopController {
 	public String searchShops() {
 		return "shops/search";
 	}
->>>>>>> refs/heads/master
+//>>>>>>> refs/heads/master
 
     // 店舗を検索する画面
     @GetMapping("/search")
@@ -57,7 +57,7 @@ public class ShopController {
         return "shops/search";
     }
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
     // 検索した店舗を表示
     @GetMapping("/search/{name}")
     public String showSearchResults(
@@ -79,11 +79,11 @@ public class ShopController {
 		
 		// Membersテーブルから全員のIDを取得
 		List<Integer> memberIds = membersMapper.selectAllIds();
->>>>>>> refs/heads/master
+//>>>>>>> refs/heads/master
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
         List<Stores> st = storesMapper.selectByName(name);
-=======
+//=======
 		List<Reviews> rv = new ArrayList<>();
 		if (loginId != null && memberIds.contains(loginId)) {
 			// loginIdがMembersのIDの中にある→口コミ全件を表示する

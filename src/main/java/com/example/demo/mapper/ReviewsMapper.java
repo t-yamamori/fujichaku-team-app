@@ -10,6 +10,7 @@ import com.example.demo.entity.Reviews;
 public interface ReviewsMapper {
 	
 	List<Reviews> selectAllReviews(Integer storeId);
+	
 	Reviews selectOneReview(Integer storeId);
 
 }

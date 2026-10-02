@@ -1,7 +1,11 @@
 package com.example.demo.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import com.example.demo.entity.Reviews;
 
 @Mapper
 public interface ReviewMapper {
@@ -17,4 +21,7 @@ public interface ReviewMapper {
             @Param("reviewId") Integer reviewId,
             @Param("shopId") Integer shopId
     );
+    
+    List<Reviews> selectAllReviews(Integer storeId);
+	Reviews selectOneReview(Integer storeId);
 }
