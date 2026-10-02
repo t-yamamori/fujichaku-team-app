@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.mapper.ReviewMapper;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/shops")
 public class ReviewController {
 
     private final ReviewMapper reviewMapper;
@@ -18,7 +20,7 @@ public class ReviewController {
     /**
      * 口コミ追加
      */
-    @PostMapping("/shops/{shopId}/reviews/new")
+    @PostMapping("/{shopId}/reviews/new")
     public String addReview(
             @PathVariable Integer shopId,
             @RequestParam String content) {
@@ -31,7 +33,7 @@ public class ReviewController {
     /**
      * 口コミ削除
      */
-    @PostMapping("/shops/{shopId}/reviews/delete")
+    @PostMapping("/{shopId}/reviews/delete")
     public String deleteReview(
             @PathVariable Integer shopId,
             @RequestParam Integer reviewId) {
@@ -40,6 +42,4 @@ public class ReviewController {
 
         return "redirect:/shops/" + shopId;
     }
-    
 }
-

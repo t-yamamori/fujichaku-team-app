@@ -11,6 +11,7 @@ import com.example.demo.entity.Reviews;
 public interface ReviewsMapper {
 	
 	List<Reviews> selectAllReviews(Integer storeId);
+	
 	Reviews selectOneReview(Integer storeId);
 	
 	   // 口コミ追加
