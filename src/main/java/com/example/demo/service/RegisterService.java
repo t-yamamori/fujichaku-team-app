@@ -5,28 +5,28 @@ import java.time.LocalDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.entity.Member;
+import com.example.demo.entity.Members;
 import com.example.demo.form.RegisterForm;
-import com.example.demo.mapper.MemberMapper;
+import com.example.demo.mapper.MembersMapper;
 
 @Service
 public class RegisterService {
 
-    private final MemberMapper memberMapper;
+    private final MembersMapper membersMapper;
     private final PasswordEncoder passwordEncoder;
 
     public RegisterService(
-            MemberMapper memberMapper,
+            MembersMapper memberMapper,
             PasswordEncoder passwordEncoder) {
 
-        this.memberMapper = memberMapper;
+        this.membersMapper = memberMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
     // 会員新規登録
     public void register(RegisterForm form) {
 
-        Member member = new Member();
+        Members member = new Members();
 
         member.setName(form.getName());
 
@@ -41,6 +41,8 @@ public class RegisterService {
                 passwordEncoder.encode(form.getPassword())
         );
 
-        memberMapper.insert(member);
+        membersMapper.insert(member);
     }
+    
+    
 }

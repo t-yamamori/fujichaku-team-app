@@ -20,4 +20,6 @@ public interface StoresMapper {
 
     // 店舗IDから取得
     Stores selectById(int id);
+    
+    
 }

@@ -176,5 +176,4 @@ public class ReservationController {
         // 予約確認画面
         return "reservations/reservation";
     }
-
 }
