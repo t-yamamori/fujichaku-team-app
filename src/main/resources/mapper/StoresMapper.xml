@@ -1,0 +1,49 @@
+per · XML
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.StoresMapper">
+ 
+<!-- カラム名とEntity(Stores)のフィールド名の対応 -->
+<resultMap id="storesMap" type="com.example.demo.entity.Stores">
+    <id     property="id"             column="id"/>
+    <result property="name"           column="name"/>
+    <result property="mail"           column="mail"/>
+    <result property="representative" column="representative"/>
+    <result property="isDeleted"      column="is_deleted"/>
+    <result property="address"        column="address"/>
+    <result property="description"    column="description"/>
+    <result property="pictureUrl"     column="picture_url"/>
+</resultMap>
+ 
+<!-- 画面表示用のカラム（パスワードは画面に不要なので取得しない） -->
+<sql id="storeColumns">
+    id, name, mail, representative, is_deleted, address, description, picture_url
+</sql>
+ 
+<!-- 店舗一覧表示（過去フラグが立っている店舗は除く） -->
+<select id="selectList" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where is_deleted is not true
+     order by id
+</select>
+ 
+<!-- 店舗を名前で検索（部分一致） -->
+<select id="selectByName" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where name like '%' || #{name} || '%'
+       and is_deleted is not true
+     order by id
+</select>
+ 
+<!-- 店舗を名前で検索して詳細を表示（完全一致） -->
+<select id="selectDetailByName" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where name = #{name}
+       and is_deleted is not true
+     limit 1
+</select>
+ 
+</mapper>
