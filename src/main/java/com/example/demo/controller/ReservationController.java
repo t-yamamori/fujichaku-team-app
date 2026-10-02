@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Stores;
 import com.example.demo.mapper.ReservationMapper;
-import com.example.demo.repository.StoresMapper;
+import com.example.demo.mapper.StoresMapper;
 
 @Controller
 public class ReservationController {

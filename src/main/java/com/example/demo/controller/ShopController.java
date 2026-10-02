@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.demo.entity.Reviews;
 import com.example.demo.entity.Stores;
 import com.example.demo.repository.MembersMapper;
 import com.example.demo.repository.ReviewsMapper;
@@ -26,6 +27,7 @@ public class ShopController {
     private final MembersMapper membersMapper;
     private final ReviewsMapper reviewsMapper;
 
+<<<<<<< HEAD
     // 店舗一覧表示
     @GetMapping("")
     public String showShops(Model model) {
@@ -33,6 +35,21 @@ public class ShopController {
         model.addAttribute("stores", st);
         return "shops";
     }
+=======
+	//店舗一覧表示
+	@GetMapping("")
+	public String showShops(Model model) {
+		List<Stores> st = storesMapper.selectList(); 
+		model.addAttribute("stores",st);
+		return "shops";
+	}
+	
+	//店舗を検索
+	@GetMapping("/search")
+	public String searchShops() {
+		return "shops/search";
+	}
+>>>>>>> refs/heads/master
 
     // 店舗を検索する画面
     @GetMapping("/search")
@@ -40,13 +57,45 @@ public class ShopController {
         return "shops/search";
     }
 
+<<<<<<< HEAD
     // 検索した店舗を表示
     @GetMapping("/search/{name}")
     public String showSearchResults(
             @PathVariable String name,
             Model model) {
+=======
+	@GetMapping("/{name}")
+	public String showDetail(@PathVariable String name,Model model) {
+         
+		Stores st = storesMapper.selectDetailByName(name);
+		
+		  // 店舗が見つからなければ一覧画面へ戻す
+	    if (st == null) {
+	        return "redirect:/shops";
+	    }
+		
+		//★★★★★試しに置いているloginIdなので完成までに削除すること★★★★★
+		Integer loginId = 123;
+		
+		// Membersテーブルから全員のIDを取得
+		List<Integer> memberIds = membersMapper.selectAllIds();
+>>>>>>> refs/heads/master
 
+<<<<<<< HEAD
         List<Stores> st = storesMapper.selectByName(name);
+=======
+		List<Reviews> rv = new ArrayList<>();
+		if (loginId != null && memberIds.contains(loginId)) {
+			// loginIdがMembersのIDの中にある→口コミ全件を表示する
+			rv = reviewsMapper.selectAllReviews(st.getId());
+		} else {
+			// loginIdがMembersのIDの中にない→口コミ1件のみ表示する
+			Reviews one = reviewsMapper.selectOneReview(st.getId());
+			if (one != null) {
+				rv.add(one);
+			}
+		}
+>>>>>>> refs/heads/master
 
         model.addAttribute("stores", st);
         model.addAttribute("name", name);

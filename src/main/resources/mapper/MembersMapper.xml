@@ -4,7 +4,7 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.demo.repository.MembersMapper">
+<mapper namespace="com.example.demo.mapper.MembersMapper">
 
     <!-- メンバーID一覧取得 -->
     <select id="selectAllIds" resultType="java.lang.Integer">
