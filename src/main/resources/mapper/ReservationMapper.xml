@@ -6,13 +6,18 @@
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
-    <!-- 予約登録 -->
-    <insert id="insertReservation"
-            parameterType="com.example.demo.entity.Reservations"
-            useGeneratedKeys="true"
-            keyProperty="id">
 
-        INSERT INTO reservations
+    <!-- ========================================= -->
+    <!-- 予約登録 -->
+    <!-- ========================================= -->
+
+    <insert
+        id="insertReservation"
+        parameterType="com.example.demo.entity.Reservations"
+        useGeneratedKeys="true"
+        keyProperty="id">
+
+        INSERT INTO Reservations
         (
             member_id,
             reservation_date,
@@ -32,9 +37,14 @@
     </insert>
 
 
-    <!-- 予約番号から取得 -->
-    <select id="findById"
-            resultType="com.example.demo.entity.Reservations">
+    <!-- ========================================= -->
+    <!-- 予約番号から予約情報を取得 -->
+    <!-- ========================================= -->
+
+    <select
+        id="findById"
+        parameterType="int"
+        resultType="com.example.demo.entity.Reservations">
 
         SELECT
             id,
@@ -43,27 +53,12 @@
             status,
             created_at,
             store_id
-        FROM reservations
+
+        FROM Reservations
+
         WHERE id = #{reservationId}
 
     </select>
 
-
-    <!-- 予約履歴 -->
-    <select id="findByMemberId"
-            resultType="com.example.demo.entity.Reservations">
-
-        SELECT
-            id,
-            member_id,
-            reservation_date,
-            status,
-            created_at,
-            store_id
-        FROM reservations
-        WHERE member_id = #{memberId}
-        ORDER BY reservation_date DESC
-
-    </select>
-
 </mapper>
+

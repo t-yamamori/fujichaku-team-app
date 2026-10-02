@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/
-dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.example.demo.mapper.MembersMapper">
 
- //店舗一覧表示
-<select id="selectId" resultType="com.example.demo.entity.Stores">
-    select id from members
-</select>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.repository.MembersMapper">
+
+    <!-- メンバーID一覧取得 -->
+    <select id="selectAllIds" resultType="java.lang.Integer">
+        SELECT id
+        FROM members
+    </select>
 
 </mapper>
