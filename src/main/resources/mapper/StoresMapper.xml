@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.StoresMapper">
+
+
+    <!-- 店舗一覧 -->
+    <select
+        id="selectList"
+        resultType="com.example.demo.entity.Stores">
+
+        SELECT
+            id,
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_URL
+
+        FROM Stores
+
+    </select>
+
+
+    <!-- 店舗名検索 -->
+    <select
+        id="selectByName"
+        parameterType="String"
+        resultType="com.example.demo.entity.Stores">
+
+        SELECT
+            id,
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_URL
+
+        FROM Stores
+
+        WHERE name LIKE CONCAT('%', #{name}, '%')
+
+    </select>
+
+
+    <!-- 店舗詳細 -->
+    <select
+        id="selectDetailByName"
+        parameterType="String"
+        resultType="com.example.demo.entity.Stores">
+
+        SELECT
+            id,
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_URL
+
+        FROM Stores
+
+        WHERE name = #{name}
+
+    </select>
+
+
+    <!-- ================================= -->
+    <!-- 店舗IDから取得 -->
+    <!-- ================================= -->
+
+    <select
+        id="selectById"
+        parameterType="int"
+        resultType="com.example.demo.entity.Stores">
+
+        SELECT
+            id,
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_URL
+
+        FROM Stores
+
+        WHERE id = #{id}
+
+    </select>
+
+
+</mapper>
