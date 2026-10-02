@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>店舗検索</title>
+    <link rel="stylesheet" th:href="@{/css/shops.css}">
+</head>
+<body>
+<div class="container">
+
+    <h1 class="page-title">店舗検索</h1>
+
+    <!-- 検索入力（左上） -->
+    <div class="top-bar">
+        <form class="search-form" th:action="@{/shops/search}" method="get">
+            <input type="text" name="name" th:value="${name}" placeholder="店舗名で検索" required>
+            <button type="submit" class="btn btn-primary">検索</button>
+        </form>
+        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
+    </div>
+
+    <!-- 検索結果があるときだけ表示（検索前は name が null） -->
+    <th:block th:if="${name != null}">
+
+        <p class="result-count">
+            「<span th:text="${name}">キーワード</span>」の検索結果：
+            <span th:text="${#lists.size(stores)}">0</span>件
+        </p>
+
+        <div class="result-layout">
+
+            <!-- 店舗検索結果（左） -->
+            <div>
+                <ul class="result-list shop-list" id="resultList" th:if="${!#lists.isEmpty(stores)}">
+                    <li class="shop-card" th:each="s : ${stores}" th:attr="data-name=${s.name}">
+                        <a th:href="@{/shops/{shopName}(shopName=${s.name})}">
+                            <img th:if="${s.pictureUrl != null}" th:src="${s.pictureUrl}" th:alt="${s.name}">
+                            <div th:unless="${s.pictureUrl != null}" class="no-image">No Image</div>
+                            <div class="body">
+                                <p class="name" th:text="${s.name}">店舗名</p>
+                                <p class="address" th:text="${s.address}">住所</p>
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+                <div class="empty" th:if="${#lists.isEmpty(stores)}">該当する店舗が見つかりませんでした。</div>
+            </div>
+
+            <!-- プルダウン（右）：検索結果の並び替え（画面内で並び替えるだけ） -->
+            <aside class="side-panel">
+                <label for="sortSelect">並び替え</label>
+                <select id="sortSelect">
+                    <option value="default">標準</option>
+                    <option value="asc">店舗名（昇順）</option>
+                    <option value="desc">店舗名（降順）</option>
+                </select>
+            </aside>
+
+        </div>
+    </th:block>
+
+</div>
+
+<script>
+    (function () {
+        const select = document.getElementById('sortSelect');
+        const list = document.getElementById('resultList');
+        if (!select || !list) return;
+
+        const original = Array.from(list.children);
+
+        select.addEventListener('change', function () {
+            let items = original.slice();
+            if (this.value === 'asc') {
+                items.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name, 'ja'));
+            } else if (this.value === 'desc') {
+                items.sort((a, b) => b.dataset.name.localeCompare(a.dataset.name, 'ja'));
+            }
+            items.forEach(li => list.appendChild(li));
+        });
+    })();
+</script>
+</body>
+</html>
