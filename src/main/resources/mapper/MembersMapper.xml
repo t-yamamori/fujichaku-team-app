@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.MembersMapper">
-
-    <!-- メンバーID一覧取得 -->
-    <select id="selectAllIds" resultType="java.lang.Integer">
-        SELECT id
-        FROM members
-    </select>
-
+ 
+<!-- 指定IDの会員が存在するか（退会済みは除く）
+     全会員のIDを取得してJava側で探すより、DBに1件だけ確認させる方が軽い -->
+<select id="existsById" resultType="boolean">
+    select exists (
+        select 1 from members
+         where id = #{id}
+           and is_deleted is not true
+    )
+</select>
+ 
 </mapper>

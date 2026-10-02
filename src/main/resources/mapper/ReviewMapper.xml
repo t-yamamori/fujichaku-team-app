@@ -6,15 +6,22 @@
 
 <mapper namespace="com.example.demo.mapper.ReviewMapper">
 
+<select id="selectAllReviews" resultType="com.example.demo.entity.Reviews">
+  select * from reviews where store_id = #{storeId} order by id desc
+</select>
+<select id="selectOneReview" resultType="com.example.demo.entity.Reviews">
+  select * from reviews where store_id = #{storeId} order by id desc limit 1
+</select>
+</mapper>
+
     <insert id="addReview">
-        INSERT INTO review (shop_id, content)
-        VALUES (#{shopId}, #{content})
+        INSERT INTO review (store_id, comment)
+        VALUES (#{store_Id}, #{comment})
     </insert>
 
     <delete id="deleteReview">
         DELETE FROM review
-        WHERE id = #{reviewId}
-        AND shop_id = #{shopId}
+        WHERE id = #{id}
     </delete>
 
 </mapper>
