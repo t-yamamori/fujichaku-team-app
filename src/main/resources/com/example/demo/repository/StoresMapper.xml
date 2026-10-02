@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.repository.StoresMapper">
+
+ <!--店舗一覧表示-->
+<select id="selectList" resultType="com.example.demo.entity.Stores">
+    select id,name,mail from stores
+</select>
+
+
+<!--店舗を名前で検索-->
+<select id="selectByName" resultType="com.example.demo.entity.Stores">
+    select id,name,mail,password,representative,is_deleted,address,description,picture_URL from stores where name like '%' || #{name} || '%'
+</select>
+
+
+<!--店舗を名前で検索して詳細を表示-->
+<select id="selectDetailByName" resultType="com.example.demo.entity.Stores">
+    select id,name,mail,password,representative,is_deleted,address,description,picture_URL from stores where name = #{name}
+</select>
+
+
+</mapper>
