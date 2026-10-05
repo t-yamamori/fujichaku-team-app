@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace はコントローラーが使う ReviewsMapper に合わせる -->
+<mapper namespace="com.example.demo.mapper.ReviewsMapper">
+
+    <!-- 取得カラム（スネークケース → Entityのキャメルケースに別名を付ける） -->
+    <sql id="reviewColumns">
+        id,
+        store_id   AS storeId,
+        member_id  AS memberId,
+        comment,
+        created_at AS createdAt,
+        grade
+    </sql>
+
+    <!-- 店舗の口コミ全件（新しい順） -->
+    <select id="selectAllReviews" resultType="com.example.demo.entity.Reviews">
+        SELECT <include refid="reviewColumns"/>
+          FROM reviews
+         WHERE store_id = #{storeId}
+         ORDER BY id DESC
+    </select>
+
+    <!-- 店舗の最新口コミ1件 -->
+    <select id="selectOneReview" resultType="com.example.demo.entity.Reviews">
+        SELECT <include refid="reviewColumns"/>
+          FROM reviews
+         WHERE store_id = #{storeId}
+         ORDER BY id DESC
+         LIMIT 1
+    </select>
+
+    <!-- 口コミ追加 -->
+    <insert id="addReview">
+        INSERT INTO reviews (store_id, member_id, comment, grade, created_at)
+        VALUES (#{storeId}, #{memberId}, #{comment}, #{grade}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!-- 口コミ削除 -->
+    <delete id="deleteReview">
+        DELETE FROM reviews
+         WHERE id = #{id}
+         AND member_id = #{memberId}
+    </delete>
+
+</mapper>

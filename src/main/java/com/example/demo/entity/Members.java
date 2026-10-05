@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,4 +17,5 @@ public class Members {
     private String password;
     private int point;
     private Boolean isDeleted;
+    private LocalDate birthDate;
 } 

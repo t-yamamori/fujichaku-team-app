@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Stores {
 
-	//ID
-	private int id;//店舗のID
+	//店舗ID
+	private int id;
 	
-	//(店の)名前
+	//店舗の名前
 	private String name;
 	
 	//メールアドレス

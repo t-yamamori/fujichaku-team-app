@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>口コミ一覧</title>
+    <style>
+        :root {
+            --text: #2b2b2b;
+            --sub: #6b6b6b;
+            --line: #dcdcdc;
+            --star: #e0a100;
+            --link: #1f5fa8;
+            --bg: #ffffff;
+        }
+ 
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+            line-height: 1.7;
+        }
+ 
+        main {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+ 
+        h1 {
+            font-size: 1.5rem;
+            margin: 0 0 4px;
+        }
+ 
+        .count {
+            color: var(--sub);
+            margin: 0 0 24px;
+        }
+ 
+        .review-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border-top: 1px solid var(--line);
+        }
+ 
+        .review {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--line);
+        }
+ 
+        .review-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 16px;
+            margin-bottom: 6px;
+        }
+ 
+        .stars {
+            color: var(--star);
+            letter-spacing: 2px;
+        }
+ 
+        .grade-number {
+            color: var(--sub);
+            font-size: 0.9rem;
+        }
+ 
+        .meta {
+            color: var(--sub);
+            font-size: 0.85rem;
+        }
+ 
+        .comment {
+            margin: 0;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+ 
+        .empty {
+            padding: 32px 0;
+            color: var(--sub);
+        }
+ 
+        .back {
+            display: inline-block;
+            margin-top: 32px;
+            color: var(--link);
+        }
+ 
+        a:focus-visible {
+            outline: 2px solid var(--link);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+<main>
+ 
+    <h1>口コミ一覧</h1>
+    <p class="count" th:text="${#lists.size(reviews)} + '件の口コミ'">0件の口コミ</p>
+ 
+    <!-- 口コミが1件もないとき -->
+    <div class="empty" th:if="${#lists.isEmpty(reviews)}">
+        <p>この店舗の口コミはまだありません。店舗詳細画面から投稿できます。</p>
+    </div>
+ 
+    <!-- 口コミ一覧（新しい順。並び順は ReviewsMapper.xml の ORDER BY で決まる） -->
+    <ul class="review-list" th:unless="${#lists.isEmpty(reviews)}">
+        <li class="review" th:each="review : ${reviews}">
+ 
+            <div class="review-head">
+                <!-- 評価（★の数で表示。grade が null の場合は表示しない） -->
+                <span th:if="${review.grade != null}">
+                    <span class="stars"
+                          th:text="${#strings.repeat('★', review.grade)} + ${#strings.repeat('☆', 5 - review.grade)}">★★★★☆</span>
+                    <span class="grade-number" th:text="${review.grade} + ' / 5'">4 / 5</span>
+                </span>
+ 
+                <!-- 投稿日時 -->
+                <span class="meta"
+                      th:if="${review.createdAt != null}"
+                      th:text="${#temporals.format(review.createdAt, 'yyyy/MM/dd HH:mm')}">2026/10/02 13:22</span>
+ 
+                <!-- 投稿者（今は会員IDを表示。名前を出すにはSQLでmembersとJOINが必要） -->
+                <span class="meta" th:text="'会員ID ' + ${review.memberId}">会員ID 1</span>
+            </div>
+ 
+            <!-- 口コミ本文（th:text なのでHTMLタグはそのまま文字として表示され安全） -->
+            <p class="comment" th:text="${review.comment}">口コミ本文がここに入ります。</p>
+ 
+        </li>
+    </ul>
+ 
+    <a class="back" th:href="@{/shops/{id}(id=${shopId})}">店舗詳細に戻る</a>
+ 
+</main>
+</body>
+</html>

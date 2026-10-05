@@ -7,10 +7,9 @@
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
 
-    <!-- ================================= -->
-    <!-- 予約登録 -->
-    <!-- ================================= -->
-
+    <!-- =====================================================
+         ① 予約登録
+         ===================================================== -->
     <insert
         id="insertReservation"
         parameterType="com.example.demo.entity.Reservations"
@@ -23,25 +22,25 @@
             reservation_date,
             status,
             created_at,
-            store_id
+            store_id,
+            number
         )
-
         VALUES
         (
             #{member_id},
             #{reservation_date},
             #{status},
             #{created_at},
-            #{store_id}
+            #{store_id},
+            #{number}
         )
 
     </insert>
 
 
-    <!-- ================================= -->
-    <!-- 予約番号から予約取得 -->
-    <!-- ================================= -->
-
+    <!-- =====================================================
+         ② 予約番号から予約を取得
+         ===================================================== -->
     <select
         id="findById"
         parameterType="int"
@@ -53,15 +52,37 @@
             reservation_date,
             status,
             created_at,
-            store_id
-
+            store_id,
+            number
         FROM Reservations
-
         WHERE id = #{reservationId}
 
     </select>
 
 
+<<<<<<< HEAD
+    <!-- =====================================================
+         ③ 会員IDから予約履歴を取得
+         ===================================================== -->
+    <select
+        id="findByMemberId"
+        parameterType="int"
+        resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            id,
+            member_id,
+            reservation_date,
+            status,
+            created_at,
+            store_id,
+            number
+        FROM Reservations
+        WHERE member_id = #{memberId}
+        ORDER BY reservation_date DESC
+
+    </select>
+=======
     <!-- ================================= -->
     <!-- 店舗詳細画面用：ログイン会員のこの店舗への今後の予約を取得 -->
     <!-- Reservations と Stores を JOIN して取得する -->
@@ -93,5 +114,6 @@
 
     </select>
 
+>>>>>>> refs/heads/master
 
 </mapper>

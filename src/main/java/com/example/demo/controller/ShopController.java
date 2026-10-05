@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +31,8 @@ public class ShopController {
 	private final StoresMapper storesMapper;
 	private final MembersMapper membersMapper;
 	private final ReviewsMapper reviewsMapper;
-	private final ReservationMapper reservationMapper;
+	
+	private final SqlSession sqlSession;
 
 	//店舗一覧表示  GET /shops
 	@GetMapping("")
@@ -54,7 +58,7 @@ public class ShopController {
 		return "shops/search";
 	}
 
-	
+
 	//店舗詳細表示  GET /shops/{shopName}
 	@GetMapping("/{shopName}")
 	public String showDetail(@PathVariable("shopName") String shopName, Model model) {
@@ -66,29 +70,37 @@ public class ShopController {
 			return "redirect:/shops";
 		}
 
-
+		// TODO: ログイン機能ができたらセッションから取得する
 		Integer loginId = 123;
-
-		
-		// Membersテーブルから全員のIDを取得
-		List<Integer> memberIds = membersMapper.selectAllIds();
-        List<Stores> st = storesMapper.selectByName(name);
 
 		// loginIdが会員(Membersテーブル)に存在するか
 		boolean isMember = loginId != null && membersMapper.existsById(loginId);
 
+		// 店舗IDは取得済みの店舗詳細(st)から使う
+		int storeId = st.getId();
 
 		List<Reviews> rv = new ArrayList<>();
 		List<Reservations> rs = new ArrayList<>();
 
 		if (isMember) {
 			// 会員 → 口コミ全件を表示する
-			rv = reviewsMapper.selectAllReviews(st.getId());
+
+			rv = reviewsMapper.selectAllReviews(storeId);
 			// 会員 → この店舗に対する自分の予約を取得する（reservations と stores をJOIN）
-			rs = reservationMapper.selectByStoreIdAndMemberId(st.getId(), loginId);
+			// ReservationMapper.java は変更せず、ReservationMapper.xml の
+			// selectByStoreIdAndMemberId を「namespace + id」で直接呼び出す
+			Map<String, Object> params = new HashMap<>();
+			params.put("storeId", storeId);   // XMLの #{storeId} に対応
+			params.put("memberId", loginId);  // XMLの #{memberId} に対応
+			rs = sqlSession.selectList(
+					"com.example.demo.mapper.ReservationMapper.selectByStoreIdAndMemberId",
+					params);
+
 		} else {
 			// 非会員 → 口コミ1件のみ表示する
-			Reviews one = reviewsMapper.selectOneReview(st.getId());
+
+			Reviews one = reviewsMapper.selectOneReview(storeId);
+
 			if (one != null) {
 				rv.add(one);
 			}
