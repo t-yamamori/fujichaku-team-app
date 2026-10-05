@@ -35,4 +35,7 @@ public class Stores {
 	
 	//画像の場所
 	private String pictureUrl;
+
+	//電話番号
+	private String phone;
 }
