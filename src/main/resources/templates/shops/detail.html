@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${store.name} + ' | 店舗詳細'">店舗詳細</title>
+    <link rel="stylesheet" th:href="@{/css/shops.css}">
+    <!-- 口コミ投稿・削除まわりで追加した要素用（shops.css に移してもOK） -->
+    <style>
+        .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; }
+        .flash-success { background: #e8f5e9; color: #1b5e20; }
+        .flash-error   { background: #fdecea; color: #b71c1c; }
+        .review .meta { display: flex; align-items: center; gap: 12px; }
+        .review .delete-form { margin-left: auto; }
+        .btn-small { padding: 4px 10px; font-size: 0.85em; }
+        .review-form { display: grid; gap: 10px; margin-top: 20px; }
+        .review-form textarea { width: 100%; min-height: 100px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1 class="page-title" th:text="${store.name}">店舗名</h1>
+
+    <!-- 口コミ投稿・削除の結果メッセージ（POST後のリダイレクトで受け取るフラッシュ属性） -->
+    <div class="flash flash-success" th:if="${message}" th:text="${message}">口コミを投稿しました。</div>
+    <div class="flash flash-error" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</div>
+
+    <!-- ① 店舗情報 -->
+    <section class="section">
+        <div class="shop-detail">
+            <div>
+                <img th:if="${store.pictureUrl != null}" th:src="${store.pictureUrl}" th:alt="${store.name}">
+                <div th:unless="${store.pictureUrl != null}" class="no-image">No Image</div>
+            </div>
+            <dl>
+                <dt>店舗名</dt> <dd th:text="${store.name}">店舗名</dd>
+                <dt>代表者</dt> <dd th:text="${store.representative}">代表者</dd>
+                <dt>住所</dt>   <dd th:text="${store.address}">住所</dd>
+                <dt>連絡先</dt> <dd th:text="${store.mail}">mail</dd>
+                <dt>説明</dt>   <dd th:text="${store.description}">説明</dd>
+            </dl>
+        </div>
+    </section>
+
+    <!-- ② 予約ボタン（ReservationController：GET /shops/{shopId}/reservations/new） -->
+    <div class="reserve-area">
+        <a class="btn btn-accent btn-block"
+           th:href="@{/shops/{shopId}/reservations/new(shopId=${store.id})}">この店舗を予約する</a>
+    </div>
+
+    <!-- ③ 口コミ -->
+    <section class="section">
+        <h2>口コミ</h2>
+
+        <div th:if="${#lists.isEmpty(reviews)}" class="note">まだ口コミはありません。</div>
+
+        <div class="review" th:each="r : ${reviews}">
+            <div class="meta">
+                <span class="stars"
+                      th:text="${#strings.repeat('★', r.grade) + #strings.repeat('☆', 5 - r.grade)}">★★★☆☆</span>
+                <span th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
+
+                <!-- 口コミ削除：自分の口コミにだけ表示（POST /shops/{shopId} action=delete） -->
+                <form class="delete-form" method="post"
+                      th:if="${isMember and r.memberId == loginId}"
+                      th:action="@{/shops/{shopId}(shopId=${store.id})}"
+                      onsubmit="return confirm('この口コミを削除しますか？');">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="reviewId" th:value="${r.id}">
+                    <button type="submit" class="btn btn-secondary btn-small">削除</button>
+                </form>
+            </div>
+            <p class="comment" th:text="${r.comment}">コメント</p>
+        </div>
+
+        <p class="note" th:unless="${isMember}">
+            ※会員の方はすべての口コミを見ることができます。
+        </p>
+
+        <!-- 口コミ追加：会員のみ表示（POST /shops/{shopId} action=add） -->
+        <form class="review-form" method="post"
+              th:if="${isMember}"
+              th:action="@{/shops/{shopId}(shopId=${store.id})}">
+            <input type="hidden" name="action" value="add">
+
+            <label for="grade">評価</label>
+            <select id="grade" name="grade" required>
+                <option value="" selected disabled>選択してください</option>
+                <option value="5">★★★★★（5）</option>
+                <option value="4">★★★★☆（4）</option>
+                <option value="3">★★★☆☆（3）</option>
+                <option value="2">★★☆☆☆（2）</option>
+                <option value="1">★☆☆☆☆（1）</option>
+            </select>
+
+            <label for="comment">口コミ</label>
+            <textarea id="comment" name="comment" maxlength="500" required
+                      placeholder="お店の感想を書いてください"></textarea>
+
+            <button type="submit" class="btn btn-primary">口コミを投稿する</button>
+        </form>
+    </section>
+
+    <!-- ④ 予約がある場合、予約日時を表示（会員限定） -->
+    <section class="section" th:if="${isMember}">
+        <h2>あなたの予約</h2>
+
+        <table class="reservation-table" th:if="${!#lists.isEmpty(reservations)}">
+            <thead>
+                <tr>
+                    <th>予約日時</th>
+                    <th>予約状況</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="rs : ${reservations}">
+                    <td th:text="${#temporals.format(rs.reservation_date, 'yyyy/MM/dd(E) HH:mm')}">2026/10/10 18:00</td>
+                    <td th:text="${rs.status}">予約済み</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
+    </section>
+
+    <a class="back-link" th:href="@{/shops}">← 店舗一覧へ戻る</a>
+
+</div>
+</body>
+</html>
+

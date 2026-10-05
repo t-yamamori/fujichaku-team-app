@@ -34,7 +34,7 @@
             <div>
                 <ul class="result-list shop-list" id="resultList" th:if="${!#lists.isEmpty(stores)}">
                     <li class="shop-card" th:each="s : ${stores}" th:attr="data-name=${s.name}">
-                        <a th:href="@{/shops/{shopName}(shopName=${s.name})}">
+                        <a th:href="@{/shops/{shopId}(shopId=${s.id})}">
                             <img th:if="${s.pictureUrl != null}" th:src="${s.pictureUrl}" th:alt="${s.name}">
                             <div th:unless="${s.pictureUrl != null}" class="no-image">No Image</div>
                             <div class="body">
@@ -80,6 +80,9 @@
             items.forEach(li => list.appendChild(li));
         });
     })();
+	
+	
 </script>
 </body>
 </html>
+
