@@ -9,10 +9,13 @@ import com.example.demo.entity.Members;
 
 @Mapper
 public interface MembersMapper {
-	
+	//  指定IDの会員が存在するか（退会済みは除く）
 	boolean existsById(int id);
 	
-	 // 会員一覧
+	// 会員を1件取得する（退会済みは除く）
+	Members selectById(@Param("id") int id);
+	
+	// 会員一覧
     List<Members> selectAll();
 
     // 新規登録
@@ -22,6 +25,6 @@ public interface MembersMapper {
     void update(Members member);
 
     // 会員削除
-    void delete(@Param("id") Long id);
+    void delete(@Param("id") int id);
 
 }

@@ -22,6 +22,14 @@
         WHERE is_deleted = false
         ORDER BY id
     </select>
+    
+     <!-- 会員情報１件表示 -->
+    <select id="findById" resultType="com.example.demo.entity.Members">
+	  SELECT id, name, mail, password, point, is_deleted, birth_date
+	  FROM members
+	  WHERE id = #{id}
+    	AND is_deleted = false
+    </select>
 
     <!-- 新規会員登録 -->
     <insert id="insert">
