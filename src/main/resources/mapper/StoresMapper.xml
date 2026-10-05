@@ -1,106 +1,56 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-
-<!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.StoresMapper">
 
+<!-- カラム名とEntity(Stores)のフィールド名の対応 -->
+<resultMap id="storesMap" type="com.example.demo.entity.Stores">
+    <id     property="id"             column="id"/>
+    <result property="name"           column="name"/>
+    <result property="mail"           column="mail"/>
+    <result property="representative" column="representative"/>
+    <result property="isDeleted"      column="is_deleted"/>
+    <result property="address"        column="address"/>
+    <result property="description"    column="description"/>
+    <result property="pictureUrl"     column="picture_url"/>
+</resultMap>
 
-    <!-- 店舗一覧 -->
-    <select
-        id="selectList"
-        resultType="com.example.demo.mapper.Stores">
+<!-- 画面表示用のカラム（パスワードは画面に不要なので取得しない） -->
+<sql id="storeColumns">
+    id, name, mail, representative, is_deleted, address, description, picture_url
+</sql>
 
-        SELECT
-            id,
-            name,
-            mail,
-            password,
-            representative,
-            is_deleted,
-            address,
-            description,
-            picture_URL
+<!-- 店舗一覧表示（過去フラグが立っている店舗は除く） -->
+<select id="selectList" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where is_deleted is not true
+     order by id
+</select>
 
-        FROM Stores
+<!-- 店舗を名前で検索（部分一致） -->
+<select id="selectByName" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where name like '%' || #{name} || '%'
+       and is_deleted is not true
+     order by id
+</select>
 
-    </select>
+<!-- 店舗を名前で検索して詳細を表示（完全一致） -->
+<select id="selectDetailByName" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where name = #{name}
+       and is_deleted is not true
+     limit 1
+</select>
 
-
-    <!-- 店舗名検索 -->
-    <select
-        id="selectByName"
-        parameterType="String"
-        resultType="com.example.demo.mapper.Stores">
-
-        SELECT
-            id,
-            name,
-            mail,
-            password,
-            representative,
-            is_deleted,
-            address,
-            description,
-            picture_URL
-
-        FROM Stores
-
-        WHERE name LIKE CONCAT('%', #{name}, '%')
-
-    </select>
-
-
-    <!-- 店舗詳細 -->
-    <select
-        id="selectDetailByName"
-        parameterType="String"
-        resultType="com.example.demo.mapper.Stores">
-
-        SELECT
-            id,
-            name,
-            mail,
-            password,
-            representative,
-            is_deleted,
-            address,
-            description,
-            picture_URL
-
-        FROM Stores
-
-        WHERE name = #{name}
-
-    </select>
-
-
-    <!-- ================================= -->
-    <!-- 店舗IDから取得 -->
-    <!-- ================================= -->
-
-    <select
-        id="selectById"
-        parameterType="int"
-        resultType="com.example.demo.mapper.Stores">
-
-        SELECT
-            id,
-            name,
-            mail,
-            password,
-            representative,
-            is_deleted,
-            address,
-            description,
-            picture_URL
-
-        FROM Stores
-
-        WHERE id = #{id}
-
-    </select>
-
+<!-- 店舗IDから取得（インターフェースに宣言済みだったので追加） -->
+<select id="selectById" resultMap="storesMap">
+    select <include refid="storeColumns"/>
+      from stores
+     where id = #{id}
+       and is_deleted is not true
+</select>
 
 </mapper>
