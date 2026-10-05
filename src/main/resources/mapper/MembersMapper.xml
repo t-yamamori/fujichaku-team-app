@@ -1,51 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 対応インターフェース：com.example.demo.mapper.MembersMapper -->
 <mapper namespace="com.example.demo.mapper.MembersMapper">
 
     <!-- 指定IDの会員が存在するか（退会済みは除く） -->
     <select id="existsById" resultType="boolean">
         SELECT EXISTS (
-            SELECT 1 FROM members
+            SELECT 1
+              FROM members
              WHERE id = #{id}
                AND is_deleted IS NOT TRUE
         )
     </select>
 
-    <!-- 会員一覧表示 -->
+    <!-- 会員一覧 -->
     <select id="selectAll" resultType="com.example.demo.entity.Members">
-        SELECT
-            id,
-            name,
-            birth_date AS birthDate,
-            mail
-        FROM members
-        WHERE is_deleted = false
-        ORDER BY id
+        SELECT id,
+               name,
+               birth_date AS birthDate,
+               mail
+          FROM members
+         WHERE is_deleted IS NOT TRUE
+         ORDER BY id
     </select>
 
-    <!-- 新規会員登録 -->
+    <!-- 新規登録 -->
     <insert id="insert">
-        INSERT INTO members
-            (name, birth_date, mail, password)
-        VALUES
-            (#{name}, #{birthDate}, #{mail}, #{password})
+        INSERT INTO members (name, birth_date, mail, password)
+        VALUES (#{name}, #{birthDate}, #{mail}, #{password})
     </insert>
 
-    <!-- 会員情報の更新 -->
+    <!-- 会員情報更新 -->
     <update id="update">
         UPDATE members
-        SET
-            name = #{name},
-            birth_date = #{birthDate},
-            mail = #{mail}
-        WHERE id = #{id}
+           SET name       = #{name},
+               birth_date = #{birthDate},
+               mail       = #{mail}
+         WHERE id = #{id}
     </update>
 
     <!-- 会員削除（論理削除） -->
     <update id="delete">
         UPDATE members
-        SET is_deleted = true
-        WHERE id = #{id}
+           SET is_deleted = true
+         WHERE id = #{id}
     </update>
 
 </mapper>

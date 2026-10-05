@@ -30,7 +30,7 @@
     <!-- 店舗一覧・表示 -->
     <ul class="shop-list" th:if="${!#lists.isEmpty(stores)}">
         <li class="shop-card" th:each="s : ${stores}">
-            <a th:href="@{/shops/{shopName}(shopName=${s.name})}">
+            <a th:href="@{/shops/{shopId}(shopId=${s.id})}">
                 <img th:if="${s.pictureUrl != null}" th:src="${s.pictureUrl}" th:alt="${s.name}">
                 <div th:unless="${s.pictureUrl != null}" class="no-image">No Image</div>
                 <div class="body">
@@ -42,6 +42,8 @@
     </ul>
     <div class="empty" th:if="${#lists.isEmpty(stores)}">登録されている店舗はありません。</div>
 
+	
 </div>
 </body>
 </html>
+
