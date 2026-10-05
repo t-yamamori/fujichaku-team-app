@@ -12,11 +12,14 @@
     <result property="address"        column="address"/>
     <result property="description"    column="description"/>
     <result property="pictureUrl"     column="picture_url"/>
+    <!-- 追加：電話番号 -->
+    <result property="phone"          column="phone"/>
 </resultMap>
 
 <!-- 画面表示用のカラム（パスワードは画面に不要なので取得しない） -->
+<!-- 追加：phone（電話番号） -->
 <sql id="storeColumns">
-    id, name, mail, representative, is_deleted, address, description, picture_url
+    id, name, mail, representative, is_deleted, address, description, picture_url, phone
 </sql>
 
 <!-- 店舗一覧表示（過去フラグが立っている店舗は除く） -->
