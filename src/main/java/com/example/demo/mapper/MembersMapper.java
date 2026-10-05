@@ -9,7 +9,6 @@ import com.example.demo.entity.Members;
 
 @Mapper
 public interface MembersMapper {
-
 	
 	boolean existsById(int id);
 	

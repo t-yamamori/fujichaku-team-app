@@ -10,6 +10,7 @@ import com.example.demo.entity.Reviews;
 @Mapper
 public interface ReviewsMapper {
 	
+
 	//店舗の口コミ全件（新しい順）
 	List<Reviews> selectAllReviews(@Param("storeId")Integer storeId);
 	
@@ -22,6 +23,7 @@ public interface ReviewsMapper {
             @Param("memberId") Integer memberId,
             @Param("comment") String content,
             @Param("grade") Integer grade);
+
 
     // 口コミ削除
 	void deleteReview(

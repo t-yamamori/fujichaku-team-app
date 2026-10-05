@@ -60,6 +60,7 @@
     </select>
 
 
+<<<<<<< HEAD
     <!-- =====================================================
          ③ 会員IDから予約履歴を取得
          ===================================================== -->
@@ -81,5 +82,38 @@
         ORDER BY reservation_date DESC
 
     </select>
+=======
+    <!-- ================================= -->
+    <!-- 店舗詳細画面用：ログイン会員のこの店舗への今後の予約を取得 -->
+    <!-- Reservations と Stores を JOIN して取得する -->
+    <!-- ================================= -->
+
+    <select
+        id="selectByStoreIdAndMemberId"
+        resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            r.id,
+            r.member_id,
+            r.reservation_date,
+            r.status,
+            r.created_at,
+            r.store_id
+
+        FROM Reservations r
+
+        INNER JOIN Stores s
+            ON r.store_id = s.id
+
+        WHERE s.id = #{storeId}
+          AND r.member_id = #{memberId}
+          AND s.is_deleted IS NOT TRUE
+          AND r.reservation_date &gt;= CURRENT_TIMESTAMP
+
+        ORDER BY r.reservation_date
+
+    </select>
+
+>>>>>>> refs/heads/master
 
 </mapper>

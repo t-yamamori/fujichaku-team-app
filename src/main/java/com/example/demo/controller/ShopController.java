@@ -58,6 +58,7 @@ public class ShopController {
 		return "shops/search";
 	}
 
+
 	//店舗詳細表示  GET /shops/{shopName}
 	@GetMapping("/{shopName}")
 	public String showDetail(@PathVariable("shopName") String shopName, Model model) {
@@ -83,6 +84,7 @@ public class ShopController {
 
 		if (isMember) {
 			// 会員 → 口コミ全件を表示する
+
 			rv = reviewsMapper.selectAllReviews(storeId);
 			// 会員 → この店舗に対する自分の予約を取得する（reservations と stores をJOIN）
 			// ReservationMapper.java は変更せず、ReservationMapper.xml の
@@ -93,9 +95,12 @@ public class ShopController {
 			rs = sqlSession.selectList(
 					"com.example.demo.mapper.ReservationMapper.selectByStoreIdAndMemberId",
 					params);
+
 		} else {
 			// 非会員 → 口コミ1件のみ表示する
+
 			Reviews one = reviewsMapper.selectOneReview(storeId);
+
 			if (one != null) {
 				rv.add(one);
 			}

@@ -41,6 +41,7 @@ public class ReservationController {
      */
     @GetMapping("/shops/{shopId}/reservations/new")
     public String showReservation(
+
             @PathVariable("shopId") Integer shopId,
             Model model) {
 
