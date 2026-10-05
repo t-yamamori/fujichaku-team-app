@@ -49,7 +49,7 @@ public class ReviewController {
             @RequestParam Integer grade,
             RedirectAttributes redirectAttributes) {
 
-        reviewsMapper.addReview(shopId, content,grade);
+//        reviewsMapper.addReview(shopId, content,grade);
         
      // 空の口コミは登録しない
         if (content.isBlank()) {
@@ -57,7 +57,7 @@ public class ReviewController {
             return "redirect:/shops/" + shopId;
         }
 
-        reviewsMapper.addReview(shopId, content, grade);
+//        reviewsMapper.addReview(shopId, content, grade);
 
         return "redirect:/shops/" + shopId;
 
@@ -71,7 +71,7 @@ public class ReviewController {
             @PathVariable Integer shopId,
             @RequestParam Integer reviewId) {
 
-        reviewsMapper.deleteReview(reviewId, loginMember.getId());
+//        reviewsMapper.deleteReview(reviewId, loginMember.getId());
 
         return "redirect:/shops/" + shopId;
     }

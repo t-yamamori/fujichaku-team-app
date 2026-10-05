@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.example.demo.mapper.TenantMapper">
+    <!-- Stores.java
+        ↓
+        DBのStoreテーブル
+    -->
+    <resultMap id="storeResultMap" type="com.example.demo.entity.Stores">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="mail" column="mail"/>
+        <result property="password" column="password"/>
+        <result property="representative" column="representative"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="address"  column="address"/>
+        <result property="description" column="description"/>
+        <result property="pictureUrl" column="picture_url"/>
+        <result property="phone" column="phone"/>
+    </resultMap>
+
+    <!-- =========================
+         一覧取得
+         ========================= -->
+    <select id="findAll" resultMap="storeResultMap">
+        SELECT
+            id,
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_url,
+            phone
+        FROM "stores"
+        WHERE is_deleted = false
+        ORDER BY id
+    </select>
+    <!-- =========================
+         更新
+         ========================= -->
+    <update id="update">
+        UPDATE "stores"
+        SET
+            name = #{name},
+            mail = #{mail},
+            representative = #{representative},
+            address = #{address},
+            description = #{description},
+            picture_url = #{pictureUrl}
+        WHERE id = #{id}
+    </update>
+
+    <!-- =========================
+         論理削除
+         ========================= -->
+    <update id="deleteByIds">
+        UPDATE "stores"
+        SET is_deleted = true
+        WHERE id IN
+        <foreach item="id"
+                 collection="list"
+                 open="("
+                 separator=","
+                 close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- =========================
+         新規登録
+         ========================= -->
+    <insert id="create">
+        INSERT INTO "stores" (
+            name,
+            mail,
+            password,
+            representative,
+            is_deleted,
+            address,
+            description,
+            picture_url,
+            phone
+        )
+        VALUES (
+            #{name},
+            #{mail},
+            #{password},
+            #{representative},
+            false,
+            #{address},
+            #{description},
+            #{pictureUrl},
+            #{phone}
+        )
+    </insert>
+</mapper>
