@@ -19,6 +19,7 @@
 				<th>住所</th>
 				<th>説明</th>
 				<th>画像URL</th>
+				<th>電話番号</th>
 				<th>更新</th>
 			</tr>
 		</thead>
@@ -62,6 +63,11 @@
 				<!-- 画像URL -->
 				<td>
 					<input type="text" name="pictureUrl" th:value="${store.pictureUrl}"
+						th:form="'updateForm-' + ${store.id}">
+				</td>
+				<!-- 説明 -->
+				<td>
+					<input type="text" name="phone" th:value="${store.phone}"
 						th:form="'updateForm-' + ${store.id}">
 				</td>
 				<!-- 更新ボタン -->
