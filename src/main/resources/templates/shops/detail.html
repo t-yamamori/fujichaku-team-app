@@ -38,6 +38,9 @@
                 <dt>代表者</dt> <dd th:text="${store.representative}">代表者</dd>
                 <dt>住所</dt>   <dd th:text="${store.address}">住所</dd>
                 <dt>連絡先</dt> <dd th:text="${store.mail}">mail</dd>
+                <!-- 追加：電話番号（既存店舗はNULLなので未登録表示） -->
+                <dt>電話番号</dt>
+                <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
                 <dt>説明</dt>   <dd th:text="${store.description}">説明</dd>
             </dl>
         </div>
