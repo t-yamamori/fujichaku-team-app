@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.entity.Reviews;
-import com.example.demo.mapper.ReviewsMapper;
+import com.example.demo.service.ReviewService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/shops")
 public class ReviewController {
 
-    private final ReviewsMapper reviewsMapper;
+	private final ReviewService reviewService;
 
     /*
      * 口コミ一覧表示
@@ -31,7 +31,8 @@ public class ReviewController {
             @PathVariable Integer shopId,
             Model model) {
 
-        List<Reviews> reviews = reviewsMapper.selectAllReviews(shopId);
+    	List<Reviews> reviews =
+    	        reviewService.findAllByStoreId(shopId);
 
         model.addAttribute("reviews", reviews);
         model.addAttribute("shopId", shopId);
