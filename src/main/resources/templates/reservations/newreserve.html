@@ -1,257 +1,700 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <title>予約画面</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
+<title>予約 - [[${store.name}]]</title>
 
-        body {
-            font-family: sans-serif;
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        background:
+            radial-gradient(circle at top left, #252525 0%, #111 40%, #070707 100%);
+        color: #f5f5f5;
+        font-family:
+            "Noto Sans JP",
+            "Yu Gothic",
+            "Meiryo",
+            sans-serif;
+        min-height: 100vh;
+    }
+
+    .header {
+        height: 76px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 50px;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+        background: rgba(10, 10, 10, 0.94);
+    }
+
+    .logo {
+        color: #d4af37;
+        font-size: 25px;
+        font-weight: 700;
+        letter-spacing: 5px;
+    }
+
+    .back-link {
+        color: #bbb;
+        text-decoration: none;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .back-link:hover {
+        color: #d4af37;
+    }
+
+    .container {
+        width: min(1200px, 92%);
+        margin: 45px auto 80px;
+    }
+
+    .page-title {
+        margin-bottom: 35px;
+    }
+
+    .page-title .sub {
+        color: #d4af37;
+        font-size: 12px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .page-title h1 {
+        margin: 0;
+        font-size: 34px;
+        letter-spacing: 2px;
+    }
+
+    .reservation-layout {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 30px;
+    }
+
+    /* 店舗情報 */
+
+    .store-card {
+        background: linear-gradient(145deg, #1b1b1b, #101010);
+        border: 1px solid rgba(212, 175, 55, 0.28);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+    }
+
+    .store-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        display: block;
+        background: #181818;
+    }
+
+    .store-content {
+        padding: 30px;
+    }
+
+    .store-label {
+        color: #d4af37;
+        font-size: 11px;
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+    }
+
+    .store-name {
+        font-size: 28px;
+        margin: 0 0 25px;
+        font-weight: 700;
+    }
+
+    .store-info {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .info-row {
+        padding: 17px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .info-title {
+        color: #d4af37;
+        font-size: 12px;
+        margin-bottom: 6px;
+        letter-spacing: 1px;
+    }
+
+    .info-value {
+        color: #ddd;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    /* 予約フォーム */
+
+    .reservation-card {
+        background: linear-gradient(145deg, #1c1c1c, #0e0e0e);
+        border: 1px solid rgba(212, 175, 55, 0.28);
+        padding: 35px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    }
+
+    .section-title {
+        font-size: 20px;
+        margin: 0 0 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+    }
+
+    .form-group {
+        margin-bottom: 28px;
+    }
+
+    .form-label {
+        display: block;
+        color: #d4af37;
+        font-size: 13px;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 14px 15px;
+        background: #101010;
+        color: #fff;
+        border: 1px solid #444;
+        font-size: 15px;
+        outline: none;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #d4af37;
+        box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25);
+    }
+
+    /* 時間 */
+
+    .time-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .time-option {
+        position: relative;
+    }
+
+    .time-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .time-option label {
+        display: block;
+        padding: 13px 5px;
+        text-align: center;
+        background: #111;
+        border: 1px solid #3a3a3a;
+        color: #ddd;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .time-option label:hover {
+        border-color: #d4af37;
+        color: #d4af37;
+    }
+
+    .time-option input:checked + label {
+        background: #d4af37;
+        color: #080808;
+        border-color: #d4af37;
+        font-weight: 700;
+    }
+
+    /* 人数 */
+
+    .guest-select {
+        appearance: auto;
+    }
+
+    /* 注意 */
+
+    .notice {
+        margin-top: 25px;
+        padding: 16px;
+        background: rgba(120, 0, 0, 0.15);
+        border-left: 3px solid #9b1c1c;
+        color: #ccc;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    /* ボタン */
+
+    .button-area {
+        margin-top: 30px;
+    }
+
+    .confirm-button {
+        width: 100%;
+        padding: 17px;
+        border: 1px solid #d4af37;
+        background: linear-gradient(135deg, #d4af37, #a98219);
+        color: #090909;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .confirm-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+    }
+
+    .cancel-link {
+        display: block;
+        text-align: center;
+        margin-top: 18px;
+        color: #888;
+        text-decoration: none;
+        font-size: 13px;
+    }
+
+    .cancel-link:hover {
+        color: #d4af37;
+    }
+
+    @media (max-width: 850px) {
+
+        .header {
+            padding: 0 20px;
         }
 
-        .reservation-container {
-            display: flex;
-            gap: 50px;
-            max-width: 1000px;
-            margin: 40px auto;
+        .container {
+            width: 94%;
+            margin-top: 30px;
         }
 
-        .shop-info {
-            width: 450px;
+        .reservation-layout {
+            grid-template-columns: 1fr;
         }
 
-        .shop-image {
-            width: 400px;
-            height: 280px;
-            object-fit: cover;
+        .store-image {
+            height: 240px;
+        }
+    }
+
+    @media (max-width: 500px) {
+
+        .page-title h1 {
+            font-size: 26px;
         }
 
-        .reservation-form {
-            width: 400px;
+        .reservation-card {
+            padding: 22px;
         }
 
-        .time-table {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+        .time-grid {
+            grid-template-columns: repeat(2, 1fr);
         }
+    }
 
-        .time-table label {
-            border: 1px solid #aaa;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .time-table input {
-            margin-right: 5px;
-        }
-
-        .submit-button {
-            margin-top: 25px;
-            padding: 12px 30px;
-            cursor: pointer;
-        }
-
-    </style>
+</style>
 
 </head>
 
 <body>
 
-<h1>予約画面</h1>
+<header class="header">
+	
+<div class="logo">FUJICHAKU</div>
+
+<a th:href="@{/shops/{shopId}(shopId=${store.id})}"
+   class="back-link">
+    ← 店舗詳細へ戻る
+</a>
+
+</header>
+
+<main class="container">
+
+<div class="page-title">
+
+    <div class="sub">
+        Reservation
+    </div>
+
+    <h1>
+        店舗予約
+    </h1>
+
+</div>
 
 
-<div class="reservation-container">
+<div class="reservation-layout">
+
+    <!-- ==========================================
+         左：店舗情報
+         ========================================== -->
+
+    <section class="store-card">
+
+        <img class="store-image"
+             th:src="${store.pictureUrl}"
+             th:alt="${store.name}"
+             onerror="this.style.display='none';">
+
+        <div class="store-content">
+
+            <div class="store-label">
+                RESTAURANT
+            </div>
+
+            <h2 class="store-name"
+                th:text="${store.name}">
+                店舗名
+            </h2>
+
+            <div class="store-info">
+
+                <div class="info-row">
+
+                    <div class="info-title">
+                        ADDRESS
+                    </div>
+
+                    <div class="info-value"
+                         th:text="${store.address}">
+                        住所
+                    </div>
+
+                </div>
 
 
-    <!-- ================================= -->
-    <!-- 左側：店舗情報 -->
-    <!-- ================================= -->
+                <div class="info-row">
 
-    <div class="shop-info">
+                    <div class="info-title">
+                        CONTACT
+                    </div>
 
-        <h2 th:text="${store.name}">
-            店舗名
+                    <div class="info-value"
+                         th:text="${store.mail}">
+                        メールアドレス
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-title">
+                        REPRESENTATIVE
+                    </div>
+
+                    <div class="info-value"
+                         th:text="${store.representative}">
+                        代表者
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-title">
+                        ABOUT
+                    </div>
+
+                    <div class="info-value"
+                         th:text="${store.description}">
+                        店舗説明
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ==========================================
+         右：予約入力
+         ========================================== -->
+
+    <section class="reservation-card">
+
+        <h2 class="section-title">
+            予約内容を入力
         </h2>
 
 
-        <img
-            class="shop-image"
-            th:src="${store.picture_URL}"
-            alt="店舗画像">
+        <!--
+            予約確認画面へ送信
+            POST /shops/{shopId}/reservations/confirm
+        -->
+
+        <form th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}"
+              method="post">
 
 
-        <h3>店舗説明</h3>
+            <!-- CSRF -->
 
-        <p th:text="${store.description}">
-            店舗説明
-        </p>
-
-
-        <h3>住所</h3>
-
-        <p th:text="${store.address}">
-            店舗住所
-        </p>
-
-    </div>
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
 
 
+            <!-- ==================================
+                 日付
+                 ================================== -->
 
-    <!-- ================================= -->
-    <!-- 右側：予約入力 -->
-    <!-- ================================= -->
+            <div class="form-group">
 
-    <div class="reservation-form">
-
-        <h2>予約内容</h2>
-
-
-        <form
-            th:action="@{/shops/{shopId}/reservations(shopId=${store.id})}"
-            method="post">
-
-
-            <!-- 予約日 -->
-
-            <div>
-
-                <label for="date">
-                    予約日
+                <label class="form-label"
+                       for="reservationDate">
+                    DATE
                 </label>
 
-                <br>
-
-                <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    required>
+                <input type="date"
+                       id="reservationDate"
+                       name="reservationDate"
+                       required>
 
             </div>
 
 
-            <br>
+            <!-- ==================================
+                 時間
+                 ================================== -->
+
+            <div class="form-group">
+
+                <span class="form-label">
+                    TIME
+                </span>
+
+                <div class="time-grid">
+
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1000"
+                               name="reservationTime"
+                               value="10:00"
+                               required>
+
+                        <label for="time1000">
+                            10:00
+                        </label>
+
+                    </div>
 
 
-            <!-- 予約時間 -->
+                    <div class="time-option">
 
-            <div>
+                        <input type="radio"
+                               id="time1100"
+                               name="reservationTime"
+                               value="11:00">
 
-                <h3>予約時間</h3>
+                        <label for="time1100">
+                            11:00
+                        </label>
 
-
-                <div class="time-table">
-
-
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="10:00"
-                            required>
-                        10:00
-                    </label>
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="11:00">
-                        11:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1200"
+                               name="reservationTime"
+                               value="12:00">
+
+                        <label for="time1200">
+                            12:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="12:00">
-                        12:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1300"
+                               name="reservationTime"
+                               value="13:00">
+
+                        <label for="time1300">
+                            13:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="13:00">
-                        13:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1400"
+                               name="reservationTime"
+                               value="14:00">
+
+                        <label for="time1400">
+                            14:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="14:00">
-                        14:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1500"
+                               name="reservationTime"
+                               value="15:00">
+
+                        <label for="time1500">
+                            15:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="15:00">
-                        15:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1600"
+                               name="reservationTime"
+                               value="16:00">
+
+                        <label for="time1600">
+                            16:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="16:00">
-                        16:00
-                    </label>
+                    <div class="time-option">
+
+                        <input type="radio"
+                               id="time1700"
+                               name="reservationTime"
+                               value="17:00">
+
+                        <label for="time1700">
+                            17:00
+                        </label>
+
+                    </div>
 
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="17:00">
-                        17:00
-                    </label>
+                    <div class="time-option">
 
+                        <input type="radio"
+                               id="time1800"
+                               name="reservationTime"
+                               value="18:00">
 
-                    <label>
-                        <input
-                            type="radio"
-                            name="time"
-                            value="18:00">
-                        18:00
-                    </label>
+                        <label for="time1800">
+                            18:00
+                        </label>
+
+                    </div>
 
                 </div>
 
             </div>
 
 
-            <!-- 送信 -->
+            <!-- ==================================
+                 人数
+                 ================================== -->
 
-            <button
-                type="submit"
-                class="submit-button">
+            <div class="form-group">
 
-                予約を確定
+                <label class="form-label"
+                       for="numberOfGuests">
+                    GUESTS
+                </label>
 
-            </button>
+                <select id="numberOfGuests"
+                        name="numberOfGuests"
+                        class="guest-select"
+                        required>
 
+                    <option value="">
+                        人数を選択してください
+                    </option>
+
+                    <option value="1">1名</option>
+                    <option value="2">2名</option>
+                    <option value="3">3名</option>
+                    <option value="4">4名</option>
+                    <option value="5">5名</option>
+                    <option value="6">6名</option>
+                    <option value="7">7名</option>
+                    <option value="8">8名</option>
+                    <option value="9">9名</option>
+                    <option value="10">10名</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="notice"> 
+				<p> ※ 10名以上で予約の場合は、直接店舗にお電話での確認お願いします。 </p> 
+				<p> ※ 予約内容をご確認のうえ、「予約内容を確認する」を押してください。 </p> 
+				<p> ※ 次の画面で予約内容を確認してから予約を確定します。 </p> 
+			</div>
+
+
+            <!-- ==================================
+                 確認ボタン
+                 ================================== -->
+
+            <div class="button-area">
+
+                <button type="submit"
+                        class="confirm-button">
+                    予約内容を確認する
+                </button>
+
+                <a th:href="@{/shops/{shopId}(shopId=${store.id})}"
+                   class="cancel-link">
+                    キャンセルして店舗詳細へ戻る
+                </a>
+
+            </div>
 
         </form>
 
-    </div>
+    </section>
 
 </div>
+
+</main>
 
 </body>
 

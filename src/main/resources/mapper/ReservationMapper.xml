@@ -1,22 +1,21 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE mapper
-    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
+    <!-- =========================================================
+         予約登録
+         POST /shops/{shopId}/reservations
+         ========================================================= -->
+    <insert id="insertReservation"
+            parameterType="com.example.demo.entity.Reservations"
+            useGeneratedKeys="true"
+            keyProperty="id">
 
-    <!-- =====================================================
-         ① 予約登録
-         ===================================================== -->
-    <insert
-        id="insertReservation"
-        parameterType="com.example.demo.entity.Reservations"
-        useGeneratedKeys="true"
-        keyProperty="id">
-
-        INSERT INTO Reservations
+        INSERT INTO reservations
         (
             member_id,
             reservation_date,
@@ -27,24 +26,24 @@
         )
         VALUES
         (
-            #{member_id},
-            #{reservation_date},
+            #{memberId},
+            #{reservationDate},
             #{status},
-            #{created_at},
-            #{store_id},
+            #{createdAt},
+            #{storeId},
             #{number}
         )
 
     </insert>
 
 
-    <!-- =====================================================
-         ② 予約番号から予約を取得
-         ===================================================== -->
-    <select
-        id="findById"
-        parameterType="int"
-        resultType="com.example.demo.entity.Reservations">
+    <!-- =========================================================
+         予約IDから1件取得
+         GET /reservations/{reservationId}
+         ========================================================= -->
+    <select id="findById"
+            parameterType="java.lang.Integer"
+            resultType="com.example.demo.entity.Reservations">
 
         SELECT
             id,
@@ -54,34 +53,12 @@
             created_at,
             store_id,
             number
-        FROM Reservations
+        FROM reservations
         WHERE id = #{reservationId}
 
     </select>
 
 
-
-    <!-- =====================================================
-         ③ 会員IDから予約履歴を取得
-         ===================================================== -->
-    <select
-        id="findByMemberId"
-        parameterType="int"
-        resultType="com.example.demo.entity.Reservations">
-
-        SELECT
-            id,
-            member_id,
-            reservation_date,
-            status,
-            created_at,
-            store_id,
-            number
-        FROM Reservations
-        WHERE member_id = #{memberId}
-        ORDER BY reservation_date DESC
-
-    </select>
 
 
 </mapper>
