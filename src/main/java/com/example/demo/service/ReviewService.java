@@ -23,7 +23,8 @@ public class ReviewService {
 
 	private final ReviewsMapper reviewsMapper;
 
-	// 店舗の口コミ全件（会員向け）
+	// 店舗の口コミ全件・新しい順（会員向け）
+	// 店舗詳細画面(shops/detail.html)と口コミ一覧画面(reviews/reviews.html)の両方で使う
 	public List<Reviews> findAllByStoreId(int storeId) {
 		return reviewsMapper.selectAllReviews(storeId);
 	}

@@ -503,6 +503,84 @@ body .flash-error {
 .back-link:hover { border-bottom-color: var(--gold-light); }
 
 /* =========================================================
+   【追加】トップ画面（shops.html）右上のアカウントメニュー
+     未ログイン：会員登録／ログイン
+     ログイン済み：会員情報／ログアウト
+   ========================================================= */
+.header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+.header .page-title {
+    flex: 1;
+    min-width: 0;
+}
+.account-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+}
+.account-menu form { margin: 0; }
+.account-menu .welcome {
+    font-size: .85rem;
+    color: var(--text-sub);
+    letter-spacing: .06em;
+}
+
+/* =========================================================
+   【追加】店舗詳細画面（shops/detail.html）口コミ履歴一覧まわり
+   ========================================================= */
+/* 会員向け：口コミ履歴一覧へのボタン */
+.history-link {
+    margin-top: 16px;
+    text-align: right;
+}
+
+/* 非会員向け：口コミ履歴のモザイク表示 */
+.history-locked {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--gold-dark);
+}
+.history-locked h3 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: .08em;
+}
+.history-locked-body {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+.mosaic {                        /* ダミーの口コミをぼかす */
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+}
+.mosaic-overlay {                /* ぼかしの上に案内メッセージを重ねる */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 13, 13, .45);
+}
+.mosaic-overlay p {
+    margin: 0;
+    padding: 12px 22px;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    background: rgba(13, 13, 13, .85);
+    color: var(--gold-light);
+    font-weight: 600;
+    letter-spacing: .06em;
+    box-shadow: 0 0 16px rgba(201, 166, 70, .35);
+}
+
+/* =========================================================
    スマホ対応
    ========================================================= */
 @media (max-width: 768px) {
@@ -520,5 +598,10 @@ body .flash-error {
 
     .shop-detail { grid-template-columns: 1fr; }
     .section { padding: 18px; }
+
+    /* 【追加】アカウントメニューはタイトルの上・右寄せにする */
+    .header { flex-direction: column; gap: 8px; }
+    .header .page-title { width: 100%; }
+    .account-menu { order: -1; align-self: flex-end; flex-wrap: wrap; justify-content: flex-end; }
 
 }
