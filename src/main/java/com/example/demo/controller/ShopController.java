@@ -253,5 +253,6 @@ public class ShopController {
 			redirectAttributes.addFlashAttribute("errorMessage", "削除できる口コミが見つかりませんでした。");
 		}
 	}
+	
 
 }
