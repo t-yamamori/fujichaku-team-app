@@ -9,14 +9,14 @@ import com.example.demo.form.MemberEditForm;
  * 何ができるか（メソッドの名前と引数・戻り値）だけを決める。
  * 実際の処理は MemberServiceImpl に書く。
  */
-   public interface MemberService {
+   public interface MembersService {
  
     /**
      * IDで会員を1件取得する
      * @param id 会員ID
      * @return 会員（退会済み、または存在しない場合は null）
      */
-    Members selectById(Integer id);
+    Members findById(Integer id);
  
     /**
      * 会員情報画面の入力欄に入れるために、Member を MemberForm に変換する
@@ -40,4 +40,9 @@ import com.example.demo.form.MemberEditForm;
      * @param id 会員ID
      */
     void delete(Integer id);
+    
+    
+    //文字列の会員IDを数字にして、会員を探す
+	public Members findByLoginId(String loginId);
+
 }
