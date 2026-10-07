@@ -2,150 +2,343 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-	<meta charset="UTF-8">
-	<title>テナント管理</title>
+    <meta charset="UTF-8">
+    <title>テナント管理</title>
+
+    <style>
+        table {
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        td {
+            vertical-align: top;
+        }
+
+        .error-message {
+            display: block;
+            color: red;
+            font-size: 0.9em;
+            margin-top: 2px;
+        }
+		
+		button {
+		    white-space: nowrap;
+		}
+    </style>
 </head>
 
 <body>
-	<h1>テナント管理</h1>
-	<table border="1">
-		<thead>
-			<tr>
-				<th>削除</th>
-				<th>ID</th>
-				<th>名前</th>
-				<th>メール</th>
-				<th>代表者</th>
-				<th>住所</th>
-				<th>説明</th>
-				<th>画像URL</th>
-				<th>電話番号</th>
-				<th>更新</th>
-			</tr>
-		</thead>
-		<tbody>
-			<!-- =========================
-             既存テナント
-             ========================= -->
-			<tr th:each="store : ${stores}">
-				<!-- 削除チェックボックス -->
-				<td>
-					<input type="checkbox" name="deleteIds" th:value="${store.id}" form="deleteForm">
-				</td>
-				<!-- ID -->
-				<td>
-					<span th:text="${store.id}">
-						1
-					</span>
-				</td>
-				<!-- 名前 -->
-				<td>
-					<input type="text" name="name" th:value="${store.name}" th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- メール -->
-				<td>
-					<input type="text" name="mail" th:value="${store.mail}" th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 代表者 -->
-				<td>
-					<input type="text" name="representative" th:value="${store.representative}"
-						th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 住所 -->
-				<td>
-					<input type="text" name="address" th:value="${store.address}" th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 説明 -->
-				<td>
-					<input type="text" name="description" th:value="${store.description}"
-						th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 画像URL -->
-				<td>
-					<input type="text" name="pictureUrl" th:value="${store.pictureUrl}"
-						th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 電話番号 -->
-				<td>
-					<input type="text" name="phone" th:value="${store.phone}"
-						th:form="'updateForm-' + ${store.id}">
-				</td>
-				<!-- 更新ボタン -->
-				<td>
-					<form th:id="'updateForm-' + ${store.id}" th:action="@{/admin/tenants/update}" method="post">
-						<input type="hidden" name="id" th:value="${store.id}">
-						<button type="submit">
-							更新
-						</button>
-					</form>
-				</td>
-			</tr>
-			<!-- =========================
-             新規登録
-             ========================= -->
-			<tr>
-				<td>
-				</td>
-				<td>
-					新規
-				</td>
-				<!-- 名前 -->
-				<td>
-					<input type="text" name="name" form="createForm">
-				</td>
-				<!-- メール -->
-				<td>
-					<input type="text" name="mail" form="createForm">
-				</td>
-				<!-- 代表者 -->
-				<td>
-					<input type="text" name="representative" form="createForm">
-				</td>
-				<!-- 住所 -->
-				<td>
-					<input type="text" name="address" form="createForm">
-				</td>
-				<!-- 説明 -->
-				<td>
-					<input type="text" name="description" form="createForm">
-				</td>
-				<!-- 画像URL -->
-				<td>
-					<input type="text" name="pictureUrl" form="createForm">
-				</td>
-				<!-- 電話番号 -->
-				<td>
-					<input type="text" name="phone" form="createForm">
-				</td>
-				<!-- 作成 -->
-				<td>
-					<button type="submit" form="createForm">
-						作成
-					</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-	<br>
 
-	<!-- =========================
-     削除フォーム
-     ========================= -->
-	<form id="deleteForm" th:action="@{/admin/tenants/delete}" method="post">
-		<button type="submit">
-			チェックした店舗を削除
-		</button>
-	</form>
-	<br>
-	
-	<!-- =========================
-     新規登録フォーム
-     ========================= -->
-	<form id="createForm" th:action="@{/admin/tenants/create}" method="post">
-		<label>
-			新規登録パスワード：
-		</label>
-		<input type="password" name="password" required>
-	</form>
+    <h1>テナント管理</h1>
+
+    <table border="1">
+
+        <thead>
+            <tr>
+                <th>削除</th>
+                <th>ID</th>
+                <th>名前</th>
+                <th>メール</th>
+                <th>代表者</th>
+                <th>住所</th>
+                <th>説明</th>
+                <th>画像URL</th>
+                <th>電話番号</th>
+                <th>更新</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <!-- =========================
+                 既存テナント
+                 ========================= -->
+
+            <tr th:each="store : ${stores}">
+
+                <!-- 削除チェックボックス -->
+                <td>
+                    <input type="checkbox"
+                           name="deleteIds"
+                           th:value="${store.id}"
+                           form="deleteForm">
+                </td>
+
+                <!-- ID -->
+                <td>
+                    <span th:text="${store.id}">1</span>
+                </td>
+
+                <!-- 名前 -->
+                <td>
+                    <input type="text"
+                           name="name"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.name : store.name}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('name')}"
+                         th:text="${updateErrors['name']}">
+                    </div>
+                </td>
+
+                <!-- メール -->
+                <td>
+                    <input type="text"
+                           name="mail"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.mail : store.mail}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('mail')}"
+                         th:text="${updateErrors['mail']}">
+                    </div>
+                </td>
+
+                <!-- 代表者 -->
+                <td>
+                    <input type="text"
+                           name="representative"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.representative : store.representative}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('representative')}"
+                         th:text="${updateErrors['representative']}">
+                    </div>
+                </td>
+
+                <!-- 住所 -->
+                <td>
+                    <input type="text"
+                           name="address"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.address : store.address}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('address')}"
+                         th:text="${updateErrors['address']}">
+                    </div>
+                </td>
+
+                <!-- 説明 -->
+                <td>
+                    <input type="text"
+                           name="description"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.description : store.description}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('description')}"
+                         th:text="${updateErrors['description']}">
+                    </div>
+                </td>
+
+                <!-- 画像URL -->
+                <td>
+                    <input type="text"
+                           name="pictureUrl"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.pictureUrl : store.pictureUrl}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('pictureUrl')}"
+                         th:text="${updateErrors['pictureUrl']}">
+                    </div>
+                </td>
+
+                <!-- 電話番号 -->
+                <td>
+                    <input type="text"
+                           name="phone"
+                           th:value="${store.id == updateErrorStore?.id ? updateErrorStore.phone : store.phone}"
+                           th:form="'updateForm-' + ${store.id}">
+
+                    <div class="error-message"
+                         th:if="${store.id == updateErrorStore?.id
+                                 and updateErrors.containsKey('phone')}"
+                         th:text="${updateErrors['phone']}">
+                    </div>
+                </td>
+
+                <!-- 更新ボタン -->
+                <td>
+                    <form th:id="'updateForm-' + ${store.id}"
+                          th:action="@{/admin/tenants/update}"
+                          method="post">
+
+                        <input type="hidden"
+                               name="id"
+                               th:value="${store.id}">
+
+                        <button type="submit">
+                            更新
+                        </button>
+
+                    </form>
+                </td>
+
+            </tr>
+
+
+            <!-- =========================
+                 新規登録
+                 ========================= -->
+
+            <tr th:object="${newStore}">
+
+                <td></td>
+
+                <td>新規</td>
+
+                <!-- 名前 -->
+                <td>
+                    <input type="text"
+                           th:field="*{name}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('name')}"
+                         th:errors="*{name}">
+                    </div>
+                </td>
+
+                <!-- メール -->
+                <td>
+                    <input type="text"
+                           th:field="*{mail}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('mail')}"
+                         th:errors="*{mail}">
+                    </div>
+                </td>
+
+                <!-- 代表者 -->
+                <td>
+                    <input type="text"
+                           th:field="*{representative}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('representative')}"
+                         th:errors="*{representative}">
+                    </div>
+                </td>
+
+                <!-- 住所 -->
+                <td>
+                    <input type="text"
+                           th:field="*{address}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('address')}"
+                         th:errors="*{address}">
+                    </div>
+                </td>
+
+                <!-- 説明 -->
+                <td>
+                    <input type="text"
+                           th:field="*{description}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('description')}"
+                         th:errors="*{description}">
+                    </div>
+                </td>
+
+                <!-- 画像URL -->
+                <td>
+                    <input type="text"
+                           th:field="*{pictureUrl}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('pictureUrl')}"
+                         th:errors="*{pictureUrl}">
+                    </div>
+                </td>
+
+                <!-- 電話番号 -->
+                <td>
+                    <input type="text"
+                           th:field="*{phone}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('phone')}"
+                         th:errors="*{phone}">
+                    </div>
+                </td>
+
+                <!-- 作成 -->
+                <td>
+                    <button type="submit"
+                            form="createForm">
+                        作成
+                    </button>
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+
+    <!-- =========================
+         削除フォーム
+         ========================= -->
+
+    <form id="deleteForm"
+          th:action="@{/admin/tenants/delete}"
+          method="post">
+
+        <button type="submit">
+            チェックした店舗を削除
+        </button>
+
+    </form>
+
+    <br>
+
+
+    <!-- =========================
+         新規登録フォーム
+         ========================= -->
+
+    <form id="createForm"
+          th:action="@{/admin/tenants/create}"
+          th:object="${newStore}"
+          method="post">
+
+        <label>
+            新規登録パスワード：
+        </label>
+
+        <input type="password"
+               th:field="*{password}">
+
+        <div class="error-message"
+             th:if="${#fields.hasErrors('password')}"
+             th:errors="*{password}">
+        </div>
+
+    </form>
+
 </body>
+
 </html>
