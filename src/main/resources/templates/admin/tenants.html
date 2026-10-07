@@ -65,7 +65,7 @@
 					<input type="text" name="pictureUrl" th:value="${store.pictureUrl}"
 						th:form="'updateForm-' + ${store.id}">
 				</td>
-				<!-- 説明 -->
+				<!-- 電話番号 -->
 				<td>
 					<input type="text" name="phone" th:value="${store.phone}"
 						th:form="'updateForm-' + ${store.id}">
@@ -112,6 +112,10 @@
 				<!-- 画像URL -->
 				<td>
 					<input type="text" name="pictureUrl" form="createForm">
+				</td>
+				<!-- 電話番号 -->
+				<td>
+					<input type="text" name="phone" form="createForm">
 				</td>
 				<!-- 作成 -->
 				<td>
