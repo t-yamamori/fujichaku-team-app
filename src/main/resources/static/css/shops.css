@@ -1,0 +1,607 @@
+@charset "UTF-8";
+/* =========================================================
+   shops.css
+   配置場所：src/main/resources/static/css/shops.css
+   対象画面：
+     ・shops.html        … 店舗一覧表示画面
+     ・shops/search.html … 検索結果表示画面
+     ・shops/detail.html … 店舗詳細表示画面
+   色調：黒 × 金
+   ========================================================= */
+
+/* ---------- カラー・共通値 ---------- */
+:root {
+    --black:        #0d0d0d;   /* 背景 */
+    --black-2:      #161616;   /* カード・セクション */
+    --black-3:      #222222;   /* 入力欄・ホバー */
+    --line:         #3a3326;   /* 罫線（くすんだ金） */
+    --gold:         #c9a646;   /* メインの金 */
+    --gold-light:   #e6c976;   /* 明るい金（ホバー・強調） */
+    --gold-dark:    #8c7230;   /* 暗い金 */
+    --gold-grad:    linear-gradient(135deg, #e6c976 0%, #c9a646 50%, #a8862f 100%);
+    --text:         #eae6dc;   /* 本文 */
+    --text-sub:     #a39d8f;   /* 補足 */
+    --success:      #9fd49a;
+    --error:        #f19a92;
+    --radius:       6px;
+    --shadow:       0 4px 16px rgba(0, 0, 0, .6);
+}
+
+/* ---------- リセット・ベース ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+    background: var(--black);
+    background-image: radial-gradient(ellipse at top, #1d1a12 0%, var(--black) 60%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    line-height: 1.7;
+    min-height: 100vh;
+}
+
+a { color: var(--gold); text-decoration: none; transition: color .2s; }
+a:hover { color: var(--gold-light); }
+
+img { max-width: 100%; display: block; }
+
+.container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 20px 64px;
+}
+
+/* ---------- 画面タイトル ---------- */
+.page-title {
+    margin: 0 0 28px;
+    padding-bottom: 12px;
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: 1.9rem;
+    font-weight: 600;
+    letter-spacing: .12em;
+    color: var(--gold);
+    border-bottom: 1px solid var(--gold-dark);
+    position: relative;
+}
+.page-title::after {            /* 下線の金のアクセント */
+    content: "";
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 120px; height: 3px;
+    background: var(--gold-grad);
+}
+
+h2 {
+    margin: 0 0 16px;
+    padding-left: 12px;
+    font-size: 1.25rem;
+    letter-spacing: .08em;
+    color: var(--gold-light);
+    border-left: 4px solid var(--gold);
+}
+
+/* =========================================================
+   ボタン
+   ========================================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px;
+    font-size: .95rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    border-radius: var(--radius);
+    border: 1px solid var(--gold);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, color .2s, box-shadow .2s, transform .1s;
+    font-family: inherit;
+}
+.btn:active { transform: translateY(1px); }
+
+/* 検索・投稿など：金ベタ */
+.btn-primary {
+    background: var(--gold-grad);
+    color: var(--black);
+}
+.btn-primary:hover {
+    color: var(--black);
+    box-shadow: 0 0 12px rgba(201, 166, 70, .55);
+}
+
+/* 店舗一覧へ・削除など：黒地＋金枠 */
+.btn-secondary {
+    background: transparent;
+    color: var(--gold);
+}
+.btn-secondary:hover {
+    background: var(--gold);
+    color: var(--black);
+}
+
+/* 会員登録・予約：目立たせたいボタン（黒地＋金文字＋光彩） */
+.btn-accent {
+    background: var(--black);
+    color: var(--gold-light);
+    border: 2px solid var(--gold);
+    box-shadow: inset 0 0 0 1px rgba(230, 201, 118, .25);
+}
+.btn-accent:hover {
+    background: var(--gold-grad);
+    color: var(--black);
+    box-shadow: 0 0 16px rgba(201, 166, 70, .6);
+}
+
+.btn-block {
+    display: flex;
+    width: 100%;
+    padding: 14px 22px;
+    font-size: 1.1rem;
+}
+
+.btn-small {
+    padding: 4px 12px;
+    font-size: .82rem;
+}
+
+/* =========================================================
+   上段バー（検索入力：左 / 会員登録・店舗一覧へ：右）
+   ========================================================= */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+.search-form {
+    display: flex;
+    flex: 0 1 460px;
+    gap: 8px;
+}
+
+/* 入力欄共通 */
+input[type="text"],
+select,
+textarea {
+    background: var(--black-3);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: .95rem;
+    font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+}
+input[type="text"] { flex: 1; min-width: 0; }
+input::placeholder,
+textarea::placeholder { color: #6f6a5e; }
+
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 166, 70, .25);
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    background-image:
+        linear-gradient(45deg, transparent 50%, var(--gold) 50%),
+        linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 12px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+select option { background: var(--black-2); color: var(--text); }
+
+/* パスワード再設定リンク（一覧の右上＝会員登録ボタンの下） */
+.sub-link {
+    text-align: right;
+    margin-bottom: 24px;
+    font-size: .85rem;
+}
+.sub-link a {
+    color: var(--text-sub);
+    border-bottom: 1px dotted var(--gold-dark);
+}
+.sub-link a:hover { color: var(--gold-light); border-bottom-color: var(--gold-light); }
+
+/* =========================================================
+   店舗一覧（カードのグリッド）
+   ========================================================= */
+.shop-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.shop-card {
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+.shop-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold);
+    box-shadow: var(--shadow), 0 0 0 1px var(--gold-dark);
+}
+.shop-card a { display: block; color: inherit; height: 100%; }
+
+.shop-card img,
+.shop-card .no-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+/* 画像なし */
+.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(45deg, #1a1a1a 0 10px, #141414 10px 20px);
+    color: var(--gold-dark);
+    font-size: .9rem;
+    letter-spacing: .15em;
+    border-bottom: 1px solid var(--line);
+}
+
+.shop-card .body { padding: 14px 16px 16px; }
+
+.shop-card .name {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold-light);
+}
+.shop-card .address {
+    margin: 0;
+    font-size: .85rem;
+    color: var(--text-sub);
+}
+
+/* データなし */
+.empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-sub);
+    background: var(--black-2);
+    border: 1px dashed var(--gold-dark);
+    border-radius: var(--radius);
+}
+
+/* =========================================================
+   検索結果画面（結果：左 / プルダウン：右）
+   ========================================================= */
+.result-count {
+    margin: 20px 0 16px;
+    color: var(--text-sub);
+}
+.result-count span { color: var(--gold-light); font-weight: 700; }
+
+.result-layout {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* 検索結果は縦に並べる（画像左・店舗情報右の横長カード） */
+.result-list.shop-list {
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+.result-list .shop-card a {
+    display: flex;
+    align-items: stretch;
+}
+.result-list .shop-card img,
+.result-list .shop-card .no-image {
+    width: 180px;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
+    border-bottom: none;
+    border-right: 1px solid var(--line);
+}
+.result-list .shop-card .body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 16px 20px;
+}
+
+/* 並び替えプルダウン（右側に固定） */
+.side-panel {
+    position: sticky;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--gold);
+    border-radius: var(--radius);
+}
+.side-panel label {
+    font-size: .85rem;
+    color: var(--gold);
+    letter-spacing: .1em;
+}
+.side-panel select { width: 100%; }
+
+/* =========================================================
+   店舗詳細画面
+   ========================================================= */
+.section {
+    background: var(--black-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+/* ① 店舗情報（画像：左 / 情報：右） */
+.shop-detail {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    align-items: start;
+}
+.shop-detail img,
+.shop-detail .no-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid var(--gold-dark);
+    border-radius: var(--radius);
+}
+
+.shop-detail dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 7em 1fr;
+}
+.shop-detail dt,
+.shop-detail dd {
+    margin: 0;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--line);
+}
+.shop-detail dt {
+    color: var(--gold);
+    font-weight: 600;
+    font-size: .9rem;
+}
+.shop-detail dd {
+    color: var(--text);
+    white-space: pre-wrap;      /* 説明文の改行を活かす */
+    word-break: break-word;
+}
+
+/* ② 予約ボタン */
+.reserve-area {
+    margin: 0 0 24px;
+}
+
+/* ③ 口コミ */
+.review {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+}
+.review:first-of-type { border-top: 1px solid var(--line); }
+
+.review .meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: .85rem;
+    color: var(--text-sub);
+}
+.review .stars {
+    color: var(--gold);
+    font-size: 1.05rem;
+    letter-spacing: .1em;
+}
+.review .delete-form { margin: 0 0 0 auto; }
+.review .comment {
+    margin: 6px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.note {
+    margin: 12px 0 0;
+    font-size: .85rem;
+    color: var(--text-sub);
+}
+
+/* 口コミ投稿フォーム */
+.review-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--gold-dark);
+}
+.review-form label {
+    font-size: .9rem;
+    color: var(--gold);
+}
+.review-form select { max-width: 260px; }
+.review-form textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+}
+.review-form .btn { justify-self: end; margin-top: 4px; }
+
+/* ④ 予約一覧テーブル */
+.reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .95rem;
+}
+.reservation-table th,
+.reservation-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+.reservation-table thead th {
+    background: #1e1a10;
+    color: var(--gold);
+    font-weight: 600;
+    border-bottom: 2px solid var(--gold);
+}
+.reservation-table tbody tr:hover { background: var(--black-3); }
+
+/* フラッシュメッセージ
+   ※detail.html 内の <style> より優先させるため body を付けて詳細度を上げています */
+body .flash {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    border: 1px solid;
+    border-left-width: 4px;
+}
+body .flash-success {
+    background: rgba(159, 212, 154, .08);
+    color: var(--success);
+    border-color: #4c7a48;
+}
+body .flash-error {
+    background: rgba(241, 154, 146, .08);
+    color: var(--error);
+    border-color: #8a3d36;
+}
+
+/* 戻るリンク */
+.back-link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid transparent;
+}
+.back-link:hover { border-bottom-color: var(--gold-light); }
+
+/* =========================================================
+   【追加】トップ画面（shops.html）右上のアカウントメニュー
+     未ログイン：会員登録／ログイン
+     ログイン済み：会員情報／ログアウト
+   ========================================================= */
+.header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+.header .page-title {
+    flex: 1;
+    min-width: 0;
+}
+.account-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
+}
+.account-menu form { margin: 0; }
+.account-menu .welcome {
+    font-size: .85rem;
+    color: var(--text-sub);
+    letter-spacing: .06em;
+}
+
+/* =========================================================
+   【追加】店舗詳細画面（shops/detail.html）口コミ履歴一覧まわり
+   ========================================================= */
+/* 会員向け：口コミ履歴一覧へのボタン */
+.history-link {
+    margin-top: 16px;
+    text-align: right;
+}
+
+/* 非会員向け：口コミ履歴のモザイク表示 */
+.history-locked {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--gold-dark);
+}
+.history-locked h3 {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: .08em;
+}
+.history-locked-body {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+.mosaic {                        /* ダミーの口コミをぼかす */
+    filter: blur(6px);
+    user-select: none;
+    pointer-events: none;
+}
+.mosaic-overlay {                /* ぼかしの上に案内メッセージを重ねる */
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13, 13, 13, .45);
+}
+.mosaic-overlay p {
+    margin: 0;
+    padding: 12px 22px;
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    background: rgba(13, 13, 13, .85);
+    color: var(--gold-light);
+    font-weight: 600;
+    letter-spacing: .06em;
+    box-shadow: 0 0 16px rgba(201, 166, 70, .35);
+}
+
+/* =========================================================
+   スマホ対応
+   ========================================================= */
+@media (max-width: 768px) {
+    .container { padding: 20px 16px 48px; }
+    .page-title { font-size: 1.5rem; }
+
+    .top-bar { flex-direction: column; align-items: stretch; }
+    .search-form { flex: none; }
+    .top-bar > .btn { align-self: flex-end; }
+
+    .result-layout { grid-template-columns: 1fr; }
+    .side-panel { position: static; order: -1; }   /* スマホではプルダウンを上に */
+    .result-list .shop-card img,
+    .result-list .shop-card .no-image { width: 120px; }
+
+    .shop-detail { grid-template-columns: 1fr; }
+    .section { padding: 18px; }
+
+    /* 【追加】アカウントメニューはタイトルの上・右寄せにする */
+    .header { flex-direction: column; gap: 8px; }
+    .header .page-title { width: 100%; }
+    .account-menu { order: -1; align-self: flex-end; flex-wrap: wrap; justify-content: flex-end; }
+
+}

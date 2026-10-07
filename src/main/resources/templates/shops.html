@@ -9,21 +9,45 @@
 <body>
 <div class="container">
 
-    <h1 class="page-title">店舗一覧</h1>
+    <!-- 上部：タイトル（左） / アカウントメニュー（右上） -->
+    <div class="header">
+        <h1 class="page-title">店舗一覧</h1>
 
-    <!-- 上段：検索入力（左） / 会員登録（右） -->
+        <!-- 未ログイン：会員登録／ログイン -->
+        <!-- ※遷移先のURLは担当者が決まり次第変更してください -->
+        <div class="account-menu" th:unless="${isMember}">
+            <a class="btn btn-accent" th:href="@{/members/register}">会員登録</a>
+            <a class="btn btn-primary" th:href="@{/login_ato_de_kaeru}">ログイン</a>
+        </div>
+
+        <!-- ログイン済み：会員情報／ログアウト -->
+        <!-- ※遷移先のURLは担当者が決まり次第変更してください -->
+        <div class="account-menu" th:if="${isMember}">
+            <span class="welcome">ログイン中</span>
+            <a class="btn btn-secondary" th:href="@{/members/info}">会員情報</a>
+            <!-- ログアウト：POST /shops/logout → 処理後はトップ画面(/shops)へリダイレクト
+                 （Spring Security を使う場合も th:action ならCSRFトークンが自動で入る） -->
+            <form th:action="@{/shops/logout}" method="post">
+                <button type="submit" class="btn btn-secondary">ログアウト</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 結果メッセージ（ログアウト後のリダイレクトで受け取るフラッシュ属性など） -->
+    <div class="flash flash-success" th:if="${message}" th:text="${message}">ログアウトしました。</div>
+    <div class="flash flash-error" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</div>
+
+    <!-- 検索入力 -->
     <div class="top-bar">
         <form class="search-form" th:action="@{/shops/search}" method="get">
             <input type="text" name="name" placeholder="店舗名で検索" required>
             <button type="submit" class="btn btn-primary">検索</button>
         </form>
-        <!-- ※会員登録画面のURLは決まり次第変更してください -->
-        <a class="btn btn-accent" th:href="@{/members/register}">会員登録</a>
     </div>
 
-    <!-- パスワード再設定（一覧の右上） -->
+    <!-- パスワード再設定（未ログインのときだけ表示） -->
     <!-- ※パスワード再設定画面のURLは決まり次第変更してください -->
-    <div class="sub-link">
+    <div class="sub-link" th:unless="${isMember}">
         <a th:href="@{/password/reset}">パスワードをお忘れの方はこちら（パスワード再設定）</a>
     </div>
 
@@ -42,8 +66,6 @@
     </ul>
     <div class="empty" th:if="${#lists.isEmpty(stores)}">登録されている店舗はありません。</div>
 
-	
 </div>
 </body>
 </html>
-

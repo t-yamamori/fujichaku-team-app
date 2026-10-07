@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpSession;
+
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,12 +43,45 @@ public class ShopController {
 	// ReservationMapper.java に宣言のないSQLを、XMLのIDを指定して直接呼ぶために使う
 	private final SqlSession sqlSession;
 
-	//店舗一覧表示  GET /shops
+	//店舗一覧表示（トップ画面）  GET /shops
+	//同じ shops.html の中で「未ログイン」と「ログイン済み」の表示を切り替える
 	@GetMapping("")
 	public String showShops(Model model) {
 		List<Stores> st = storesMapper.selectList();
 		model.addAttribute("stores", st);
+
+		// ログイン状態を画面に渡す（右上のボタン切り替えに使う）
+		Integer loginId = getLoginId();
+		model.addAttribute("isMember", isMember(loginId));
+		model.addAttribute("loginId", loginId);
 		return "shops";
+	}
+
+	//ログアウト  POST /shops/logout
+	//セッションを破棄して、トップ画面(shops.html)へリダイレクトする
+	@PostMapping("/logout")
+	public String logout(HttpSession session, RedirectAttributes redirectAttributes) {
+
+		// セッションに保存したログイン情報をまとめて破棄する
+		session.invalidate();
+
+		redirectAttributes.addFlashAttribute("message", "ログアウトしました。");
+		return "redirect:/shops";
+	}
+
+	// ==================================================
+	// ログイン状態の判定（showShops / showDetail で共通利用）
+	// ==================================================
+
+	//ログイン中の会員IDを返す。未ログインなら null
+	//TODO: ログイン機能ができたらセッションから取得する（ここだけ直せば全画面に反映される）
+	private Integer getLoginId() {
+		return 123;
+	}
+
+	//loginId が会員(Membersテーブル)に存在するか
+	private boolean isMember(Integer loginId) {
+		return loginId != null && membersMapper.existsById(loginId);
 	}
 
 	//店舗を検索（検索画面表示）  GET /shops/search
@@ -65,13 +101,14 @@ public class ShopController {
 	}
 
 	/*
-	 * 店舗詳細表示・口コミ追加・口コミ削除
+	 * 店舗詳細表示・口コミ追加・口コミ削除・口コミ履歴一覧
 	 *
 	 *   GET  /shops/{shopId}                              → 店舗詳細表示
+	 *   GET  /shops/{shopId}  action=history              → showReviewHistory() を呼ぶ（口コミ履歴一覧）
 	 *   POST /shops/{shopId}  action=add,    comment, grade → addReview() を呼ぶ
 	 *   POST /shops/{shopId}  action=delete, reviewId       → deleteReview() を呼ぶ
 	 *
-	 * addReview / deleteReview は同じクラス内の private メソッドで、
+	 * addReview / deleteReview / showReviewHistory は同じクラス内の private メソッドで、
 	 * そこから ReviewService → ReviewsMapper → reviews テーブル の順にアクセスする。
 	 *
 	 * {shopId:\\d+} で数字のときだけこのメソッドに来るようにしている
@@ -96,11 +133,9 @@ public class ShopController {
 			return "redirect:/shops";
 		}
 
-		// TODO: ログイン機能ができたらセッションから取得する
-		Integer loginId = 123;
-
-		// loginIdが会員(Membersテーブル)に存在するか
-		boolean isMember = loginId != null && membersMapper.existsById(loginId);
+		// ログイン中の会員ID（未ログインなら null）と、会員かどうか
+		Integer loginId = getLoginId();
+		boolean isMember = isMember(loginId);
 
 		// ==================================================
 		// POST：口コミ追加・口コミ削除
@@ -120,6 +155,18 @@ public class ShopController {
 
 			// 処理後は詳細画面(GET)へ戻す（再読み込みでの二重投稿を防ぐ）
 			return "redirect:/shops/" + shopId;
+		}
+
+		// ==================================================
+		// GET：口コミ履歴一覧（会員のみ利用可）
+		// ==================================================
+		if ("history".equals(action)) {
+			if (!isMember) {
+				// 非会員がURL直接入力などで来た場合は詳細画面へ戻す
+				redirectAttributes.addFlashAttribute("errorMessage", "会員の方は口コミ履歴一覧を閲覧できます。");
+				return "redirect:/shops/" + shopId;
+			}
+			return showReviewHistory(st, model);
 		}
 
 		// ==================================================
@@ -156,6 +203,22 @@ public class ShopController {
 		// 自分の口コミにだけ削除ボタンを出す判定に使う
 		model.addAttribute("loginId", loginId);
 		return "shops/detail";
+	}
+
+	//口コミ履歴一覧（showDetail から呼び出される）
+	//会員のみ。表示中の店舗の口コミをすべて表示する（会員チェックは showDetail で実施済み）
+	private String showReviewHistory(Stores st, Model model) {
+
+		// Service を通して、この店舗の口コミ（全件・新しい順）を取得
+		// ReviewController の口コミ一覧と同じメソッドを使い、取得方法をそろえる
+		List<Reviews> history = reviewService.findAllByStoreId(st.getId());
+
+		// 既存テンプレート templates/reviews/reviews.html に合わせた属性名
+		//   reviews : 口コミのリスト（th:each="review : ${reviews}"）
+		//   shopId  : 「店舗詳細に戻る」リンク（@{/shops/{id}(id=${shopId})}）
+		model.addAttribute("reviews", history);
+		model.addAttribute("shopId", st.getId());
+		return "reviews/reviews";
 	}
 
 	//口コミ追加（showDetail から呼び出される）
