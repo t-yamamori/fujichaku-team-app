@@ -21,13 +21,15 @@
         SELECT id,
                name,
                birth_date AS birthDate,
-               mail
+               mail,
+               point
           FROM members
          WHERE is_deleted IS NOT TRUE
          ORDER BY id
     </select>
     
      <!-- 会員情報１件表示 -->
+
     <select id="findById" resultType="com.example.demo.entity.Members">
 	   SELECT id,name,mail,password,point,
            is_deleted AS isDeleted,
@@ -37,11 +39,13 @@
        AND is_deleted IS NOT TRUE
     </select>
 
+
     <!-- 新規登録 -->
     <insert id="insert">
         INSERT INTO members (name, birth_date, mail, password, point, is_deleted)
         VALUES (#{name}, #{birthDate}, #{mail}, #{password}, 0, false)
     </insert>
+
 
     <!-- 会員情報更新 -->
     <update id="update">
