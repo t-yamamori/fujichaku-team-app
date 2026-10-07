@@ -10,23 +10,33 @@
 
     <p>過去の予約一覧</p>
 
-    <!-- 予約履歴をここに表示する -->
-
     <table border="1">
         <thead>
             <tr>
                 <th>予約番号</th>
-                <th>店舗</th>
-                <th>予約日</th>
-                <th>予約時間</th>
+                <th>予約日時</th>
                 <th>人数</th>
+                <th>状況</th>
+                <th>詳細</th>
             </tr>
         </thead>
 
         <tbody>
-            <!-- DB連携後に予約データを表示 -->
+            <tr th:each="reservation : ${reservations}">
+                <td th:text="${reservation.reserve_number}"></td>
+                <td th:text="${reservation.reservation_date}"></td>
+                <td th:text="${reservation.number}"></td>
+                <td th:text="${reservation.status}"></td>
+                <td>
+                    <a th:href="@{/reservations/{id}(id=${reservation.id})}">
+                        確認
+                    </a>
+                </td>
+            </tr>
         </tbody>
     </table>
+
+    <a th:href="@{/shops}">店舗一覧へ戻る</a>
 
 </body>
 </html>

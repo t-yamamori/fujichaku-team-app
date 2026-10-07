@@ -3,41 +3,97 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
-
     <title>予約完了</title>
-
 </head>
 
 <body>
 
-<h1>予約完了</h1>
+    <h1>予約完了</h1>
 
+    <p>
+        ご予約ありがとうございます。
+    </p>
 
-<p>
-    ご予約ありがとうございます。
-</p>
+    <p>
+        予約が正常に完了しました。
+    </p>
 
+    <hr>
 
-<p>
-    予約が正常に完了しました。
-</p>
+    <!-- 予約番号 -->
+    <h2>予約番号</h2>
 
+    <p>
+        <strong th:text="${reservation.id}">
+            100
+        </strong>
+    </p>
 
-<h2>
-    予約番号
-</h2>
+    <!-- 店舗情報 -->
+    <h2>店舗情報</h2>
 
+    <p>
+        店舗名：
+        <span th:text="${store.name}">
+            店舗名
+        </span>
+    </p>
 
-<p>
+    <p>
+        住所：
+        <span th:text="${store.address}">
+            住所
+        </span>
+    </p>
 
-    <strong th:text="${reservationId}">
-        123
-    </strong>
+    <hr>
 
-</p>
+    <!-- 予約情報 -->
+    <h2>予約内容</h2>
 
+    <p>
+        <strong>予約日時：</strong>
+
+        <span th:text="${#temporals.format(
+                reservation.reservationDate,
+                'yyyy/MM/dd HH:mm')}">
+            2026/10/07 18:00
+        </span>
+    </p>
+
+    <p>
+        <strong>人数：</strong>
+
+        <span th:text="${reservation.number}">
+            2
+        </span>
+        名
+    </p>
+
+    <p>
+        <strong>予約状況：</strong>
+
+        <span th:text="${reservation.status}">
+            予約済み
+        </span>
+    </p>
+
+    <hr>
+
+    <!-- 予約詳細 -->
+    <p>
+        <a th:href="@{/reservations/{id}(id=${reservation.id})}">
+            予約内容を確認する
+        </a>
+    </p>
+
+    <!-- 店舗一覧 -->
+    <p>
+        <a th:href="@{/shops}">
+            店舗一覧へ戻る
+        </a>
+    </p>
 
 </body>
 

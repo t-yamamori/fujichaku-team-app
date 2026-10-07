@@ -11,19 +11,48 @@ import com.example.demo.entity.Reservations;
 public interface ReservationMapper {
 
     /*
+     * =========================================================
      * 予約登録
+     * =========================================================
+     *
+     * 会員予約
+     * memberId = 値
+     * userId   = null
+     *
+     * 非会員予約
+     * memberId = null
+     * userId   = 値
      */
     void insertReservation(Reservations reservation);
 
-    /*
-     * 予約番号から予約を取得
-     */
-    Reservations findById(int reservationId);
 
     /*
+     * =========================================================
+     * 予約IDから予約を取得
+     * =========================================================
+     */
+    Reservations findById(
+            @Param("reservationId") int reservationId
+    );
+
+
+    /*
+     * =========================================================
      * 会員IDから予約履歴を取得
+     * =========================================================
      */
     List<Reservations> findByMemberId(
-            @Param("memberId") int memberId);
-    
+            @Param("memberId") int memberId
+    );
+
+
+    /*
+     * =========================================================
+     * ユーザーIDから予約履歴を取得
+     * =========================================================
+     */
+    List<Reservations> findByUserId(
+            @Param("userId") int userId
+    );
+
 }

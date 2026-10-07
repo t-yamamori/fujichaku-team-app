@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -6,10 +6,11 @@
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
-    <!-- =========================================================
+
+    <!-- =====================================================
          予約登録
-         POST /shops/{shopId}/reservations
-         ========================================================= -->
+         ===================================================== -->
+
     <insert id="insertReservation"
             parameterType="com.example.demo.entity.Reservations"
             useGeneratedKeys="true"
@@ -18,6 +19,7 @@
         INSERT INTO reservations
         (
             member_id,
+            user_id,
             reservation_date,
             status,
             created_at,
@@ -27,6 +29,7 @@
         VALUES
         (
             #{memberId},
+            #{userId},
             #{reservationDate},
             #{status},
             #{createdAt},
@@ -37,21 +40,22 @@
     </insert>
 
 
-    <!-- =========================================================
-         予約IDから1件取得
-         GET /reservations/{reservationId}
-         ========================================================= -->
+    <!-- =====================================================
+         予約IDから予約を取得
+         ===================================================== -->
+
     <select id="findById"
-            parameterType="java.lang.Integer"
+            parameterType="int"
             resultType="com.example.demo.entity.Reservations">
 
         SELECT
             id,
-            member_id,
-            reservation_date,
+            member_id AS memberId,
+            user_id AS userId,
+            reservation_date AS reservationDate,
             status,
-            created_at,
-            store_id,
+            created_at AS createdAt,
+            store_id AS storeId,
             number
         FROM reservations
         WHERE id = #{reservationId}
@@ -59,6 +63,52 @@
     </select>
 
 
+    <!-- =====================================================
+         会員IDから予約履歴を取得
+         ===================================================== -->
+
+    <select id="findByMemberId"
+            parameterType="int"
+            resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            id,
+            member_id AS memberId,
+            user_id AS userId,
+            reservation_date AS reservationDate,
+            status,
+            created_at AS createdAt,
+            store_id AS storeId,
+            number
+        FROM reservations
+        WHERE member_id = #{memberId}
+        ORDER BY reservation_date DESC
+
+    </select>
+
+
+    <!-- =====================================================
+         ユーザーIDから予約履歴を取得
+         ===================================================== -->
+
+    <select id="findByUserId"
+            parameterType="int"
+            resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            id,
+            member_id AS memberId,
+            user_id AS userId,
+            reservation_date AS reservationDate,
+            status,
+            created_at AS createdAt,
+            store_id AS storeId,
+            number
+        FROM reservations
+        WHERE user_id = #{userId}
+        ORDER BY reservation_date DESC
+
+    </select>
 
 
 </mapper>
