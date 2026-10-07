@@ -51,7 +51,8 @@
             representative = #{representative},
             address = #{address},
             description = #{description},
-            picture_url = #{pictureUrl}
+            picture_url = #{pictureUrl},
+            phone = #{phone}
         WHERE id = #{id}
     </update>
 
