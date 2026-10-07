@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>会員一覧</title>
+
+<style>
+/* モーダルの背景 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* モーダル本体 */
+.modal-content {
+    background-color: white;
+    width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+}
+</style>
+
+</head>
+
+<body>
+
+    <h1>会員管理</h1>
+    <h2>会員一覧</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>選択</th>
+                <th>会員ID</th>
+                <th>氏名</th>
+                <th>生年月日</th>
+                <th>メールアドレス</th>
+                <th>ポイント</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr th:each="member : ${members}">
+                <td>
+                    <input type="checkbox"
+                           name="selectedId"
+                           th:value="${member.id}">
+                </td>
+
+                <td th:text="${member.id}"></td>
+                <td th:text="${member.name}"></td>
+                <td th:text="${member.birthDate}"></td>
+                <td th:text="${member.mail}"></td>
+                <td th:text="${member.point}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+
+    <!-- 更新ボタン -->
+    <button type="button" onclick="editMember()">更新</button>
+
+
+    <!-- 更新モーダル -->
+    <div id="editModal" class="modal">
+
+        <div class="modal-content">
+
+            <h2>会員情報を更新</h2>
+
+            <p>
+                会員ID：
+                <span id="editId"></span>
+            </p>
+
+            <p>
+                氏名：
+                <input type="text" id="editName">
+            </p>
+
+            <p>
+                生年月日：
+                <input type="date" id="editBirthDate">
+            </p>
+
+            <p>
+                メールアドレス：
+                <input type="email" id="editMail">
+            </p>
+
+            <p>
+                ポイント：
+                <input type="number" id="editPoint">
+            </p>
+
+            <button type="button" onclick="saveMember()">保存</button>
+            <button type="button" onclick="closeModal()">閉じる</button>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        // 更新ボタンを押したとき
+        function editMember() {
+
+            // チェックされた会員を取得
+            const checked = document.querySelector(
+                'input[name="selectedId"]:checked'
+            );
+
+            // 選択されていない場合
+            if (!checked) {
+                alert("編集する会員を選択してください。");
+                return;
+            }
+
+            // 選択された会員ID
+            const id = checked.value;
+
+            // 一覧から選択された会員を探す
+            const row = checked.closest("tr");
+
+            // 行の中の情報を取得
+            const name = row.cells[2].textContent;
+            const birthDate = row.cells[3].textContent;
+            const mail = row.cells[4].textContent;
+            const point = row.cells[5].textContent;
+
+            // モーダルに情報を入れる
+            document.getElementById("editId").textContent = id;
+            document.getElementById("editName").value = name;
+            document.getElementById("editBirthDate").value = birthDate;
+            document.getElementById("editMail").value = mail;
+            document.getElementById("editPoint").value = point;
+
+            // モーダルを表示
+            document.getElementById("editModal").style.display = "block";
+        }
+
+
+        // モーダルを閉じる
+        function closeModal() {
+            document.getElementById("editModal").style.display = "none";
+        }
+
+
+        // 保存ボタン
+        function saveMember() {
+            alert("保存処理は次のステップで作ります。");
+        }
+
+    </script>
+
+</body>
+</html>
