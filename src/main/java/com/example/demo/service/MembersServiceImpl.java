@@ -7,21 +7,21 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.entity.Members;
 import com.example.demo.form.MemberEditForm;
 import com.example.demo.mapper.MembersMapper;
-import com.example.demo.service.serviceInterface.MemberService;
+import com.example.demo.service.serviceInterface.MembersService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class MemberServiceImpl implements MemberService{
+public class MembersServiceImpl implements MembersService{
 	
 	private final MembersMapper membersMapper;
 	private final PasswordEncoder passwordEncorder;//Spring Security：パスワードの暗号化ができるインターフェース
 	
 	@Override
 	//会員のIdをもらって会員情報をとる処理を行う
-	public Members selectById( Integer id ) {
-		return membersMapper.selectById(id);
+	public Members findById( Integer id ) {
+		return membersMapper.findById(id);
 	}
 	
 	
@@ -43,14 +43,14 @@ public class MemberServiceImpl implements MemberService{
 	//特定の会員の情報とフォームに書き込まれた変更フォームをもらい、情報を書き換える
 	public void update(Integer id, MemberEditForm form) {
 		//今のデータを取得して画面に変更された項目だけを書き換える
-		Members member = membersMapper.selectById(id);
+		Members member = membersMapper.findById(id);
 		if(member == null) {
 			throw new IllegalStateException("会員が見つかりません（退会済みの可能性あり）"+ id);
 		}
 		
-		member.setName(form.getName());
-		member.setMail(form.getMail());
-		member.setBirthDate(form.getBirthDate());
+		member.setName(form.getName());//MemberEditFormに入っている名前をMembersに格納
+		member.setMail(form.getMail());//MemberEditFormに入っているメールをMembersに格納
+		member.setBirthDate(form.getBirthDate());//MemberEditFormに入っている生年月日をMembersに格納
 		
 		//新しいパスワードが入力された時だけ、暗号化して書き換える
 		if(form.getPassword()!= null && !form.getPassword().isEmpty()) {
@@ -71,5 +71,18 @@ public class MemberServiceImpl implements MemberService{
 		membersMapper.delete(id);
 		
 	}
+
+
+	@Override //文字列の会員IDを数字にして、会員を探す
+	public Members findByLoginId(String loginId) {
+	    try {
+	        return membersMapper.findById(Integer.valueOf(loginId));
+	        
+	    } catch (NumberFormatException e) {
+	        // ログインIDが数字でなかったとき
+	        return null;
+	    }
+	}
+
 	
 }

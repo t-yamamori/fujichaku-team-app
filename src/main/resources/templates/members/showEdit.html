@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>会員情報</title><!-- 会員情報表示・変更・退会画面（MembersController の showEdit が表示する） -->
+  <style>
+    body { font-family: sans-serif; max-width: 520px; margin: 32px auto; padding: 0 16px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-weight: bold; margin-bottom: 4px; }
+    .field input { width: 100%; padding: 8px; box-sizing: border-box; }
+    .hint { color: #666; font-size: 0.85em; margin: 4px 0 0; }
+    .error { color: #c62828; font-size: 0.9em; margin: 4px 0 0; }
+    .message { color: #2e7d32; font-weight: bold; }
+    .buttons { display: flex; justify-content: space-between; margin-top: 24px; }
+    button { padding: 8px 20px; cursor: pointer; }
+    .delete-open { background: #fff; color: #c62828; border: 1px solid #c62828; }
+ 
+    /* 退会の確認モーダル（画面の上に重なる窓） */
+    dialog { border: none; border-radius: 8px; padding: 24px 32px; text-align: center; }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.5); } /* 後ろの画面を暗くする */
+    .dialog-buttons { display: flex; gap: 16px; justify-content: center; margin-top: 16px; }
+    .yes { background: #c62828; color: #fff; border: none; }
+  </style>
+</head>
+<body>
+  <h1>会員情報</h1>
+ 
+  <!-- 変更後のメッセージ（Controller の addFlashAttribute("message", ...)） -->
+  <p class="message" th:if="${message}" th:text="${message}"></p>
+ 
+  
+  <!-- ===== 会員情報の変更フォーム ===== -->
+  <!-- th:object は、Controller で model に入れた "memberEditForm" と同じ名前にする -->
+  <form th:action="@{/members/edit}" th:object="${memberEditForm}" method="post">
+ 
+    <div class="field">
+      <label for="name">名前：</label>
+      <input type="text" id="name" th:field="*{name}">
+      <p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+    </div>
+ 
+    <div class="field">
+      <label for="mail">メールアドレス：</label>
+      <input type="email" id="mail" th:field="*{mail}">
+      <p class="error" th:if="${#fields.hasErrors('mail')}" th:errors="*{mail}"></p>
+    </div>
+ 
+    <div class="field">
+      <label for="password">パスワード：</label>
+      <!-- 伏せ字は「見本の文字（placeholder）」として表示するだけ。
+           何も入力しなければ空のまま送信され、パスワードは変更されない -->
+      <input type="password" id="password" th:field="*{password}" placeholder="●●●●●●●●">
+      <p class="hint">変更する場合のみ、新しいパスワードを入力してください（8文字以上）</p>
+      <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+    </div>
+ 
+    <div class="field">
+      <label for="birthDate">生年月日</label>
+      <input type="date" id="birthDate" th:field="*{birthDate}">
+      <p class="error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></p>
+    </div>
+ 
+    <div class="buttons">
+      <button type="submit">変更</button>
+      
+	  <!-- type="button" にすると、フォームを送信せずに、退会モーダルを開くだけになる -->
+      <button type="button" class="delete-open" id="openDeleteDialog">退会する</button>
+    </div>
+  </form>
+ 
+  <!-- トップ画面（店舗一覧）に戻る -->
+  <p><a th:href="@{/shops}">トップに戻る</a></p>
+ 
+  
+  <!-- ===== 退会の確認モーダル ===== -->
+  <dialog id="deleteDialog">
+    <p>本当に退会しますか？</p>
+    <div class="dialog-buttons">
+      <!-- 「はい」：POST /members/delete に送信して、退会処理をする -->
+      <form th:action="@{/members/delete}" method="post">
+        <button type="submit" class="yes">はい</button>
+      </form>
+      <!-- 「いいえ」：送信せずに、モーダルを閉じるだけ -->
+      <button type="button" id="closeDeleteDialog">いいえ</button>
+    </div>
+  </dialog>
+ 
+  <script>
+    const dialog = document.getElementById('deleteDialog');
+ 
+    // 「退会する」ボタン：モーダルを開く
+    document.getElementById('openDeleteDialog').addEventListener('click', () => {
+      dialog.showModal();
+    });
+ 
+    // 「いいえ」ボタン：モーダルを閉じて、会員情報画面に戻る
+    document.getElementById('closeDeleteDialog').addEventListener('click', () => {
+      dialog.close();
+    });
+  </script>
+</body>
+</html>
+ 
