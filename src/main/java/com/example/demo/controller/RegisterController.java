@@ -31,7 +31,7 @@ public class RegisterController {
     }
 
     // 1. 入力画面
-    @GetMapping("/register")
+    @GetMapping("/members/register")
     public String showRegister(HttpSession session, Model model) {
 
         RegisterForm form =
