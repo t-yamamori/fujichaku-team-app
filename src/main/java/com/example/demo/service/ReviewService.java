@@ -53,4 +53,5 @@ public class ReviewService {
 		return reviewsMapper.deleteReview(reviewId, storeId, memberId) > 0;
 	}
 
+	
 }
