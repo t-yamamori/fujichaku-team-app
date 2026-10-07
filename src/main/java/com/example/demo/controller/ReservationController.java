@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,19 +17,16 @@ import com.example.demo.entity.Stores;
 import com.example.demo.mapper.ReservationMapper;
 import com.example.demo.mapper.StoresMapper;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
+@RequiredArgsConstructor
 public class ReservationController {
 
     private final ReservationMapper reservationMapper;
+
     private final StoresMapper storesMapper;
 
-    public ReservationController(
-            ReservationMapper reservationMapper,
-            StoresMapper storesMapper) {
-
-        this.reservationMapper = reservationMapper;
-        this.storesMapper = storesMapper;
-    }
 
     /*
      * =========================================================
@@ -35,28 +34,20 @@ public class ReservationController {
      *
      * GET
      * /shops/{shopId}/reservations/new
-     *
-     * 店舗情報を取得して予約画面を表示する
      * =========================================================
      */
     @GetMapping("/shops/{shopId}/reservations/new")
-    public String showReservation(
-
-            @PathVariable("shopId") Integer shopId,
+    public String showReservationForm(
+            @PathVariable Integer shopId,
             Model model) {
 
-        // 店舗情報をDBから取得
         Stores store = storesMapper.selectById(shopId);
 
-        // 店舗が存在しない場合
         if (store == null) {
             return "redirect:/shops";
         }
 
-        // 画面に店舗情報を渡す
         model.addAttribute("store", store);
-
-        // shopIdも画面に渡す
         model.addAttribute("shopId", shopId);
 
         return "reservations/newreserve";
@@ -65,75 +56,217 @@ public class ReservationController {
 
     /*
      * =========================================================
-     * ② 予約登録
+     * ② 予約確認画面
+     *
+     * POST
+     * /shops/{shopId}/reservations/confirm
+     * =========================================================
+     */
+    @PostMapping("/shops/{shopId}/reservations/confirm")
+    public String confirmReservation(
+            @PathVariable Integer shopId,
+            @RequestParam String date,
+            @RequestParam String time,
+            @RequestParam Integer number,
+            @RequestParam(required = false) Integer memberId,
+            @RequestParam(required = false) Integer userId,
+            Model model) {
+
+        /*
+         * 店舗取得
+         */
+        Stores store = storesMapper.selectById(shopId);
+
+        if (store == null) {
+            return "redirect:/shops";
+        }
+
+
+        /*
+         * 会員・非会員チェック
+         *
+         * どちらか一方だけ入っている必要がある
+         */
+        if (memberId != null && userId != null) {
+
+            throw new IllegalArgumentException(
+                    "memberId と userId を同時に指定することはできません。"
+            );
+        }
+
+        if (memberId == null && userId == null) {
+
+            throw new IllegalArgumentException(
+                    "memberId または userId が必要です。"
+            );
+        }
+
+
+        /*
+         * 日付
+         */
+        LocalDate reservationDate =
+                LocalDate.parse(date);
+
+
+        /*
+         * 時間
+         */
+        LocalTime reservationTime =
+                LocalTime.parse(time);
+
+
+        /*
+         * 日付＋時間
+         */
+        LocalDateTime reservationDateTime =
+                LocalDateTime.of(
+                        reservationDate,
+                        reservationTime
+                );
+
+
+        /*
+         * 画面へ渡す
+         */
+        model.addAttribute(
+                "store",
+                store
+        );
+
+        model.addAttribute(
+                "shopId",
+                shopId
+        );
+
+        model.addAttribute(
+                "reservationDate",
+                reservationDate
+        );
+
+        model.addAttribute(
+                "reservationTime",
+                reservationTime
+        );
+
+        model.addAttribute(
+                "reservationDateTime",
+                reservationDateTime
+        );
+
+        model.addAttribute(
+                "number",
+                number
+        );
+
+        model.addAttribute(
+                "memberId",
+                memberId
+        );
+
+        model.addAttribute(
+                "userId",
+                userId
+        );
+
+
+        return "reservations/reservation";
+    }
+
+
+    /*
+     * =========================================================
+     * ③ 予約登録
      *
      * POST
      * /shops/{shopId}/reservations
-     *
-     * 予約内容をDBへ登録する
      * =========================================================
      */
     @PostMapping("/shops/{shopId}/reservations")
     public String reserve(
-            @PathVariable("shopId") Integer shopId,
-            @RequestParam("date") String date,
-            @RequestParam("time") String time,
-            @RequestParam("number") Integer number) {
+            @PathVariable Integer shopId,
+            @RequestParam String date,
+            @RequestParam String time,
+            @RequestParam Integer number,
+            @RequestParam(required = false) Integer memberId,
+            @RequestParam(required = false) Integer userId,
+            Model model) {
 
         /*
-         * date
-         * 例：2026-10-05
-         *
-         * time
-         * 例：18:00
-         *
-         * ↓
-         *
-         * 2026-10-05T18:00
-         *
-         * LocalDateTimeに変換
+         * =====================================================
+         * 会員・非会員チェック
+         * =====================================================
          */
-        LocalDateTime reservationDate =
-                LocalDateTime.parse(date + "T" + time);
+
+        if (memberId != null && userId != null) {
+
+            throw new IllegalArgumentException(
+                    "memberId と userId を同時に指定することはできません。"
+            );
+        }
+
+        if (memberId == null && userId == null) {
+
+            throw new IllegalArgumentException(
+                    "memberId または userId が必要です。"
+            );
+        }
 
 
         /*
-         * Reservationsオブジェクトを作成
+         * =====================================================
+         * 店舗取得
+         * =====================================================
          */
-        Reservations reservation = new Reservations();
+
+        Stores store = storesMapper.selectById(shopId);
+
+        if (store == null) {
+            return "redirect:/shops";
+        }
 
 
         /*
-         * 会員ID
-         *
-         * 現在はログイン機能が完成していないため
-         * 仮に123を使用
-         */
-        reservation.setMember_id(123);
-
-
-        /*
+         * =====================================================
          * 予約日時
+         * =====================================================
          */
-        reservation.setReservation_date(reservationDate);
+
+        LocalDate reservationDate =
+                LocalDate.parse(date);
+
+        LocalTime reservationTime =
+                LocalTime.parse(time);
+
+        LocalDateTime reservationDateTime =
+                LocalDateTime.of(
+                        reservationDate,
+                        reservationTime
+                );
 
 
         /*
-         * 予約状況
+         * =====================================================
+         * Reservations作成
+         * =====================================================
          */
-        reservation.setStatus("予約済み");
 
-
-        /*
-         * 登録日時
-         */
-        reservation.setCreated_at(LocalDateTime.now());
+        Reservations reservation =
+                new Reservations();
 
 
         /*
          * 店舗ID
          */
-        reservation.setStore_id(shopId);
+        reservation.setStoreId(shopId);
+
+
+        /*
+         * 予約日時
+         */
+        reservation.setReservationDate(
+                reservationDateTime
+        );
 
 
         /*
@@ -143,80 +276,183 @@ public class ReservationController {
 
 
         /*
-         * DBへ登録
-         *
-         * INSERT後、
-         * 自動採番されたidが
-         * reservation.getId()
-         * で取得できる
+         * ステータス
          */
-        reservationMapper.insertReservation(reservation);
+        reservation.setStatus("予約済み");
 
 
         /*
-         * 登録された予約番号を取得
+         * 作成日時
          */
-        Integer reservationId = reservation.getId();
+        reservation.setCreatedAt(
+                LocalDateTime.now()
+        );
 
 
         /*
-         * 予約確認画面へ移動
-         *
-         * GET
-         * /reservations/{reservationId}
+         * =====================================================
+         * 会員・非会員の振り分け
+         * =====================================================
          */
-        return "redirect:/reservations/" + reservationId;
+
+        if (memberId != null) {
+
+            /*
+             * 会員予約
+             *
+             * member_id = memberId
+             * user_id   = NULL
+             */
+
+            reservation.setMemberId(memberId);
+            reservation.setUserId(null);
+
+        } else {
+
+            /*
+             * 非会員予約
+             *
+             * member_id = NULL
+             * user_id   = userId
+             */
+
+            reservation.setMemberId(null);
+            reservation.setUserId(userId);
+        }
+
+
+        /*
+         * =====================================================
+         * DB登録
+         * =====================================================
+         */
+
+        reservationMapper.insertReservation(
+                reservation
+        );
+
+
+        /*
+         * =====================================================
+         * 完了画面へ
+         * =====================================================
+         */
+
+        model.addAttribute(
+                "reservation",
+                reservation
+        );
+
+        model.addAttribute(
+                "store",
+                store
+        );
+
+        model.addAttribute(
+                "reservationId",
+                reservation.getId()
+        );
+
+
+        return "reservations/complete";
     }
 
 
     /*
      * =========================================================
-     * ③ 予約確認画面
+     * ④ 予約確認
      *
      * GET
      * /reservations/{reservationId}
-     *
-     * DBから予約情報を取得して表示する
      * =========================================================
      */
     @GetMapping("/reservations/{reservationId}")
-    public String showReserved(
-            @PathVariable("reservationId") Integer reservationId,
+    public String showReservation(
+            @PathVariable Integer reservationId,
             Model model) {
 
         /*
-         * 予約番号から予約情報を取得
+         * 予約取得
          */
         Reservations reservation =
-                reservationMapper.findById(reservationId);
+                reservationMapper.findById(
+                        reservationId
+                );
 
-
-        /*
-         * 予約が存在しない場合
-         */
         if (reservation == null) {
             return "redirect:/shops";
         }
 
 
         /*
-         * 予約に入っているstore_idから
-         * 店舗情報を取得
+         * 店舗取得
          */
         Stores store =
-                storesMapper.selectById(reservation.getStore_id());
+                storesMapper.selectById(
+                        reservation.getStoreId()
+                );
 
 
         /*
-         * 予約情報を画面へ渡す
+         * 予約日時から日付・時間を取得
          */
-        model.addAttribute("reservation", reservation);
+        LocalDateTime reservationDateTime =
+                reservation.getReservationDate();
+
+        LocalDate reservationDate =
+                reservationDateTime.toLocalDate();
+
+        LocalTime reservationTime =
+                reservationDateTime.toLocalTime();
 
 
         /*
-         * 店舗情報を画面へ渡す
+         * 画面へ渡す
          */
-        model.addAttribute("store", store);
+        model.addAttribute(
+                "reservation",
+                reservation
+        );
+
+        model.addAttribute(
+                "store",
+                store
+        );
+
+        model.addAttribute(
+                "shopId",
+                reservation.getStoreId()
+        );
+
+        model.addAttribute(
+                "reservationDate",
+                reservationDate
+        );
+
+        model.addAttribute(
+                "reservationTime",
+                reservationTime
+        );
+
+        model.addAttribute(
+                "reservationDateTime",
+                reservationDateTime
+        );
+
+        model.addAttribute(
+                "number",
+                reservation.getNumber()
+        );
+
+        model.addAttribute(
+                "memberId",
+                reservation.getMemberId()
+        );
+
+        model.addAttribute(
+                "userId",
+                reservation.getUserId()
+        );
 
 
         return "reservations/reservation";
@@ -225,37 +461,59 @@ public class ReservationController {
 
     /*
      * =========================================================
-     * ④ 予約履歴
+     * ⑤ 予約履歴
      *
      * GET
      * /reservations/history
-     *
-     * ログイン中の会員の予約履歴を表示する
      * =========================================================
      */
     @GetMapping("/reservations/history")
-    public String showHistory(Model model) {
+    public String showHistory(
+            @RequestParam(required = false) Integer memberId,
+            @RequestParam(required = false) Integer userId,
+            Model model) {
 
-        /*
-         * 現在はログイン機能が完成していないため
-         * 仮に会員ID「123」を使用
-         */
-        Integer memberId = 123;
-
-
-        /*
-         * 会員IDから予約履歴を取得
-         */
-        List<Reservations> reservations =
-                reservationMapper.findByMemberId(memberId);
+        List<Reservations> reservations;
 
 
         /*
-         * 予約履歴を画面へ渡す
+         * 会員の場合
          */
-        model.addAttribute("reservations", reservations);
+        if (memberId != null) {
+
+            reservations =
+                    reservationMapper.findByMemberId(
+                            memberId
+                    );
+
+
+        /*
+         * 非会員の場合
+         */
+        } else if (userId != null) {
+
+            reservations =
+                    reservationMapper.findByUserId(
+                            userId
+                    );
+
+
+        /*
+         * IDがない場合
+         */
+        } else {
+
+            reservations = List.of();
+        }
+
+
+        model.addAttribute(
+                "reservations",
+                reservations
+        );
 
 
         return "reservations/history";
     }
+
 }

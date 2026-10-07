@@ -450,11 +450,11 @@
 
 
         <!--
-            予約確認画面へ送信
-            POST /shops/{shopId}/reservations/confirm
+            予約登録を送信
+            POST /shops/{shopId}/reservations
         -->
 
-        <form th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}"
+        <form th:action="@{/shops/{shopId}/reservations(shopId=${store.id})}"
               method="post">
 
 
@@ -666,7 +666,6 @@
             <div class="notice"> 
 				<p> ※ 10名以上で予約の場合は、直接店舗にお電話での確認お願いします。 </p> 
 				<p> ※ 予約内容をご確認のうえ、「予約内容を確認する」を押してください。 </p> 
-				<p> ※ 次の画面で予約内容を確認してから予約を確定します。 </p> 
 			</div>
 
 
@@ -678,7 +677,7 @@
 
                 <button type="submit"
                         class="confirm-button">
-                    予約内容を確認する
+                    予約する
                 </button>
 
                 <a th:href="@{/shops/{shopId}(shopId=${store.id})}"
