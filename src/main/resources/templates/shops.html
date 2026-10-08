@@ -22,18 +22,22 @@
 
         <!-- 未ログイン：会員登録／ログイン -->
         <div class="account-menu" th:unless="${isMember}">
+
             <!-- 会員登録：RegisterController（GET /register → register/register.html） -->
-            <a class="btn btn-accent" th:href="@{/register}">会員登録</a>
+            <a class="btn btn-accent" th:href="@{/register/register}">会員登録</a>
             <!-- ログイン：register/complete.html と同じ /login に合わせている（担当者の実装に合わせて変更可） -->
             <a class="btn btn-primary" th:href="@{/login}">ログイン</a>
+
         </div>
 
         <!-- ログイン済み：会員情報／ログアウト -->
         <div class="account-menu" th:if="${isMember}">
             <span class="welcome">ログイン中</span>
+
             <!-- 会員情報：MembersController の showEdit（GET /members/edit）→ showEdit.html
                  ※showEdit.html の変更フォームが POST /members/edit なので、表示も同じURLの GET と想定。
                    MembersController の @GetMapping が違う場合はここを合わせてください -->
+
             <a class="btn btn-secondary" th:href="@{/members/showEdit}">会員情報</a>
             <!-- ログアウト：POST /shops/logout → 処理後はトップ画面(/shops)へリダイレクト
                  （Spring Security を使う場合も th:action ならCSRFトークンが自動で入る） -->
