@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="ja"
-
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -12,12 +10,7 @@
 
           content="width=device-width, initial-scale=1.0">
 
-    <title>
-
-        予約確認
-
-    </title>
-
+    <title>予約完了 - FUJICHAKU</title>
 
     <style>
 
@@ -160,516 +153,400 @@ input:focus,select:focus{border-color:#66876d;box-shadow:0 0 0 2px rgba(102,135,
 
 
 <body>
+
+
+<!-- ==========================================
+
+     ヘッダー
+
+========================================== -->
+
 <header class="header">
-    <div class="logo">FUJICHAKU</div>
-    <div class="header-title">RESERVATION CONFIRM</div>
+
+    <div class="logo">
+
+        FUJICHAKU
+
+    </div>
+
+    <a th:href="@{/shops}"
+
+       class="back-link">
+
+        ← 店舗一覧へ戻る
+
+    </a>
+
 </header>
 
 
+<!-- ==========================================
+
+     メイン
+
+========================================== -->
 
 <main class="container">
 
 
-    <!-- =========================================
+    <!-- ページタイトル -->
 
-         タイトル
+    <div class="page-title">
 
-    ========================================= -->
+        <div class="complete-mark">
 
-    <div class="title">
-
-
-        <div class="sub">
-
-            RESERVATION CONFIRM
+            ✓
 
         </div>
 
+        <div class="sub">
+
+            Reservation Complete
+
+        </div>
 
         <h1>
 
-            予約確認
+            予約完了
 
         </h1>
 
+        <p>
+
+            ご予約ありがとうございます。
+
+        </p>
 
     </div>
 
 
+    <!-- ==========================================
 
-    <section class="card">
+         完了カード
 
+    ========================================== -->
 
-        <!-- =========================================
-
-             店舗情報
-
-        ========================================= -->
-
-        <div class="section">
+    <section class="complete-card">
 
 
-            <h2>
+        <!-- ======================================
 
-                店舗情報
+             予約番号
 
-            </h2>
+        ====================================== -->
 
+        <div class="reservation-number">
 
-            <div class="row">
+            <div class="reservation-number-label">
 
-
-                <span class="label">
-
-                    店舗名
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${store.name}">
-
-                    店舗名
-
-                </span>
-
+                RESERVATION NUMBER
 
             </div>
 
+            <p class="reservation-number-value"
 
-            <div class="row">
+               th:text="${reservation.id}">
 
+                100
 
-                <span class="label">
+            </p>
 
-                    住所
+            <div class="reservation-number-note">
 
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${store.address}">
-
-                    住所
-
-                </span>
-
+                こちらの予約番号をお控えください。
 
             </div>
-
 
         </div>
 
 
+        <!-- ======================================
 
-        <!-- =========================================
+             店舗情報・予約情報
 
-             非会員情報
+        ====================================== -->
 
-        ========================================= -->
+        <div class="information-layout">
 
-        <div class="section"
 
-             th:if="${userId != null}">
+            <!-- ==================================
 
+                 店舗情報
 
-            <h2>
+            ================================== -->
 
-                予約者情報
+            <section class="info-card">
 
-            </h2>
+                <h2 class="card-title">
 
+                    <span>
 
-            <div class="guest-badge">
-
-                NON-MEMBER
-
-            </div>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    氏名
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${userName}">
-
-                    氏名
-
-                </span>
-
-
-            </div>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    メールアドレス
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${userMail}">
-
-                    メールアドレス
-
-                </span>
-
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =========================================
-
-             会員情報
-
-        ========================================= -->
-
-        <div class="section"
-
-             th:if="${memberId != null}">
-
-
-            <h2>
-
-                予約者情報
-
-            </h2>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    会員ID
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${memberId}">
-
-                    会員ID
-
-                </span>
-
-
-            </div>
-
-
-        </div>
-
-
-
-        <!-- =========================================
-
-             予約内容
-
-        ========================================= -->
-
-        <div class="section">
-
-
-            <h2>
-
-                予約内容
-
-            </h2>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    予約日
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${reservationDate}">
-
-                    2026-10-07
-
-                </span>
-
-
-            </div>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    予約時間
-
-                </span>
-
-
-                <span class="value"
-
-                      th:text="${reservationTime}">
-
-                    18:00
-
-                </span>
-
-
-            </div>
-
-
-            <div class="row">
-
-
-                <span class="label">
-
-                    人数
-
-                </span>
-
-
-                <span class="value">
-
-
-                    <span th:text="${number}">
-
-                        2
+                        RESTAURANT
 
                     </span>
 
+                    店舗情報
 
-                    名
-
-
-                </span>
+                </h2>
 
 
-            </div>
+                <div class="info-row">
 
+                    <div class="info-label">
+
+                        NAME
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${store.name}">
+
+                        店舗名
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        ADDRESS
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${store.address}">
+
+                        住所
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        CONTACT
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${store.mail}">
+
+                        メールアドレス
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        REPRESENTATIVE
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${store.representative}">
+
+                        代表者
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==================================
+
+                 予約情報
+
+            ================================== -->
+
+            <section class="info-card">
+
+                <h2 class="card-title">
+
+                    <span>
+
+                        RESERVATION
+
+                    </span>
+
+                    予約内容
+
+                </h2>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        DATE & TIME
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${#temporals.format(
+
+                             reservation.reservationDate,
+
+                             'yyyy/MM/dd HH:mm'
+
+                         )}">
+
+                        2026/10/07 18:00
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        GUESTS
+
+                    </div>
+
+                    <div class="info-value">
+
+                        <span th:text="${reservation.number}">
+
+                            2
+
+                        </span>
+
+                        名
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        STATUS
+
+                    </div>
+
+                    <div class="info-value">
+
+                        <span class="reservation-status"
+
+                              th:text="${reservation.status}">
+
+                            予約済み
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <div class="info-label">
+
+                        RESERVATION ID
+
+                    </div>
+
+                    <div class="info-value"
+
+                         th:text="${reservation.id}">
+
+                        100
+
+                    </div>
+
+                </div>
+
+            </section>
 
         </div>
 
 
+        <!-- ======================================
 
-        <!-- =========================================
+             メッセージ
 
-             最終確定
+        ====================================== -->
 
-        ========================================= -->
+        <div class="message">
 
-        <form th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}"
+            予約が正常に完了しました。
 
-              method="post">
+            <br>
 
+            ご来店の際は、予約番号をご確認いただけるよう
 
-            <!-- CSRF -->
+            お控えください。
 
-            <input type="hidden"
+        </div>
 
-                   th:name="${_csrf.parameterName}"
 
-                   th:value="${_csrf.token}">
+        <!-- ======================================
 
+             ボタン
 
+        ====================================== -->
 
-            <!-- =====================================
+        <div class="button-area">
 
-                 予約日
 
-            ===================================== -->
+            <!-- 予約履歴 -->
 
-            <input type="hidden"
+            <a th:href="@{/reservations/history}"
 
-                   name="date"
+               class="button primary-button">
 
-                   th:value="${reservationDate}">
+                予約履歴を見る
 
+            </a>
 
 
-            <!-- =====================================
+            <!-- 店舗一覧 -->
 
-                 予約時間
+            <a th:href="@{/shops}"
 
-            ===================================== -->
+               class="button secondary-button">
 
-            <input type="hidden"
+                店舗一覧へ戻る
 
-                   name="time"
+            </a>
 
-                   th:value="${reservationTime}">
-
-
-
-            <!-- =====================================
-
-                 人数
-
-            ===================================== -->
-
-            <input type="hidden"
-
-                   name="number"
-
-                   th:value="${number}">
-
-
-
-            <!-- =====================================
-
-                 会員
-
-                 memberIdは表示用として送信
-
-            ===================================== -->
-
-            <input type="hidden"
-
-                   th:if="${memberId != null}"
-
-                   name="memberId"
-
-                   th:value="${memberId}">
-
-
-
-            <!-- =====================================
-
-                 非会員
-
-                 userIdは表示用として送信
-
-                 Controllerでは最終的に
-
-                 mailから再確認する
-
-            ===================================== -->
-
-            <input type="hidden"
-
-                   th:if="${userId != null}"
-
-                   name="userId"
-
-                   th:value="${userId}">
-
-
-
-            <!-- =====================================
-
-                 非会員氏名
-
-            ===================================== -->
-
-            <input type="hidden"
-
-                   th:if="${userName != null}"
-
-                   name="name"
-
-                   th:value="${userName}">
-
-
-
-            <!-- =====================================
-
-                 非会員メール
-
-            ===================================== -->
-
-            <input type="hidden"
-
-                   th:if="${userMail != null}"
-
-                   name="mail"
-
-                   th:value="${userMail}">
-
-
-
-            <!-- =====================================
-
-                 確定ボタン
-
-            ===================================== -->
-
-            <div class="button-area">
-
-
-                <button type="submit">
-
-                    予約を確定する
-
-                </button>
-
-
-            </div>
-
-
-        </form>
-
-
-
-        <!-- =========================================
-
-             予約変更
-
-        ========================================= -->
-
-        <a th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
-
-           class="back">
-
-            予約内容を変更する
-
-        </a>
-
-
-
-        <!-- =========================================
-
-             店舗一覧
-
-        ========================================= -->
-
-        <a th:href="@{/shops}"
-
-           class="back">
-
-            店舗一覧へ戻る
-
-        </a>
+        </div>
 
 
     </section>
 
 
+    <div class="footer-note">
+
+        FUJICHAKU · RESTAURANT RESERVATION
+
+    </div>
+
+
 </main>
 
-
-<footer class="footer">FUJICHAKU RESERVATION SYSTEM</footer>
 
 </body>
 
