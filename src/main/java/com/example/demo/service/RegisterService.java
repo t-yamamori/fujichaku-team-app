@@ -35,4 +35,10 @@ public class RegisterService {
 
         memberMapper.insert(member);
     }
+    
+   // メールがすでに使われているか
+    public boolean existsByMail(String mail) {
+        return memberMapper.existsByMail(mail);
+        
+    }
 }

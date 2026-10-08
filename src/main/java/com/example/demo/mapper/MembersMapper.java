@@ -17,6 +17,9 @@ public interface MembersMapper {
 	
 	// 会員一覧　更新画面と同じ
     List<Members> selectAll();
+    
+    // メールアドレスが登録済みか確認
+    boolean existsByMail(@Param("mail") String mail);
 
     // 新規登録　RegisterFormから
 	void insert(Members member);
