@@ -31,59 +31,42 @@ public class SecurityConfig {//設定用クラス
 //
 //        return http.build();
 //    }
-    
-    //会員機能（山守専用）テスト用：ログイン後の会員情報を表示するためのテスト設定
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
-                .anyRequest().authenticated()
-            )
-            .formLogin(form -> form
-            	    .defaultSuccessUrl("/test/top", true)//【テスト用】確認が終わったら "/shops" に戻す
-            	    .permitAll()
-            );
-
-        return http.build();
-    }
   
     
     //本番用：ログイン処理
-//	    @Bean
-//	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//	
-//	        http
-//	            // ① どの画面に、ログインが必要か
-//	            .authorizeHttpRequests(auth -> auth
-//	                // ログインしなくても見られる画面
-//	                .requestMatchers(
-//	                    "/", "/shops/**",                  // トップ・店舗一覧・検索・店舗詳細
-//	                    "/register/**",                    // 会員登録（URLは会員登録の担当と合わせる）
-//	                    "/login",                          // ログイン画面
-//	                    "/css/**", "/js/**", "/images/**"  // CSS・JavaScript・画像
-//	                ).permitAll()
-//	                // ログインが必要な画面（会員情報・変更・退会、予約履歴）
-//	                .requestMatchers("/members/**", "/reservations/history").authenticated()
-//	                // それ以外は、いまは誰でも使えるようにしておく
-//	                .anyRequest().permitAll()
-//	            )
-//	            // ② ログイン：Spring Security 標準のログイン画面を使う
-//	            .formLogin(form -> form
-//	                .defaultSuccessUrl("/shops", true)//ログインが成功したらトップ画面へ遷移
-//	                .permitAll()
-//	            )
-//	            // ③ ログアウト：POST /logout でログアウトし、トップ画面へ戻る
-//	            .logout(logout -> logout
-//	                .logoutUrl("/logout")
-//	                .logoutSuccessUrl("/shops")
-//	                .permitAll()
-//	            );
-//	
-//	        return http.build();
-//	    }
-//    
+	    @Bean
+	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	
+	        http
+	            // ① どの画面に、ログインが必要か
+	            .authorizeHttpRequests(auth -> auth
+	                // ログインしなくても見られる画面
+	                .requestMatchers(
+	                    "/", "/shops/**",                  // トップ・店舗一覧・検索・店舗詳細
+	                    "/register/**",                    // 会員登録（URLは会員登録の担当と合わせる）
+	                    "/login",                          // ログイン画面
+	                    "/css/**", "/js/**", "/images/**"  // CSS・JavaScript・画像
+	                ).permitAll()
+	                // ログインが必要な画面（会員情報・変更・退会、予約履歴）
+	                .requestMatchers("/members/**", "/reservations/history").authenticated()
+	                // それ以外は、いまは誰でも使えるようにしておく
+	                .anyRequest().permitAll()
+	            )
+	            // ② ログイン：Spring Security 標準のログイン画面を使う
+	            .formLogin(form -> form
+	                .defaultSuccessUrl("/shops", true)//ログインが成功したらトップ画面へ遷移
+	                .permitAll()
+	            )
+	            // ③ ログアウト：POST /logout でログアウトし、トップ画面へ戻る
+	            .logout(logout -> logout
+	                .logoutUrl("/logout")
+	                .logoutSuccessUrl("/shops")
+	                .permitAll()
+	            );
+	
+	        return http.build();
+	    }
+    
     
     //テスト用：ログインできる人の名簿を作成する↓
 //    @Bean
