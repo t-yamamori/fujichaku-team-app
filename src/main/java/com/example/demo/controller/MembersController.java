@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 /**
  * 会員情報画面（表示・変更・退会）を受け付けるコントローラー
  *
- *   GET  /members/edit    会員情報画面を表示する（トップ画面の「会員情報」ボタン）
- *   POST /members/edit    会員情報を変更する（「変更」ボタン）
+ *   GET  /members/showEdit    会員情報画面を表示する（トップ画面の「会員情報」ボタン）
+ *   POST /members/showEdit    会員情報を変更する（「変更」ボタン）
  *   POST /members/delete  退会する（確認モーダルの「はい」ボタン）
  *
  * ログインの仕組みは別の担当なので、ここでは作らない。
@@ -44,7 +44,7 @@ public class MembersController {
      * 会員情報画面を表示する
      * 今の登録内容を MemberEditForm に詰め替えて、入力欄に入れた状態で表示する
      */
-    @GetMapping("/edit")
+    @GetMapping("/showEdit")
     public String showEdit(Principal principal, Model model) {
         Members member = membersService.findByLoginId(principal.getName());
         if (member == null) {
@@ -52,14 +52,14 @@ public class MembersController {
             return "redirect:/shops";
         }
         model.addAttribute("memberEditForm", membersService.toForm(member));
-        return "members/edit";
+        return "members/showEdit";
     }
  
     /**
      * 会員情報を変更する（「変更」ボタン）
      * 入力ミスがあれば、入力した内容とエラーを残したまま、同じ画面を表示する
      */
-    @PostMapping("/edit")
+    @PostMapping("/showEdit")
     public String update(@Validated @ModelAttribute("memberEditForm") MemberEditForm editForm,
                          BindingResult result,
                          Principal principal,
@@ -71,7 +71,7 @@ public class MembersController {
  
         // 入力チェック（@NotBlank など）にひっかかったとき
         if (result.hasErrors()) {
-            return "members/edit";
+            return "members/showEdit";
         }
  
         try {
@@ -79,12 +79,12 @@ public class MembersController {
         } catch (DuplicateKeyException e) {
             // 他の会員と同じメールアドレスだったとき（DBの一意インデックスで検出）
             result.rejectValue("mail", "duplicate", "このメールアドレスはすでに使われています");
-            return "members/edit";
+            return "members/showEdit";
         }
  
         // 変更後は同じ画面を開き直し、「会員情報を変更しました」と表示する
         redirectAttributes.addFlashAttribute("message", "会員情報を変更しました");
-        return "redirect:/members/edit";
+        return "redirect:/members/showEdit";
     }
  
     /**
