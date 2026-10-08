@@ -27,7 +27,7 @@ public class RegisterController {
     // ホーム("/")は入力画面へ
     @GetMapping("/")
     public String home() {
-        return "redirect:/register";
+        return "redirect:/members/register";
     }
 
     // 1. 入力画面
@@ -52,6 +52,19 @@ public class RegisterController {
             BindingResult result,
             HttpSession session) {
 
+        boolean exists = service.existsByMail(form.getMail());
+
+        System.out.println("メール：" + form.getMail());
+        System.out.println("メール重複：" + exists);
+
+        if (!result.hasFieldErrors("mail") && exists) {
+            result.rejectValue(
+                    "mail",
+                    "duplicate",
+                    "このメールアドレスは既に登録されています。"
+            );
+        }
+
         if (result.hasErrors()) {
             return "register/register";
         }
@@ -61,7 +74,7 @@ public class RegisterController {
         return "register/confirm";
     }
 
-    // 3. DB登録
+ // 3. DB登録
     @PostMapping("/register/complete")
     public String complete(HttpSession session) {
 
@@ -69,7 +82,7 @@ public class RegisterController {
                 (RegisterForm) session.getAttribute(SESSION_KEY);
 
         if (form == null) {
-            return "redirect:/register";
+            return "redirect:/members/register";
         }
 
         service.register(form);

@@ -15,6 +15,15 @@
                AND is_deleted IS NOT TRUE
         )
     </select>
+    
+   <!-- メールアドレスが登録済みか確認 -->
+<select id="existsByMail" resultType="boolean">
+    SELECT EXISTS (
+        SELECT 1
+          FROM members
+         WHERE mail = #{mail}
+    )
+</select>
 
     <!-- 会員一覧 -->
     <select id="selectAll" resultType="com.example.demo.entity.Members">
