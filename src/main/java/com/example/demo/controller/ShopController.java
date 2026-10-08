@@ -9,6 +9,9 @@ import jakarta.servlet.http.HttpSession;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +22,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.entity.Members;
 import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Reviews;
 import com.example.demo.entity.Stores;
-import com.example.demo.mapper.MembersMapper;
 import com.example.demo.mapper.StoresMapper;
 import com.example.demo.service.ReviewService;
+import com.example.demo.service.serviceInterface.MembersService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +39,10 @@ public class ShopController {
 
 	//フィールド
 	private final StoresMapper storesMapper;
-	private final MembersMapper membersMapper;
+
+	// 会員(members)へのアクセスは必ず Service を通す
+	// 型はインターフェース(MembersService)にしておき、実体は Spring が MembersServiceImpl を入れてくれる
+	private final MembersService membersService;
 
 	// 口コミ(reviews)へのアクセスは必ず Service を通す
 	private final ReviewService reviewService;
@@ -69,19 +76,26 @@ public class ShopController {
 		return "redirect:/shops";
 	}
 
-	// ==================================================
-	// ログイン状態の判定（showShops / showDetail で共通利用）
-	// ==================================================
-
 	//ログイン中の会員IDを返す。未ログインなら null
-	//TODO: ログイン機能ができたらセッションから取得する（ここだけ直せば全画面に反映される）
+	//会員の探し方は MembersService の findByLoginId にまとめてある（try 文はそちらだけ）
 	private Integer getLoginId() {
-		return 123;
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		// 未ログイン（ログインしていない人は「匿名ユーザー」として扱われるので、それも除く）
+		if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+			return null;
+		}
+
+		// ログインID（会員IDの文字列）で会員を探す。見つからなければ null
+		Members member = membersService.findByLoginId(auth.getName());
+		return member != null ? member.getId() : null;
 	}
 
-	//loginId が会員(Membersテーブル)に存在するか
+	//会員かどうかを判定する
+	//getLoginId() の中で MembersService 経由で会員を検索済み（退会済みは除外済み）なので、
+	//loginId が null でなければ「有効な会員」と判断できる（Mapper を再度呼ぶ必要はない）
 	private boolean isMember(Integer loginId) {
-		return loginId != null && membersMapper.existsById(loginId);
+		return loginId != null;
 	}
 
 	//店舗を検索（検索画面表示）  GET /shops/search
@@ -240,18 +254,19 @@ public class ShopController {
 		redirectAttributes.addFlashAttribute("message", "口コミを投稿しました。");
 	}
 
-	//口コミ削除（showDetail から呼び出される）
+	//口コミ削除（showDetail から呼び出される。）
 	private void deleteReview(int shopId, int loginId, Integer reviewId,
 			RedirectAttributes redirectAttributes) {
 
-		// Service を通して削除（自分の口コミのときだけ削除される）
+		// Service を通して削除（自分の口コミのときだけ削除される。）
 		boolean deleted = reviewId != null && reviewService.deleteReview(reviewId, shopId, loginId);
 
 		if (deleted) {
-			redirectAttributes.addFlashAttribute("message", "口コミを削除しました。");
+			redirectAttributes.addFlashAttribute("message", "口コミを削除しました");
 		} else {
 			redirectAttributes.addFlashAttribute("errorMessage", "削除できる口コミが見つかりませんでした。");
 		}
 	}
 
+		
 }

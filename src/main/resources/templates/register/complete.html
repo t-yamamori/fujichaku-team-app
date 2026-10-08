@@ -144,41 +144,13 @@
 
 <body>
 
-    <!-- ヘッダー -->
-    <header class="header">
-        <div class="logo">不時着タウン</div>
+	<h1>会員登録完了</h1> 
+	<p>会員登録が正常に完了しました。</p> 
+	<p>ご登録ありがとうございます。</p> 
+	<a th:href="@{/shops}"> 
+		<button type="button">トップ画面へ</button> 
+	</a>
 
-        <a th:href="@{/login}" class="login-link">
-            ログイン
-        </a>
-    </header>
-
-
-    <!-- メイン -->
-    <main class="container">
-
-        <div class="complete-card">
-
-            <div class="check">✓</div>
-
-            <div class="sub-title">
-                REGISTRATION COMPLETE
-            </div>
-
-            <h1>会員登録完了</h1>
-
-            <div class="message">
-                <p>会員登録が正常に完了しました。</p>
-                <p>不時着タウンへのご登録ありがとうございます。</p>
-            </div>
-
-            <a th:href="@{/shops}" class="login-button">
-                ログイン画面へ
-            </a>
-
-        </div>
-
-    </main>
 
 </body>
 </html>

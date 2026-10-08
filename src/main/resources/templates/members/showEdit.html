@@ -31,7 +31,7 @@
   
   <!-- ===== 会員情報の変更フォーム ===== -->
   <!-- th:object は、Controller で model に入れた "memberEditForm" と同じ名前にする -->
-  <form th:action="@{/members/edit}" th:object="${memberEditForm}" method="post">
+  <form th:action="@{/members/showEdit}" th:object="${memberEditForm}" method="post">
  
     <div class="field">
       <label for="name">名前：</label>

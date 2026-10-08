@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>トップ（動作確認用）</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    /* 画面上部のバー：右上にボタンを並べる */
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 24px; background: #f2f4f6; border-bottom: 1px solid #ddd;
+    }
+    .header .title { font-weight: bold; }
+    .header .right { display: flex; align-items: center; gap: 8px; }
+    .header form { margin: 0; }
+    button { padding: 6px 16px; cursor: pointer; }
+    .main { max-width: 640px; margin: 32px auto; padding: 0 16px; }
+    .note { color: #666; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+ 
+  <!-- ===== 上部バー（右上に「会員情報」「ログアウト」） ===== -->
+  <div class="header">
+    <span class="title">トップ画面（動作確認用）</span>
+    <div class="right">
+      <span>会員ID：<span th:text="${loginId}">10000</span></span>
+ 
+      <!-- 会員情報：会員情報画面を開くだけなので GET -->
+      <form th:action="@{/members/showEdit}" method="get">
+        <button type="submit">会員情報</button>
+      </form>
+ 
+      <!-- ログアウト：Spring Security の決まりで POST で送る -->
+      <form th:action="@{/logout}" method="post">
+        <button type="submit">ログアウト</button>
+      </form>
+    </div>
+  </div>
+ 
+  <!-- ===== 本文 ===== -->
+  <div class="main">
+    <p>ログインに成功しました。右上の「会員情報」ボタンから、会員情報画面を確認できます。</p>
+    <p class="note">※ この画面は動作確認用です。確認が終わったら削除してください。</p>
+  </div>
+ 
+</body>
+</html>

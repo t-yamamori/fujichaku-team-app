@@ -599,7 +599,7 @@ body .flash-error {
     .shop-detail { grid-template-columns: 1fr; }
     .section { padding: 18px; }
 
-    /* 【追加】アカウントメニューはタイトルの上・右寄せにする */
+    /* 【追加】アカウントメニューはタイトルの上・右寄せにします */
     .header { flex-direction: column; gap: 8px; }
     .header .page-title { width: 100%; }
     .account-menu { order: -1; align-self: flex-end; flex-wrap: wrap; justify-content: flex-end; }
