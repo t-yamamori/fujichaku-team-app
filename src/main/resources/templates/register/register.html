@@ -1,46 +1,349 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>会員登録</title>
+    <meta charset="UTF-8">
+    <title>会員登録</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, #252525 0%, #111 40%, #070707 100%);
+            color: #f5f5f5;
+            font-family:
+                "Noto Sans JP",
+                "Yu Gothic",
+                "Meiryo",
+                sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ヘッダー */
+        .header {
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 50px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+            background: rgba(10, 10, 10, 0.94);
+        }
+
+		.logo {
+		    color: #d4af37;
+		    font-size: 24px;
+		    font-weight: 700;
+		    letter-spacing: 3px;
+		}
+
+        .back-link {
+            color: #bbb;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .back-link:hover {
+            color: #d4af37;
+        }
+
+        /* メイン */
+        .container {
+            width: min(600px, 92%);
+            margin: 55px auto 80px;
+        }
+
+        /* ページタイトル */
+        .page-title {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .page-title .sub {
+            color: #d4af37;
+            font-size: 12px;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+        }
+
+        .page-title h1 {
+            margin: 0;
+            font-size: 34px;
+            letter-spacing: 2px;
+        }
+
+        .page-title p {
+            color: #999;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        /* 登録フォーム */
+        .register-card {
+            background: linear-gradient(145deg, #1c1c1c, #0e0e0e);
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin: 0 0 28px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        /* 入力項目 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            color: #d4af37;
+            font-size: 13px;
+            margin-bottom: 9px;
+            letter-spacing: 1px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            background: #101010;
+            color: #fff;
+            border: 1px solid #444;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25);
+        }
+
+        /* エラーメッセージ */
+        .error-message {
+            color: #e58b8b;
+            font-size: 12px;
+            margin-top: 7px;
+        }
+
+        /* ボタン */
+        .button-area {
+            margin-top: 30px;
+        }
+
+        .confirm-button {
+            width: 100%;
+            padding: 17px;
+            border: 1px solid #d4af37;
+            background: linear-gradient(135deg, #d4af37, #a98219);
+            color: #090909;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .confirm-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
+        }
+
+        /* ログインリンク */
+        .login-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .login-link:hover {
+            color: #d4af37;
+        }
+
+        /* スマホ */
+        @media (max-width: 500px) {
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 35px;
+            }
+
+            .page-title h1 {
+                font-size: 27px;
+            }
+
+            .register-card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-	<h1>会員登録</h1>
-	<form th:action="@{/register/confirm}"
-	         th:object="${form}"
-	         method="post">
 
-	       <div>
-	           <label>名前</label>
-	           <input type="text" th:field="*{name}">
-	           <p th:if="${#fields.hasErrors('name')}"
-	              th:errors="*{name}"></p>
-	       </div>
+    <!-- ヘッダー -->
+    <header class="header">
 
-	       <div>
-	           <label>生年月日</label>
-	           <input type="date" th:field="*{birthDate}">
-	           <p th:if="${#fields.hasErrors('birthDate')}"
-	              th:errors="*{birthDate}"></p>
-	       </div>
+        <div class="logo">
+            FUJICHAKU
+        </div>
 
-	       <div>
-	           <label>メールアドレス</label>
-	           <input type="email" th:field="*{mail}">
-	           <p th:if="${#fields.hasErrors('mail')}"
-	              th:errors="*{mail}"></p>
-	       </div>
+        <a th:href="@{/login}" class="back-link">
+            ログイン
+        </a>
 
-	       <div>
-	           <label>パスワード</label>
-	           <input type="password" th:field="*{password}">
-	           <p th:if="${#fields.hasErrors('password')}"
-	              th:errors="*{password}"></p>
-	       </div>
+    </header>
 
-	       <button type="submit">確認</button>
 
-	   </form>
+    <!-- メイン -->
+    <main class="container">
+
+        <!-- タイトル -->
+        <div class="page-title">
+
+            <div class="sub">
+                MEMBER REGISTRATION
+            </div>
+
+            <h1>会員登録</h1>
+
+            <p>
+                会員情報をご入力ください
+            </p>
+
+        </div>
+
+
+        <!-- 登録フォーム -->
+        <div class="register-card">
+
+            <h2 class="section-title">
+                会員情報
+            </h2>
+			
+			<p class="error-message"
+			   th:if="${errorMessage}"
+			   th:text="${errorMessage}">
+			</p>
+
+            <form th:action="@{/register/confirm}"
+                  th:object="${form}"
+                  method="post">
+
+
+                <!-- 名前 -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        お名前
+                    </label>
+
+                    <input type="text"
+                           th:field="*{name}"
+                           placeholder="お名前を入力してください">
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('name')}"
+                       th:errors="*{name}">
+                    </p>
+
+                </div>
+
+
+                <!-- 生年月日 -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        生年月日
+                    </label>
+
+                    <input type="date"
+                           th:field="*{birthDate}">
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('birthDate')}"
+                       th:errors="*{birthDate}">
+                    </p>
+
+                </div>
+
+
+                <!-- メール -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        メールアドレス
+                    </label>
+
+                    <input type="email"
+                           th:field="*{mail}"
+                           placeholder="example@example.com">
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('mail')}"
+                       th:errors="*{mail}">
+                    </p>
+
+                </div>
+
+
+                <!-- パスワード -->
+                <div class="form-group">
+
+                    <label class="form-label">
+                        パスワード
+                    </label>
+
+                    <input type="password"
+                           th:field="*{password}"
+                           placeholder="パスワードを入力してください">
+
+                    <p class="error-message"
+                       th:if="${#fields.hasErrors('password')}"
+                       th:errors="*{password}">
+                    </p>
+
+                </div>
+
+
+                <!-- 確認ボタン -->
+                <div class="button-area">
+
+                    <button type="submit"
+                            class="confirm-button">
+                        入力内容を確認する
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <a th:href="@{/login}" class="login-link">
+                すでに会員の方はこちら → ログイン
+            </a>
+
+        </div>
+
+    </main>
 
 </body>
 </html>

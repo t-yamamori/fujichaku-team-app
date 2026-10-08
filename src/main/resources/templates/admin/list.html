@@ -1,164 +1,804 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>会員一覧</title>
+    <meta charset="UTF-8">
+    <title>会員管理 | FUJICHAKU ADMIN</title>
 
-<style>
-/* モーダルの背景 */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-/* モーダル本体 */
-.modal-content {
-    background-color: white;
-    width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-}
-</style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+            background:
+                radial-gradient(circle at top right, #26183b 0%, transparent 30%),
+                linear-gradient(135deg, #0a090d 0%, #121018 50%, #08070b 100%);
+            color: #f5f5f5;
+        }
 
+        /* =========================
+           ヘッダー
+        ========================= */
+
+        .header {
+            height: 76px;
+            padding: 0 45px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 9, 13, 0.95);
+            border-bottom: 1px solid #6d52a3;
+            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            color: #d4af37;
+            font-size: 25px;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+
+        .admin-label {
+            color: #9b7de3;
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           全体レイアウト
+        ========================= */
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 76px);
+        }
+
+        /* =========================
+           サイドバー
+        ========================= */
+
+        .sidebar {
+            width: 220px;
+            padding: 35px 20px;
+            background:
+                linear-gradient(
+                    180deg,
+                    #17121f 0%,
+                    #120e18 100%
+                );
+            border-right: 1px solid #332541;
+        }
+
+        .sidebar-title {
+            color: #9b7de3;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 15px 15px;
+            margin-bottom: 8px;
+            color: #c9c5d0;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            background-color: #2a1e3b;
+            color: #ffffff;
+        }
+
+        .menu-item.active {
+            background:
+                linear-gradient(
+                    90deg,
+                    #5d438d,
+                    #392653
+                );
+            color: #d4af37;
+            box-shadow: 0 4px 15px rgba(91, 63, 139, 0.3);
+        }
+
+        .menu-icon {
+            margin-right: 8px;
+            color: #9b7de3;
+        }
+
+        .menu-item.active .menu-icon {
+            color: #d4af37;
+        }
+
+        /* =========================
+           メインコンテンツ
+        ========================= */
+
+        .main {
+            flex: 1;
+            padding: 40px 45px 60px;
+            overflow-x: auto;
+        }
+
+        .page-title {
+            margin: 0;
+            color: #d4af37;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        .page-subtitle {
+            margin-top: 8px;
+            margin-bottom: 30px;
+            color: #9b7de3;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        /* =========================
+           会員一覧カード
+        ========================= */
+
+        .member-card {
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(29, 25, 35, 0.95),
+                    rgba(15, 13, 19, 0.98)
+                );
+            border: 1px solid #3b3047;
+            border-radius: 10px;
+            padding: 28px;
+            box-shadow:
+                0 12px 35px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .card-title {
+            margin: 0 0 22px;
+            color: #f5f5f5;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .card-title span {
+            color: #9b7de3;
+            font-size: 12px;
+            margin-left: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           エラーメッセージ
+        ========================= */
+
+        .error-message {
+            color: #ff7b7b;
+            background-color: rgba(120, 30, 30, 0.18);
+            border: 1px solid rgba(255, 100, 100, 0.35);
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        /* =========================
+           テーブル
+        ========================= */
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        thead {
+            background-color: #21172f;
+        }
+
+        th {
+            padding: 15px 12px;
+            color: #d4af37;
+            font-size: 13px;
+            font-weight: bold;
+            border-bottom: 1px solid #634c86;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            color: #dedbe3;
+            font-size: 13px;
+            border-bottom: 1px solid #2b2631;
+            text-align: center;
+        }
+
+        tbody tr {
+            transition: 0.2s;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(107, 76, 153, 0.12);
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #8b68c6;
+            cursor: pointer;
+        }
+
+        /* =========================
+           ボタン
+        ========================= */
+
+        .button-area {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            border-radius: 6px;
+            padding: 11px 25px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .update-button {
+            background: linear-gradient(135deg, #7655a8, #563b82);
+            color: #ffffff;
+        }
+
+        .update-button:hover {
+            background: linear-gradient(135deg, #8969bd, #674b94);
+            transform: translateY(-1px);
+        }
+
+        .delete-button {
+            background: #3a2028;
+            color: #ff9999;
+            border: 1px solid #6a3542;
+        }
+
+        .delete-button:hover {
+            background: #542b36;
+        }
+
+        .create-button {
+            background: linear-gradient(135deg, #d4af37, #a88622);
+            color: #17120b;
+        }
+
+        .create-button:hover {
+            background: linear-gradient(135deg, #e3c35b, #bd9b2e);
+            transform: translateY(-1px);
+        }
+
+        /* =========================
+           モーダル
+        ========================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            width: 430px;
+            max-width: 90%;
+            margin: 90px auto;
+            padding: 30px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #21172f,
+                    #100d15
+                );
+            border: 1px solid #72569f;
+            border-radius: 10px;
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.6),
+                0 0 25px rgba(104, 73, 151, 0.15);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: #d4af37;
+            font-size: 21px;
+        }
+
+        .modal-content p {
+            margin: 17px 0;
+            color: #cfcbd5;
+            font-size: 13px;
+        }
+
+        .modal-content p span {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        .modal-content input {
+            width: 100%;
+            margin-top: 7px;
+            padding: 11px 12px;
+            background-color: #0b090e;
+            color: #f5f5f5;
+            border: 1px solid #40364a;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .modal-content input:focus {
+            border-color: #8b68c6;
+            box-shadow: 0 0 0 2px rgba(139, 104, 198, 0.15);
+        }
+
+        .modal-content input[readonly] {
+            color: #9b7de3;
+            background-color: #17121f;
+        }
+
+        .modal-button-area {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .save-button {
+            background: linear-gradient(135deg, #d4af37, #a88622);
+            color: #17120b;
+        }
+
+        .close-button {
+            background-color: #302b35;
+            color: #ddd;
+            border: 1px solid #4a424f;
+        }
+
+        .close-button:hover {
+            background-color: #403846;
+        }
+
+        /* =========================
+           スマホ対応
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .sidebar {
+                width: 170px;
+                padding: 25px 12px;
+            }
+
+            .main {
+                padding: 30px 20px;
+            }
+
+            .button-area {
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>会員管理</h1>
-    <h2>会員一覧</h2>
-
-    <table border="1">
-        <thead>
-            <tr>
-                <th>選択</th>
-                <th>会員ID</th>
-                <th>氏名</th>
-                <th>生年月日</th>
-                <th>メールアドレス</th>
-                <th>ポイント</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            <tr th:each="member : ${members}">
-                <td>
-                    <input type="checkbox"
-                           name="selectedId"
-                           th:value="${member.id}">
-                </td>
-
-                <td th:text="${member.id}"></td>
-                <td th:text="${member.name}"></td>
-                <td th:text="${member.birthDate}"></td>
-                <td th:text="${member.mail}"></td>
-                <td th:text="${member.point}"></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <br>
-
-    <!-- 更新ボタン -->
-    <button type="button" onclick="editMember()">更新</button>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">FUJICHAKU</div>
+        <div class="admin-label">ADMIN SYSTEM</div>
+    </header>
 
 
-    <!-- 更新モーダル -->
+    <div class="layout">
+
+        <!-- サイドバー -->
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                ADMIN MENU
+            </div>
+
+            <a href="#" class="menu-item active">
+                <span class="menu-icon">◆</span>
+                会員管理
+            </a>
+
+            <a href="#" class="menu-item">
+                <span class="menu-icon">◆</span>
+                テナント管理
+            </a>
+
+            <a href="#" class="menu-item">
+                <span class="menu-icon">◆</span>
+                口コミ管理
+            </a>
+
+        </aside>
+
+
+        <!-- メイン -->
+        <main class="main">
+
+            <h1 class="page-title">会員管理</h1>
+
+            <div class="page-subtitle">
+                MEMBER MANAGEMENT
+            </div>
+
+
+            <div class="member-card">
+
+                <h2 class="card-title">
+                    会員一覧
+                    <span>MEMBER LIST</span>
+                </h2>
+
+                <p th:if="${errorMessage}"
+                   th:text="${errorMessage}"
+                   class="error-message">
+                </p>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>選択</th>
+                                <th>会員ID</th>
+                                <th>氏名</th>
+                                <th>生年月日</th>
+                                <th>メールアドレス</th>
+                                <th>ポイント</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="member : ${members}">
+
+                                <td>
+                                    <input type="checkbox"
+                                           name="selectedId"
+                                           th:value="${member.id}">
+                                </td>
+
+                                <td th:text="${member.id}"></td>
+
+                                <td th:text="${member.name}"></td>
+
+                                <td th:text="${member.birthDate}"></td>
+
+                                <td th:text="${member.mail}"></td>
+
+                                <td th:text="${member.point}"></td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- ボタン -->
+                <div class="button-area">
+
+                    <!-- 更新 -->
+                    <button type="button"
+                            class="update-button"
+                            onclick="editMember()">
+                        更新
+                    </button>
+
+                    <!-- 削除 -->
+                    <button type="button"
+                            class="delete-button"
+                            onclick="deleteMember()">
+                        削除
+                    </button>
+
+                    <!-- 新規登録 -->
+                    <button type="button"
+                            class="create-button"
+                            onclick="openCreateModal()">
+                        ＋ 新規登録
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- 削除用の送信フォーム -->
+            <form id="deleteForm"
+                  th:action="@{/admin/members/delete}"
+                  method="post">
+
+                <input type="hidden"
+                       name="id"
+                       id="deleteId">
+
+            </form>
+
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================
+         更新モーダル
+    ========================== -->
+
     <div id="editModal" class="modal">
 
         <div class="modal-content">
 
             <h2>会員情報を更新</h2>
 
-            <p>
-                会員ID：
-                <span id="editId"></span>
-            </p>
+            <form th:action="@{/admin/members/update}"
+                  method="post">
 
-            <p>
-                氏名：
-                <input type="text" id="editName">
-            </p>
+                <input type="hidden"
+                       name="id"
+                       id="editId">
 
-            <p>
-                生年月日：
-                <input type="date" id="editBirthDate">
-            </p>
+                <p>
+                    会員ID：
+                    <span id="editIdText"></span>
+                </p>
 
-            <p>
-                メールアドレス：
-                <input type="email" id="editMail">
-            </p>
+                <p>
+                    氏名：
+                    <input type="text"
+                           name="name"
+                           id="editName">
+                </p>
 
-            <p>
-                ポイント：
-                <input type="number" id="editPoint">
-            </p>
+                <p>
+                    生年月日：
+                    <input type="date"
+                           name="birthDate"
+                           id="editBirthDate">
+                </p>
 
-            <button type="button" onclick="saveMember()">保存</button>
-            <button type="button" onclick="closeModal()">閉じる</button>
+                <p>
+                    メールアドレス：
+                    <input type="email"
+                           name="mail"
+                           id="editMail">
+                </p>
+
+                <p>
+                    ポイント：
+                    <input type="number"
+                           id="editPoint"
+                           readonly>
+                </p>
+
+                <div class="modal-button-area">
+
+                    <button type="submit"
+                            class="save-button">
+                        保存
+                    </button>
+
+                    <button type="button"
+                            class="close-button"
+                            onclick="closeModal()">
+                        閉じる
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
     </div>
 
 
+    <!-- =========================
+         新規登録モーダル
+    ========================== -->
+
+    <div id="createModal" class="modal">
+
+        <div class="modal-content">
+
+            <h2>新規会員登録</h2>
+
+            <form id="createForm"
+                  th:action="@{/admin/members/create}"
+                  method="post">
+
+                <p>
+                    氏名：
+                    <input type="text"
+                           name="name">
+                </p>
+
+                <p>
+                    生年月日：
+                    <input type="date"
+                           name="birthDate">
+                </p>
+
+                <p>
+                    メールアドレス：
+                    <input type="email"
+                           name="mail">
+                </p>
+
+                <p>
+                    パスワード：
+                    <input type="password"
+                           name="password">
+                </p>
+
+                <div class="modal-button-area">
+
+                    <button type="submit"
+                            class="save-button">
+                        登録
+                    </button>
+
+                    <button type="button"
+                            class="close-button"
+                            onclick="closeCreateModal()">
+                        閉じる
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         JavaScript
+    ========================== -->
+
     <script>
 
         // 更新ボタンを押したとき
         function editMember() {
 
-            // チェックされた会員を取得
             const checked = document.querySelector(
                 'input[name="selectedId"]:checked'
             );
 
-            // 選択されていない場合
             if (!checked) {
                 alert("編集する会員を選択してください。");
                 return;
             }
 
-            // 選択された会員ID
             const id = checked.value;
 
-            // 一覧から選択された会員を探す
             const row = checked.closest("tr");
 
-            // 行の中の情報を取得
             const name = row.cells[2].textContent;
             const birthDate = row.cells[3].textContent;
             const mail = row.cells[4].textContent;
             const point = row.cells[5].textContent;
 
-            // モーダルに情報を入れる
-            document.getElementById("editId").textContent = id;
+            document.getElementById("editId").value = id;
+            document.getElementById("editIdText").textContent = id;
+
             document.getElementById("editName").value = name;
             document.getElementById("editBirthDate").value = birthDate;
             document.getElementById("editMail").value = mail;
             document.getElementById("editPoint").value = point;
 
-            // モーダルを表示
             document.getElementById("editModal").style.display = "block";
         }
 
 
-        // モーダルを閉じる
+        // 更新モーダルを閉じる
         function closeModal() {
+
             document.getElementById("editModal").style.display = "none";
+
+        }
+
+
+        // 会員を削除する
+        function deleteMember() {
+
+            const checked =
+                document.querySelector(
+                    'input[name="selectedId"]:checked'
+                );
+
+            if (!checked) {
+
+                alert("削除する会員を選択してください。");
+
+                return;
+            }
+
+            if (!confirm(
+                "会員ID " + checked.value + " を削除しますか？"
+            )) {
+
+                return;
+            }
+
+            document.getElementById("deleteId").value =
+                checked.value;
+
+            document.getElementById("deleteForm").submit();
+
+        }
+
+
+        // 新規登録モーダルを開く
+        function openCreateModal() {
+
+            document.getElementById("createForm").reset();
+
+            document.getElementById("createModal").style.display =
+                "block";
+
+        }
+
+
+        // 新規登録モーダルを閉じる
+        function closeCreateModal() {
+
+            document.getElementById("createModal").style.display =
+                "none";
+
         }
 
 
         // 保存ボタン
         function saveMember() {
+
             alert("保存処理は次のステップで作ります。");
+
         }
 
     </script>
 
 </body>
+
 </html>
