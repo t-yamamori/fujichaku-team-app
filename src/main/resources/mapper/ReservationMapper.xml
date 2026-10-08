@@ -6,10 +6,9 @@
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
-
-    <!-- =====================================================
-         予約登録
-         ===================================================== -->
+    <!-- ============================== -->
+    <!-- 予約登録 -->
+    <!-- ============================== -->
 
     <insert id="insertReservation"
             parameterType="com.example.demo.entity.Reservations"
@@ -40,9 +39,9 @@
     </insert>
 
 
-    <!-- =====================================================
-         予約IDから予約を取得
-         ===================================================== -->
+    <!-- ============================== -->
+    <!-- 予約IDから1件取得 -->
+    <!-- ============================== -->
 
     <select id="findById"
             parameterType="int"
@@ -57,15 +56,17 @@
             created_at AS createdAt,
             store_id AS storeId,
             number
+
         FROM reservations
+
         WHERE id = #{reservationId}
 
     </select>
 
 
-    <!-- =====================================================
-         会員IDから予約履歴を取得
-         ===================================================== -->
+    <!-- ============================== -->
+    <!-- 会員IDから予約取得 -->
+    <!-- ============================== -->
 
     <select id="findByMemberId"
             parameterType="int"
@@ -80,16 +81,20 @@
             created_at AS createdAt,
             store_id AS storeId,
             number
+
         FROM reservations
+
         WHERE member_id = #{memberId}
+          AND user_id IS NULL
+
         ORDER BY reservation_date DESC
 
     </select>
 
 
-    <!-- =====================================================
-         ユーザーIDから予約履歴を取得
-         ===================================================== -->
+    <!-- ============================== -->
+    <!-- ユーザーIDから予約取得 -->
+    <!-- ============================== -->
 
     <select id="findByUserId"
             parameterType="int"
@@ -104,11 +109,67 @@
             created_at AS createdAt,
             store_id AS storeId,
             number
+
         FROM reservations
+
         WHERE user_id = #{userId}
+          AND member_id IS NULL
+
         ORDER BY reservation_date DESC
 
     </select>
 
+
+    <!-- ============================== -->
+    <!-- 全予約取得 -->
+    <!-- ============================== -->
+
+    <select id="findAll"
+            resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            id,
+            member_id AS memberId,
+            user_id AS userId,
+            reservation_date AS reservationDate,
+            status,
+            created_at AS createdAt,
+            store_id AS storeId,
+            number
+
+        FROM reservations
+
+        ORDER BY reservation_date DESC
+
+    </select>
+
+
+    <!-- ============================== -->
+    <!-- 店舗ID + 会員IDから予約取得 -->
+    <!-- ShopController.showDetailで使用 -->
+    <!-- ============================== -->
+
+    <select id="selectByStoreIdAndMemberId"
+            resultType="com.example.demo.entity.Reservations">
+
+        SELECT
+            id,
+            member_id AS memberId,
+            user_id AS userId,
+            reservation_date AS reservationDate,
+            status,
+            created_at AS createdAt,
+            store_id AS storeId,
+            number
+
+        FROM reservations
+
+        WHERE store_id = #{storeId}
+          AND member_id = #{memberId}
+          AND user_id IS NULL
+
+        ORDER BY reservation_date DESC
+
+    </select>
 
 </mapper>

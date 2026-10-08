@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.UsersMapper">
+
+    <!-- ============================== -->
+    <!-- IDから非会員を取得 -->
+    <!-- ============================== -->
+    <select id="findById"
+            parameterType="int"
+            resultType="com.example.demo.entity.Users">
+
+        SELECT
+            id,
+            name,
+            mail
+        FROM users
+        WHERE id = #{id}
+
+    </select>
+
+
+    <!-- ============================== -->
+    <!-- メールアドレスから非会員を取得 -->
+    <!-- ============================== -->
+    <select id="findByMail"
+            parameterType="string"
+            resultType="com.example.demo.entity.Users">
+
+        SELECT
+            id,
+            name,
+            mail
+        FROM users
+        WHERE mail = #{mail}
+
+    </select>
+
+
+    <!-- ============================== -->
+    <!-- 非会員を新規登録 -->
+    <!-- ============================== -->
+    <insert id="insert"
+            parameterType="com.example.demo.entity.Users"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO users
+        (
+            name,
+            mail
+        )
+        VALUES
+        (
+            #{name},
+            #{mail}
+        )
+
+    </insert>
+
+</mapper>

@@ -10,49 +10,17 @@ import com.example.demo.entity.Reservations;
 @Mapper
 public interface ReservationMapper {
 
-    /*
-     * =========================================================
-     * 予約登録
-     * =========================================================
-     *
-     * 会員予約
-     * memberId = 値
-     * userId   = null
-     *
-     * 非会員予約
-     * memberId = null
-     * userId   = 値
-     */
     void insertReservation(Reservations reservation);
 
+    Reservations findById(@Param("reservationId") int reservationId);
 
-    /*
-     * =========================================================
-     * 予約IDから予約を取得
-     * =========================================================
-     */
-    Reservations findById(
-            @Param("reservationId") int reservationId
-    );
+    List<Reservations> findByMemberId(@Param("memberId") int memberId);
 
+    List<Reservations> findByUserId(@Param("userId") int userId);
 
-    /*
-     * =========================================================
-     * 会員IDから予約履歴を取得
-     * =========================================================
-     */
-    List<Reservations> findByMemberId(
-            @Param("memberId") int memberId
-    );
+    List<Reservations> findAll();
 
-
-    /*
-     * =========================================================
-     * ユーザーIDから予約履歴を取得
-     * =========================================================
-     */
-    List<Reservations> findByUserId(
-            @Param("userId") int userId
-    );
-
+    List<Reservations> selectByStoreIdAndMemberId(
+            @Param("storeId") int storeId,
+            @Param("memberId") int memberId);
 }

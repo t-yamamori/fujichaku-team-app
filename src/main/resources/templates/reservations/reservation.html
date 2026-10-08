@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja"
       xmlns:th="http://www.thymeleaf.org">
 
@@ -9,7 +10,10 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>予約確認</title>
+    <title>
+        予約確認
+    </title>
+
 
     <style>
 
@@ -17,8 +21,8 @@
             box-sizing: border-box;
         }
 
-        body {
 
+        body {
             margin: 0;
 
             background:
@@ -40,20 +44,20 @@
             min-height: 100vh;
         }
 
-        .container {
 
+        .container {
             width: min(800px, 92%);
 
             margin: 60px auto 80px;
         }
 
-        .title {
 
+        .title {
             margin-bottom: 35px;
         }
 
-        .sub {
 
+        .sub {
             color: #d4af37;
 
             font-size: 12px;
@@ -63,8 +67,8 @@
             margin-bottom: 10px;
         }
 
-        h1 {
 
+        h1 {
             margin: 0;
 
             font-size: 32px;
@@ -72,8 +76,8 @@
             letter-spacing: 2px;
         }
 
-        .card {
 
+        .card {
             background:
                 linear-gradient(
                     145deg,
@@ -82,7 +86,8 @@
                 );
 
             border:
-                1px solid rgba(
+                1px solid
+                rgba(
                     212,
                     175,
                     55,
@@ -96,19 +101,24 @@
                 rgba(0, 0, 0, 0.45);
         }
 
-        .section {
 
+        .section {
             margin-bottom: 30px;
 
             padding-bottom: 25px;
 
             border-bottom:
                 1px solid
-                rgba(255,255,255,0.1);
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.1
+                );
         }
 
-        .section:last-child {
 
+        .section:last-child {
             border-bottom: none;
 
             margin-bottom: 0;
@@ -116,8 +126,8 @@
             padding-bottom: 0;
         }
 
-        h2 {
 
+        h2 {
             color: #d4af37;
 
             font-size: 18px;
@@ -127,8 +137,8 @@
             margin-bottom: 20px;
         }
 
-        .row {
 
+        .row {
             display: flex;
 
             justify-content: space-between;
@@ -139,35 +149,68 @@
 
             border-bottom:
                 1px solid
-                rgba(255,255,255,0.06);
+                rgba(
+                    255,
+                    255,
+                    255,
+                    0.06
+                );
         }
 
-        .row:last-child {
 
+        .row:last-child {
             border-bottom: none;
         }
 
-        .label {
 
+        .label {
             color: #999;
         }
 
-        .value {
 
+        .value {
             color: #fff;
 
             text-align: right;
 
             font-weight: 600;
+
+            word-break: break-word;
         }
 
-        .button-area {
 
+        /* =========================================
+           非会員表示
+        ========================================= */
+
+        .guest-badge {
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            margin-bottom: 15px;
+
+            border:
+                1px solid #d4af37;
+
+            color: #d4af37;
+
+            font-size: 11px;
+
+            letter-spacing: 2px;
+        }
+
+
+        /* =========================================
+           ボタン
+        ========================================= */
+
+        .button-area {
             margin-top: 30px;
         }
 
-        button {
 
+        button {
             width: 100%;
 
             padding: 17px;
@@ -191,20 +234,27 @@
             letter-spacing: 2px;
 
             cursor: pointer;
+
+            transition: 0.2s;
         }
 
-        button:hover {
 
+        button:hover {
             transform:
                 translateY(-2px);
 
             box-shadow:
                 0 8px 25px
-                rgba(212, 175, 55, 0.25);
+                rgba(
+                    212,
+                    175,
+                    55,
+                    0.25
+                );
         }
 
-        .back {
 
+        .back {
             display: block;
 
             text-align: center;
@@ -218,30 +268,68 @@
             font-size: 13px;
         }
 
-        .back:hover {
 
+        .back:hover {
             color: #d4af37;
+        }
+
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: 94%;
+
+                margin-top: 30px;
+            }
+
+
+            .card {
+                padding: 22px;
+            }
+
+
+            .row {
+                flex-direction: column;
+
+                gap: 6px;
+            }
+
+
+            .value {
+                text-align: left;
+            }
         }
 
     </style>
 
 </head>
 
+
 <body>
+
 
 <main class="container">
 
+
+    <!-- =========================================
+         タイトル
+    ========================================= -->
+
     <div class="title">
+
 
         <div class="sub">
             RESERVATION CONFIRM
         </div>
 
+
         <h1>
             予約確認
         </h1>
 
+
     </div>
+
 
 
     <section class="card">
@@ -249,9 +337,10 @@
 
         <!-- =========================================
              店舗情報
-             ========================================= -->
+        ========================================= -->
 
         <div class="section">
+
 
             <h2>
                 店舗情報
@@ -260,9 +349,11 @@
 
             <div class="row">
 
+
                 <span class="label">
                     店舗名
                 </span>
+
 
                 <span class="value"
                       th:text="${store.name}">
@@ -271,14 +362,17 @@
 
                 </span>
 
+
             </div>
 
 
             <div class="row">
 
+
                 <span class="label">
                     住所
                 </span>
+
 
                 <span class="value"
                       th:text="${store.address}">
@@ -287,16 +381,116 @@
 
                 </span>
 
+
             </div>
+
 
         </div>
 
 
+
+        <!-- =========================================
+             非会員情報
+        ========================================= -->
+
+        <div class="section"
+             th:if="${userId != null}">
+
+
+            <h2>
+                予約者情報
+            </h2>
+
+
+            <div class="guest-badge">
+                NON-MEMBER
+            </div>
+
+
+            <div class="row">
+
+
+                <span class="label">
+                    氏名
+                </span>
+
+
+                <span class="value"
+                      th:text="${userName}">
+
+                    氏名
+
+                </span>
+
+
+            </div>
+
+
+            <div class="row">
+
+
+                <span class="label">
+                    メールアドレス
+                </span>
+
+
+                <span class="value"
+                      th:text="${userMail}">
+
+                    メールアドレス
+
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =========================================
+             会員情報
+        ========================================= -->
+
+        <div class="section"
+             th:if="${memberId != null}">
+
+
+            <h2>
+                予約者情報
+            </h2>
+
+
+            <div class="row">
+
+
+                <span class="label">
+                    会員ID
+                </span>
+
+
+                <span class="value"
+                      th:text="${memberId}">
+
+                    会員ID
+
+                </span>
+
+
+            </div>
+
+
+        </div>
+
+
+
         <!-- =========================================
              予約内容
-             ========================================= -->
+        ========================================= -->
 
         <div class="section">
+
 
             <h2>
                 予約内容
@@ -305,9 +499,11 @@
 
             <div class="row">
 
+
                 <span class="label">
                     予約日
                 </span>
+
 
                 <span class="value"
                       th:text="${reservationDate}">
@@ -316,14 +512,17 @@
 
                 </span>
 
+
             </div>
 
 
             <div class="row">
 
+
                 <span class="label">
                     予約時間
                 </span>
+
 
                 <span class="value"
                       th:text="${reservationTime}">
@@ -332,33 +531,42 @@
 
                 </span>
 
+
             </div>
 
 
             <div class="row">
 
+
                 <span class="label">
                     人数
                 </span>
 
+
                 <span class="value">
+
 
                     <span th:text="${number}">
                         2
                     </span>
 
+
                     名
+
 
                 </span>
 
+
             </div>
+
 
         </div>
 
 
+
         <!-- =========================================
-             最終予約確定
-             ========================================= -->
+             最終確定
+        ========================================= -->
 
         <form th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}"
               method="post">
@@ -371,28 +579,42 @@
                    th:value="${_csrf.token}">
 
 
-            <!-- ★予約日 -->
+
+            <!-- =====================================
+                 予約日
+            ===================================== -->
 
             <input type="hidden"
                    name="date"
                    th:value="${reservationDate}">
 
 
-            <!-- ★予約時間 -->
+
+            <!-- =====================================
+                 予約時間
+            ===================================== -->
 
             <input type="hidden"
                    name="time"
                    th:value="${reservationTime}">
 
 
-            <!-- ★人数 -->
+
+            <!-- =====================================
+                 人数
+            ===================================== -->
 
             <input type="hidden"
                    name="number"
                    th:value="${number}">
 
 
-            <!-- 会員 -->
+
+            <!-- =====================================
+                 会員
+                 
+                 memberIdは表示用として送信
+            ===================================== -->
 
             <input type="hidden"
                    th:if="${memberId != null}"
@@ -400,7 +622,15 @@
                    th:value="${memberId}">
 
 
-            <!-- 非会員 -->
+
+            <!-- =====================================
+                 非会員
+                 
+                 userIdは表示用として送信
+                 
+                 Controllerでは最終的に
+                 mailから再確認する
+            ===================================== -->
 
             <input type="hidden"
                    th:if="${userId != null}"
@@ -408,7 +638,35 @@
                    th:value="${userId}">
 
 
+
+            <!-- =====================================
+                 非会員氏名
+            ===================================== -->
+
+            <input type="hidden"
+                   th:if="${userName != null}"
+                   name="name"
+                   th:value="${userName}">
+
+
+
+            <!-- =====================================
+                 非会員メール
+            ===================================== -->
+
+            <input type="hidden"
+                   th:if="${userMail != null}"
+                   name="mail"
+                   th:value="${userMail}">
+
+
+
+            <!-- =====================================
+                 確定ボタン
+            ===================================== -->
+
             <div class="button-area">
+
 
                 <button type="submit">
 
@@ -416,12 +674,17 @@
 
                 </button>
 
+
             </div>
+
 
         </form>
 
 
-        <!-- 予約入力へ戻る -->
+
+        <!-- =========================================
+             予約変更
+        ========================================= -->
 
         <a th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
            class="back">
@@ -431,6 +694,11 @@
         </a>
 
 
+
+        <!-- =========================================
+             店舗一覧
+        ========================================= -->
+
         <a th:href="@{/shops}"
            class="back">
 
@@ -438,9 +706,12 @@
 
         </a>
 
+
     </section>
 
+
 </main>
+
 
 </body>
 
