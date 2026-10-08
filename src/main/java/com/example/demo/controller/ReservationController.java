@@ -388,7 +388,6 @@ public class ReservationController {
                 number
         );
 
-
         return "reservations/reservation";
     }
 
@@ -625,7 +624,6 @@ public class ReservationController {
         Reservations reservation =
                 new Reservations();
 
-
         reservation.setStoreId(
                 shopId
         );
@@ -689,7 +687,7 @@ public class ReservationController {
 
 
         // --------------------------------------------------
-        // 完了画面
+        // 完了画面へ渡す
         // --------------------------------------------------
 
         model.addAttribute(
@@ -708,7 +706,28 @@ public class ReservationController {
         );
 
 
-        return "reservations/complete";
+        // ==================================================
+        // 完了画面の振り分け
+        // ==================================================
+
+        /*
+         * 会員・管理者
+         *
+         * 通常のcomplete.htmlを表示
+         */
+        if (memberId != null) {
+
+            return "reservations/complete";
+        }
+
+
+        /*
+         * 非会員
+         *
+         * 予約履歴は利用できないため、
+         * 非会員専用のcomplete_guest.htmlを表示
+         */
+        return "reservations/complete_guest";
     }
 
 
@@ -769,7 +788,6 @@ public class ReservationController {
                 /*
                  * 管理者は全予約を閲覧可能
                  */
-
             }
 
             // --------------------------------------------------
@@ -800,13 +818,9 @@ public class ReservationController {
 
             /*
              * 非会員はURL直接入力による予約詳細閲覧を許可しない。
-             *
-             * 完了画面からの本人確認については、
-             * 必要であれば後でSession等を追加する。
              */
 
             if (reservation.getUserId() == null) {
-
                 return "redirect:/shops";
             }
 
@@ -940,6 +954,13 @@ public class ReservationController {
 
 
         // ==================================================
+        // 予約取得
+        // ==================================================
+
+        List<Reservations> reservations;
+
+
+        // ==================================================
         // 管理者
         // ==================================================
 
@@ -949,20 +970,14 @@ public class ReservationController {
              * 管理者は全予約を取得
              */
 
-            List<Reservations> reservations =
+            reservations =
                     reservationMapper.findAll();
-
-            model.addAttribute(
-                    "reservations",
-                    reservations
-            );
 
             model.addAttribute(
                     "isAdmin",
                     true
             );
 
-            return "reservations/history";
         }
 
 
@@ -970,10 +985,63 @@ public class ReservationController {
         // 一般会員
         // ==================================================
 
-        List<Reservations> reservations =
-                reservationMapper.findByMemberId(
-                        memberId
+        else {
+
+            /*
+             * 一般会員は自分の予約だけ取得
+             */
+
+            reservations =
+                    reservationMapper.findByMemberId(
+                            memberId
+                    );
+
+            model.addAttribute(
+                    "isAdmin",
+                    false
+            );
+        }
+
+
+        // ==================================================
+        // 店舗名を予約ごとに取得
+        // ==================================================
+
+        /*
+         * history.htmlから
+         *
+         * ${storeNames[reservation.id]}
+         *
+         * で店舗名を表示できるようにする。
+         */
+
+        java.util.Map<Integer, String> storeNames =
+                new java.util.HashMap<>();
+
+        for (Reservations reservation : reservations) {
+
+            if (reservation.getStoreId() == null) {
+                continue;
+            }
+
+            Stores store =
+                    storesMapper.selectById(
+                            reservation.getStoreId()
+                    );
+
+            if (store != null) {
+
+                storeNames.put(
+                        reservation.getId(),
+                        store.getName()
                 );
+            }
+        }
+
+
+        // --------------------------------------------------
+        // Model
+        // --------------------------------------------------
 
         model.addAttribute(
                 "reservations",
@@ -981,8 +1049,8 @@ public class ReservationController {
         );
 
         model.addAttribute(
-                "isAdmin",
-                false
+                "storeNames",
+                storeNames
         );
 
 

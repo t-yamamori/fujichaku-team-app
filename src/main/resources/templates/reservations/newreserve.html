@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="ja"
+
       xmlns:th="http://www.thymeleaf.org">
 
 <head>
@@ -8,612 +9,151 @@
     <meta charset="UTF-8">
 
     <meta name="viewport"
+
           content="width=device-width, initial-scale=1.0">
 
     <title>
+
         予約 - [[${store.name}]]
+
     </title>
 
     <style>
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-
-            background:
-                radial-gradient(
-                    circle at top left,
-                    #252525 0%,
-                    #111 40%,
-                    #070707 100%
-                );
-
-            color: #f5f5f5;
-
-            font-family:
-                "Noto Sans JP",
-                "Yu Gothic",
-                "Meiryo",
-                sans-serif;
-
-            min-height: 100vh;
-        }
-
-
-        .header {
-            height: 76px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            padding: 0 50px;
-
-            border-bottom:
-                1px solid rgba(
-                    212,
-                    175,
-                    55,
-                    0.25
-                );
-
-            background:
-                rgba(10, 10, 10, 0.94);
-        }
-
-
-        .logo {
-            color: #d4af37;
-
-            font-size: 25px;
-
-            font-weight: 700;
-
-            letter-spacing: 5px;
-        }
-
-
-        .back-link {
-            color: #bbb;
-
-            text-decoration: none;
-
-            font-size: 14px;
-
-            transition: 0.2s;
-        }
-
-
-        .back-link:hover {
-            color: #d4af37;
-        }
-
-
-        .container {
-            width: min(1200px, 92%);
-
-            margin: 45px auto 80px;
-        }
-
-
-        .page-title {
-            margin-bottom: 35px;
-        }
-
-
-        .page-title .sub {
-            color: #d4af37;
-
-            font-size: 12px;
-
-            letter-spacing: 4px;
-
-            text-transform: uppercase;
-
-            margin-bottom: 10px;
-        }
-
-
-        .page-title h1 {
-            margin: 0;
-
-            font-size: 34px;
-
-            letter-spacing: 2px;
-        }
-
-
-        .reservation-layout {
-            display: grid;
-
-            grid-template-columns:
-                0.9fr 1.1fr;
-
-            gap: 30px;
-        }
-
-
-        /* =========================================
-           店舗情報
-        ========================================= */
-
-        .store-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    #1b1b1b,
-                    #101010
-                );
-
-            border:
-                1px solid rgba(
-                    212,
-                    175,
-                    55,
-                    0.28
-                );
-
-            box-shadow:
-                0 20px 50px
-                rgba(0, 0, 0, 0.45);
-
-            overflow: hidden;
-        }
-
-
-        .store-image {
-            width: 100%;
-
-            height: 300px;
-
-            object-fit: cover;
-
-            display: block;
-
-            background: #181818;
-        }
-
-
-        .store-content {
-            padding: 30px;
-        }
-
-
-        .store-label {
-            color: #d4af37;
-
-            font-size: 11px;
-
-            letter-spacing: 3px;
-
-            margin-bottom: 10px;
-        }
-
-
-        .store-name {
-            font-size: 28px;
-
-            margin: 0 0 25px;
-
-            font-weight: 700;
-        }
-
-
-        .store-info {
-            border-top:
-                1px solid
-                rgba(255, 255, 255, 0.08);
-        }
-
-
-        .info-row {
-            padding: 17px 0;
-
-            border-bottom:
-                1px solid
-                rgba(255, 255, 255, 0.08);
-        }
-
-
-        .info-title {
-            color: #d4af37;
-
-            font-size: 12px;
-
-            margin-bottom: 6px;
-
-            letter-spacing: 1px;
-        }
-
-
-        .info-value {
-            color: #ddd;
-
-            font-size: 14px;
-
-            line-height: 1.7;
-        }
-
-
-        /* =========================================
-           予約フォーム
-        ========================================= */
-
-        .reservation-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    #1c1c1c,
-                    #0e0e0e
-                );
-
-            border:
-                1px solid rgba(
-                    212,
-                    175,
-                    55,
-                    0.28
-                );
-
-            padding: 35px;
-
-            box-shadow:
-                0 20px 50px
-                rgba(0, 0, 0, 0.45);
-        }
-
-
-        .section-title {
-            font-size: 20px;
-
-            margin: 0 0 25px;
-
-            padding-bottom: 15px;
-
-            border-bottom:
-                1px solid
-                rgba(212, 175, 55, 0.3);
-        }
-
-
-        .form-group {
-            margin-bottom: 28px;
-        }
-
-
-        .form-label {
-            display: block;
-
-            color: #d4af37;
-
-            font-size: 13px;
-
-            margin-bottom: 10px;
-
-            letter-spacing: 1px;
-        }
-
-
-        input,
-        select {
-            width: 100%;
-
-            padding: 14px 15px;
-
-            background: #101010;
-
-            color: #fff;
-
-            border: 1px solid #444;
-
-            font-size: 15px;
-
-            outline: none;
-        }
-
-
-        input:focus,
-        select:focus {
-            border-color: #d4af37;
-
-            box-shadow:
-                0 0 0 1px
-                rgba(212, 175, 55, 0.25);
-        }
-
-
-        /* =========================================
-           非会員情報
-        ========================================= */
-
-        .guest-info {
-            margin-bottom: 30px;
-
-            padding: 20px;
-
-            background:
-                rgba(212, 175, 55, 0.04);
-
-            border:
-                1px solid
-                rgba(212, 175, 55, 0.18);
-        }
-
-
-        .guest-title {
-            color: #d4af37;
-
-            font-size: 16px;
-
-            font-weight: 700;
-
-            margin-bottom: 10px;
-        }
-
-
-        .guest-description {
-            color: #999;
-
-            font-size: 12px;
-
-            line-height: 1.7;
-
-            margin-bottom: 20px;
-        }
-
-
-        /* =========================================
-           時間
-        ========================================= */
-
-        .time-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
-            gap: 10px;
-        }
-
-
-        .time-option {
-            position: relative;
-        }
-
-
-        .time-option input {
-            position: absolute;
-
-            opacity: 0;
-
-            pointer-events: none;
-        }
-
-
-        .time-option label {
-            display: block;
-
-            padding: 13px 5px;
-
-            text-align: center;
-
-            background: #111;
-
-            border:
-                1px solid #3a3a3a;
-
-            color: #ddd;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-
-        .time-option label:hover {
-            border-color: #d4af37;
-
-            color: #d4af37;
-        }
-
-
-        .time-option input:checked + label {
-            background: #d4af37;
-
-            color: #080808;
-
-            border-color: #d4af37;
-
-            font-weight: 700;
-        }
-
-
-        /* =========================================
-           人数
-        ========================================= */
-
-        .guest-select {
-            appearance: auto;
-        }
-
-
-        /* =========================================
-           エラー
-        ========================================= */
-
-        .error-message {
-            margin-bottom: 25px;
-
-            padding: 14px 16px;
-
-            background:
-                rgba(155, 28, 28, 0.15);
-
-            border-left:
-                3px solid #c62828;
-
-            color: #ff7777;
-
-            font-size: 13px;
-
-            line-height: 1.6;
-        }
-
-
-        /* =========================================
-           注意
-        ========================================= */
-
-        .notice {
-            margin-top: 25px;
-
-            padding: 16px;
-
-            background:
-                rgba(120, 0, 0, 0.15);
-
-            border-left:
-                3px solid #9b1c1c;
-
-            color: #ccc;
-
-            font-size: 12px;
-
-            line-height: 1.7;
-        }
-
-
-        .notice p {
-            margin: 0 0 8px;
-        }
-
-
-        .notice p:last-child {
-            margin-bottom: 0;
-        }
-
-
-        /* =========================================
-           ボタン
-        ========================================= */
-
-        .button-area {
-            margin-top: 30px;
-        }
-
-
-        .confirm-button {
-            width: 100%;
-
-            padding: 17px;
-
-            border:
-                1px solid #d4af37;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #d4af37,
-                    #a98219
-                );
-
-            color: #090909;
-
-            font-size: 15px;
-
-            font-weight: 700;
-
-            letter-spacing: 2px;
-
-            cursor: pointer;
-
-            transition: 0.2s;
-        }
-
-
-        .confirm-button:hover {
-            transform:
-                translateY(-2px);
-
-            box-shadow:
-                0 8px 25px
-                rgba(212, 175, 55, 0.25);
-        }
-
-
-        .cancel-link {
-            display: block;
-
-            text-align: center;
-
-            margin-top: 18px;
-
-            color: #888;
-
-            text-decoration: none;
-
-            font-size: 13px;
-        }
-
-
-        .cancel-link:hover {
-            color: #d4af37;
-        }
-
-
-        /* =========================================
-           レスポンシブ
-        ========================================= */
-
-        @media (max-width: 850px) {
-
-            .header {
-                padding: 0 20px;
-            }
-
-
-            .container {
-                width: 94%;
-
-                margin-top: 30px;
-            }
-
-
-            .reservation-layout {
-                grid-template-columns: 1fr;
-            }
-
-
-            .store-image {
-                height: 240px;
-            }
-        }
-
-
-        @media (max-width: 500px) {
-
-            .page-title h1 {
-                font-size: 26px;
-            }
-
-
-            .reservation-card {
-                padding: 22px;
-            }
-
-
-            .time-grid {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-        }
-
-    </style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+    font-family:"Helvetica Neue","Yu Gothic","Hiragino Kaku Gothic ProN",Arial,sans-serif;
+    background:
+        radial-gradient(circle at 85% 15%,rgba(76,139,89,.06),transparent 30%),
+        linear-gradient(135deg,#f4f5f2,#eef0ed);
+    color:#333;min-height:100vh;position:relative;
+}
+body::before{
+    content:"01001001 01001110 01000110 01001111 01010010 01001101 01000001 01010100 01001001 01001111 01001110";
+    position:fixed;top:90px;right:20px;width:360px;height:600px;
+    color:rgba(76,139,89,.035);font-family:monospace;font-size:13px;line-height:2.1;
+    letter-spacing:3px;word-break:break-all;pointer-events:none;z-index:0;
+}
+.header{
+    position:relative;height:96px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 7%;
+    background:
+        radial-gradient(ellipse at 20% 35%,rgba(255,255,255,.08),transparent 35%),
+        radial-gradient(ellipse at 75% 65%,rgba(80,48,28,.08),transparent 35%),
+        linear-gradient(90deg,#6b5140,#795d48,#80634d,#735741,#684d3b);
+    border-bottom:3px solid #66876d;
+    box-shadow:0 3px 12px rgba(60,45,35,.12);overflow:hidden;z-index:2;
+}
+.header::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 12% 40%,rgba(255,255,255,.04),transparent 30%),radial-gradient(ellipse at 82% 60%,rgba(40,25,15,.05),transparent 35%);pointer-events:none}
+.logo{position:relative;z-index:1;color:#f5eee4;font-size:29px;font-weight:800;letter-spacing:5px}
+.header-title{position:relative;z-index:1;color:#dce8dc;font-size:12px;font-weight:600;letter-spacing:4px}
+.container{position:relative;z-index:1;width:min(1100px,90%);margin:65px auto 80px}
+.page-title{margin-bottom:35px}
+.page-title h1{margin:0;color:#252525;font-size:34px;font-weight:700;letter-spacing:2px}
+.page-title h1::after{content:"";display:block;width:55px;height:3px;margin-top:12px;background:#64856b}
+.page-title p,.page-title .sub{margin:12px 0 0;color:#63816a;font-family:monospace;font-size:12px;letter-spacing:3px}
+.card,.complete-card,.reservation-card,.store-card,.info-card,.history-card{
+    background:rgba(255,255,255,.96);border:1px solid #dedfdc;border-radius:3px;
+    box-shadow:0 8px 28px rgba(50,55,50,.08);
+}
+.complete-card,.reservation-card{padding:40px}
+.store-card{overflow:hidden}
+.store-content{padding:28px}
+.store-image{width:100%;height:280px;object-fit:cover;display:block;background:#e8e9e6}
+.store-label,.form-label,.info-title,.reservation-number-label,.card-title span{
+    color:#66856c;font-size:11px;letter-spacing:3px;font-weight:700
+}
+.store-name{margin:8px 0 22px;color:#665344;font-size:28px;font-weight:700}
+.store-info,.reservation-info{border-top:1px solid #dedfdc}
+.info-row,.row{
+    display:flex;align-items:center;gap:20px;min-height:60px;
+    padding:15px 0;border-bottom:1px solid #e7e8e5
+}
+.info-row:last-child,.row:last-child{border-bottom:none}
+.info-label,.label{width:180px;flex-shrink:0;color:#777;font-size:12px;font-weight:600;letter-spacing:1px}
+.info-value,.value{flex:1;color:#444;font-size:14px;line-height:1.7;word-break:break-word}
+.reservation-number,.reservation-number-value{color:#66856c;font-family:monospace;font-weight:700;letter-spacing:2px}
+.reservation-number{font-size:17px}
+.reservation-number-value{font-size:30px;text-align:center}
+.status,.reservation-status{
+    display:inline-block;padding:6px 12px;background:#edf3ee;color:#5e7d64;
+    border-radius:3px;font-size:12px;font-weight:600;letter-spacing:1px
+}
+.guest-notice,.guest-info{
+    margin-bottom:28px;padding:20px;background:#f4f7f3;border:1px solid #d7e1d8;border-radius:3px
+}
+.guest-notice-title,.guest-title{margin-bottom:9px;color:#5e7d64;font-size:14px;font-weight:700;letter-spacing:2px}
+.guest-notice-text,.guest-description{margin:0;color:#666;font-size:13px;line-height:1.8}
+.guest-notice-highlight{color:#665344;font-weight:700}
+.section-title{margin:0 0 25px;padding-bottom:14px;border-bottom:1px solid #d8ddd8;color:#665344;font-size:20px;letter-spacing:1px}
+.form-group{margin-bottom:24px}
+input,select{
+    width:100%;padding:13px 14px;background:#fff;color:#444;border:1px solid #cfd3cf;
+    border-radius:2px;font-size:14px;outline:none
+}
+input:focus,select:focus{border-color:#66876d;box-shadow:0 0 0 2px rgba(102,135,109,.12)}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.time-option{position:relative}
+.time-option input{position:absolute;opacity:0;pointer-events:none}
+.time-option label{display:block;padding:12px 5px;text-align:center;background:#f5f6f4;border:1px solid #d5d8d4;color:#555;border-radius:2px;cursor:pointer;transition:.2s}
+.time-option label:hover{border-color:#66876d;color:#5e7d64;background:#f0f4f0}
+.time-option input:checked+label{background:#66876d;color:#fff;border-color:#66876d;font-weight:700}
+.error-message{margin-bottom:22px;padding:13px 15px;background:#fff3f1;border-left:3px solid #b84a3a;color:#a13e32;font-size:13px;line-height:1.6}
+.notice,.message{
+    margin-top:22px;padding:16px;background:#f5f6f3;border-left:3px solid #66876d;
+    color:#666;font-size:12px;line-height:1.7
+}
+.notice p{margin:0 0 8px}.notice p:last-child{margin-bottom:0}
+.back-area,.button-area{margin-top:30px;text-align:center}
+.back-button,.button{
+    display:inline-block;padding:13px 22px;border:0;border-radius:3px;
+    background:#735744;color:#f7f1e9;text-decoration:none;font-size:13px;font-weight:600;
+    letter-spacing:1px;box-shadow:0 4px 12px rgba(70,55,45,.12);transition:.2s
+}
+.back-button::before{content:"← ";color:#a9c1ad}
+.back-button:hover{background:#624936;transform:translateY(-1px)}
+.button-area{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.primary-button{background:#66876d;color:#fff}
+.primary-button:hover{background:#57765e}
+.secondary-button{background:#735744;color:#f7f1e9}
+.cancel-link,.back{display:block;text-align:center;margin-top:15px;color:#66856c;text-decoration:none;font-size:13px}
+.cancel-link:hover,.back:hover{color:#4f6d55}
+.complete-message{text-align:center;margin-bottom:30px}
+.complete-message .mark,.complete-mark{
+    width:60px;height:60px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;
+    border:2px solid #66876d;border-radius:50%;color:#66876d;font-size:27px;font-weight:700
+}
+.complete-message h2{margin:0;color:#665344;font-size:23px;letter-spacing:2px}
+.complete-message p{margin-top:10px;color:#777;font-size:13px}
+.information-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card-title{margin:0 0 20px;padding-bottom:12px;border-bottom:1px solid #d8ddd8;color:#665344;font-size:18px}
+.complete-card .reservation-number{background:#f3f6f2;border:1px solid #d8e0d8;padding:22px;text-align:center;margin-bottom:25px}
+.footer,.footer-note{
+    position:relative;padding:25px 20px;background:linear-gradient(90deg,#6c5140,#795d48,#6d5240);
+    border-top:2px solid #718b75;color:#e9dfd3;text-align:center;font-family:monospace;font-size:10px;letter-spacing:3px
+}
+.complete-card .button-area{margin-top:28px}
+@media(max-width:850px){
+    .header{padding:0 5%}.container{width:94%;margin-top:40px}
+    .reservation-layout,.information-layout{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+    .header{height:82px}.logo{font-size:21px;letter-spacing:3px}.header-title{display:none}
+    .container{margin-top:40px}.page-title h1{font-size:28px}
+    .complete-card,.reservation-card{padding:25px 20px}
+    .history-card{overflow-x:auto}.reservation-table{min-width:720px}
+}
+@media(max-width:600px){
+    .info-row,.row{display:block;padding:14px 0}
+    .info-label,.label{width:auto;margin-bottom:6px}
+    .info-value,.value{text-align:left}
+    .time-grid{grid-template-columns:repeat(2,1fr)}
+    .button-area{grid-template-columns:1fr}
+    .store-image{height:230px}
+}
+
+</style>
 
 </head>
 
@@ -624,11 +164,14 @@
 <header class="header">
 
     <div class="logo">
+
         FUJICHAKU
+
     </div>
 
 
     <a th:href="@{/shops/{shopId}(shopId=${store.id})}"
+
        class="back-link">
 
         ← 店舗詳細へ戻る
@@ -645,12 +188,16 @@
     <div class="page-title">
 
         <div class="sub">
+
             Reservation
+
         </div>
 
 
         <h1>
+
             店舗予約
+
         </h1>
 
     </div>
@@ -661,15 +208,20 @@
 
 
         <!-- ==========================================
+
              左：店舗情報
+
         ========================================== -->
 
         <section class="store-card">
 
 
             <img class="store-image"
+
                  th:src="${store.pictureUrl}"
+
                  th:alt="${store.name}"
+
                  onerror="this.style.display='none';">
 
 
@@ -677,11 +229,14 @@
 
 
                 <div class="store-label">
+
                     RESTAURANT
+
                 </div>
 
 
                 <h2 class="store-name"
+
                     th:text="${store.name}">
 
                     店舗名
@@ -695,11 +250,14 @@
                     <div class="info-row">
 
                         <div class="info-title">
+
                             ADDRESS
+
                         </div>
 
 
                         <div class="info-value"
+
                              th:text="${store.address}">
 
                             住所
@@ -712,11 +270,14 @@
                     <div class="info-row">
 
                         <div class="info-title">
+
                             CONTACT
+
                         </div>
 
 
                         <div class="info-value"
+
                              th:text="${store.mail}">
 
                             メールアドレス
@@ -729,11 +290,14 @@
                     <div class="info-row">
 
                         <div class="info-title">
+
                             REPRESENTATIVE
+
                         </div>
 
 
                         <div class="info-value"
+
                              th:text="${store.representative}">
 
                             代表者
@@ -746,11 +310,14 @@
                     <div class="info-row">
 
                         <div class="info-title">
+
                             ABOUT
+
                         </div>
 
 
                         <div class="info-value"
+
                              th:text="${store.description}">
 
                             店舗説明
@@ -768,24 +335,32 @@
 
 
         <!-- ==========================================
+
              右：予約入力
+
         ========================================== -->
 
         <section class="reservation-card">
 
 
             <h2 class="section-title">
+
                 予約内容を入力
+
             </h2>
 
 
 
             <!-- ======================================
+
                  エラー
+
             ====================================== -->
 
             <div class="error-message"
+
                  th:if="${error != null}"
+
                  th:text="${error}">
 
                 エラー
@@ -795,26 +370,33 @@
 
 
             <form th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}"
+
                   method="post">
 
 
                 <!-- CSRF -->
 
                 <input type="hidden"
+
                        th:name="${_csrf.parameterName}"
+
                        th:value="${_csrf.token}">
 
 
 
                 <!-- ==================================
+
                      非会員情報
+
                 ================================== -->
 
                 <div class="guest-info">
 
 
                     <div class="guest-title">
+
                         予約者情報
+
                     </div>
 
 
@@ -831,6 +413,7 @@
 
 
                         <label class="form-label"
+
                                for="name">
 
                             NAME
@@ -839,8 +422,11 @@
 
 
                         <input type="text"
+
                                id="name"
+
                                name="name"
+
                                placeholder="氏名">
 
 
@@ -848,10 +434,12 @@
 
 
                     <div class="form-group"
+
                          style="margin-bottom: 0;">
 
 
                         <label class="form-label"
+
                                for="mail">
 
                             EMAIL
@@ -860,8 +448,11 @@
 
 
                         <input type="email"
+
                                id="mail"
+
                                name="mail"
+
                                placeholder="メールアドレス">
 
 
@@ -872,13 +463,16 @@
 
 
                 <!-- ==================================
+
                      日付
+
                 ================================== -->
 
                 <div class="form-group">
 
 
                     <label class="form-label"
+
                            for="reservationDate">
 
                         DATE
@@ -887,8 +481,11 @@
 
 
                     <input type="date"
+
                            id="reservationDate"
+
                            name="date"
+
                            required>
 
                 </div>
@@ -896,14 +493,18 @@
 
 
                 <!-- ==================================
+
                      時間
+
                 ================================== -->
 
                 <div class="form-group">
 
 
                     <span class="form-label">
+
                         TIME
+
                     </span>
 
 
@@ -913,13 +514,19 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1000"
+
                                    name="time"
+
                                    value="10:00"
+
                                    required>
 
                             <label for="time1000">
+
                                 10:00
+
                             </label>
 
                         </div>
@@ -928,12 +535,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1100"
+
                                    name="time"
+
                                    value="11:00">
 
                             <label for="time1100">
+
                                 11:00
+
                             </label>
 
                         </div>
@@ -942,12 +554,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1200"
+
                                    name="time"
+
                                    value="12:00">
 
                             <label for="time1200">
+
                                 12:00
+
                             </label>
 
                         </div>
@@ -956,12 +573,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1300"
+
                                    name="time"
+
                                    value="13:00">
 
                             <label for="time1300">
+
                                 13:00
+
                             </label>
 
                         </div>
@@ -970,12 +592,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1400"
+
                                    name="time"
+
                                    value="14:00">
 
                             <label for="time1400">
+
                                 14:00
+
                             </label>
 
                         </div>
@@ -984,12 +611,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1500"
+
                                    name="time"
+
                                    value="15:00">
 
                             <label for="time1500">
+
                                 15:00
+
                             </label>
 
                         </div>
@@ -998,12 +630,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1600"
+
                                    name="time"
+
                                    value="16:00">
 
                             <label for="time1600">
+
                                 16:00
+
                             </label>
 
                         </div>
@@ -1012,12 +649,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1700"
+
                                    name="time"
+
                                    value="17:00">
 
                             <label for="time1700">
+
                                 17:00
+
                             </label>
 
                         </div>
@@ -1026,12 +668,17 @@
                         <div class="time-option">
 
                             <input type="radio"
+
                                    id="time1800"
+
                                    name="time"
+
                                    value="18:00">
 
                             <label for="time1800">
+
                                 18:00
+
                             </label>
 
                         </div>
@@ -1044,13 +691,16 @@
 
 
                 <!-- ==================================
+
                      人数
+
                 ================================== -->
 
                 <div class="form-group">
 
 
                     <label class="form-label"
+
                            for="numberOfGuests">
 
                         GUESTS
@@ -1059,63 +709,88 @@
 
 
                     <select id="numberOfGuests"
+
                             name="number"
+
                             class="guest-select"
+
                             required>
 
 
                         <option value="">
+
                             人数を選択してください
+
                         </option>
 
 
                         <option value="1">
+
                             1名
+
                         </option>
 
 
                         <option value="2">
+
                             2名
+
                         </option>
 
 
                         <option value="3">
+
                             3名
+
                         </option>
 
 
                         <option value="4">
+
                             4名
+
                         </option>
 
 
                         <option value="5">
+
                             5名
+
                         </option>
 
 
                         <option value="6">
+
                             6名
+
                         </option>
 
 
                         <option value="7">
+
                             7名
+
                         </option>
 
 
                         <option value="8">
+
                             8名
+
                         </option>
 
 
                         <option value="9">
+
                             9名
+
                         </option>
 
 
                         <option value="10">
+
                             10名
+
                         </option>
 
 
@@ -1126,21 +801,29 @@
 
 
                 <!-- ==================================
+
                      注意
+
                 ================================== -->
 
                 <div class="notice">
 
 
                     <p>
+
                         ※ 10名以上で予約の場合は、
+
                         直接店舗にお電話での確認お願いします。
+
                     </p>
 
 
                     <p>
+
                         ※ 予約内容をご確認のうえ、
+
                         「予約内容を確認する」を押してください。
+
                     </p>
 
 
@@ -1149,13 +832,16 @@
 
 
                 <!-- ==================================
+
                      ボタン
+
                 ================================== -->
 
                 <div class="button-area">
 
 
                     <button type="submit"
+
                             class="confirm-button">
 
                         予約内容を確認する
@@ -1164,6 +850,7 @@
 
 
                     <a th:href="@{/shops/{shopId}(shopId=${store.id})}"
+
                        class="cancel-link">
 
                         キャンセルして店舗詳細へ戻る
@@ -1181,6 +868,8 @@
 
 </main>
 
+
+<footer class="footer">FUJICHAKU RESERVATION SYSTEM</footer>
 
 </body>
 
