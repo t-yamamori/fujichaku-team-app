@@ -77,5 +77,39 @@
            SET is_deleted = true
          WHERE id = #{id}
     </update>
+    
+    
+        <!-- ===== ここからポイント機能 ===== -->
+
+    <!-- ポイント履歴を1行追加する（created_at は DEFAULT で自動的に今の日時が入る） -->
+    <insert id="insertPointHistory">
+        INSERT INTO point_histories (member_id, points, reason)
+        VALUES (#{memberId}, #{points}, #{reason})
+    </insert>
+
+    <!-- 会員の合計ポイントを増やす（今の値に足す） -->
+    <update id="addPoint">
+        UPDATE members
+        SET point = point + #{points}
+        WHERE id = #{id} AND is_deleted = false
+    </update>
+
+    <!-- 理由ごとのポイント合計（1件もないときは NULL ではなく 0 を返す） -->
+    <select id="sumPointsByReason" resultType="int">
+        SELECT COALESCE(SUM(points), 0)
+        FROM point_histories
+        WHERE member_id = #{memberId}
+          AND reason = #{reason}
+    </select>
+
+    <!-- 今日（0:00〜23:59）にガチャを回した回数 -->
+    <select id="countTodayGacha" resultType="int">
+        SELECT COUNT(*)
+        FROM point_histories
+        WHERE member_id = #{memberId}
+          AND reason = 'GACHA'
+          AND created_at &gt;= CURRENT_DATE
+          AND created_at &lt;  CURRENT_DATE + 1
+    </select>
 
 </mapper>

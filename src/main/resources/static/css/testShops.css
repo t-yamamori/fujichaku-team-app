@@ -1,0 +1,69 @@
+@charset "UTF-8";
+/* =====================================================
+   ここから下を、shops.css の一番最後に追加する
+   （トップ画像と「店舗を探す」ボタン用）
+   ===================================================== */
+ 
+/* 「店舗を探す」を押したとき、ふわっとスクロールする
+   （動きを減らす設定の人には、すぐ移動する） */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
+ 
+/* トップ画像の枠：ヘッダーの下に、画面の高さに近い大きさで表示する
+   → 最初は画像が画面を占め、下にスクロールすると店舗一覧が出てくる */
+.hero {
+    position: relative;
+    margin: 24px 0 48px;
+    height: calc(100vh - 200px);   /* 画面の高さ − ヘッダーの高さ（目安） */
+    min-height: 360px;             /* 画面が低くても、つぶれすぎないようにする */
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.45);   /* ほかの枠と同じ金色の線 */
+}
+ 
+/* 画像を枠いっぱいに広げる（はみ出た部分は切り取り、ゆがませない） */
+.hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 8%;    /* 上のほう（パラグライダーのあたり）を中心に見せる */
+}
+ 
+/* 画像の下側にのせる「店舗を探す ▼」ボタン */
+.scroll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(212, 175, 55, 0.8);
+    background: rgba(10, 10, 10, 0.6);
+    color: #E8C76A;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+}
+.scroll-hint:hover,
+.scroll-hint:focus-visible {
+    background: rgba(10, 10, 10, 0.85);
+    outline: 2px solid #E8C76A;
+    outline-offset: 2px;
+}
+ 
+/* 「店舗を探す」で移動したとき、検索欄が画面の上端にくっつかないよう少し余白をとる */
+#shops {
+    scroll-margin-top: 24px;
+}
+ 
+/* スマートフォンなど、画面が狭いとき */
+@media (max-width: 600px) {
+    .hero {
+        height: 60vh;
+        margin: 16px 0 32px;
+    }
+}
+ 
