@@ -24,7 +24,10 @@ public class MemberEditForm {//会員情報更新フォーム
     private String name;
 
 	@NotBlank(message = "メールアドレスを入力してください")
-    @Email(message = "メールアドレスの形式が正しくありません")
+	@Email(
+	        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$",
+	        message = "メールアドレスの形式が正しくありません（例：taro@gmail.com）"
+	    )
     @Size(max = 255, message = "メールアドレスは255文字以内で入力してください")
     private String mail;
 

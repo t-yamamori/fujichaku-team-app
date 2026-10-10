@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+	      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>会員情報</title><!-- 会員情報表示・変更・退会画面（MembersController の showEdit が表示する） -->
@@ -125,24 +126,24 @@
       padding: 28px 32px;
     }
 
-    .point-card {
-      width: 280px;
-      flex-shrink: 0;
-      position: sticky; top: 24px;   /* スクロールしても上に残る */
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 4px;
-    }
-
-    @media (max-width: 760px) {
-      .member-layout { flex-direction: column; }
-      .member-main { padding: 20px; }
-      .point-card { width: 100%; position: static; }
-    }
+	@media (max-width: 760px) {
+	  .member-layout { flex-direction: column; }
+	  .member-main { padding: 20px; }
+	  .side-column { width: 100%; position: static; }   /* ← .point-card から変更 */
+	}
 
     /* ===== フォーム ===== */
     .field { margin-bottom: 20px; }
-    .field label { display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 6px; }
+	/* 会員ID（表示だけの欄） */
+	.field-label { display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 6px; }
+	.member-id {
+	  margin: 0;
+	  padding: 10px 12px;
+	  background: #f5f3ef;              /* 入力欄と区別するため、薄いグレー */
+	  border: 1px solid var(--line); border-radius: 3px;
+	  font-size: 1.1em; font-weight: bold; letter-spacing: 0.05em;
+	  font-variant-numeric: tabular-nums;
+	}
     .field input {
       width: 100%; box-sizing: border-box;
       padding: 10px 12px;
@@ -208,32 +209,60 @@
     #closeDeleteDialog { background: #fff; color: var(--text); border: 1px solid var(--line); box-shadow: none; }
     #closeDeleteDialog:hover { background: #f5f3ef; }
 
-    /* ===== ポイントカード ===== */
-    .point-card-title {
-      margin: 0; padding: 12px 16px;
-      font-size: 0.95em; font-weight: bold;
-      border-bottom: 1px solid var(--line);
-    }
-    .point-total {
-      margin: 0; padding: 20px 16px 8px;
-      text-align: right;
-      font-size: 2.4em; font-weight: bold; color: var(--main);
-      line-height: 1.2;
-      font-variant-numeric: tabular-nums;
-    }
-    .point-unit { font-size: 0.5em; margin-left: 2px; }
+	/* ===== 右の列（ポイントカード＋予約履歴リンク） ===== */
+	.side-column {
+	  width: 280px;
+	  flex-shrink: 0;
+	  position: sticky; top: 24px;   /* スクロールしても上に残る */
+	}
 
-    .gacha-open-btn { display: block; width: calc(100% - 32px); margin: 8px 16px 0; }
-    .gacha-remaining { margin: 8px 16px 16px; font-size: 0.8em; color: var(--text-sub); text-align: center; }
+	/* ===== ポイントカード ===== */
+	.point-card {
+	  background: var(--panel);
+	  border: 1px solid var(--line);
+	  border-radius: 4px;
+	}
+	.point-card-title {
+	  margin: 0; padding: 12px 16px;
+	  font-size: 0.95em; font-weight: bold;
+	  border-bottom: 1px solid var(--line);
+	}
+	.point-total {
+	  margin: 0; padding: 20px 16px 8px;
+	  text-align: right;
+	  font-size: 2.4em; font-weight: bold; color: var(--main);
+	  line-height: 1.2;
+	  font-variant-numeric: tabular-nums;
+	}
+	.point-unit { font-size: 0.5em; margin-left: 2px; }
 
-    .point-breakdown { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-    .point-breakdown li {
-      display: flex; justify-content: space-between;
-      padding: 12px 16px; font-size: 0.9em;
-      border-bottom: 1px solid var(--line);
-    }
-    .point-breakdown li:last-child { border-bottom: none; }
-    .point-breakdown li span:last-child { font-weight: bold; font-variant-numeric: tabular-nums; }
+	.gacha-open-btn { display: block; width: calc(100% - 32px); margin: 8px 16px 0; }
+	.gacha-remaining { margin: 8px 16px 16px; font-size: 0.8em; color: var(--text-sub); text-align: center; }
+
+	.point-breakdown { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+	.point-breakdown li {
+	  display: flex; justify-content: space-between;
+	  padding: 12px 16px; font-size: 0.9em;
+	  border-bottom: 1px solid var(--line);
+	}
+	.point-breakdown li:last-child { border-bottom: none; }
+	.point-breakdown li span:last-child { font-weight: bold; font-variant-numeric: tabular-nums; }
+
+	/* ===== 「店舗予約の履歴を見る」リンク ===== */
+	.side-link {
+	  display: flex; justify-content: space-between; align-items: center;
+	  margin-top: 12px;
+	  padding: 14px 16px;
+	  background: var(--panel);
+	  border: 1px solid var(--line);
+	  border-radius: 4px;
+	  color: var(--text); text-decoration: none;
+	  font-size: 0.9em; font-weight: bold;
+	  transition: background 0.15s, border-color 0.15s, color 0.15s;
+	}
+	.side-link:hover { background: var(--main-pale); border-color: var(--main); color: var(--main); }
+	.side-link-arrow { color: var(--main); transition: transform 0.15s; }
+	.side-link:hover .side-link-arrow { transform: translateX(4px); }   /* 矢印が右に動く */
 
     /* ===== ガチャのモーダル ===== */
     .gacha-dialog { width: min(340px, 90vw); box-sizing: border-box; }
@@ -312,256 +341,291 @@
 	<!-- ★追加：背景の動き（パラシュートとラクダ） -->
 	<div class="desert-scene" aria-hidden="true">
 
-	  <!-- パラシュートで降りてくる人 -->
-	  <div class="parachute">
-	    <svg viewBox="0 0 100 140">
-	      <!-- かさ -->
-	      <path d="M4 42 C10 6 90 6 96 42 Q85 36 73 42 Q62 36 50 42 Q38 36 27 42 Q15 36 4 42 Z" fill="#c8643b"/>
-	      <path d="M27 42 C30 12 70 12 73 42 Q62 36 50 42 Q38 36 27 42 Z" fill="#f3e3c9"/>
-	      <path d="M40 41 C42 16 58 16 60 41 Q55 37 50 42 Q45 37 40 41 Z" fill="#c8643b"/>
-	      <!-- ひも -->
-	      <g stroke="#6e3a21" stroke-width="1">
-	        <line x1="4"  y1="42" x2="42" y2="99"/>
-	        <line x1="27" y1="42" x2="42" y2="99"/>
-	        <line x1="73" y1="42" x2="58" y2="99"/>
-	        <line x1="96" y1="42" x2="58" y2="99"/>
-	      </g>
-	      <!-- 人 -->
-	      <g stroke="#3c6e8f" stroke-width="4" stroke-linecap="round">
-	        <line x1="46" y1="109" x2="42" y2="99"/>
-	        <line x1="54" y1="109" x2="58" y2="99"/>
-	        <line x1="47" y1="124" x2="44" y2="137"/>
-	        <line x1="53" y1="124" x2="56" y2="137"/>
-	      </g>
-	      <circle cx="50" cy="100" r="6" fill="#e8c39e"/>
-	      <rect x="44" y="106" width="12" height="20" rx="4" fill="#3c6e8f"/>
-	    </svg>
-	  </div>
+		<!-- パラシュートで降りてくる人 -->
+		<div class="parachute">
+			<svg viewBox="0 0 100 140">
+				<!-- かさ -->
+				<path d="M4 42 C10 6 90 6 96 42 Q85 36 73 42 Q62 36 50 42 Q38 36 27 42 Q15 36 4 42 Z" fill="#c8643b" />
+				<path d="M27 42 C30 12 70 12 73 42 Q62 36 50 42 Q38 36 27 42 Z" fill="#f3e3c9" />
+				<path d="M40 41 C42 16 58 16 60 41 Q55 37 50 42 Q45 37 40 41 Z" fill="#c8643b" />
+				<!-- ひも -->
+				<g stroke="#6e3a21" stroke-width="1">
+					<line x1="4" y1="42" x2="42" y2="99" />
+					<line x1="27" y1="42" x2="42" y2="99" />
+					<line x1="73" y1="42" x2="58" y2="99" />
+					<line x1="96" y1="42" x2="58" y2="99" />
+				</g>
+				<!-- 人 -->
+				<g stroke="#3c6e8f" stroke-width="4" stroke-linecap="round">
+					<line x1="46" y1="109" x2="42" y2="99" />
+					<line x1="54" y1="109" x2="58" y2="99" />
+					<line x1="47" y1="124" x2="44" y2="137" />
+					<line x1="53" y1="124" x2="56" y2="137" />
+				</g>
+				<circle cx="50" cy="100" r="6" fill="#e8c39e" />
+				<rect x="44" y="106" width="12" height="20" rx="4" fill="#3c6e8f" />
+			</svg>
+		</div>
 
-	  <!-- 歩くラクダ -->
-	  <div class="camel">
-	    <svg viewBox="0 0 120 92">
-	      <g fill="#a8743f">
-	        <rect class="leg a" x="22" y="56" width="6" height="32" rx="2"/>
-	        <rect class="leg b" x="32" y="56" width="6" height="32" rx="2"/>
-	        <rect class="leg b" x="70" y="56" width="6" height="32" rx="2"/>
-	        <rect class="leg a" x="80" y="56" width="6" height="32" rx="2"/>
-	        <path d="M16 54 C14 44 22 36 32 37 C38 24 54 22 60 34 C64 31 72 32 76 40 L80 44 C84 36 88 26 92 20 L104 16 C109 16 111 21 108 24 L100 27 C96 35 92 46 88 56 C76 64 40 66 22 62 C18 61 16 58 16 54 Z"/>
-	        <path d="M98 17 L101 10 L104 16 Z"/>
-	      </g>
-	      <path d="M17 50 Q12 56 13 64" stroke="#a8743f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-	      <circle cx="102" cy="19" r="1.3" fill="#3a2a1a"/>
-	    </svg>
-	  </div>
+		<!-- 歩くラクダ -->
+		<div class="camel">
+			<svg viewBox="0 0 120 92">
+				<g fill="#a8743f">
+					<rect class="leg a" x="22" y="56" width="6" height="32" rx="2" />
+					<rect class="leg b" x="32" y="56" width="6" height="32" rx="2" />
+					<rect class="leg b" x="70" y="56" width="6" height="32" rx="2" />
+					<rect class="leg a" x="80" y="56" width="6" height="32" rx="2" />
+					<path
+						d="M16 54 C14 44 22 36 32 37 C38 24 54 22 60 34 C64 31 72 32 76 40 L80 44 C84 36 88 26 92 20 L104 16 C109 16 111 21 108 24 L100 27 C96 35 92 46 88 56 C76 64 40 66 22 62 C18 61 16 58 16 54 Z" />
+					<path d="M98 17 L101 10 L104 16 Z" />
+				</g>
+				<path d="M17 50 Q12 56 13 64" stroke="#a8743f" stroke-width="2.5" fill="none" stroke-linecap="round" />
+				<circle cx="102" cy="19" r="1.3" fill="#3a2a1a" />
+			</svg>
+		</div>
 
-	  <!-- 地面 -->
-	  <div class="ground"></div>
+		<!-- 地面 -->
+		<div class="ground"></div>
 	</div>
 	<!-- 見出し：左に「＜」の戻るボタン、右に「会員情報」 -->
 	<div class="page-header">
-	  <a th:href="@{/shops}" class="back-link" aria-label="トップ画面に戻る" title="トップ画面に戻る">＜</a>
-	  <h1>会員情報</h1>
+		<a th:href="@{/shops}" class="back-link" aria-label="トップ画面に戻る" title="トップ画面に戻る">＜</a>
+		<h1>会員情報</h1>
 	</div>
 
-  <!-- ★追加：左右2列にするための外枠 -->
-  <div class="member-layout">
+	<!-- ★追加：左右2列にするための外枠 -->
+	<div class="member-layout">
 
-    <!-- ★追加：左側（今までの内容をこの中に入れた） -->
-    <div class="member-main">
+		<!-- ★追加：左側（今までの内容をこの中に入れた） -->
+		<div class="member-main">
 
-      <!-- 変更後のメッセージ（Controller の addFlashAttribute("message", ...)） -->
-      <p class="message" th:if="${message}" th:text="${message}"></p>
+			<!-- 変更後のメッセージ（Controller の addFlashAttribute("message", ...)） -->
+			<p class="message" th:if="${message}" th:text="${message}"></p>
 
 
-      <!-- ===== 会員情報の変更フォーム ===== -->
-      <!-- th:object は、Controller で model に入れた "memberEditForm" と同じ名前にする -->
-      <form th:action="@{/members/showEdit}" th:object="${memberEditForm}" method="post">
+			<!-- ===== 会員情報の変更フォーム ===== -->
+			<!-- th:object は、Controller で model に入れた "memberEditForm" と同じ名前にする -->
+			<form th:action="@{/members/showEdit}" th:object="${memberEditForm}" method="post">
+				<!-- 会員ID（表示だけ。変更はできない） -->
+				<div class="field">
+				  <span class="field-label">FUJICHAKU会員ID</span>
+				  <p class="member-id" th:text="${memberId}">-----</p>
+				  <p class="hint">ログインの際に使用します。忘れないようお控えください。</p>
+				</div>
 
-        <div class="field">
-          <label for="name">名前：</label>
-          <input type="text" id="name" th:field="*{name}">
-          <p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
-        </div>
+				<div class="field">
+					<label for="name">名前：</label>
+					<input type="text" id="name" th:field="*{name}">
+					<p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+				</div>
 
-        <div class="field">
-          <label for="mail">メールアドレス：</label>
-          <input type="email" id="mail" th:field="*{mail}">
-          <p class="error" th:if="${#fields.hasErrors('mail')}" th:errors="*{mail}"></p>
-        </div>
+				<div class="field">
+					<label for="mail">メールアドレス：</label>
+					<input type="email" id="mail" th:field="*{mail}">
+					<p class="error" th:if="${#fields.hasErrors('mail')}" th:errors="*{mail}"></p>
+				</div>
 
-        <div class="field">
-          <label for="password">パスワード：</label>
-          <!-- 伏せ字は「見本の文字（placeholder）」として表示するだけ。
+				<div class="field">
+					<label for="password">パスワード（ログインパスワード）：</label>
+					<!-- 伏せ字は「見本の文字（placeholder）」として表示するだけ。
                何も入力しなければ空のまま送信され、パスワードは変更されない -->
-          <input type="password" id="password" th:field="*{password}" placeholder="●●●●●●●●">
-          <p class="hint">変更する場合のみ、新しいパスワードを入力してください（8文字以上）</p>
-          <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
-        </div>
+					<input type="password" id="password" th:field="*{password}" placeholder="●●●●●●●●">
+					<p class="hint">変更する場合のみ、新しいパスワードを入力してください（8文字以上）</p>
+					<p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+				</div>
 
-        <div class="field">
-          <label for="birthDate">生年月日</label>
-          <!-- min・max で、カレンダーで選べる範囲を 1900年1月1日〜今日 にする -->
-          <input type="date" id="birthDate" th:field="*{birthDate}"
-                 min="1900-01-01"
-                 th:max="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
-          <!-- 未来の日付のエラー（@Past） -->
-          <p class="error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></p>
-          <!-- 1900年より前のエラー（@AssertTrue） -->
-          <p class="error" th:if="${#fields.hasErrors('birthDateAfter1900')}" th:errors="*{birthDateAfter1900}"></p>
-        </div>
+				<div class="field">
+					<label for="birthDate">生年月日</label>
+					<!-- min・max で、カレンダーで選べる範囲を 1900年1月1日〜今日 にする -->
+					<input type="date" id="birthDate" th:field="*{birthDate}" min="1900-01-01"
+						th:max="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+					<!-- 未来の日付のエラー（@Past） -->
+					<p class="error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></p>
+					<!-- 1900年より前のエラー（@AssertTrue） -->
+					<p class="error" th:if="${#fields.hasErrors('birthDateAfter1900')}"
+						th:errors="*{birthDateAfter1900}"></p>
+				</div>
 
-        <div class="buttons">
-          <button type="submit">変更</button>
+				<div class="buttons">
+					<button type="submit">変更</button>
 
-          <!-- type="button" にすると、フォームを送信せずに、退会モーダルを開くだけになる -->
-          <button type="button" class="delete-open" id="openDeleteDialog">退会する</button>
-        </div>
-      </form>
+					<!-- type="button" にすると、フォームを送信せずに、退会モーダルを開くだけになる -->
+					<button type="button" class="delete-open" id="openDeleteDialog">退会する</button>
+				</div>
+			</form>
 
-    </div><!-- /member-main -->
-
-
-    <!-- ★追加：右側のポイントカード -->
-    <aside class="point-card">
-      <h2 class="point-card-title">ポイント合計</h2>
-
-      <p class="point-total">
-        <span th:text="${totalPoint}">0</span><span class="point-unit">P</span>
-      </p>
-
-      <!-- ガチャボタン（今日の残りが0回なら押せない） -->
-      <button type="button" class="gacha-open-btn" id="openGachaDialog"
-              th:disabled="${gachaRemaining <= 0}">
-        ガチャで遊ぶ
-      </button>
-      <p class="gacha-remaining" th:if="${gachaRemaining > 0}">
-        今日はあと <span th:text="${gachaRemaining}">5</span> 回
-      </p>
-      <p class="gacha-remaining" th:unless="${gachaRemaining > 0}">
-        今日はもう回せません（また明日）
-      </p>
-
-      <!-- 内訳 -->
-      <ul class="point-breakdown">
-        <li><span>ゲーム</span><span th:text="${gachaTotal} + 'P'">0P</span></li>
-        <li><span>口コミ投稿</span><span th:text="${reviewTotal} + 'P'">0P</span></li>
-        <li><span>店舗予約</span><span th:text="${reservationTotal} + 'P'">0P</span></li>
-      </ul>
-    </aside>
-
-  </div><!-- /member-layout -->
+		</div><!-- /member-main -->
 
 
-  <!-- ===== 退会の確認モーダル ===== -->
-  <dialog id="deleteDialog">
-    <p>本当に退会しますか？</p>
-    <div class="dialog-buttons">
-      <!-- 「はい」：POST /members/delete に送信して、退会処理をする -->
-      <form th:action="@{/members/delete}" method="post">
-        <button type="submit" class="yes">はい</button>
-      </form>
-      <!-- 「いいえ」：送信せずに、モーダルを閉じるだけ -->
-      <button type="button" id="closeDeleteDialog">いいえ</button>
-    </div>
-  </dialog>
+
+		<!-- ★追加：右側の列（ポイントカード＋予約履歴へのリンク） -->
+		<div class="side-column">
+
+			<!-- ★追加：右側のポイントカード -->
+			<aside class="point-card">
+				<h2 class="point-card-title">ポイント合計</h2>
+
+				<p class="point-total">
+					<span th:text="${totalPoint}">0</span><span class="point-unit">P</span>
+				</p>
+
+				<!-- ガチャボタン（今日の残りが0回なら押せない） -->
+				<button type="button" class="gacha-open-btn" id="openGachaDialog" th:disabled="${gachaRemaining <= 0}">
+					ガチャで遊ぶ
+				</button>
+				<p class="gacha-remaining" th:if="${gachaRemaining > 0}">
+					今日はあと <span th:text="${gachaRemaining}">5</span> 回
+				</p>
+				<p class="gacha-remaining" th:unless="${gachaRemaining > 0}">
+					今日はもう回せません（また明日）
+				</p>
+
+				<!-- 内訳 -->
+				<ul class="point-breakdown">
+					<li><span>ゲーム</span><span th:text="${gachaTotal} + 'P'">0P</span></li>
+					<li><span>口コミ投稿</span><span th:text="${reviewTotal} + 'P'">0P</span></li>
+					<li><span>店舗予約</span><span th:text="${reservationTotal} + 'P'">0P</span></li>
+				</ul>
+			</aside>
+
+			<!-- ★追加：店舗予約の履歴を見る -->
+			<a th:href="@{/reservations/history}" class="side-link">
+				<span>店舗予約の履歴を見る</span>
+				<span class="side-link-arrow">＞</span>
+			</a>
+
+		</div>
+
+	</div><!-- /member-layout -->
 
 
-  <!-- ★追加：ガチャのモーダル -->
-  <dialog id="gachaDialog" class="gacha-dialog">
-    <h2>ポイントガチャ</h2>
-
-    <!-- カプセル（CSSでアニメーションさせる） -->
-    <div class="capsule-area">
-      <div id="capsule" class="capsule"></div>
-    </div>
-
-    <!-- 当たりの一覧（表示用。実際の確率は MembersServiceImpl で決まる） -->
-    <table class="gacha-rates">
-      <tr><th>1等</th><td>10P</td><td>5%</td></tr>
-      <tr><th>2等</th><td>5P</td><td>15%</td></tr>
-      <tr><th>3等</th><td>3P</td><td>30%</td></tr>
-      <tr><th>4等</th><td>1P</td><td>50%</td></tr>
-    </table>
-
-    <!-- th:action を使うと、CSRF対策の隠し項目が自動で入る -->
-    <form id="gachaForm" th:action="@{/members/gacha}" method="post">
-      <button type="submit" id="gachaBtn" class="gacha-btn">ガチャを回す</button>
-    </form>
-
-    <button type="button" class="gacha-close-btn" id="closeGachaDialog">閉じる</button>
-  </dialog>
+	<!-- ===== 退会の確認モーダル ===== -->
+	<dialog id="deleteDialog">
+		<h3 class="delete-title">本当に退会しますか？</h3>
+		<!-- ★追加：注意書き -->
+		<p class="delete-note">※「はい」を押すと退会し、ログインができなくなります。<br>本当によろしいですか？</p>
+		<div class="dialog-buttons">
+			<!-- 「はい」：POST /members/delete に送信して、退会処理をする -->
+			<form th:action="@{/members/delete}" method="post">
+				<button type="submit" class="yes">はい</button>
+			</form>
+			<!-- 「いいえ」：送信せずに、モーダルを閉じるだけ -->
+			<button type="button" id="closeDeleteDialog">いいえ</button>
+		</div>
+	</dialog>
 
 
-  <!-- ★追加：ガチャの結果モーダル（ガチャ直後だけ作られる） -->
-  <dialog id="gachaResultDialog" class="gacha-dialog"
-          th:if="${gachaResultRank != null or gachaError != null}">
+	<!-- ★追加：ガチャのモーダル -->
+	<dialog id="gachaDialog" class="gacha-dialog">
+		<h2>ポイントガチャ</h2>
 
-    <!-- 当たったとき -->
-    <th:block th:if="${gachaResultRank != null}">
-      <p class="result-rank" th:classappend="'rank-' + ${gachaResultRank}"
-         th:text="${gachaResultRank} + '等！'">1等！</p>
-      <p class="result-point" th:text="'+' + ${gachaResultPoint} + 'P 獲得'">+10P 獲得</p>
-    </th:block>
+		<!-- カプセル（CSSでアニメーションさせる） -->
+		<div class="capsule-area">
+			<div id="capsule" class="capsule"></div>
+		</div>
 
-    <!-- 今日の上限に達していたとき -->
-    <p class="result-error" th:if="${gachaError != null}" th:text="${gachaError}"></p>
+		<!-- 当たりの一覧（表示用。実際の確率は MembersServiceImpl で決まる） -->
+		<table class="gacha-rates">
+			<tr>
+				<th>1等</th>
+				<td>10P</td>
+				<td>5%</td>
+			</tr>
+			<tr>
+				<th>2等</th>
+				<td>5P</td>
+				<td>15%</td>
+			</tr>
+			<tr>
+				<th>3等</th>
+				<td>3P</td>
+				<td>30%</td>
+			</tr>
+			<tr>
+				<th>4等</th>
+				<td>1P</td>
+				<td>50%</td>
+			</tr>
+		</table>
 
-    <button type="button" class="gacha-btn" id="closeResultDialog">OK</button>
-  </dialog>
+		<!-- th:action を使うと、CSRF対策の隠し項目が自動で入る -->
+		<form id="gachaForm" th:action="@{/members/gacha}" method="post">
+			<button type="submit" id="gachaBtn" class="gacha-btn">ガチャを回す</button>
+		</form>
 
-
-  <script>
-    // ===== 退会モーダル（今までと同じ） =====
-    const dialog = document.getElementById('deleteDialog');
-
-    // 「退会する」ボタン：モーダルを開く
-    document.getElementById('openDeleteDialog').addEventListener('click', () => {
-      dialog.showModal();
-    });
-
-    // 「いいえ」ボタン：モーダルを閉じて、会員情報画面に戻る
-    document.getElementById('closeDeleteDialog').addEventListener('click', () => {
-      dialog.close();
-    });
-
-
-    // ===== ★追加：ガチャのモーダル =====
-    const gachaDialog = document.getElementById('gachaDialog');
-
-    // 「ガチャで遊ぶ」ボタン：ガチャのモーダルを開く
-    document.getElementById('openGachaDialog').addEventListener('click', () => {
-      gachaDialog.showModal();
-    });
-
-    // 「閉じる」ボタン：ガチャのモーダルを閉じる
-    document.getElementById('closeGachaDialog').addEventListener('click', () => {
-      gachaDialog.close();
-    });
-
-    // 「ガチャを回す」ボタン：1.5秒アニメーションを見せてから送信する
-    const gachaForm = document.getElementById('gachaForm');
-    gachaForm.addEventListener('submit', (event) => {
-      event.preventDefault();                 // すぐに送信しないで止める
-      const btn = document.getElementById('gachaBtn');
-      btn.disabled = true;                    // 2回押し防止
-      btn.textContent = '回しています…';
-      document.getElementById('capsule').classList.add('spinning'); // アニメーション開始
-      setTimeout(() => {
-        gachaForm.submit();                   // 1.5秒後に本当に送信する
-      }, 1500);
-    });
+		<button type="button" class="gacha-close-btn" id="closeGachaDialog">閉じる</button>
+	</dialog>
 
 
-    // ===== ★追加：結果モーダル =====
-    // ガチャの結果があるとき（ガチャ直後）だけ、画面を開いたら自動で表示する
-    const resultDialog = document.getElementById('gachaResultDialog');
-    if (resultDialog) {
-      resultDialog.showModal();
-      document.getElementById('closeResultDialog').addEventListener('click', () => {
-        resultDialog.close();
-      });
-    }
-  </script>
+	<!-- ★追加：ガチャの結果モーダル（ガチャ直後だけ作られる） -->
+	<dialog id="gachaResultDialog" class="gacha-dialog" th:if="${gachaResultRank != null or gachaError != null}">
+
+		<!-- 当たったとき -->
+		<th:block th:if="${gachaResultRank != null}">
+			<p class="result-rank" th:classappend="'rank-' + ${gachaResultRank}" th:text="${gachaResultRank} + '等！'">1等！
+			</p>
+			<p class="result-point" th:text="'+' + ${gachaResultPoint} + 'P 獲得'">+10P 獲得</p>
+		</th:block>
+
+		<!-- 今日の上限に達していたとき -->
+		<p class="result-error" th:if="${gachaError != null}" th:text="${gachaError}"></p>
+
+		<button type="button" class="gacha-btn" id="closeResultDialog">OK</button>
+	</dialog>
+
+
+	<script>
+		// ===== 退会モーダル（今までと同じ） =====
+		const dialog = document.getElementById('deleteDialog');
+
+		// 「退会する」ボタン：モーダルを開く
+		document.getElementById('openDeleteDialog').addEventListener('click', () => {
+			dialog.showModal();
+		});
+
+		// 「いいえ」ボタン：モーダルを閉じて、会員情報画面に戻る
+		document.getElementById('closeDeleteDialog').addEventListener('click', () => {
+			dialog.close();
+		});
+
+
+		// ===== ★追加：ガチャのモーダル =====
+		const gachaDialog = document.getElementById('gachaDialog');
+
+		// 「ガチャで遊ぶ」ボタン：ガチャのモーダルを開く
+		document.getElementById('openGachaDialog').addEventListener('click', () => {
+			gachaDialog.showModal();
+		});
+
+		// 「閉じる」ボタン：ガチャのモーダルを閉じる
+		document.getElementById('closeGachaDialog').addEventListener('click', () => {
+			gachaDialog.close();
+		});
+
+		// 「ガチャを回す」ボタン：1.5秒アニメーションを見せてから送信する
+		const gachaForm = document.getElementById('gachaForm');
+		gachaForm.addEventListener('submit', (event) => {
+			event.preventDefault();                 // すぐに送信しないで止める
+			const btn = document.getElementById('gachaBtn');
+			btn.disabled = true;                    // 2回押し防止
+			btn.textContent = '回しています…';
+			document.getElementById('capsule').classList.add('spinning'); // アニメーション開始
+			setTimeout(() => {
+				gachaForm.submit();                   // 1.5秒後に本当に送信する
+			}, 1500);
+		});
+
+
+		// ===== ★追加：結果モーダル =====
+		// ガチャの結果があるとき（ガチャ直後）だけ、画面を開いたら自動で表示する
+		const resultDialog = document.getElementById('gachaResultDialog');
+		if (resultDialog) {
+			resultDialog.showModal();
+			document.getElementById('closeResultDialog').addEventListener('click', () => {
+				resultDialog.close();
+			});
+		}
+	</script>
 </body>
+
 </html>
- 
