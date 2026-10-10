@@ -123,6 +123,7 @@ public class MembersController {
         Integer memberId = member.getId();
         int todayCount = membersService.getTodayGachaCount(memberId);
 
+        model.addAttribute("memberId", memberId);   // 会員ID
         model.addAttribute("totalPoint", member.getPoint());                                     // 合計
         model.addAttribute("gachaTotal", membersService.getPointByReason(memberId, "GACHA"));       // 内訳：ゲーム
         model.addAttribute("reviewTotal", membersService.getPointByReason(memberId, "REVIEW"));     // 内訳：口コミ

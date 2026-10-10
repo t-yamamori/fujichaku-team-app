@@ -51,6 +51,12 @@ import com.example.demo.form.MemberEditForm;
     /** ガチャを1日に回せる回数 */
     int GACHA_LIMIT_PER_DAY = 5;
 
+    /** ★追加：口コミ投稿でもらえるポイント */
+    int REVIEW_POINT = 5;
+
+    /** ★追加：店舗予約でもらえるポイント */
+    int RESERVATION_POINT = 10;
+
     /**
      * ポイントを加算する（履歴に1行追加 ＋ members.point を増やす）
      * 口コミ・予約の担当者にも、この1行を呼んでもらう
