@@ -44,5 +44,45 @@ import com.example.demo.form.MemberEditForm;
     
     //文字列の会員IDを数字にして、会員を探す
 	public Members findByLoginId(String loginId);
+	
+	
+    // ===== ここからポイント機能 =====
+
+    /** ガチャを1日に回せる回数 */
+    int GACHA_LIMIT_PER_DAY = 5;
+
+    /**
+     * ポイントを加算する（履歴に1行追加 ＋ members.point を増やす）
+     * 口コミ・予約の担当者にも、この1行を呼んでもらう
+     * @param memberId 会員ID
+     * @param points   加算するポイント
+     * @param reason   理由（"GACHA" / "REVIEW" / "RESERVATION"）
+     */
+    void addPoint(Integer memberId, int points, String reason);
+
+    /**
+     * 理由ごとのポイント合計を取得する（カードの内訳表示用）
+     * @return 合計ポイント（履歴がなければ 0）
+     */
+    int getPointByReason(Integer memberId, String reason);
+
+    /**
+     * 今日ガチャを回した回数を取得する
+     * @return 今日の回数（0〜5）
+     */
+    int getTodayGachaCount(Integer memberId);
+
+    /**
+     * ガチャを1回回す（回数チェック → 抽選 → ポイント加算）
+     * @return 当たった順位（1〜4）。今日の上限に達していたら 0
+     */
+    int playGacha(Integer memberId);
+
+    /**
+     * 順位からもらえるポイントを返す（1等→10P など）
+     * @param rank 順位（1〜4）
+     * @return ポイント
+     */
+    int getGachaPoint(int rank);
 
 }

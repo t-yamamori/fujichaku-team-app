@@ -2,6 +2,7 @@ package com.example.demo.form;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -36,6 +37,9 @@ public class MemberEditForm {//会員情報更新フォーム
     @Past(message = "生年月日は今日より前の日付を入力してください")
     private LocalDate birthDate;
     
-    
-
+ // 1900年1月1日より前を禁止する（空欄のときは、このチェックをしない）
+    @AssertTrue(message = "生年月日は1900年1月1日以降の日付を入力してください")
+    public boolean isBirthDateAfter1900() {
+        return birthDate == null || !birthDate.isBefore(LocalDate.of(1900, 1, 1));
+    }
 }

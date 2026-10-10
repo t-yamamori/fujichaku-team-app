@@ -1,5 +1,5 @@
 package com.example.demo.controller;
- 
+
 import java.security.Principal;
 
 import jakarta.servlet.ServletException;
@@ -21,86 +21,114 @@ import com.example.demo.form.MemberEditForm;
 import com.example.demo.service.serviceInterface.MembersService;
 
 import lombok.RequiredArgsConstructor;
- 
-/**
- * 会員情報画面（表示・変更・退会）を受け付けるコントローラー
- *
- *   GET  /members/showEdit    会員情報画面を表示する（トップ画面の「会員情報」ボタン）
- *   POST /members/showEdit    会員情報を変更する（「変更」ボタン）
- *   POST /members/delete  退会する（確認モーダルの「はい」ボタン）
- *
- * ログインの仕組みは別の担当なので、ここでは作らない。
- * ログイン中の人は、Java標準の Principal で受け取る（ログインID＝会員ID）。
- * /members/** はログインが必要な設定なので、principal は必ず入っている。
- */
+
 @Controller
 @RequestMapping("/members")
 @RequiredArgsConstructor
 public class MembersController {
- 
+
     private final MembersService membersService;
- 
-    /**
-     * 会員情報画面を表示する
-     * 今の登録内容を MemberEditForm に詰め替えて、入力欄に入れた状態で表示する
-     */
+
+    /** 会員情報画面を表示する */
     @GetMapping("/showEdit")
     public String showEdit(Principal principal, Model model) {
         Members member = membersService.findByLoginId(principal.getName());
+        
         if (member == null) {
-            // 退会済みなどで会員が見つからないときは、トップ画面（店舗一覧）へ
             return "redirect:/shops";
         }
+        
         model.addAttribute("memberEditForm", membersService.toForm(member));
+        addPointInfo(member, model);   // ★追加：ポイントカード用の情報を渡す
         return "members/showEdit";
     }
- 
-    /**
-     * 会員情報を変更する（「変更」ボタン）
-     * 入力ミスがあれば、入力した内容とエラーを残したまま、同じ画面を表示する
-     */
+    
+
+    /** 会員情報を変更する（「変更」ボタン） */
     @PostMapping("/showEdit")
     public String update(@Validated @ModelAttribute("memberEditForm") MemberEditForm editForm,
                          BindingResult result,
                          Principal principal,
+                         Model model,                         // ★追加：引数に Model
                          RedirectAttributes redirectAttributes) {
-        Members member = membersService.findByLoginId(principal.getName());
-        if (member == null) {
+        
+    	Members member = membersService.findByLoginId(principal.getName());
+        
+    	if (member == null) {
             return "redirect:/shops";
         }
- 
-        // 入力チェック（@NotBlank など）にひっかかったとき
+
         if (result.hasErrors()) {
+            addPointInfo(member, model);   // ★追加：エラーで同じ画面を出すときも必要
             return "members/showEdit";
         }
- 
+
         try {
             membersService.update(member.getId(), editForm);
         } catch (DuplicateKeyException e) {
-            // 他の会員と同じメールアドレスだったとき（DBの一意インデックスで検出）
             result.rejectValue("mail", "duplicate", "このメールアドレスはすでに使われています");
+            addPointInfo(member, model);   // ★追加
             return "members/showEdit";
         }
- 
-        // 変更後は同じ画面を開き直し、「会員情報を変更しました」と表示する
+
         redirectAttributes.addFlashAttribute("message", "会員情報を変更しました");
+        
         return "redirect:/members/showEdit";
     }
- 
-    /**
-     * 退会する（確認モーダルの「はい」ボタン）
-     * 名前は delete だが、行は消さず、is_deleted を true にする（論理削除）。
-     * そのあとログアウトして、トップ画面（店舗一覧）へ移動する
-     */
+
+    /** 退会する（確認モーダルの「はい」ボタン） */
     @PostMapping("/delete")
     public String delete(Principal principal, HttpServletRequest request) throws ServletException {
-        Members member = membersService.findByLoginId(principal.getName());
-        if (member != null) {
+        
+    	Members member = membersService.findByLoginId(principal.getName());
+        
+    	if (member != null) {
             membersService.delete(member.getId());
         }
-        // Java標準のログアウト命令（ログイン中の状態を終わらせる）
+    	
         request.logout();
+        
         return "redirect:/shops";
     }
+
+    /**
+     * ★追加：ガチャを回す（モーダルの「ガチャを回す」ボタン）
+     * 結果はフラッシュ属性で会員情報画面に渡し、画面側で結果モーダルを開く
+     */
+    @PostMapping("/gacha")
+    public String gacha(Principal principal, RedirectAttributes redirectAttributes) {
+        Members member = membersService.findByLoginId(principal.getName());
+        
+        if (member == null) {
+            return "redirect:/shops";
+        }
+
+        int rank = membersService.playGacha(member.getId());
+
+        if (rank == 0) {
+            // 今日の上限に達していた
+            redirectAttributes.addFlashAttribute("gachaError", "今日はもうガチャを回せません。また明日遊んでください");
+        } else {
+            redirectAttributes.addFlashAttribute("gachaResultRank", rank);
+            redirectAttributes.addFlashAttribute("gachaResultPoint", membersService.getGachaPoint(rank));
+        }
+        return "redirect:/members/showEdit";
+    }
+
+    /**
+     * ★追加：ポイントカードに表示する情報を Model に入れる
+     * （showEdit を表示する3か所で使うので、1つのメソッドにまとめた）
+     */
+    private void addPointInfo(Members member, Model model) {
+        Integer memberId = member.getId();
+        int todayCount = membersService.getTodayGachaCount(memberId);
+
+        model.addAttribute("totalPoint", member.getPoint());                                     // 合計
+        model.addAttribute("gachaTotal", membersService.getPointByReason(memberId, "GACHA"));       // 内訳：ゲーム
+        model.addAttribute("reviewTotal", membersService.getPointByReason(memberId, "REVIEW"));     // 内訳：口コミ
+        model.addAttribute("reservationTotal", membersService.getPointByReason(memberId, "RESERVATION")); // 内訳：予約
+        model.addAttribute("gachaRemaining", MembersService.GACHA_LIMIT_PER_DAY - todayCount);    // 今日あと何回
+        model.addAttribute("gachaLimit", MembersService.GACHA_LIMIT_PER_DAY); // 1日の上限
+        
+    }
 }
- 
