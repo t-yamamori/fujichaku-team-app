@@ -27,7 +27,7 @@ public class RegisterController {
     // ホーム("/")は入力画面へ
     @GetMapping("/")
     public String home() {
-        return "redirect:/members/register";
+        return "redirect:/register/register";
     }
 
     // 1. 入力画面
@@ -83,7 +83,7 @@ public class RegisterController {
                 (RegisterForm) session.getAttribute(SESSION_KEY);
 
         if (form == null) {
-            return "redirect:/members/register";
+            return "redirect:/register/register";
         }
 
         service.register(form);
