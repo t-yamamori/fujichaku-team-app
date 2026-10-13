@@ -684,6 +684,19 @@ public class ReservationController {
         reservationMapper.insertReservation(
                 reservation
         );
+        
+        // --------------------------------------------------
+        // ポイント加算（会員の予約のみ。非会員・管理者には加算しない）
+        // --------------------------------------------------
+
+        if (memberId != null && !isAdmin(memberId)) {
+            membersService.addPoint(
+                    memberId,
+                    MembersService.RESERVATION_POINT,
+                    "RESERVATION"
+            );
+        }
+
 
 
         // --------------------------------------------------
