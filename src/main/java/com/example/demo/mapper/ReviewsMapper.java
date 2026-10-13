@@ -30,5 +30,13 @@ public interface ReviewsMapper {
 			@Param("memberId") Integer memberId
 	);
 
-}
+	// 【追加】口コミ削除（店舗管理者用）
+	// 口コミID・店舗IDが一致したときだけ削除する（投稿した会員は問わない）
+	// 店舗IDも条件に入れているので、他店舗の口コミは削除できない
+	// 戻り値：削除した件数（0なら削除できる口コミがなかった）
+	int deleteByIdAndStoreId(
+			@Param("id") Integer id,
+			@Param("storeId") Integer storeId
+	);
 
+}

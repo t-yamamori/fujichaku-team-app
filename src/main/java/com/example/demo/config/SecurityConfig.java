@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository; // ★追加
 
 import com.example.demo.entity.Members;
 import com.example.demo.entity.ShopAdmin;
@@ -40,7 +41,7 @@ public class SecurityConfig {
 
 	    return provider;
 	}
-	
+
 	@Bean
 	DaoAuthenticationProvider memberAuthenticationProvider(
 	        @Qualifier("memberUserDetailsService")
@@ -54,7 +55,7 @@ public class SecurityConfig {
 
 	    return provider;
 	}
-	
+
     /*
      * ==========================================
      * 管理者側のログイン
@@ -68,11 +69,19 @@ public class SecurityConfig {
 	        AuthenticationSuccessHandler adminLoginSuccessHandler)
 	        throws Exception {
 
+	    // ★追加：管理者のログイン状態をセッション内の専用キーに保存する
+	    HttpSessionSecurityContextRepository adminContextRepository =
+	            new HttpSessionSecurityContextRepository();
+	    adminContextRepository.setSpringSecurityContextKey("ADMIN_SECURITY_CONTEXT");
+
 	    http
 	        .securityMatcher(
 	            "/adminLogin",
 	            "/adminLogin/**",
 	            "/admin/**"
+	        )
+	        .securityContext(context -> context                         // ★追加
+	            .securityContextRepository(adminContextRepository)
 	        )
 	        .authenticationProvider(adminAuthenticationProvider)
 	        .authorizeHttpRequests(auth -> auth
@@ -82,7 +91,7 @@ public class SecurityConfig {
 	                "/js/**",
 	                "/images/**"
 	            ).permitAll()
-	            .anyRequest().authenticated()
+	            .anyRequest().hasAnyRole("ADMIN", "SHOP_ADMIN")        // ★変更：authenticated() から
 	        )
 	        .formLogin(form -> form
 	            .loginPage("/adminLogin")
@@ -98,8 +107,8 @@ public class SecurityConfig {
 
 	    return http.build();
 	}
-	
-	
+
+
 	@Bean
 	AuthenticationSuccessHandler adminLoginSuccessHandler(
 	        ShopAdminMapper shopAdminMapper) {
@@ -159,8 +168,16 @@ public class SecurityConfig {
 	        DaoAuthenticationProvider memberAuthenticationProvider)
 	        throws Exception {
 
+        // ★追加：会員のログイン状態をセッション内の専用キーに保存する
+        HttpSessionSecurityContextRepository memberContextRepository =
+                new HttpSessionSecurityContextRepository();
+        memberContextRepository.setSpringSecurityContextKey("MEMBER_SECURITY_CONTEXT");
+
         http
-        .authenticationProvider(memberAuthenticationProvider)
+            .securityContext(context -> context                         // ★追加
+                .securityContextRepository(memberContextRepository)
+            )
+            .authenticationProvider(memberAuthenticationProvider)
             .authorizeHttpRequests(auth -> auth
 
                 .requestMatchers(
@@ -307,72 +324,4 @@ public class SecurityConfig {
             );
         };
     }
-	
-	
-// 以下元のログイン処理　問題発生時戻し用    
-//    //本番用：ログイン処理
-//	    @Bean
-//	    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//	
-//	        http
-//	            // ① どの画面に、ログインが必要か
-//	            .authorizeHttpRequests(auth -> auth
-//	                // ログインしなくても見られる画面
-//	                .requestMatchers(
-//	                    "/", "/shops/**",                  // トップ・店舗一覧・検索・店舗詳細
-//	                    "/register/**",                    // 会員登録（URLは会員登録の担当と合わせる）
-//	                    "/login",                          // ログイン画面
-//	                    "/css/**", "/js/**", "/images/**"  // CSS・JavaScript・画像
-//	                ).permitAll()
-//	                // ログインが必要な画面（会員情報・変更・退会、予約履歴）
-//	                .requestMatchers("/members/**", "/reservations/history").authenticated()
-//	                // それ以外は、いまは誰でも使えるようにしておく
-//	                .anyRequest().permitAll()
-//	            )
-//	            // ② ログイン：Spring Security 標準のログイン画面を使う
-//	            .formLogin(form -> form
-//	                .defaultSuccessUrl("/shops", true)//ログインが成功したらトップ画面へ遷移
-//	                .permitAll()
-//	            )
-//	            // ③ ログアウト：POST /logout でログアウトし、トップ画面へ戻る
-//	            .logout(logout -> logout
-//	                .logoutUrl("/logout")
-//	                .logoutSuccessUrl("/shops")
-//	                .permitAll()
-//	            );
-//	
-//	        return http.build();
-//	    }
-//
-//    
-//   //本番用：ログインできる人の名簿を作成する↓
-//  //ログインできる人の名簿：DBの members から、会員IDで会員を探す
-//    @Bean
-//    UserDetailsService userDetailsService(MembersMapper membersMapper) {
-//
-//        return username -> {
-//	    // ① ログイン画面で入力された会員ID（文字列）を、数字に変換する
-//	        int memberId;
-//	        try {
-//	            memberId = Integer.parseInt(username);
-//	        } catch (NumberFormatException e) {
-//	            throw new UsernameNotFoundException("会員IDは数字で入力してください：" + username);
-//	        }
-//	
-//	    // ② DBから会員を探す（退会済みは見つからないので、ログインできない）
-//	        Members member = membersMapper.findById(memberId);
-//	        if (member == null) {
-//	            throw new UsernameNotFoundException("会員が見つかりません：" + username);
-//	        }
-//	
-//	    // ③ Spring Security に渡す（パスワードの照合は自動で行われる）
-//	        return User.builder()
-//	                .username(String.valueOf(member.getId()))//ログインID（principal.getName() で受け取れる値）
-//	                .password(member.getPassword())//DBの暗号化されたパスワード
-//	                .roles("MEMBER")//役割
-//	                .build();
-//        };
-//    }
-//    
-
-}	
+}

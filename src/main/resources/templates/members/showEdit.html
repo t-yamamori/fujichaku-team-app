@@ -1,803 +1,1464 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org"
+
 	      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ja">
+
 <head>
+
   <meta charset="UTF-8">
+
   <title>会員情報</title><!-- 会員情報表示・変更・退会画面（MembersController の showEdit が表示する） -->
+
   <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
+
   <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
+
   <style>
 
-	/* ===== 飛行機の墜落アニメーション ===== */
-	.crash-plane {
-	    position: absolute;
-	    top: 0;
-	    right: 0;
-	    width: 130px;
-	    opacity: 0;
-	    transform-origin: center;
-	    animation: plane-crash 14s ease-in infinite;
-	}
-
-	/* 飛行機の後ろに伸びる煙 */
-	.crash-smoke {
-	    position: absolute;
-	    top: 0;
-	    right: 0;
-	    width: 130px;
-	    height: 130px;
-	    opacity: 0;
-	    border-radius: 50%;
-	    background:
-	        radial-gradient(circle at 50% 50%,
-	        rgba(90, 76, 65, 0.35) 0 12%,
-	        rgba(90, 76, 65, 0.18) 30%,
-	        transparent 70%);
-	    animation: smoke-trail 14s ease-in infinite;
-	    pointer-events: none;
-	}
-
-	/* 墜落する飛行機 */
-	@keyframes plane-crash {
-	    0%, 4% {
-	        transform: translate(20vw, -180px) rotate(-8deg);
-	        opacity: 0;
-	    }
-	    8% {
-	        opacity: 1;
-	    }
-	    25% {
-	        transform: translate(0, 12vh) rotate(8deg);
-	        opacity: 1;
-	    }
-	    45% {
-	        transform: translate(-30vw, 38vh) rotate(24deg);
-	        opacity: 1;
-	    }
-	    65% {
-	        transform: translate(-70vw, 78vh) rotate(48deg);
-	        opacity: 1;
-	    }
-	    70%, 100% {
-	        transform: translate(-78vw, 95vh) rotate(65deg);
-	        opacity: 0;
-	    }
-	}
-
-	/* 墜落時に広がる煙 */
-	@keyframes smoke-trail {
-	    0%, 8% {
-	        transform: translate(20vw, -100px) scale(0.3);
-	        opacity: 0;
-	    }
-	    25% {
-	        transform: translate(0, 12vh) scale(0.7);
-	        opacity: 0.45;
-	    }
-	    50% {
-	        transform: translate(-35vw, 42vh) scale(1.1);
-	        opacity: 0.55;
-	    }
-	    66% {
-	        transform: translate(-70vw, 75vh) scale(1.5);
-	        opacity: 0.65;
-	    }
-	    72%, 100% {
-	        transform: translate(-78vw, 90vh) scale(1.8);
-	        opacity: 0;
-	    }
-	}
-
-	/* 衝突地点の砂煙 */
-	.crash-impact {
-	    position: absolute;
-	    left: 12%;
-	    bottom: 48px;
-	    width: 150px;
-	    height: 75px;
-	    border-radius: 50%;
-	    background: radial-gradient(
-	        ellipse,
-	        rgba(139, 74, 43, 0.5) 0%,
-	        rgba(210, 170, 105, 0.35) 45%,
-	        transparent 75%
-	    );
-	    opacity: 0;
-	    transform: scale(0.2);
-	    animation: impact-effect 14s ease-out infinite;
-	}
-
-	@keyframes impact-effect {
-	    0%, 64% {
-	        opacity: 0;
-	        transform: scale(0.2);
-	    }
-	    67% {
-	        opacity: 0.9;
-	        transform: scale(1.2);
-	    }
-	    73% {
-	        opacity: 0.6;
-	        transform: scale(1.6);
-	    }
-	    82%, 100% {
-	        opacity: 0;
-	        transform: scale(2);
-	    }
-	}
-
-	/* 動きを減らす設定の端末ではアニメーションを停止 */
-	@media (prefers-reduced-motion: reduce) {
-	    .crash-plane,
-	    .crash-smoke,
-	    .crash-impact {
-	        animation: none;
-	        opacity: 0;
-	    }
-	}
-
     /* ===== 色の設定（ここを変えると全体の色が変わる） ===== */
+
     :root {
+
       --main:       #8b4a2b;  /* メインの色（ブラウン） */
+
       --main-dark:  #6e3a21;
+
       --main-pale:  #f6efe9;
+
       --sky:        #dcebf3;  /* 空 */
+
       --sand:       #efe2c8;  /* 砂 */
+
       --ground:     #e2cc9f;  /* 地面 */
+
       --panel:      #ffffff;
+
       --line:       #ddd6cc;
+
       --text:       #333333;
+
       --text-sub:   #777777;
+
       --error:      #c0392b;
+
       --success:    #3d7a3d;
+
     }
+
+
 
     /* ===== 画面全体：空から砂へ ===== */
+
     body {
+
       font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+
       color: var(--text);
+
       background: linear-gradient(var(--sky) 0%, #f7f1e3 55%, var(--sand) 100%) fixed;
+
       max-width: 960px;
+
       min-height: 100vh;
+
       box-sizing: border-box;
+
       margin: 0 auto;
+
       padding: 32px 16px 140px;
+
       line-height: 1.6;
+
     }
+
+
 
     /* 画面の中身は、背景の動き（パラシュート・ラクダ）より前に出す */
+
     .page-header, .member-layout { position: relative; z-index: 1; }
 
+
+
     /* ===== 背景の動き ===== */
+
     .desert-scene {
-      position: fixed; inset: 0;
-      z-index: 0;
-      pointer-events: none;   /* クリックのじゃまをしない */
+      position: fixed;
+      inset: 0;
+      /* アニメーションを画面内の全レイヤーより前面に表示 */
+      z-index: 2147483647;
+      pointer-events: none; /* 前面表示でもクリック操作は妨げない */
       overflow: hidden;
+      isolation: isolate;
     }
+
+
 
     /* 地面（画面の一番下） */
+
     .ground {
+
       position: absolute; left: 0; right: 0; bottom: 0;
+
       height: 70px;
+
       background: var(--ground);
+
       border-top: 2px solid #d4b98a;
+
     }
+
+
 
     /* パラシュート：上から下へゆらゆら降りてくる */
+
     .parachute {
-      position: absolute; top: 0; left: 6%;
-      width: 90px;
-      animation: fall 16s linear infinite;
-    }
-    .parachute svg { display: block; width: 100%; animation: sway 3s ease-in-out infinite alternate; transform-origin: 50% 0; }
-    @keyframes fall {
-      0%   { transform: translateY(-160px); opacity: 0; }
-      8%   { opacity: 1; }
-      85%  { opacity: 1; }
-      100% { transform: translateY(calc(100vh - 190px)); opacity: 0; }
-    }
-    @keyframes sway {
-      from { transform: rotate(-8deg); }
-      to   { transform: rotate(8deg); }
+      display: none; /* 左側に単独で降下していた旧パラシュートは非表示 */
     }
 
-    /* ラクダ：左から右へ歩く */
+    .parachute svg { display: block; width: 100%; animation: sway 3s ease-in-out infinite alternate; transform-origin: 50% 0; }
+
+    @keyframes fall {
+
+      0%   { transform: translateY(-160px); opacity: 0; }
+
+      8%   { opacity: 1; }
+
+      85%  { opacity: 1; }
+
+      100% { transform: translateY(calc(100vh - 190px)); opacity: 0; }
+
+    }
+
+    @keyframes sway {
+
+      from { transform: rotate(-8deg); }
+
+      to   { transform: rotate(8deg); }
+
+    }
+
+
+
+    /* ===== 飛行機：左から右へ煙を出しながら飛び、最後に墜落 ===== */
+   .crash-plane {
+     position: absolute;
+     top: 8vh;
+     left: 0;
+     width: 170px;
+     z-index: 0;
+     opacity: 0;
+     animation: plane-fly-crash 16s linear infinite;
+     will-change: transform, opacity;
+   }
+
+   /* 飛行機の後方へ伸びる、見やすい煙の帯 */
+   .crash-plane::before {
+     content: "";
+     position: absolute;
+     z-index: -1;
+     left: -230px;
+     top: 38%;
+     width: 250px;
+     height: 24px;
+     border-radius: 50%;
+     background: linear-gradient(to left,
+       rgba(92, 79, 68, 0.58),
+       rgba(112, 101, 91, 0.34) 45%,
+       rgba(140, 130, 120, 0.02) 100%);
+     filter: blur(5px);
+     transform: rotate(-5deg);
+     animation: plane-smoke 16s linear infinite;
+   }
+
+   .crash-plane svg {
+     display: block;
+     width: 100%;
+     height: auto;
+     overflow: visible;
+     filter: drop-shadow(2px 4px 3px rgba(73, 55, 39, 0.28));
+   }
+
+   /* 左端から右へ進み、後半で機首を下げて落下 */
+   @keyframes plane-fly-crash {
+     0% {
+       transform: translate(-190px, 0) rotate(-3deg);
+       opacity: 0;
+     }
+     5% {
+       transform: translate(-120px, 1vh) rotate(0deg);
+       opacity: 1;
+     }
+     20% {
+       transform: translate(10vw, 2vh) rotate(2deg);
+       opacity: 1;
+     }
+     40% {
+       transform: translate(35vw, 5vh) rotate(4deg);
+       opacity: 1;
+     }
+     58% {
+       transform: translate(58vw, 12vh) rotate(12deg);
+       opacity: 1;
+     }
+     72% {
+       transform: translate(76vw, 30vh) rotate(35deg);
+       opacity: 1;
+     }
+     82% {
+       transform: translate(90vw, 58vh) rotate(65deg);
+       opacity: 1;
+     }
+     86%, 100% {
+       transform: translate(105vw, 85vh) rotate(85deg);
+       opacity: 0;
+     }
+   }
+
+   /* 煙は飛行機の後ろに残るように少しゆっくり薄くなる */
+   @keyframes plane-smoke {
+     0%, 3% { opacity: 0; }
+     8%, 55% { opacity: 1; }
+     70% { opacity: 0.85; }
+     84%, 100% { opacity: 0; }
+   }
+
+   /* 地面に近づいたときの砂煙 */
+   .crash-impact {
+     position: absolute;
+     left: 78%;
+     bottom: 48px;
+     width: 170px;
+     height: 85px;
+     border-radius: 50%;
+     background: radial-gradient(ellipse,
+       rgba(139, 74, 43, 0.48) 0%,
+       rgba(210, 170, 105, 0.32) 48%,
+       transparent 76%);
+     opacity: 0;
+     transform: scale(0.25);
+     animation: plane-impact 16s ease-out infinite;
+   }
+
+   @keyframes plane-impact {
+     0%, 80% { opacity: 0; transform: scale(0.25); }
+     83% { opacity: 0.9; transform: scale(1.1); }
+     88% { opacity: 0.55; transform: scale(1.65); }
+     96%, 100% { opacity: 0; transform: scale(2); }
+   }
+
+
+
+   /* ===== 飛行機から脱出する人：パラシュートが開いて降下 ===== */
+   .escape-parachute {
+     position: absolute;
+     z-index: 2147483647;
+     top: 0;
+     left: 0;
+     width: 76px;
+     max-width: 18vw;
+     opacity: 0;
+     pointer-events: none;
+     transform-origin: center top;
+     animation: escape-drop 16s ease-in-out infinite;
+     filter: drop-shadow(1px 3px 2px rgba(73, 55, 39, 0.22));
+   }
+   .escape-parachute svg { display: block; width: 100%; height: auto; overflow: visible; }
+   .escape-parachute .canopy { transform-box: fill-box; transform-origin: 50% 50%; animation: canopy-open 16s ease-out infinite; }
+   .escape-parachute .cords { opacity: 0; animation: cords-show 16s linear infinite; }
+   .escape-parachute .person { transform-box: fill-box; transform-origin: 50% 0; animation: person-sway 1.3s ease-in-out infinite alternate; }
+
+   /* 画面右側で飛行機から脱出し、傘を開いて右側を降下 */
+   @keyframes escape-drop {
+     /* 飛行機が右寄りまで進んだタイミングで脱出を開始 */
+     0%, 54% { transform: translate(58vw, 13vh) scale(.45) rotate(8deg); opacity: 0; }
+     58% { transform: translate(62vw, 16vh) scale(.65) rotate(10deg); opacity: 1; }
+     62% { transform: translate(66vw, 20vh) scale(.85) rotate(-6deg); opacity: 1; }
+     68% { transform: translate(71vw, 27vh) scale(1) rotate(-3deg); opacity: 1; }
+     78% { transform: translate(77vw, 39vh) scale(1) rotate(4deg); opacity: 1; }
+     90% { transform: translate(82vw, 57vh) scale(1) rotate(-4deg); opacity: 1; }
+     96%, 100% { transform: translate(84vw, 68vh) scale(1) rotate(0deg); opacity: 0; }
+   }
+   @keyframes canopy-open {
+     0%, 57% { transform: scale(.05); opacity: 0; }
+     62% { transform: scale(.65); opacity: .85; }
+     68%, 92% { transform: scale(1); opacity: 1; }
+     100% { transform: scale(1); opacity: 0; }
+   }
+   @keyframes cords-show {
+     0%, 59% { opacity: 0; }
+     64%, 94% { opacity: 1; }
+     100% { opacity: 0; }
+   }
+   @keyframes person-sway {
+     from { transform: rotate(-5deg); }
+     to { transform: rotate(5deg); }
+   }
+
+   /* ラクダ：左から右へ歩く */
+
     .camel {
+
       position: absolute; bottom: 66px; left: 0;
+
       width: 130px;
+
       animation: walk 30s linear infinite;
+
     }
+
     .camel svg { display: block; width: 100%; animation: bob 0.6s ease-in-out infinite alternate; }
+
     @keyframes walk {
+
       from { transform: translateX(-140px); }
+
       to   { transform: translateX(100vw); }
+
     }
+
     @keyframes bob {
+
       from { transform: translateY(0); }
+
       to   { transform: translateY(-3px); }
+
     }
+
     /* 足を交互に動かす */
+
     .camel .leg { transform-box: fill-box; transform-origin: 50% 0; animation: step 0.6s ease-in-out infinite alternate; }
+
     .camel .leg.b { animation-direction: alternate-reverse; }
+
     @keyframes step {
+
       from { transform: rotate(14deg); }
+
       to   { transform: rotate(-14deg); }
+
     }
+
+
 
     /* ===== 見出し ===== */
+
     .page-header {
+
       display: flex; align-items: center; gap: 12px;
+
       padding-bottom: 12px; margin-bottom: 24px;
+
       border-bottom: 2px solid var(--main);
+
     }
+
     .page-header h1 { margin: 0; font-size: 1.4em; font-weight: bold; }
 
+
+
     /* 「＜」の戻るボタン */
+
     .back-link {
+
       display: inline-flex; align-items: center; justify-content: center;
+
       width: 34px; height: 34px;
+
       border: 1px solid var(--line); border-radius: 4px;
+
       background: var(--panel);
+
       color: var(--text); text-decoration: none; font-size: 16px;
+
       transition: transform 0.15s, background 0.15s, color 0.15s;
+
     }
+
     .back-link:hover { background: var(--main-pale); border-color: var(--main); color: var(--main); transform: translateX(-3px); }
 
+
+
     /* ===== 左右2列のレイアウト ===== */
+
     .member-layout { display: flex; gap: 24px; align-items: flex-start; }
 
+
+
     .member-main {
+
       flex: 1;
+
       background: var(--panel);
+
       border: 1px solid var(--line);
+
       border-radius: 4px;
+
       padding: 28px 32px;
+
     }
+
+
 
 	@media (max-width: 760px) {
+
 	  .member-layout { flex-direction: column; }
+
 	  .member-main { padding: 20px; }
+
 	  .side-column { width: 100%; position: static; }   /* ← .point-card から変更 */
+
 	}
+
+
 
     /* ===== フォーム ===== */
+
     .field { margin-bottom: 20px; }
+
 	/* 会員ID（表示だけの欄） */
+
 	.field-label { display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 6px; }
+
 	.member-id {
+
 	  margin: 0;
+
 	  padding: 10px 12px;
+
 	  background: #f5f3ef;              /* 入力欄と区別するため、薄いグレー */
+
 	  border: 1px solid var(--line); border-radius: 3px;
+
 	  font-size: 1.1em; font-weight: bold; letter-spacing: 0.05em;
+
 	  font-variant-numeric: tabular-nums;
+
 	}
+
     .field input {
+
       width: 100%; box-sizing: border-box;
+
       padding: 10px 12px;
+
       border: 1px solid var(--line); border-radius: 3px;
+
       background: #fff; color: var(--text);
+
       font-family: inherit; font-size: 1em;
+
       transition: border-color 0.15s, box-shadow 0.15s;
+
     }
+
     .field input:focus { outline: none; border-color: var(--main); box-shadow: 0 0 0 3px rgba(139, 74, 43, 0.15); }
+
     .hint  { color: var(--text-sub); font-size: 0.8em; margin: 6px 0 0; }
+
     .error { color: var(--error); font-size: 0.85em; margin: 6px 0 0; }
+
     .message {
+
       color: var(--success); font-size: 0.95em;
+
       background: #f0f6f0; border-left: 4px solid var(--success);
+
       padding: 10px 14px; margin: 0 0 20px;
+
     }
+
+
 
     /* ===== ボタン（押すと沈む） ===== */
+
     button {
+
       padding: 10px 28px; cursor: pointer;
+
       border: none; border-radius: 4px;
+
       background: var(--main); color: #fff;
+
       font-family: inherit; font-size: 0.95em; font-weight: bold;
+
       box-shadow: 0 3px 0 var(--main-dark);
+
       transition: transform 0.1s, box-shadow 0.1s, background 0.15s;
+
     }
+
     button:hover  { background: var(--main-dark); }
+
     button:active { transform: translateY(3px); box-shadow: none; }
+
     button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+
     button:disabled {
+
       background: #ccc; box-shadow: none; cursor: not-allowed; transform: none;
+
     }
+
     .buttons {
+
       display: flex; justify-content: space-between; align-items: center;
+
       margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line);
+
     }
+
+
 
     /* 「退会する」は文字だけの控えめなボタン */
+
     .delete-open {
+
       background: none; box-shadow: none; padding: 10px 0;
+
       color: var(--text-sub); font-weight: normal; text-decoration: underline;
+
     }
+
     .delete-open:hover  { background: none; color: var(--error); }
+
     .delete-open:active { transform: none; }
 
+
+
     /* ===== モーダル共通（ふわっと出る） ===== */
+
     dialog {
+
       border: none; border-radius: 6px;
+
       padding: 28px 32px; text-align: center;
+
       background: var(--panel); color: var(--text);
+
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+
     }
+
     dialog[open] { animation: dialog-in 0.25s ease-out; }
+
     dialog::backdrop { background: rgba(40, 30, 20, 0.5); }
+
     @keyframes dialog-in {
+
       from { opacity: 0; transform: translateY(16px) scale(0.96); }
+
       to   { opacity: 1; transform: none; }
+
     }
+
     .dialog-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
+
     .dialog-buttons form { margin: 0; }
+
     .yes { background: var(--error); box-shadow: 0 3px 0 #8e2a20; }
+
     .yes:hover { background: #a02e22; }
+
     #closeDeleteDialog { background: #fff; color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+
     #closeDeleteDialog:hover { background: #f5f3ef; }
 
+
+
 	/* ===== 右の列（ポイントカード＋予約履歴リンク） ===== */
+
 	.side-column {
+
 	  width: 280px;
+
 	  flex-shrink: 0;
+
 	  position: sticky; top: 24px;   /* スクロールしても上に残る */
+
 	}
+
+
 
 	/* ===== ポイントカード ===== */
+
 	.point-card {
+
 	  background: var(--panel);
+
 	  border: 1px solid var(--line);
+
 	  border-radius: 4px;
+
 	}
+
 	.point-card-title {
+
 	  margin: 0; padding: 12px 16px;
+
 	  font-size: 0.95em; font-weight: bold;
+
 	  border-bottom: 1px solid var(--line);
+
 	}
+
 	.point-total {
+
 	  margin: 0; padding: 20px 16px 8px;
+
 	  text-align: right;
+
 	  font-size: 2.4em; font-weight: bold; color: var(--main);
+
 	  line-height: 1.2;
+
 	  font-variant-numeric: tabular-nums;
+
 	}
+
 	.point-unit { font-size: 0.5em; margin-left: 2px; }
 
+
+
 	.gacha-open-btn { display: block; width: calc(100% - 32px); margin: 8px 16px 0; }
+
 	.gacha-remaining { margin: 8px 16px 16px; font-size: 0.8em; color: var(--text-sub); text-align: center; }
 
+
+
 	.point-breakdown { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+
 	.point-breakdown li {
+
 	  display: flex; justify-content: space-between;
+
 	  padding: 12px 16px; font-size: 0.9em;
+
 	  border-bottom: 1px solid var(--line);
+
 	}
+
 	.point-breakdown li:last-child { border-bottom: none; }
+
 	.point-breakdown li span:last-child { font-weight: bold; font-variant-numeric: tabular-nums; }
 
+
+
 	/* ===== 「店舗予約の履歴を見る」リンク ===== */
+
 	.side-link {
+
 	  display: flex; justify-content: space-between; align-items: center;
+
 	  margin-top: 12px;
+
 	  padding: 14px 16px;
+
 	  background: var(--panel);
+
 	  border: 1px solid var(--line);
+
 	  border-radius: 4px;
+
 	  color: var(--text); text-decoration: none;
+
 	  font-size: 0.9em; font-weight: bold;
+
 	  transition: background 0.15s, border-color 0.15s, color 0.15s;
+
 	}
+
 	.side-link:hover { background: var(--main-pale); border-color: var(--main); color: var(--main); }
+
 	.side-link-arrow { color: var(--main); transition: transform 0.15s; }
+
 	.side-link:hover .side-link-arrow { transform: translateX(4px); }   /* 矢印が右に動く */
 
+
+
     /* ===== ガチャのモーダル ===== */
+
     .gacha-dialog { width: min(340px, 90vw); box-sizing: border-box; }
+
     .gacha-dialog h2 {
+
       margin: 0 0 16px; padding-bottom: 12px;
+
       font-size: 1.1em; border-bottom: 1px solid var(--line);
+
     }
+
     .gacha-dialog form { margin: 20px 0 10px; }
 
+
+
     .capsule-area {
+
       height: 130px; display: flex; align-items: center; justify-content: center;
+
       background: linear-gradient(var(--sky), var(--sand));
+
       border-radius: 4px;
+
     }
+
+
 
     /* カプセル：上半分がブラウン、下半分が白 */
+
     .capsule {
+
       position: relative;
+
       width: 80px; height: 80px; border-radius: 50%;
+
       background: linear-gradient(to bottom, var(--main) 50%, #fff 50%);
+
       border: 3px solid var(--main-dark);
+
       box-shadow: inset -6px -6px 0 rgba(0, 0, 0, 0.08);
+
     }
+
     .capsule::after {
+
       content: ""; position: absolute; left: 0; right: 0; top: 50%;
+
       height: 3px; margin-top: -1.5px; background: var(--main-dark);
+
     }
+
     /* 「ガチャを回す」を押したら揺れる */
+
     .capsule.spinning { animation: shake 0.3s ease-in-out infinite; }
+
     @keyframes shake {
+
       0%   { transform: rotate(0deg)   scale(1); }
+
       25%  { transform: rotate(-20deg) scale(1.08); }
+
       75%  { transform: rotate(20deg)  scale(1.08); }
+
       100% { transform: rotate(0deg)   scale(1); }
+
     }
+
+
 
     .gacha-rates { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 0.85em; }
+
     .gacha-rates th, .gacha-rates td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+
     .gacha-rates th { text-align: left; color: var(--main); }
+
     .gacha-rates td { text-align: right; }
+
     .gacha-rates td:last-child { color: var(--text-sub); }
 
+
+
     .gacha-btn { width: 100%; padding: 12px; }
+
     .gacha-close-btn {
+
       width: 100%; background: #fff; color: var(--text);
+
       border: 1px solid var(--line); box-shadow: none; font-weight: normal;
+
     }
+
     .gacha-close-btn:hover { background: #f5f3ef; }
 
+
+
     /* ===== 結果モーダル（ポンッと出る） ===== */
+
     .result-rank {
+
       margin: 8px 0 4px; font-size: 2.4em; font-weight: bold;
+
       animation: pop 0.5s ease-out;
+
     }
+
     .result-rank.rank-1 { color: #c9961a; text-shadow: 0 0 12px rgba(212, 160, 23, 0.55); } /* 金 */
+
     .result-rank.rank-2 { color: #7d8b99; }   /* 銀 */
+
     .result-rank.rank-3 { color: #b87333; }   /* 銅 */
+
     .result-rank.rank-4 { color: var(--text); }
+
     .result-point { margin: 0 0 24px; font-size: 1.2em; color: var(--main); font-weight: bold; animation: pop 0.5s 0.15s ease-out both; }
+
     .result-error { margin: 8px 0 24px; font-size: 0.95em; }
+
     @keyframes pop {
+
       0%   { transform: scale(0.3); opacity: 0; }
+
       70%  { transform: scale(1.15); opacity: 1; }
+
       100% { transform: scale(1); }
+
     }
+
+
 
     /* 「動きを減らす」設定のパソコンでは、背景の動きを止める */
+
     @media (prefers-reduced-motion: reduce) {
-      .parachute, .parachute svg, .camel, .camel svg, .camel .leg { animation: none; }
+
+      .parachute, .parachute svg, .camel, .camel svg, .camel .leg, .crash-plane, .crash-plane::before, .crash-impact, .escape-parachute, .escape-parachute .canopy, .escape-parachute .cords, .escape-parachute .person { animation: none; }
+
       .parachute { transform: translateY(30vh); }
+
       .camel { transform: translateX(10vw); }
+
     }
-  </style>
+
+  
+
+   /* 旧バージョンのパラシュートは非表示。同期した脱出アニメーションだけを表示 */
+   .parachute { display: none !important; }
+</style>
+
 </head>
+
 <body>
+
 	<!-- ★追加：背景の動き（パラシュートとラクダ） -->
+
 	<div class="desert-scene" aria-hidden="true">
 
-		<!-- 墜落する飛行機 -->
-		<div class="crash-plane">
-		    <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
-		        <!-- 機体本体 -->
-		        <path d="M12 47 L65 43 L105 12 L119 14 L101 44
-		                 L139 49 Q148 51 139 56 L99 60
-		                 L76 83 L63 82 L70 59 L18 56 Z"
-		              fill="#f5f0e6"
-		              stroke="#6e3a21"
-		              stroke-width="2"
-		              stroke-linejoin="round"/>
-
-		        <!-- 機体の窓 -->
-		        <g fill="#6e8fa0">
-		            <rect x="24" y="47" width="7" height="4" rx="1"/>
-		            <rect x="36" y="46" width="7" height="4" rx="1"/>
-		            <rect x="48" y="45" width="7" height="4" rx="1"/>
-		            <rect x="60" y="45" width="7" height="4" rx="1"/>
-		            <rect x="72" y="44" width="7" height="4" rx="1"/>
-		        </g>
-
-		        <!-- 尾翼 -->
-		        <path d="M18 47 L7 31 L19 32 L35 46 Z"
-		              fill="#c8643b" stroke="#6e3a21" stroke-width="1.5"/>
-
-		        <!-- 主翼のアクセント -->
-		        <path d="M65 43 L105 12 L119 14 L101 44 Z"
-		              fill="#c8643b" opacity="0.9"/>
-
-		        <!-- エンジンの煙 -->
-		        <path d="M8 55 Q-2 60 5 65 Q-3 73 10 75"
-		              fill="none" stroke="#8b7768"
-		              stroke-width="4" stroke-linecap="round"/>
-		    </svg>
-		</div>
-
-		<!-- 飛行機の煙 -->
-		<div class="crash-smoke"></div>
-
-		<!-- 地面に衝突したときの砂煙 -->
-		<div class="crash-impact"></div>
 
 
-		<!-- パラシュートで降りてくる人 -->
+		<!-- 飛行機：左から右へ煙を出しながら飛び、最後に墜落 -->
+	<div class="crash-plane">
+		<svg viewBox="0 0 180 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="煙を出しながら飛ぶ飛行機">
+			<!-- 胴体 -->
+			<path d="M8 48 L62 43 L111 15 Q117 12 123 15 L105 44 L157 48 Q169 50 157 55 L104 60 L78 83 L65 82 L73 59 L17 57 Z"
+				fill="#f8f4ec" stroke="#6e3a21" stroke-width="2" stroke-linejoin="round"/>
+			<!-- 主翼 -->
+			<path d="M61 44 L109 15 L123 15 L104 45 Z" fill="#c8643b" stroke="#6e3a21" stroke-width="1.3"/>
+			<!-- 尾翼 -->
+			<path d="M18 48 L5 30 L18 32 L35 47 Z" fill="#c8643b" stroke="#6e3a21" stroke-width="1.5"/>
+			<!-- 客室の窓 -->
+			<g fill="#6e8fa0" stroke="#ffffff" stroke-width="0.5">
+				<rect x="29" y="46" width="7" height="5" rx="1"/>
+				<rect x="41" y="45" width="7" height="5" rx="1"/>
+				<rect x="53" y="44" width="7" height="5" rx="1"/>
+				<rect x="65" y="44" width="7" height="5" rx="1"/>
+				<rect x="77" y="44" width="7" height="5" rx="1"/>
+				<rect x="89" y="45" width="7" height="5" rx="1"/>
+			</g>
+			<!-- 機首 -->
+			<path d="M145 47 Q166 48 163 52 Q160 55 145 55 Z" fill="#d8d0c4"/>
+		</svg>
+	</div>
+
+
+    <!-- 飛行機から脱出し、パラシュートを開いて降りる人 -->
+    <div class="escape-parachute" aria-hidden="true">
+      <svg viewBox="0 0 100 145" xmlns="http://www.w3.org/2000/svg">
+        <!-- パラシュートの傘：脱出後に開く -->
+        <g class="canopy">
+          <path d="M5 42 C10 5 90 5 95 42 Q83 34 72 42 Q61 34 50 42 Q39 34 28 42 Q16 34 5 42Z" fill="#c8643b" stroke="#6e3a21" stroke-width="2"/>
+          <path d="M28 41 C31 12 69 12 72 41 Q61 34 50 42 Q39 34 28 41Z" fill="#f3e3c9" stroke="#6e3a21" stroke-width="1"/>
+          <path d="M43 40 C45 17 55 17 57 40 Q50 37 43 40Z" fill="#c8643b"/>
+        </g>
+        <!-- 傘と人をつなぐロープ -->
+        <g class="cords" stroke="#6e3a21" stroke-width="1.5" fill="none" stroke-linecap="round">
+          <path d="M5 42 L42 99 M28 42 L44 99 M72 42 L56 99 M95 42 L58 99"/>
+        </g>
+        <!-- 脱出した人 -->
+        <g class="person">
+          <circle cx="50" cy="101" r="6" fill="#e8c39e" stroke="#6e3a21" stroke-width="1"/>
+          <path d="M44 109 Q50 105 56 109 L59 124 Q50 129 41 124Z" fill="#3c6e8f" stroke="#24485f" stroke-width="1.5"/>
+          <path d="M44 111 L34 120 M56 111 L66 119" stroke="#3c6e8f" stroke-width="4" stroke-linecap="round"/>
+          <path d="M45 124 L42 137 M55 124 L58 137" stroke="#3c6e8f" stroke-width="4" stroke-linecap="round"/>
+          <path d="M44 137 L39 138 M58 137 L63 138" stroke="#3c6e8f" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+
+	<!-- 墜落地点の砂煙 -->
+	<div class="crash-impact"></div>
+
+	<!-- パラシュートで降りてくる人 -->
+
 		<div class="parachute">
+
 			<svg viewBox="0 0 100 140">
+
 				<!-- かさ -->
+
 				<path d="M4 42 C10 6 90 6 96 42 Q85 36 73 42 Q62 36 50 42 Q38 36 27 42 Q15 36 4 42 Z" fill="#c8643b" />
+
 				<path d="M27 42 C30 12 70 12 73 42 Q62 36 50 42 Q38 36 27 42 Z" fill="#f3e3c9" />
+
 				<path d="M40 41 C42 16 58 16 60 41 Q55 37 50 42 Q45 37 40 41 Z" fill="#c8643b" />
+
 				<!-- ひも -->
+
 				<g stroke="#6e3a21" stroke-width="1">
+
 					<line x1="4" y1="42" x2="42" y2="99" />
+
 					<line x1="27" y1="42" x2="42" y2="99" />
+
 					<line x1="73" y1="42" x2="58" y2="99" />
+
 					<line x1="96" y1="42" x2="58" y2="99" />
+
 				</g>
+
 				<!-- 人 -->
+
 				<g stroke="#3c6e8f" stroke-width="4" stroke-linecap="round">
+
 					<line x1="46" y1="109" x2="42" y2="99" />
+
 					<line x1="54" y1="109" x2="58" y2="99" />
+
 					<line x1="47" y1="124" x2="44" y2="137" />
+
 					<line x1="53" y1="124" x2="56" y2="137" />
+
 				</g>
+
 				<circle cx="50" cy="100" r="6" fill="#e8c39e" />
+
 				<rect x="44" y="106" width="12" height="20" rx="4" fill="#3c6e8f" />
+
 			</svg>
+
 		</div>
+
+
 
 		<!-- 歩くラクダ -->
+
 		<div class="camel">
+
 			<svg viewBox="0 0 120 92">
+
 				<g fill="#a8743f">
+
 					<rect class="leg a" x="22" y="56" width="6" height="32" rx="2" />
+
 					<rect class="leg b" x="32" y="56" width="6" height="32" rx="2" />
+
 					<rect class="leg b" x="70" y="56" width="6" height="32" rx="2" />
+
 					<rect class="leg a" x="80" y="56" width="6" height="32" rx="2" />
+
 					<path
+
 						d="M16 54 C14 44 22 36 32 37 C38 24 54 22 60 34 C64 31 72 32 76 40 L80 44 C84 36 88 26 92 20 L104 16 C109 16 111 21 108 24 L100 27 C96 35 92 46 88 56 C76 64 40 66 22 62 C18 61 16 58 16 54 Z" />
+
 					<path d="M98 17 L101 10 L104 16 Z" />
+
 				</g>
+
 				<path d="M17 50 Q12 56 13 64" stroke="#a8743f" stroke-width="2.5" fill="none" stroke-linecap="round" />
+
 				<circle cx="102" cy="19" r="1.3" fill="#3a2a1a" />
+
 			</svg>
+
 		</div>
 
+
+
 		<!-- 地面 -->
+
 		<div class="ground"></div>
+
 	</div>
+
 	<!-- 見出し：左に「＜」の戻るボタン、右に「会員情報」 -->
+
 	<div class="page-header">
+
 		<a th:href="@{/shops}" class="back-link" aria-label="トップ画面に戻る" title="トップ画面に戻る">＜</a>
+
 		<h1>会員情報</h1>
+
 	</div>
+
+
 
 	<!-- ★追加：左右2列にするための外枠 -->
+
 	<div class="member-layout">
 
+
+
 		<!-- ★追加：左側（今までの内容をこの中に入れた） -->
+
 		<div class="member-main">
 
+
+
 			<!-- 変更後のメッセージ（Controller の addFlashAttribute("message", ...)） -->
+
 			<p class="message" th:if="${message}" th:text="${message}"></p>
 
 
+
+
+
 			<!-- ===== 会員情報の変更フォーム ===== -->
+
 			<!-- th:object は、Controller で model に入れた "memberEditForm" と同じ名前にする -->
+
 			<form th:action="@{/members/showEdit}" th:object="${memberEditForm}" method="post">
+
 				<!-- 会員ID（表示だけ。変更はできない） -->
+
 				<div class="field">
+
 				  <span class="field-label">FUJICHAKU会員ID</span>
+
 				  <p class="member-id" th:text="${memberId}">-----</p>
+
 				  <p class="hint">ログインの際に使用します。忘れないようお控えください。</p>
+
 				</div>
 
+
+
 				<div class="field">
+
 					<label for="name">名前：</label>
+
 					<input type="text" id="name" th:field="*{name}">
+
 					<p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+
 				</div>
 
+
+
 				<div class="field">
+
 					<label for="mail">メールアドレス：</label>
+
 					<input type="email" id="mail" th:field="*{mail}">
+
 					<p class="error" th:if="${#fields.hasErrors('mail')}" th:errors="*{mail}"></p>
+
 				</div>
 
+
+
 				<div class="field">
+
 					<label for="password">パスワード（ログインパスワード）：</label>
+
 					<!-- 伏せ字は「見本の文字（placeholder）」として表示するだけ。
+
                何も入力しなければ空のまま送信され、パスワードは変更されない -->
+
 					<input type="password" id="password" th:field="*{password}" placeholder="●●●●●●●●">
+
 					<p class="hint">変更する場合のみ、新しいパスワードを入力してください（8文字以上）</p>
+
 					<p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
 				</div>
 
+
+
 				<div class="field">
+
 					<label for="birthDate">生年月日</label>
+
 					<!-- min・max で、カレンダーで選べる範囲を 1900年1月1日〜今日 にする -->
+
 					<input type="date" id="birthDate" th:field="*{birthDate}" min="1900-01-01"
+
 						th:max="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+
 					<!-- 未来の日付のエラー（@Past） -->
+
 					<p class="error" th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}"></p>
+
 					<!-- 1900年より前のエラー（@AssertTrue） -->
+
 					<p class="error" th:if="${#fields.hasErrors('birthDateAfter1900')}"
+
 						th:errors="*{birthDateAfter1900}"></p>
+
 				</div>
+
+
 
 				<div class="buttons">
+
 					<button type="submit">変更</button>
 
+
+
 					<!-- type="button" にすると、フォームを送信せずに、退会モーダルを開くだけになる -->
+
 					<button type="button" class="delete-open" id="openDeleteDialog">退会する</button>
+
 				</div>
+
 			</form>
+
+
 
 		</div><!-- /member-main -->
 
 
 
+
+
+
+
 		<!-- ★追加：右側の列（ポイントカード＋予約履歴へのリンク） -->
+
 		<div class="side-column">
 
+
+
 			<!-- ★追加：右側のポイントカード -->
+
 			<aside class="point-card">
+
 				<h2 class="point-card-title">ポイント合計</h2>
 
+
+
 				<p class="point-total">
+
 					<span th:text="${totalPoint}">0</span><span class="point-unit">P</span>
+
 				</p>
+
+
 
 				<!-- ガチャボタン（今日の残りが0回なら押せない） -->
+
 				<button type="button" class="gacha-open-btn" id="openGachaDialog" th:disabled="${gachaRemaining <= 0}">
+
 					ガチャで遊ぶ
+
 				</button>
+
 				<p class="gacha-remaining" th:if="${gachaRemaining > 0}">
+
 					今日はあと <span th:text="${gachaRemaining}">5</span> 回
+
 				</p>
+
 				<p class="gacha-remaining" th:unless="${gachaRemaining > 0}">
+
 					今日はもう回せません（また明日）
+
 				</p>
+
+
 
 				<!-- 内訳 -->
+
 				<ul class="point-breakdown">
+
 					<li><span>ゲーム</span><span th:text="${gachaTotal} + 'P'">0P</span></li>
+
 					<li><span>口コミ投稿</span><span th:text="${reviewTotal} + 'P'">0P</span></li>
+
 					<li><span>店舗予約</span><span th:text="${reservationTotal} + 'P'">0P</span></li>
+
 				</ul>
+
 			</aside>
 
+
+
 			<!-- ★追加：店舗予約の履歴を見る -->
+
 			<a th:href="@{/reservations/history}" class="side-link">
+
 				<span>店舗予約の履歴を見る</span>
+
 				<span class="side-link-arrow">＞</span>
+
 			</a>
 
+
+
 		</div>
+
+
 
 	</div><!-- /member-layout -->
 
 
+
+
+
 	<!-- ===== 退会の確認モーダル ===== -->
+
 	<dialog id="deleteDialog">
+
 		<h3 class="delete-title">本当に退会しますか？</h3>
+
 		<!-- ★追加：注意書き -->
+
 		<p class="delete-note">※「はい」を押すと退会し、ログインができなくなります。<br>本当によろしいですか？</p>
+
 		<div class="dialog-buttons">
+
 			<!-- 「はい」：POST /members/delete に送信して、退会処理をする -->
+
 			<form th:action="@{/members/delete}" method="post">
+
 				<button type="submit" class="yes">はい</button>
+
 			</form>
+
 			<!-- 「いいえ」：送信せずに、モーダルを閉じるだけ -->
+
 			<button type="button" id="closeDeleteDialog">いいえ</button>
+
 		</div>
+
 	</dialog>
+
+
+
 
 
 	<!-- ★追加：ガチャのモーダル -->
+
 	<dialog id="gachaDialog" class="gacha-dialog">
+
 		<h2>ポイントガチャ</h2>
 
+
+
 		<!-- カプセル（CSSでアニメーションさせる） -->
+
 		<div class="capsule-area">
+
 			<div id="capsule" class="capsule"></div>
+
 		</div>
 
+
+
 		<!-- 当たりの一覧（表示用。実際の確率は MembersServiceImpl で決まる） -->
+
 		<table class="gacha-rates">
+
 			<tr>
+
 				<th>1等</th>
+
 				<td>10P</td>
+
 				<td>5%</td>
+
 			</tr>
+
 			<tr>
+
 				<th>2等</th>
+
 				<td>5P</td>
+
 				<td>15%</td>
+
 			</tr>
+
 			<tr>
+
 				<th>3等</th>
+
 				<td>3P</td>
+
 				<td>30%</td>
+
 			</tr>
+
 			<tr>
+
 				<th>4等</th>
+
 				<td>1P</td>
+
 				<td>50%</td>
+
 			</tr>
+
 		</table>
 
+
+
 		<!-- th:action を使うと、CSRF対策の隠し項目が自動で入る -->
+
 		<form id="gachaForm" th:action="@{/members/gacha}" method="post">
+
 			<button type="submit" id="gachaBtn" class="gacha-btn">ガチャを回す</button>
+
 		</form>
 
+
+
 		<button type="button" class="gacha-close-btn" id="closeGachaDialog">閉じる</button>
+
 	</dialog>
+
+
+
 
 
 	<!-- ★追加：ガチャの結果モーダル（ガチャ直後だけ作られる） -->
+
 	<dialog id="gachaResultDialog" class="gacha-dialog" th:if="${gachaResultRank != null or gachaError != null}">
 
+
+
 		<!-- 当たったとき -->
+
 		<th:block th:if="${gachaResultRank != null}">
+
 			<p class="result-rank" th:classappend="'rank-' + ${gachaResultRank}" th:text="${gachaResultRank} + '等！'">1等！
+
 			</p>
+
 			<p class="result-point" th:text="'+' + ${gachaResultPoint} + 'P 獲得'">+10P 獲得</p>
+
 		</th:block>
 
+
+
 		<!-- 今日の上限に達していたとき -->
+
 		<p class="result-error" th:if="${gachaError != null}" th:text="${gachaError}"></p>
 
+
+
 		<button type="button" class="gacha-btn" id="closeResultDialog">OK</button>
+
 	</dialog>
 
 
+
+
+
 	<script>
+
 		// ===== 退会モーダル（今までと同じ） =====
+
 		const dialog = document.getElementById('deleteDialog');
 
+
+
 		// 「退会する」ボタン：モーダルを開く
+
 		document.getElementById('openDeleteDialog').addEventListener('click', () => {
+
 			dialog.showModal();
+
 		});
 
+
+
 		// 「いいえ」ボタン：モーダルを閉じて、会員情報画面に戻る
+
 		document.getElementById('closeDeleteDialog').addEventListener('click', () => {
+
 			dialog.close();
+
 		});
+
+
+
 
 
 		// ===== ★追加：ガチャのモーダル =====
+
 		const gachaDialog = document.getElementById('gachaDialog');
 
+
+
 		// 「ガチャで遊ぶ」ボタン：ガチャのモーダルを開く
+
 		document.getElementById('openGachaDialog').addEventListener('click', () => {
+
 			gachaDialog.showModal();
+
 		});
+
+
 
 		// 「閉じる」ボタン：ガチャのモーダルを閉じる
+
 		document.getElementById('closeGachaDialog').addEventListener('click', () => {
+
 			gachaDialog.close();
+
 		});
 
+
+
 		// 「ガチャを回す」ボタン：1.5秒アニメーションを見せてから送信する
+
 		const gachaForm = document.getElementById('gachaForm');
+
 		gachaForm.addEventListener('submit', (event) => {
+
 			event.preventDefault();                 // すぐに送信しないで止める
+
 			const btn = document.getElementById('gachaBtn');
+
 			btn.disabled = true;                    // 2回押し防止
+
 			btn.textContent = '回しています…';
+
 			document.getElementById('capsule').classList.add('spinning'); // アニメーション開始
+
 			setTimeout(() => {
+
 				gachaForm.submit();                   // 1.5秒後に本当に送信する
+
 			}, 1500);
+
 		});
+
+
+
 
 
 		// ===== ★追加：結果モーダル =====
+
 		// ガチャの結果があるとき（ガチャ直後）だけ、画面を開いたら自動で表示する
+
 		const resultDialog = document.getElementById('gachaResultDialog');
+
 		if (resultDialog) {
+
 			resultDialog.showModal();
+
 			document.getElementById('closeResultDialog').addEventListener('click', () => {
+
 				resultDialog.close();
+
 			});
+
 		}
+
 	</script>
+
 </body>
+
+
 
 </html>

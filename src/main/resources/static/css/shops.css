@@ -604,4 +604,54 @@ body .flash-error {
     .header .page-title { width: 100%; }
     .account-menu { order: -1; align-self: flex-end; flex-wrap: wrap; justify-content: flex-end; }
 
+
+	/* ========================================
+	   予約の変更・キャンセルに関する注意
+	   ======================================== */
+	.reservation-contact-notice {
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    gap: 10px;
+
+	    width: 100%;
+	    box-sizing: border-box;
+	    margin: 16px 0 24px;
+	    padding: 14px 18px;
+
+	    color: #ff6b6b;
+	    background: rgba(255, 77, 79, 0.08);
+	    border: 1px solid rgba(255, 77, 79, 0.5);
+	    border-radius: 8px;
+
+	    font-size: 0.95rem;
+	    font-weight: bold;
+	    line-height: 1.8;
+	    text-align: center;
+	}
+
+	.reservation-contact-notice .notice-icon {
+	    display: inline-flex;
+	    align-items: center;
+	    justify-content: center;
+	    flex-shrink: 0;
+
+	    width: 22px;
+	    height: 22px;
+	    border: 1px solid #ff6b6b;
+	    border-radius: 50%;
+
+	    font-size: 14px;
+	    font-weight: bold;
+	}
+
+	@media (max-width: 600px) {
+	    .reservation-contact-notice {
+	        align-items: flex-start;
+	        justify-content: flex-start;
+	        padding: 12px;
+	        font-size: 0.85rem;
+	    }
+	}
+
 }

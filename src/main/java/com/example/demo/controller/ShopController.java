@@ -25,7 +25,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.demo.entity.Members;
 import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Reviews;
+import com.example.demo.entity.ShopAdmin;
 import com.example.demo.entity.Stores;
+import com.example.demo.mapper.ShopAdminMapper;
 import com.example.demo.mapper.StoresMapper;
 import com.example.demo.service.ReviewService;
 import com.example.demo.service.serviceInterface.MembersService;
@@ -46,6 +48,9 @@ public class ShopController {
 
 	// 口コミ(reviews)へのアクセスは必ず Service を通す
 	private final ReviewService reviewService;
+
+	// 【追加】ログインした人が店舗管理者かどうかを shop_admins テーブルで判定するために使う
+	private final ShopAdminMapper shopAdminMapper;
 
 	// ReservationMapper.java に宣言のないSQLを、XMLのIDを指定して直接呼ぶために使う
 	private final SqlSession sqlSession;
@@ -91,6 +96,27 @@ public class ShopController {
 		return member != null ? member.getId() : null;
 	}
 
+	//【追加】ログイン中の店舗管理者を返す。店舗管理者でなければ（未ログイン・会員・モール管理者）null
+	//判定は shop_admins テーブルで行う（論理削除済みの店舗管理者は findById の SQL で除外済み）
+	private ShopAdmin getLoginShopAdmin() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		// 未ログイン（匿名ユーザーも除く）
+		if (auth == null || auth instanceof AnonymousAuthenticationToken) {
+			return null;
+		}
+
+		// ログインIDは数字の文字列。数字以外なら店舗管理者ではない
+		// （先に数字かどうかを確かめるので、Integer.parseInt で例外は起きない）
+		String name = auth.getName();
+		if (name == null || !name.matches("\\d{1,9}")) {
+			return null;
+		}
+
+		// shop_admins テーブルを ID で検索。見つからなければ null
+		return shopAdminMapper.findById(Integer.parseInt(name));
+	}
+
 	//会員かどうかを判定する
 	//getLoginId() の中で MembersService 経由で会員を検索済み（退会済みは除外済み）なので、
 	//loginId が null でなければ「有効な会員」と判断できる（Mapper を再度呼ぶ必要はない）
@@ -122,6 +148,11 @@ public class ShopController {
 	 *   POST /shops/{shopId}  action=add,    comment, grade → addReview() を呼ぶ
 	 *   POST /shops/{shopId}  action=delete, reviewId       → deleteReview() を呼ぶ
 	 *
+	 *   【追加】ログインしたのが店舗管理者の場合
+	 *     → ShopDashboardController（/shop-admin/{storeId}）へ forward する
+	 *       forward なのでブラウザのURLは /shops/{shopId} のまま、
+	 *       画面は ShopDashboardController が作った「店舗管理者用の店舗詳細」になる
+	 *
 	 * addReview / deleteReview / showReviewHistory は同じクラス内の private メソッドで、
 	 * そこから ReviewService → ReviewsMapper → reviews テーブル の順にアクセスする。
 	 *
@@ -138,6 +169,32 @@ public class ShopController {
 			HttpMethod method,
 			Model model,
 			RedirectAttributes redirectAttributes) {
+
+		// ==================================================
+		// 【追加】店舗管理者：ShopDashboardController へ移動
+		// ==================================================
+		// 口コミ投稿・削除（POST）より前に判定するので、店舗管理者の操作はすべて
+		// ShopDashboardController 側で処理される（会員用の口コミ投稿は使えない）
+		ShopAdmin shopAdmin = getLoginShopAdmin();
+		if (shopAdmin != null) {
+
+			// 管理対象の店舗が設定されていない店舗管理者（データ不備）
+			if (shopAdmin.getStoreId() == null) {
+				redirectAttributes.addFlashAttribute("errorMessage", "管理対象の店舗が設定されていません。");
+				return "redirect:/shops";
+			}
+
+			// 他店舗のURLを直接開いた場合 → 自店舗の店舗詳細へ移動させる
+			if (shopId != shopAdmin.getStoreId()) {
+				redirectAttributes.addFlashAttribute("errorMessage",
+						"他店舗の店舗詳細は表示できません。自店舗の店舗詳細を表示しています。");
+				return "redirect:/shops/" + shopAdmin.getStoreId();
+			}
+
+			// 自店舗 → ShopDashboardController に処理を任せる
+			// （redirect ではなく forward なので、URLは /shops/{shopId} のまま。無限ループにもならない）
+			return "forward:/shop-admin/" + shopId;
+		}
 
 		// 店舗IDから店舗情報を取得
 		Stores st = storesMapper.selectById(shopId);
@@ -214,6 +271,8 @@ public class ShopController {
 		model.addAttribute("reviews", rv);
 		model.addAttribute("reservations", rs);
 		model.addAttribute("isMember", isMember);
+		// 【追加】detail.html は店舗管理者と共用なので、利用者の場合は false を渡しておく
+		model.addAttribute("isShopAdmin", false);
 		// 自分の口コミにだけ削除ボタンを出す判定に使う
 		model.addAttribute("loginId", loginId);
 		return "shops/detail";
@@ -251,7 +310,12 @@ public class ShopController {
 
 		// Service を通して登録
 		reviewService.addReview(shopId, loginId, comment.trim(), grade);
-		redirectAttributes.addFlashAttribute("message", "口コミを投稿しました。");
+		// ★追加：口コミ投稿のポイントを加算（会員チェックは showDetail で実施済み）
+		membersService.addPoint(loginId, MembersService.REVIEW_POINT, "REVIEW");
+
+		redirectAttributes.addFlashAttribute("message",
+				"口コミを投稿しました。（+" + MembersService.REVIEW_POINT + "P）");
+
 	}
 
 	//口コミ削除（showDetail から呼び出される。）
@@ -268,5 +332,4 @@ public class ShopController {
 		}
 	}
 
-		
 }
