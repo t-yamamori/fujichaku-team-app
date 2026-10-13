@@ -11,7 +11,7 @@ public class ShopDashboardController {
     /**
      * 店舗管理者向けの自店舗トップページ
      */
-    @GetMapping("/shops/{storeId}")
+    @GetMapping("/shops/{storeId}/dashboard")
     public String dashboard(
             @PathVariable("storeId") int storeId,
             Model model) {
