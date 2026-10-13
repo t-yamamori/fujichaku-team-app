@@ -84,9 +84,10 @@
               th:action="@{/shops/search}"
               method="get">
 
+            <!-- 【変更】ひらがな・カタカナ・漢字のどれでも検索できることを案内 -->
             <input type="text"
                    name="name"
-                   placeholder="店舗名で検索"
+                   placeholder="店舗名で検索（ひらがな・カタカナ・漢字OK）"
                    required>
 
             <button type="submit"
