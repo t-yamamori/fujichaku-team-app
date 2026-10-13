@@ -76,9 +76,10 @@ public class SecurityConfig {
 
 	    http
 	        .securityMatcher(
-	            "/adminLogin",
-	            "/adminLogin/**",
-	            "/admin/**"
+	        		"/adminLogin",
+	        		"/adminLogin/**",
+	        		"/admin/**",
+	        		"/shop-admin/**"
 	        )
 	        .securityContext(context -> context                         // ★追加
 	            .securityContextRepository(adminContextRepository)
@@ -121,12 +122,13 @@ public class SecurityConfig {
 	                    authority.getAuthority().equals("ROLE_ADMIN"));
 
 	        if (isAdmin) {
+	            // 管理者は従来どおり管理者TOPへ
 	            response.sendRedirect(
 	                request.getContextPath() + "/admin/index");
 	            return;
 	        }
 
-	        // 店舗管理者：shop_admins テーブル
+	     // 店舗管理者：shop_admins テーブル
 	        boolean isShopAdmin = authentication.getAuthorities().stream()
 	                .anyMatch(authority ->
 	                    authority.getAuthority().equals("ROLE_SHOP_ADMIN"));
@@ -140,14 +142,24 @@ public class SecurityConfig {
 	                    shopAdminMapper.findById(shopAdminId);
 
 	            if (shopAdmin == null) {
-	                response.sendError(
-	                    HttpServletResponse.SC_FORBIDDEN);
+	                response.sendError(HttpServletResponse.SC_FORBIDDEN);
 	                return;
 	            }
 
+	            // store_id が未設定の場合のエラー処理
+	            Integer storeId = shopAdmin.getStoreId();
+
+	            if (storeId == null) {
+	                response.sendError(
+	                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+	                    "店舗管理者に store_id が設定されていません。"
+	                );
+	                return;
+	            }
+
+	            // 店舗管理画面へ遷移
 	            response.sendRedirect(
-	                request.getContextPath()
-	                + "/shops/" + shopAdmin.getStoreId());
+	                request.getContextPath() + "/shop-admin/" + storeId);
 	            return;
 	        }
 
