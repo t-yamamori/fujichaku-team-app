@@ -7,6 +7,135 @@
   <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
   <style>
+
+	/* ===== 飛行機の墜落アニメーション ===== */
+	.crash-plane {
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	    width: 130px;
+	    opacity: 0;
+	    transform-origin: center;
+	    animation: plane-crash 14s ease-in infinite;
+	}
+
+	/* 飛行機の後ろに伸びる煙 */
+	.crash-smoke {
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	    width: 130px;
+	    height: 130px;
+	    opacity: 0;
+	    border-radius: 50%;
+	    background:
+	        radial-gradient(circle at 50% 50%,
+	        rgba(90, 76, 65, 0.35) 0 12%,
+	        rgba(90, 76, 65, 0.18) 30%,
+	        transparent 70%);
+	    animation: smoke-trail 14s ease-in infinite;
+	    pointer-events: none;
+	}
+
+	/* 墜落する飛行機 */
+	@keyframes plane-crash {
+	    0%, 4% {
+	        transform: translate(20vw, -180px) rotate(-8deg);
+	        opacity: 0;
+	    }
+	    8% {
+	        opacity: 1;
+	    }
+	    25% {
+	        transform: translate(0, 12vh) rotate(8deg);
+	        opacity: 1;
+	    }
+	    45% {
+	        transform: translate(-30vw, 38vh) rotate(24deg);
+	        opacity: 1;
+	    }
+	    65% {
+	        transform: translate(-70vw, 78vh) rotate(48deg);
+	        opacity: 1;
+	    }
+	    70%, 100% {
+	        transform: translate(-78vw, 95vh) rotate(65deg);
+	        opacity: 0;
+	    }
+	}
+
+	/* 墜落時に広がる煙 */
+	@keyframes smoke-trail {
+	    0%, 8% {
+	        transform: translate(20vw, -100px) scale(0.3);
+	        opacity: 0;
+	    }
+	    25% {
+	        transform: translate(0, 12vh) scale(0.7);
+	        opacity: 0.45;
+	    }
+	    50% {
+	        transform: translate(-35vw, 42vh) scale(1.1);
+	        opacity: 0.55;
+	    }
+	    66% {
+	        transform: translate(-70vw, 75vh) scale(1.5);
+	        opacity: 0.65;
+	    }
+	    72%, 100% {
+	        transform: translate(-78vw, 90vh) scale(1.8);
+	        opacity: 0;
+	    }
+	}
+
+	/* 衝突地点の砂煙 */
+	.crash-impact {
+	    position: absolute;
+	    left: 12%;
+	    bottom: 48px;
+	    width: 150px;
+	    height: 75px;
+	    border-radius: 50%;
+	    background: radial-gradient(
+	        ellipse,
+	        rgba(139, 74, 43, 0.5) 0%,
+	        rgba(210, 170, 105, 0.35) 45%,
+	        transparent 75%
+	    );
+	    opacity: 0;
+	    transform: scale(0.2);
+	    animation: impact-effect 14s ease-out infinite;
+	}
+
+	@keyframes impact-effect {
+	    0%, 64% {
+	        opacity: 0;
+	        transform: scale(0.2);
+	    }
+	    67% {
+	        opacity: 0.9;
+	        transform: scale(1.2);
+	    }
+	    73% {
+	        opacity: 0.6;
+	        transform: scale(1.6);
+	    }
+	    82%, 100% {
+	        opacity: 0;
+	        transform: scale(2);
+	    }
+	}
+
+	/* 動きを減らす設定の端末ではアニメーションを停止 */
+	@media (prefers-reduced-motion: reduce) {
+	    .crash-plane,
+	    .crash-smoke,
+	    .crash-impact {
+	        animation: none;
+	        opacity: 0;
+	    }
+	}
+
     /* ===== 色の設定（ここを変えると全体の色が変わる） ===== */
     :root {
       --main:       #8b4a2b;  /* メインの色（ブラウン） */
@@ -340,6 +469,49 @@
 <body>
 	<!-- ★追加：背景の動き（パラシュートとラクダ） -->
 	<div class="desert-scene" aria-hidden="true">
+
+		<!-- 墜落する飛行機 -->
+		<div class="crash-plane">
+		    <svg viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+		        <!-- 機体本体 -->
+		        <path d="M12 47 L65 43 L105 12 L119 14 L101 44
+		                 L139 49 Q148 51 139 56 L99 60
+		                 L76 83 L63 82 L70 59 L18 56 Z"
+		              fill="#f5f0e6"
+		              stroke="#6e3a21"
+		              stroke-width="2"
+		              stroke-linejoin="round"/>
+
+		        <!-- 機体の窓 -->
+		        <g fill="#6e8fa0">
+		            <rect x="24" y="47" width="7" height="4" rx="1"/>
+		            <rect x="36" y="46" width="7" height="4" rx="1"/>
+		            <rect x="48" y="45" width="7" height="4" rx="1"/>
+		            <rect x="60" y="45" width="7" height="4" rx="1"/>
+		            <rect x="72" y="44" width="7" height="4" rx="1"/>
+		        </g>
+
+		        <!-- 尾翼 -->
+		        <path d="M18 47 L7 31 L19 32 L35 46 Z"
+		              fill="#c8643b" stroke="#6e3a21" stroke-width="1.5"/>
+
+		        <!-- 主翼のアクセント -->
+		        <path d="M65 43 L105 12 L119 14 L101 44 Z"
+		              fill="#c8643b" opacity="0.9"/>
+
+		        <!-- エンジンの煙 -->
+		        <path d="M8 55 Q-2 60 5 65 Q-3 73 10 75"
+		              fill="none" stroke="#8b7768"
+		              stroke-width="4" stroke-linecap="round"/>
+		    </svg>
+		</div>
+
+		<!-- 飛行機の煙 -->
+		<div class="crash-smoke"></div>
+
+		<!-- 地面に衝突したときの砂煙 -->
+		<div class="crash-impact"></div>
+
 
 		<!-- パラシュートで降りてくる人 -->
 		<div class="parachute">
