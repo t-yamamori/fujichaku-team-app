@@ -251,7 +251,12 @@ public class ShopController {
 
 		// Service を通して登録
 		reviewService.addReview(shopId, loginId, comment.trim(), grade);
-		redirectAttributes.addFlashAttribute("message", "口コミを投稿しました。");
+		// ★追加：口コミ投稿のポイントを加算（会員チェックは showDetail で実施済み）
+		membersService.addPoint(loginId, MembersService.REVIEW_POINT, "REVIEW");
+
+		redirectAttributes.addFlashAttribute("message",
+				"口コミを投稿しました。（+" + MembersService.REVIEW_POINT + "P）");
+		
 	}
 
 	//口コミ削除（showDetail から呼び出される。）
