@@ -54,4 +54,28 @@ public class Reservations {
      * 予約人数
      */
     private Integer number;
+
+
+    /*
+     * ==========================================
+     * detail.html 互換用
+     * ==========================================
+     *
+     * detail.htmlでは
+     *
+     * rs.reservation_date
+     *
+     * と指定されているため、
+     * Java側でreservation_date用のGetterを用意する。
+     *
+     * 実際のフィールドはreservationDateのまま。
+     */
+
+    public LocalDateTime getReservation_date() {
+        return reservationDate;
+    }
+
+    public void setReservation_date(LocalDateTime reservationDate) {
+        this.reservationDate = reservationDate;
+    }
 }

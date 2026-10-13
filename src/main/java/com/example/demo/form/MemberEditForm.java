@@ -2,6 +2,7 @@ package com.example.demo.form;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
@@ -23,7 +24,10 @@ public class MemberEditForm {//会員情報更新フォーム
     private String name;
 
 	@NotBlank(message = "メールアドレスを入力してください")
-    @Email(message = "メールアドレスの形式が正しくありません")
+	@Email(
+	        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$",
+	        message = "メールアドレスの形式が正しくありません（例：taro@gmail.com）"
+	    )
     @Size(max = 255, message = "メールアドレスは255文字以内で入力してください")
     private String mail;
 
@@ -36,6 +40,9 @@ public class MemberEditForm {//会員情報更新フォーム
     @Past(message = "生年月日は今日より前の日付を入力してください")
     private LocalDate birthDate;
     
-    
-
+ // 1900年1月1日より前を禁止する（空欄のときは、このチェックをしない）
+    @AssertTrue(message = "生年月日は1900年1月1日以降の日付を入力してください")
+    public boolean isBirthDateAfter1900() {
+        return birthDate == null || !birthDate.isBefore(LocalDate.of(1900, 1, 1));
+    }
 }

@@ -1,42 +1,50 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>予約履歴</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>予約履歴 | FUJICHAKU</title>
+    <link rel="stylesheet" th:href="@{/css/shops.css}">
 </head>
 <body>
+<div class="container">
 
-    <h1>予約履歴</h1>
+    <h1 class="page-title">予約履歴</h1>
 
-    <p>過去の予約一覧</p>
+    <div class="top-bar">
+        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
+    </div>
 
-    <table border="1">
-        <thead>
-            <tr>
-                <th>予約番号</th>
-                <th>予約日時</th>
-                <th>人数</th>
-                <th>状況</th>
-                <th>詳細</th>
-            </tr>
-        </thead>
+    <p class="result-count">
+        予約件数：
+        <span th:text="${#lists.size(reservations)}">0</span>件
+    </p>
 
-        <tbody>
-            <tr th:each="reservation : ${reservations}">
-                <td th:text="${reservation.reserve_number}"></td>
-                <td th:text="${reservation.reservation_date}"></td>
-                <td th:text="${reservation.number}"></td>
-                <td th:text="${reservation.status}"></td>
-                <td>
-                    <a th:href="@{/reservations/{id}(id=${reservation.id})}">
-                        確認
-                    </a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <section class="section" th:if="${!#lists.isEmpty(reservations)}">
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>予約番号</th>
+                    <th>予約日時</th>
+                    <th>人数</th>
+                    <th>状況</th>
+                    <th>店舗</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="reservation : ${reservations}">
+                    <td th:text="${reservation.id}">100</td>
+                    <td th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">2026/10/10 18:00</td>
+                    <td th:text="${reservation.number}">2</td>
+                    <td th:text="${reservation.status}">予約済み</td>
+                    <td th:text="${storeNames[reservation.id]}">店舗名</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
 
-    <a th:href="@{/shops}">店舗一覧へ戻る</a>
+    <div class="empty" th:if="${#lists.isEmpty(reservations)}">予約履歴はありません。</div>
 
+</div>
 </body>
 </html>

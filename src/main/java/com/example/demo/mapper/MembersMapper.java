@@ -31,8 +31,8 @@ public interface MembersMapper {
     // 会員削除
     void delete(@Param("id") int id);
     
-    //会員詳細表示
     
+
     //口コミ一覧表示
     
     
@@ -45,5 +45,25 @@ public interface MembersMapper {
     void updatePassword(
             @Param("id") int id,
             @Param("password") String password);
+
+    
+    // ===== ここからポイント機能 =====
+
+    /** ポイント履歴を1行追加する */
+    void insertPointHistory(@Param("memberId") Integer memberId,
+                            @Param("points") int points,
+                            @Param("reason") String reason);
+
+    /** 会員の合計ポイントを増やす */
+    void addPoint(@Param("id") Integer id,
+                  @Param("points") int points);
+
+    /** 理由（GACHA / REVIEW / RESERVATION）ごとのポイント合計を取得する */
+    int sumPointsByReason(@Param("memberId") Integer memberId,
+                          @Param("reason") String reason);
+
+    /** 今日ガチャを回した回数を取得する */
+    int countTodayGacha(@Param("memberId") Integer memberId);
+
 
 }

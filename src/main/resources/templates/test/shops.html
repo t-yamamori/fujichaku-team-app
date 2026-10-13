@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>店舗一覧</title>
+
+    <link rel="stylesheet" th:href="@{/css/testShops.css}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- =========================
+         上部：タイトル / アカウントメニュー
+         ========================= -->
+    <div class="header">
+
+        <h1 class="page-title">店舗一覧</h1>
+
+        <!-- 未ログイン：会員登録／ログイン -->
+        <div class="account-menu" th:unless="${isMember}">
+
+            <!-- 会員登録：RegisterController（GET /register → register/register.html） -->
+            <a class="btn btn-accent" th:href="@{/register/register}">会員登録</a>
+            <!-- ログイン：Spring Security 標準のログイン画面 -->
+            <a class="btn btn-primary" th:href="@{/login}">ログイン</a>
+
+        </div>
+
+        <!-- ログイン済み：会員情報／ログアウト -->
+        <div class="account-menu" th:if="${isMember}">
+            <span class="welcome">ログイン中</span>
+
+            <!-- 会員情報：MembersController の showEdit（GET /members/showEdit） -->
+            <a class="btn btn-secondary" th:href="@{/members/showEdit}">会員情報</a>
+
+            <!-- ログアウト：POST /shops/logout → 処理後はトップ画面(/shops)へリダイレクト
+                 （th:action なのでCSRFトークンが自動で入る） -->
+            <form th:action="@{/shops/logout}" method="post">
+
+                <button type="submit"
+                        class="btn btn-secondary">
+                    ログアウト
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         結果メッセージ（画像より上に出して、スクロールしなくても見えるようにする）
+         ========================= -->
+
+    <!-- 成功メッセージ -->
+    <div class="flash flash-success"
+         th:if="${message}"
+         th:text="${message}">
+        ログアウトしました。
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div class="flash flash-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+        エラーメッセージ
+    </div>
+
+
+    <!-- =========================
+         トップ画像（ヘッダーの下。画面いっぱいに表示し、下にスクロールすると店舗一覧が出る）
+         画像の場所：src/main/resources/static/images/top-hero.jpg
+         ========================= -->
+
+    <section class="hero">
+
+		<img th:src="@{/images/top-hero.jpg}"
+		     alt="夕暮れの砂丘の上をパラグライダーで飛ぶ人のイラスト">
+
+        <!-- 店舗一覧へ移動するボタン（押すと、下の店舗一覧までスクロールする） -->
+        <a class="scroll-hint" href="#shops">店舗を探す ▼</a>
+
+    </section>
+
+
+    <!-- =========================
+         ここから下：店舗検索・店舗一覧（id="shops" が「店舗を探す」の移動先）
+         ========================= -->
+
+    <div id="shops">
+
+        <!-- 店舗検索 -->
+        <div class="top-bar">
+
+            <form class="search-form"
+                  th:action="@{/shops/search}"
+                  method="get">
+
+                <input type="text"
+                       name="name"
+                       placeholder="店舗名で検索"
+                       required>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    検索
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- パスワード再設定 -->
+        <div class="sub-link"
+             th:unless="${isMember}">
+
+            <a th:href="@{/password/reset}">
+                パスワードをお忘れの方はこちら（パスワード再設定）
+            </a>
+
+        </div>
+
+
+        <!-- 店舗一覧 -->
+        <ul class="shop-list"
+            th:if="${!#lists.isEmpty(stores)}">
+
+            <li class="shop-card"
+                th:each="s : ${stores}">
+
+                <!-- 店舗詳細画面 -->
+                <a th:href="@{/shops/{shopId}(shopId=${s.id})}">
+
+                    <!-- 店舗画像がある場合 -->
+                    <img th:if="${s.pictureUrl != null}"
+                         th:src="${s.pictureUrl}"
+                         th:alt="${s.name}">
+
+                    <!-- 店舗画像がない場合 -->
+                    <div th:unless="${s.pictureUrl != null}"
+                         class="no-image">
+                        No Image
+                    </div>
+
+                    <!-- 店舗情報 -->
+                    <div class="body">
+
+                        <!-- 店舗名 -->
+                        <p class="name"
+                           th:text="${s.name}">
+                            店舗名
+                        </p>
+
+                        <!-- 住所 -->
+                        <p class="address"
+                           th:text="${s.address}">
+                            住所
+                        </p>
+
+                    </div>
+
+                </a>
+            </li>
+        </ul>
+
+
+        <!-- 店舗が存在しない場合 -->
+        <div class="empty"
+             th:if="${#lists.isEmpty(stores)}">
+
+            登録されている店舗はありません。
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

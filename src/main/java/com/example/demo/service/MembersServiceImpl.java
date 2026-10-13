@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,8 +73,92 @@ public class MembersServiceImpl implements MembersService{
 		membersMapper.delete(id);
 		
 	}
+	
+    // ===== ここからポイント機能 =====
+
+    /**
+     * ポイントを加算する
+     * 「履歴に1行追加」と「合計を増やす」を1セットで行う。
+     * @Transactional を付けているので、途中で失敗したら両方とも取り消される。
+     */
+    @Override
+    @Transactional
+    public void addPoint(Integer memberId, int points, String reason) {
+        membersMapper.insertPointHistory(memberId, points, reason); // 履歴に記録
+        membersMapper.addPoint(memberId, points);                   // 合計を増やす
+    }
+
+    /** 理由ごとのポイント合計（カードの内訳表示用） */
+    @Override
+    public int getPointByReason(Integer memberId, String reason) {
+        return membersMapper.sumPointsByReason(memberId, reason);
+    }
+
+    /** 今日ガチャを回した回数 */
+    @Override
+    public int getTodayGachaCount(Integer memberId) {
+        return membersMapper.countTodayGacha(memberId);
+    }
+
+    /**
+     * ガチャを1回回す
+     * ① 今日の回数が上限なら 0 を返して終わり
+     * ② 抽選して順位を決める
+     * ③ 順位に応じたポイントを加算する
+     */
+    @Override
+    @Transactional
+    public int playGacha(Integer memberId) {
+        // ① 回数チェック
+        if (getTodayGachaCount(memberId) >= GACHA_LIMIT_PER_DAY) {
+            return 0;
+        }
+
+        // ② 抽選
+        int rank = drawRank();
+
+        // ③ ポイント加算（理由は GACHA）
+        addPoint(memberId, getGachaPoint(rank), "GACHA");
+
+        return rank;
+    }
+
+    /** 順位 → ポイント */
+    @Override
+    public int getGachaPoint(int rank) {
+        switch (rank) {
+            case 1: return 10;
+            case 2: return 5;
+            case 3: return 3;
+            default: return 1;   // 4等
+        }
+    }
+
+    /**
+     * 抽選する（このクラスの中だけで使うので private）
+     * 0〜99 の数字をランダムに1つ出して、どの範囲に入ったかで順位を決める
+     *   0〜4   （5個）  → 1等  5%
+     *   5〜19  （15個） → 2等 15%
+     *   20〜49 （30個） → 3等 30%
+     *   50〜99 （50個） → 4等 50%
+     */
+    private int drawRank() {
+        int number = ThreadLocalRandom.current().nextInt(100); // 0〜99
+        if (number < 5) {
+            return 1;
+        } else if (number < 20) {
+            return 2;
+        } else if (number < 50) {
+            return 3;
+        } else {
+            return 4;
+        }
+    }
 
 
+	/*
+	 * 会員を探す際に使用するメソッド
+	 */
 	@Override //文字列の会員IDを数字にして、会員を探す
 	public Members findByLoginId(String loginId) {
 	    try {
