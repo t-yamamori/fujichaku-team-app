@@ -182,7 +182,7 @@ public class SecurityConfig {
             )
 
             .formLogin(form -> form
-                .loginPage("/login")
+//                .loginPage("/login")
                 .defaultSuccessUrl("/shops", true)
                 .permitAll()
             )
