@@ -2,13 +2,18 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -123,6 +128,33 @@ public class ShopDashboardController {
         model.addAttribute("reservations", List.of()); // 会員用の項目（未使用だが空で渡しておく）
 
         return "shops/detail";
+    }
+
+    /*
+     * 【追加】店舗管理者のログアウト  POST /shop-admin/logout
+     *
+     *   店舗詳細画面（detail.html）の「ログアウト」ボタンから呼ばれる（店舗管理者のみ表示）。
+     *   ログイン情報とセッションを破棄して、トップ画面（/shops）へリダイレクトする。
+     *   ログアウト後は未ログイン扱いなので、shops.html は「会員登録／ログイン」側の表示になる。
+     *
+     *   利用者（会員）のログアウト（ShopController の POST /shops/logout）とは分けてあるので、
+     *   利用者側の処理には影響しない。
+     *   URLの "logout" は数字ではないので、/shop-admin/{storeId:\\d+} とはぶつからない。
+     */
+    @PostMapping("/shop-admin/logout")
+    public String logout(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            RedirectAttributes redirectAttributes) {
+
+        // Spring Security 標準のログアウト処理
+        // （ログイン情報(SecurityContext)のクリアと、セッションの破棄をまとめて行う）
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        new SecurityContextLogoutHandler().logout(request, response, auth);
+
+        // トップ画面に「ログアウトしました。」を表示する（shops.html の成功メッセージ欄）
+        redirectAttributes.addFlashAttribute("message", "ログアウトしました。");
+        return "redirect:/shops";
     }
 
     //口コミ削除（店舗管理者用）

@@ -24,10 +24,13 @@
 <body>
 <div class="container">
 
-    <!-- 【追加】店舗管理者でログイン中の表示とログアウト（ヘッダーはログアウトのみ） -->
+    <!-- 【追加】店舗管理者でログイン中の表示とログアウト（ヘッダーはログアウトのみ）
+         【変更】ログアウト先を店舗管理者専用の POST /shop-admin/logout に変更
+                 （ShopDashboardController → 処理後はトップ画面(/shops)の未ログイン表示へ）
+                 th:action なので CSRF トークンは自動で入る -->
     <div class="admin-bar" th:if="${isShopAdmin}">
         <span>店舗管理者としてログイン中</span>
-        <form th:action="@{/shops/logout}" method="post">
+        <form th:action="@{/shop-admin/logout}" method="post">
             <button type="submit" class="btn btn-secondary btn-small">ログアウト</button>
         </form>
     </div>
@@ -172,7 +175,8 @@
         <p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
     </section>
 
-    <a class="back-link" th:href="@{/shops}">← 店舗一覧へ戻る</a>
+    <!-- 【変更】店舗管理者には表示しない（店舗管理者の画面移動はログアウトのみ） -->
+    <a class="back-link" th:href="@{/shops}" th:unless="${isShopAdmin}">← 店舗一覧へ戻る</a>
 
 </div>
 </body>
