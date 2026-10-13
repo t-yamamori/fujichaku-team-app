@@ -1,5 +1,6 @@
 package com.example.demo.mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -33,5 +34,16 @@ public interface MembersMapper {
     //会員詳細表示
     
     //口コミ一覧表示
+    
+    
+ // 名前と生年月日で会員を検索（退会済みは除く）
+    Members findByNameAndBirthDate(
+            @Param("name") String name,
+            @Param("birthDate") LocalDate birthDate);
+    
+ // パスワード更新
+    void updatePassword(
+            @Param("id") int id,
+            @Param("password") String password);
 
 }

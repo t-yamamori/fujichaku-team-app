@@ -98,7 +98,7 @@
         }
 
         /* ボタン */
-        .login-button {
+        .top-button {
             display: inline-block;
             min-width: 200px;
             padding: 14px 30px;
@@ -111,7 +111,7 @@
             transition: 0.2s;
         }
 
-        .login-button:hover {
+        .top-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
         }
@@ -144,13 +144,33 @@
 
 <body>
 
-	<h1>会員登録完了</h1> 
-	<p>会員登録が正常に完了しました。</p> 
-	<p>ご登録ありがとうございます。</p> 
-	<a th:href="@{/shops}"> 
-		<button type="button">トップ画面へ</button> 
-	</a>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="logo">FUJICHAKU</div>
+        <a th:href="@{/login}" class="login-link">ログイン</a>
+    </header>
 
+    <!-- メイン -->
+    <main class="container">
+
+        <div class="complete-card">
+
+            <div class="check">✓</div>
+
+            <div class="sub-title">REGISTRATION COMPLETE</div>
+
+            <h1>会員登録完了</h1>
+
+            <p class="message">
+                会員登録が正常に完了しました。<br>
+                ご登録ありがとうございます。
+            </p>
+
+            <a th:href="@{/shops}" class="top-button">トップ画面へ</a>
+
+        </div>
+
+    </main>
 
 </body>
 </html>

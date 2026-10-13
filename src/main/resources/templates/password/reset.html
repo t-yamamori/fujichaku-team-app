@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワード再設定</title>
+	
+	
+	<style>
+	    .form-group {
+	        display: flex;
+	        align-items: center;
+	        margin-bottom: 15px;
+	    }
+
+	    .form-group label {
+	        width: 240px;
+	        flex-shrink: 0;
+	    }
+
+	    .form-group input {
+	        width: 220px;
+	        padding: 8px;
+	        box-sizing: border-box;
+	    }
+
+	    button {
+	        margin-top: 10px;
+	        padding: 8px 16px;
+	        cursor: pointer;
+	    }
+	</style>
+
+
+	
+</head>
+<body>
+
+    <h1>パスワード再設定</h1>
+
+    <p>新しいパスワードを入力してください。</p>
+
+    <!-- エラーメッセージ -->
+    <p th:if="${errorMessage}"
+       th:text="${errorMessage}"
+       style="color: red;">
+    </p>
+
+	
+	<form th:action="@{/password/reset}" method="post">
+
+	    <div class="form-group">
+	        <label for="password">新しいパスワード</label>
+	        <input type="password"
+	               id="password"
+	               name="password"
+	               required>
+	    </div>
+
+	    <div class="form-group">
+	        <label for="confirmPassword">新しいパスワード（確認用）</label>
+	        <input type="password"
+	               id="confirmPassword"
+	               name="confirmPassword"
+	               required>
+	    </div>
+
+	    <button type="submit">パスワードを変更する</button>
+
+	</form>
+	
+
+
+</body>
+</html>
+

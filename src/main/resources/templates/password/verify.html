@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パスワード再設定・本人確認</title>
+</head>
+<body>
+
+    <h1>パスワード再設定</h1>
+
+    <h2>本人確認</h2>
+
+    <p>登録した名前と生年月日を入力してください。</p>
+
+    <!-- 本人確認に失敗した場合のエラーメッセージ -->
+    <p th:if="${errorMessage}"
+       th:text="${errorMessage}"
+       style="color: red;">
+    </p>
+
+    <!-- 入力フォーム -->
+    <form th:action="@{/password/reset/verify}"
+          th:object="${form}"
+          method="post">
+
+        <div>
+            <label for="name">名前</label>
+            <input type="text"
+                   id="name"
+                   th:field="*{name}">
+
+            <p th:if="${#fields.hasErrors('name')}"
+               th:errors="*{name}"
+               style="color: red;">
+            </p>
+        </div>
+
+        <div>
+            <label for="birthDate">生年月日</label>
+            <input type="date"
+                   id="birthDate"
+                   th:field="*{birthDate}">
+
+            <p th:if="${#fields.hasErrors('birthDate')}"
+               th:errors="*{birthDate}"
+               style="color: red;">
+            </p>
+        </div>
+
+        <button type="submit">本人確認</button>
+
+    </form>
+
+</body>
+</html>

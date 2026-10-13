@@ -47,6 +47,19 @@
      WHERE id = #{id}
        AND is_deleted IS NOT TRUE
     </select>
+    
+    
+    <!-- 名前と生年月日で会員を検索（退会済みは除く） -->
+<select id="findByNameAndBirthDate"
+        resultType="com.example.demo.entity.Members">
+    SELECT id,
+           name,
+           birth_date AS birthDate
+      FROM members
+     WHERE name = #{name}
+       AND birth_date = #{birthDate}
+       AND is_deleted IS NOT TRUE
+</select>
 
 
     <!-- 新規登録 -->
@@ -70,6 +83,15 @@
      WHERE id = #{id}
        AND is_deleted IS NOT TRUE
     </update>
+    
+    
+    <!-- パスワード更新 -->
+<update id="updatePassword">
+    UPDATE members
+       SET password = #{password}
+     WHERE id = #{id}
+       AND is_deleted IS NOT TRUE
+</update>
 
     <!-- 会員削除（論理削除） -->
     <update id="delete">

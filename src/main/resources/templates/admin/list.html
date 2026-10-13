@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja">
 
 <head>
     <meta charset="UTF-8">
-    <title>会員管理 | FUJICHAKU ADMIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FUJICHAKU - 会員管理</title>
 
     <style>
         * {
@@ -15,9 +17,10 @@
             min-height: 100vh;
             font-family: "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
             background:
-                radial-gradient(circle at top right, #26183b 0%, transparent 30%),
-                linear-gradient(135deg, #0a090d 0%, #121018 50%, #08070b 100%);
-            color: #f5f5f5;
+                radial-gradient(circle at top right, rgba(230, 180, 200, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(160, 150, 210, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #2b233d 0%, #1e182d 50%, #13101e 100%);
+            color: #f8f6fb;
         }
 
         /* =========================
@@ -30,20 +33,22 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(10, 9, 13, 0.95);
-            border-bottom: 1px solid #6d52a3;
-            box-shadow: 0 3px 20px rgba(0, 0, 0, 0.4);
+            background: rgba(30, 24, 45, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(220, 180, 200, 0.25);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .logo {
-            color: #d4af37;
+            color: #f7d5a5;
             font-size: 25px;
             font-weight: bold;
             letter-spacing: 4px;
+            text-shadow: 0 0 10px rgba(247, 213, 165, 0.3);
         }
 
         .admin-label {
-            color: #9b7de3;
+            color: #e2b0c4;
             font-size: 13px;
             letter-spacing: 2px;
             font-weight: bold;
@@ -65,17 +70,12 @@
         .sidebar {
             width: 220px;
             padding: 35px 20px;
-            background:
-                linear-gradient(
-                    180deg,
-                    #17121f 0%,
-                    #120e18 100%
-                );
-            border-right: 1px solid #332541;
+            background: rgba(22, 17, 33, 0.85);
+            border-right: 1px solid rgba(220, 180, 200, 0.15);
         }
 
         .sidebar-title {
-            color: #9b7de3;
+            color: #cbb4d9;
             font-size: 12px;
             letter-spacing: 2px;
             margin-bottom: 25px;
@@ -86,36 +86,31 @@
             display: block;
             padding: 15px 15px;
             margin-bottom: 8px;
-            color: #c9c5d0;
+            color: #d1c8db;
             text-decoration: none;
-            border-radius: 6px;
-            transition: 0.2s;
+            border-radius: 8px;
+            transition: 0.3s;
             font-size: 14px;
         }
 
         .menu-item:hover {
-            background-color: #2a1e3b;
+            background-color: rgba(218, 140, 160, 0.15);
             color: #ffffff;
         }
 
         .menu-item.active {
-            background:
-                linear-gradient(
-                    90deg,
-                    #5d438d,
-                    #392653
-                );
-            color: #d4af37;
-            box-shadow: 0 4px 15px rgba(91, 63, 139, 0.3);
+            background: linear-gradient(90deg, #b8627d, #814f82);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(184, 98, 125, 0.35);
         }
 
         .menu-icon {
             margin-right: 8px;
-            color: #9b7de3;
+            color: #e2b0c4;
         }
 
         .menu-item.active .menu-icon {
-            color: #d4af37;
+            color: #f7d5a5;
         }
 
         /* =========================
@@ -130,7 +125,7 @@
 
         .page-title {
             margin: 0;
-            color: #d4af37;
+            color: #f7d5a5;
             font-size: 28px;
             letter-spacing: 2px;
         }
@@ -138,7 +133,7 @@
         .page-subtitle {
             margin-top: 8px;
             margin-bottom: 30px;
-            color: #9b7de3;
+            color: #d8b0c5;
             font-size: 12px;
             letter-spacing: 2px;
         }
@@ -148,29 +143,23 @@
         ========================= */
 
         .member-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(29, 25, 35, 0.95),
-                    rgba(15, 13, 19, 0.98)
-                );
-            border: 1px solid #3b3047;
-            border-radius: 10px;
+            background: linear-gradient(145deg, rgba(42, 34, 58, 0.75), rgba(25, 20, 36, 0.85));
+            border: 1px solid rgba(230, 180, 200, 0.2);
+            border-radius: 12px;
             padding: 28px;
-            box-shadow:
-                0 12px 35px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(10px);
         }
 
         .card-title {
             margin: 0 0 22px;
-            color: #f5f5f5;
+            color: #ffffff;
             font-size: 18px;
             font-weight: bold;
         }
 
         .card-title span {
-            color: #9b7de3;
+            color: #e2b0c4;
             font-size: 12px;
             margin-left: 10px;
             letter-spacing: 1px;
@@ -181,9 +170,9 @@
         ========================= */
 
         .error-message {
-            color: #ff7b7b;
-            background-color: rgba(120, 30, 30, 0.18);
-            border: 1px solid rgba(255, 100, 100, 0.35);
+            color: #ffb3b3;
+            background-color: rgba(180, 60, 80, 0.25);
+            border: 1px solid rgba(255, 120, 140, 0.4);
             padding: 12px 15px;
             border-radius: 6px;
             margin-bottom: 20px;
@@ -204,23 +193,23 @@
         }
 
         thead {
-            background-color: #21172f;
+            background-color: rgba(45, 34, 60, 0.8);
         }
 
         th {
             padding: 15px 12px;
-            color: #d4af37;
+            color: #f7d5a5;
             font-size: 13px;
             font-weight: bold;
-            border-bottom: 1px solid #634c86;
+            border-bottom: 1px solid rgba(210, 160, 190, 0.3);
             white-space: nowrap;
         }
 
         td {
             padding: 14px 12px;
-            color: #dedbe3;
+            color: #ece4f2;
             font-size: 13px;
-            border-bottom: 1px solid #2b2631;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
             text-align: center;
         }
 
@@ -229,13 +218,13 @@
         }
 
         tbody tr:hover {
-            background-color: rgba(107, 76, 153, 0.12);
+            background-color: rgba(200, 130, 160, 0.12);
         }
 
         input[type="checkbox"] {
             width: 16px;
             height: 16px;
-            accent-color: #8b68c6;
+            accent-color: #b8627d;
             cursor: pointer;
         }
 
@@ -257,36 +246,48 @@
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s;
+        }
+
+        /* 確認ボタン */
+        td button {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #a2618c, #704775);
+            color: #ffffff;
+            border-radius: 4px;
+        }
+
+        td button:hover {
+            background: linear-gradient(135deg, #b870a0, #83548a);
         }
 
         .update-button {
-            background: linear-gradient(135deg, #7655a8, #563b82);
+            background: linear-gradient(135deg, #945889, #5d3d66);
             color: #ffffff;
         }
 
         .update-button:hover {
-            background: linear-gradient(135deg, #8969bd, #674b94);
+            background: linear-gradient(135deg, #aa679d, #6e4879);
             transform: translateY(-1px);
         }
 
         .delete-button {
-            background: #3a2028;
-            color: #ff9999;
-            border: 1px solid #6a3542;
+            background: rgba(90, 35, 50, 0.6);
+            color: #ffb8c6;
+            border: 1px solid rgba(180, 80, 100, 0.4);
         }
 
         .delete-button:hover {
-            background: #542b36;
+            background: rgba(120, 45, 65, 0.8);
         }
 
         .create-button {
-            background: linear-gradient(135deg, #d4af37, #a88622);
-            color: #17120b;
+            background: linear-gradient(135deg, #e0a36e, #b37343);
+            color: #ffffff;
         }
 
         .create-button:hover {
-            background: linear-gradient(135deg, #e3c35b, #bd9b2e);
+            background: linear-gradient(135deg, #f0b480, #c48250);
             transform: translateY(-1px);
         }
 
@@ -302,8 +303,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(4px);
+            background-color: rgba(10, 8, 15, 0.75);
+            backdrop-filter: blur(6px);
         }
 
         .modal-content {
@@ -311,34 +312,27 @@
             max-width: 90%;
             margin: 90px auto;
             padding: 30px;
-            background:
-                linear-gradient(
-                    145deg,
-                    #21172f,
-                    #100d15
-                );
-            border: 1px solid #72569f;
-            border-radius: 10px;
-            box-shadow:
-                0 20px 50px rgba(0, 0, 0, 0.6),
-                0 0 25px rgba(104, 73, 151, 0.15);
+            background: linear-gradient(145deg, #2f253e, #1a1425);
+            border: 1px solid rgba(220, 160, 190, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
         }
 
         .modal-content h2 {
             margin-top: 0;
             margin-bottom: 25px;
-            color: #d4af37;
+            color: #f7d5a5;
             font-size: 21px;
         }
 
         .modal-content p {
             margin: 17px 0;
-            color: #cfcbd5;
+            color: #e0d8e8;
             font-size: 13px;
         }
 
         .modal-content p span {
-            color: #d4af37;
+            color: #f7d5a5;
             font-weight: bold;
         }
 
@@ -346,21 +340,21 @@
             width: 100%;
             margin-top: 7px;
             padding: 11px 12px;
-            background-color: #0b090e;
+            background-color: rgba(15, 12, 22, 0.8);
             color: #f5f5f5;
-            border: 1px solid #40364a;
-            border-radius: 5px;
+            border: 1px solid rgba(180, 140, 170, 0.3);
+            border-radius: 6px;
             outline: none;
         }
 
         .modal-content input:focus {
-            border-color: #8b68c6;
-            box-shadow: 0 0 0 2px rgba(139, 104, 198, 0.15);
+            border-color: #e2b0c4;
+            box-shadow: 0 0 0 2px rgba(226, 176, 196, 0.2);
         }
 
         .modal-content input[readonly] {
-            color: #9b7de3;
-            background-color: #17121f;
+            color: #d8b0c5;
+            background-color: rgba(30, 24, 42, 0.8);
         }
 
         .modal-button-area {
@@ -371,18 +365,99 @@
         }
 
         .save-button {
-            background: linear-gradient(135deg, #d4af37, #a88622);
-            color: #17120b;
+            background: linear-gradient(135deg, #e0a36e, #b37343);
+            color: #ffffff;
         }
 
         .close-button {
-            background-color: #302b35;
-            color: #ddd;
-            border: 1px solid #4a424f;
+            background-color: rgba(60, 50, 75, 0.8);
+            color: #e0d8e8;
+            border: 1px solid rgba(120, 100, 140, 0.4);
         }
 
         .close-button:hover {
-            background-color: #403846;
+            background-color: rgba(80, 68, 98, 0.9);
+        }
+
+        /* =========================
+           削除確認モーダル
+        ========================= */
+
+        .delete-modal-content {
+            width: 430px;
+            max-width: 90%;
+            margin: 150px auto;
+            padding: 32px;
+            background: linear-gradient(145deg, #35212e, #1a1017);
+            border: 1px solid rgba(220, 100, 120, 0.4);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        .delete-modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #f7d5a5;
+            font-size: 21px;
+        }
+
+        .delete-modal-subtitle {
+            margin-bottom: 28px;
+            color: #e2b0c4;
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        .delete-member-info {
+            padding: 18px;
+            margin-bottom: 25px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(180, 120, 150, 0.2);
+            border-radius: 6px;
+        }
+
+        .delete-member-info p {
+            margin: 8px 0;
+            color: #ded6e6;
+            font-size: 13px;
+        }
+
+        .delete-member-info span {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .delete-warning {
+            margin-bottom: 25px;
+            color: #ffb8c6;
+            font-size: 12px;
+        }
+
+        .delete-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .delete-cancel-button {
+            background-color: rgba(60, 50, 75, 0.8);
+            color: #ddd;
+            border: 1px solid rgba(120, 100, 140, 0.4);
+        }
+
+        .delete-cancel-button:hover {
+            background-color: rgba(80, 68, 98, 0.9);
+        }
+
+        .delete-confirm-button {
+            background: linear-gradient(135deg, #8b3c4f, #5a2230);
+            color: #ffffff;
+            border: 1px solid rgba(200, 80, 100, 0.5);
+        }
+
+        .delete-confirm-button:hover {
+            background: linear-gradient(135deg, #a3475d, #6e2a3b);
         }
 
         /* =========================
@@ -410,20 +485,39 @@
             }
         }
     </style>
+
 </head>
 
 <body>
 
-    <!-- ヘッダー -->
+    <!-- =========================
+         ヘッダー
+    ========================== -->
+
     <header class="header">
-        <div class="logo">FUJICHAKU</div>
-        <div class="admin-label">ADMIN SYSTEM</div>
+
+        <div class="logo">
+            FUJICHAKU
+        </div>
+
+        <div class="admin-label">
+            ADMIN SYSTEM
+        </div>
+
     </header>
 
 
+    <!-- =========================
+         全体レイアウト
+    ========================== -->
+
     <div class="layout">
 
-        <!-- サイドバー -->
+
+        <!-- =========================
+             サイドバー
+        ========================== -->
+
         <aside class="sidebar">
 
             <div class="sidebar-title">
@@ -448,15 +542,24 @@
         </aside>
 
 
-        <!-- メイン -->
+        <!-- =========================
+             メイン
+        ========================== -->
+
         <main class="main">
 
-            <h1 class="page-title">会員管理</h1>
+            <h1 class="page-title">
+                会員管理
+            </h1>
 
             <div class="page-subtitle">
                 MEMBER MANAGEMENT
             </div>
 
+
+            <!-- =========================
+                 会員一覧カード
+            ========================== -->
 
             <div class="member-card">
 
@@ -465,17 +568,15 @@
                     <span>MEMBER LIST</span>
                 </h2>
 
-                <p th:if="${errorMessage}"
-                   th:text="${errorMessage}"
-                   class="error-message">
-                </p>
 
+                <!-- テーブル -->
 
                 <div class="table-wrapper">
 
                     <table>
 
                         <thead>
+
                             <tr>
                                 <th>選択</th>
                                 <th>会員ID</th>
@@ -483,31 +584,43 @@
                                 <th>生年月日</th>
                                 <th>メールアドレス</th>
                                 <th>ポイント</th>
+                                <th>予約履歴</th>
                             </tr>
+
                         </thead>
+
 
                         <tbody>
 
-                            <tr th:each="member : ${members}">
+							<tbody>
 
-                                <td>
-                                    <input type="checkbox"
-                                           name="selectedId"
-                                           th:value="${member.id}">
-                                </td>
+							    <tr th:each="member : ${members}">
 
-                                <td th:text="${member.id}"></td>
+							        <td>
+							            <input type="checkbox"
+							                   name="selectedId"
+							                   th:value="${member.id}">
+							        </td>
 
-                                <td th:text="${member.name}"></td>
+							        <td th:text="${member.id}"></td>
 
-                                <td th:text="${member.birthDate}"></td>
+							        <td th:text="${member.name}"></td>
 
-                                <td th:text="${member.mail}"></td>
+							        <td th:text="${member.birthDate}"></td>
 
-                                <td th:text="${member.point}"></td>
+							        <td th:text="${member.mail}"></td>
 
-                            </tr>
+							        <td th:text="${member.point}"></td>
 
+							        <td>
+							            <button type="button">
+							                確認
+							            </button>
+							        </td>
+
+							    </tr>
+
+							</tbody>
                         </tbody>
 
                     </table>
@@ -515,27 +628,24 @@
                 </div>
 
 
-                <!-- ボタン -->
+                <!-- =========================
+                     下部ボタン
+                ========================== -->
+
                 <div class="button-area">
 
-                    <!-- 更新 -->
                     <button type="button"
-                            class="update-button"
-                            onclick="editMember()">
+                            class="update-button">
                         更新
                     </button>
 
-                    <!-- 削除 -->
                     <button type="button"
-                            class="delete-button"
-                            onclick="deleteMember()">
+                            class="delete-button">
                         削除
                     </button>
 
-                    <!-- 新規登録 -->
                     <button type="button"
-                            class="create-button"
-                            onclick="openCreateModal()">
+                            class="create-button">
                         ＋ 新規登録
                     </button>
 
@@ -543,261 +653,9 @@
 
             </div>
 
-
-            <!-- 削除用の送信フォーム -->
-            <form id="deleteForm"
-                  th:action="@{/admin/members/delete}"
-                  method="post">
-
-                <input type="hidden"
-                       name="id"
-                       id="deleteId">
-
-            </form>
-
-
         </main>
 
     </div>
-
-
-    <!-- =========================
-         更新モーダル
-    ========================== -->
-
-    <div id="editModal" class="modal">
-
-        <div class="modal-content">
-
-            <h2>会員情報を更新</h2>
-
-            <form th:action="@{/admin/members/update}"
-                  method="post">
-
-                <input type="hidden"
-                       name="id"
-                       id="editId">
-
-                <p>
-                    会員ID：
-                    <span id="editIdText"></span>
-                </p>
-
-                <p>
-                    氏名：
-                    <input type="text"
-                           name="name"
-                           id="editName">
-                </p>
-
-                <p>
-                    生年月日：
-                    <input type="date"
-                           name="birthDate"
-                           id="editBirthDate">
-                </p>
-
-                <p>
-                    メールアドレス：
-                    <input type="email"
-                           name="mail"
-                           id="editMail">
-                </p>
-
-                <p>
-                    ポイント：
-                    <input type="number"
-                           id="editPoint"
-                           readonly>
-                </p>
-
-                <div class="modal-button-area">
-
-                    <button type="submit"
-                            class="save-button">
-                        保存
-                    </button>
-
-                    <button type="button"
-                            class="close-button"
-                            onclick="closeModal()">
-                        閉じる
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================
-         新規登録モーダル
-    ========================== -->
-
-    <div id="createModal" class="modal">
-
-        <div class="modal-content">
-
-            <h2>新規会員登録</h2>
-
-            <form id="createForm"
-                  th:action="@{/admin/members/create}"
-                  method="post">
-
-                <p>
-                    氏名：
-                    <input type="text"
-                           name="name">
-                </p>
-
-                <p>
-                    生年月日：
-                    <input type="date"
-                           name="birthDate">
-                </p>
-
-                <p>
-                    メールアドレス：
-                    <input type="email"
-                           name="mail">
-                </p>
-
-                <p>
-                    パスワード：
-                    <input type="password"
-                           name="password">
-                </p>
-
-                <div class="modal-button-area">
-
-                    <button type="submit"
-                            class="save-button">
-                        登録
-                    </button>
-
-                    <button type="button"
-                            class="close-button"
-                            onclick="closeCreateModal()">
-                        閉じる
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-    <!-- =========================
-         JavaScript
-    ========================== -->
-
-    <script>
-
-        // 更新ボタンを押したとき
-        function editMember() {
-
-            const checked = document.querySelector(
-                'input[name="selectedId"]:checked'
-            );
-
-            if (!checked) {
-                alert("編集する会員を選択してください。");
-                return;
-            }
-
-            const id = checked.value;
-
-            const row = checked.closest("tr");
-
-            const name = row.cells[2].textContent;
-            const birthDate = row.cells[3].textContent;
-            const mail = row.cells[4].textContent;
-            const point = row.cells[5].textContent;
-
-            document.getElementById("editId").value = id;
-            document.getElementById("editIdText").textContent = id;
-
-            document.getElementById("editName").value = name;
-            document.getElementById("editBirthDate").value = birthDate;
-            document.getElementById("editMail").value = mail;
-            document.getElementById("editPoint").value = point;
-
-            document.getElementById("editModal").style.display = "block";
-        }
-
-
-        // 更新モーダルを閉じる
-        function closeModal() {
-
-            document.getElementById("editModal").style.display = "none";
-
-        }
-
-
-        // 会員を削除する
-        function deleteMember() {
-
-            const checked =
-                document.querySelector(
-                    'input[name="selectedId"]:checked'
-                );
-
-            if (!checked) {
-
-                alert("削除する会員を選択してください。");
-
-                return;
-            }
-
-            if (!confirm(
-                "会員ID " + checked.value + " を削除しますか？"
-            )) {
-
-                return;
-            }
-
-            document.getElementById("deleteId").value =
-                checked.value;
-
-            document.getElementById("deleteForm").submit();
-
-        }
-
-
-        // 新規登録モーダルを開く
-        function openCreateModal() {
-
-            document.getElementById("createForm").reset();
-
-            document.getElementById("createModal").style.display =
-                "block";
-
-        }
-
-
-        // 新規登録モーダルを閉じる
-        function closeCreateModal() {
-
-            document.getElementById("createModal").style.display =
-                "none";
-
-        }
-
-
-        // 保存ボタン
-        function saveMember() {
-
-            alert("保存処理は次のステップで作ります。");
-
-        }
-
-    </script>
 
 </body>
 
