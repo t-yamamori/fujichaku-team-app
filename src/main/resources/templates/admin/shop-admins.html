@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>店舗管理者管理</title>
+
+    <style>
+
+        table {
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        th,
+        td {
+            padding: 5px;
+            vertical-align: top;
+        }
+
+        .error-message {
+            display: block;
+            color: red;
+            font-size: 0.9em;
+            margin-top: 2px;
+        }
+
+        button {
+            white-space: nowrap;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>店舗管理者管理</h1>
+
+
+    <table border="1">
+
+        <thead>
+
+            <tr>
+
+                <th>削除</th>
+                <th>ID</th>
+                <th>店舗ID</th>
+                <th>管理者名</th>
+                <th>メール</th>
+                <th>生年月日</th>
+                <th>更新</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            <!-- =========================
+                 既存店舗管理者
+                 ========================= -->
+
+            <tr th:each="shopAdmin : ${shopAdmins}">
+
+                <!-- 削除チェックボックス -->
+
+                <td>
+
+                    <input type="checkbox"
+                           name="deleteIds"
+                           th:value="${shopAdmin.id}"
+                           form="deleteForm">
+
+                </td>
+
+
+                <!-- ID -->
+
+                <td>
+
+                    <span th:text="${shopAdmin.id}">1</span>
+
+                </td>
+
+
+                <!-- 店舗ID -->
+
+                <td>
+
+                    <input type="number"
+                           name="storeId"
+                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.storeId : shopAdmin.storeId}"
+                           th:form="'updateForm-' + ${shopAdmin.id}">
+
+                    <div class="error-message"
+                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
+                                 and updateErrors.containsKey('storeId')}"
+                         th:text="${updateErrors['storeId']}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 管理者名 -->
+
+                <td>
+
+                    <input type="text"
+                           name="name"
+                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.name : shopAdmin.name}"
+                           th:form="'updateForm-' + ${shopAdmin.id}">
+
+                    <div class="error-message"
+                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
+                                 and updateErrors.containsKey('name')}"
+                         th:text="${updateErrors['name']}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- メール -->
+
+                <td>
+
+                    <input type="email"
+                           name="mail"
+                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.mail : shopAdmin.mail}"
+                           th:form="'updateForm-' + ${shopAdmin.id}">
+
+                    <div class="error-message"
+                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
+                                 and updateErrors.containsKey('mail')}"
+                         th:text="${updateErrors['mail']}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 生年月日 -->
+
+                <td>
+
+                    <input type="date"
+                           name="birthDate"
+                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.birthDate : shopAdmin.birthDate}"
+                           th:form="'updateForm-' + ${shopAdmin.id}">
+
+                    <div class="error-message"
+                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
+                                 and updateErrors.containsKey('birthDate')}"
+                         th:text="${updateErrors['birthDate']}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 更新ボタン -->
+
+                <td>
+
+                    <form th:id="'updateForm-' + ${shopAdmin.id}"
+                          th:action="@{/admin/shop-admins/update}"
+                          method="post">
+
+                        <input type="hidden"
+                               name="id"
+                               th:value="${shopAdmin.id}">
+
+                        <button type="submit">
+                            更新
+                        </button>
+
+                    </form>
+
+                </td>
+
+            </tr>
+
+
+            <!-- =========================
+                 新規登録
+                 ========================= -->
+
+            <tr th:object="${newShopAdmin}">
+
+                <td></td>
+
+                <td>新規</td>
+
+
+                <!-- 店舗ID -->
+
+                <td>
+
+                    <input type="number"
+                           th:field="*{storeId}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('storeId')}"
+                         th:errors="*{storeId}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 管理者名 -->
+
+                <td>
+
+                    <input type="text"
+                           th:field="*{name}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('name')}"
+                         th:errors="*{name}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- メール -->
+
+                <td>
+
+                    <input type="email"
+                           th:field="*{mail}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('mail')}"
+                         th:errors="*{mail}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 生年月日 -->
+
+                <td>
+
+                    <input type="date"
+                           th:field="*{birthDate}"
+                           form="createForm">
+
+                    <div class="error-message"
+                         th:if="${#fields.hasErrors('birthDate')}"
+                         th:errors="*{birthDate}">
+
+                    </div>
+
+                </td>
+
+
+                <!-- 作成 -->
+
+                <td>
+
+                    <button type="submit"
+                            form="createForm">
+
+                        作成
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+
+    <br>
+
+
+    <!-- =========================
+         削除フォーム
+         ========================= -->
+
+    <form id="deleteForm"
+          th:action="@{/admin/shop-admins/delete}"
+          method="post">
+
+        <button type="submit">
+
+            チェックした管理者を削除
+
+        </button>
+
+    </form>
+
+
+    <br>
+
+
+    <!-- =========================
+         新規登録フォーム
+         ========================= -->
+
+    <form id="createForm"
+          th:action="@{/admin/shop-admins/create}"
+          th:object="${newShopAdmin}"
+          method="post">
+
+        <label>
+            新規登録パスワード：
+        </label>
+
+        <input type="password"
+               th:field="*{password}">
+
+        <div class="error-message"
+             th:if="${#fields.hasErrors('password')}"
+             th:errors="*{password}">
+
+        </div>
+
+    </form>
+
+
+</body>
+
+</html>

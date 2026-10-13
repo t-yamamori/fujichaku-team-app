@@ -1,0 +1,24 @@
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理者TOP</title>
+
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+</head>
+
+<body>
+
+    <!-- 共通サイドメニューを読み込む -->
+    <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+
+    <!-- この画面固有の内容 -->
+    <main>
+        <h1>管理者TOP</h1>
+        <p>ここは管理者画面です</p>
+    </main>
+
+</body>
+</html>
+```
