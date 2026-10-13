@@ -128,7 +128,7 @@
 
                 <!-- 店舗画像がある場合 -->
                 <img th:if="${s.pictureUrl != null}"
-                     th:src="${s.pictureUrl}"
+				     th:src="@{${s.pictureUrl}}"
                      th:alt="${s.name}">
 
                 <!-- 店舗画像がない場合 -->

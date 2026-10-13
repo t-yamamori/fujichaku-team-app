@@ -45,7 +45,7 @@
     <section class="section">
         <div class="shop-detail">
             <div>
-                <img th:if="${store.pictureUrl != null}" th:src="${store.pictureUrl}" th:alt="${store.name}">
+                <img th:if="${store.pictureUrl != null}"  th:src="@{${store.pictureUrl}}" th:alt="${store.name}">
                 <div th:unless="${store.pictureUrl != null}" class="no-image">No Image</div>
             </div>
             <dl>
