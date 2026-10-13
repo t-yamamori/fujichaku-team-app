@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository; // ★追加
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import com.example.demo.entity.Members;
 import com.example.demo.entity.ShopAdmin;
@@ -23,42 +23,127 @@ import com.example.demo.mapper.AdminMapper;
 import com.example.demo.mapper.MembersMapper;
 import com.example.demo.mapper.ShopAdminMapper;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Bean
-	DaoAuthenticationProvider adminAuthenticationProvider(
-	        @Qualifier("adminUserDetailsService")
-	        UserDetailsService userDetailsService,
-	        PasswordEncoder passwordEncoder) {
+    /*
+     * ==========================================
+     * 管理者側の認証プロバイダー
+     * ==========================================
+     */
+    @Bean
+    DaoAuthenticationProvider adminAuthenticationProvider(
+            @Qualifier("adminUserDetailsService")
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
 
-	    DaoAuthenticationProvider provider =
-	            new DaoAuthenticationProvider(userDetailsService);
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userDetailsService);
 
-	    provider.setPasswordEncoder(passwordEncoder);
+        provider.setPasswordEncoder(passwordEncoder);
 
-	    return provider;
-	}
-
-	@Bean
-	DaoAuthenticationProvider memberAuthenticationProvider(
-	        @Qualifier("memberUserDetailsService")
-	        UserDetailsService userDetailsService,
-	        PasswordEncoder passwordEncoder) {
-
-	    DaoAuthenticationProvider provider =
-	            new DaoAuthenticationProvider(userDetailsService);
-
-	    provider.setPasswordEncoder(passwordEncoder);
-
-	    return provider;
-	}
+        return provider;
+    }
 
     /*
      * ==========================================
-     * 管理者側のログイン
+     * 会員側の認証プロバイダー
+     * ==========================================
+     */
+    @Bean
+    DaoAuthenticationProvider memberAuthenticationProvider(
+            @Qualifier("memberUserDetailsService")
+            UserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder) {
+
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userDetailsService);
+
+        provider.setPasswordEncoder(passwordEncoder);
+
+        return provider;
+    }
+
+    /*
+     * ==========================================
+     * 管理者・店舗管理者側のセキュリティ設定
+     *
+     * admins       : システム管理者
+     * shop_admins  : 店舗管理者
+     * ==========================================
+     */
+    @Bean
+    @Order(1)
+    SecurityFilterChain adminSecurityFilterChain(
+            HttpSecurity http,
+            DaoAuthenticationProvider adminAuthenticationProvider,
+            AuthenticationSuccessHandler adminLoginSuccessHandler)
+            throws Exception {
+
+        /*
+         * 管理者側の認証情報は専用キーに保存する。
+         * 会員側の認証情報とは分離する。
+         */
+        HttpSessionSecurityContextRepository adminContextRepository =
+                new HttpSessionSecurityContextRepository();
+
+        adminContextRepository.setSpringSecurityContextKey(
+                "ADMIN_SECURITY_CONTEXT"
+        );
+
+        http
+            .securityMatcher(
+                "/adminLogin",
+                "/adminLogin/**",
+                "/admin/**",
+                "/shop-admin/**"
+            )
+
+            .securityContext(context ->
+                context.securityContextRepository(
+                    adminContextRepository
+                )
+            )
+
+            .authenticationProvider(
+                adminAuthenticationProvider
+            )
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/adminLogin",
+                    "/adminLogin/**",
+                    "/css/**",
+                    "/js/**",
+                    "/images/**"
+                ).permitAll()
+
+                .anyRequest()
+                    .hasAnyRole("ADMIN", "SHOP_ADMIN")
+            )
+
+            .formLogin(form -> form
+                .loginPage("/adminLogin")
+                .loginProcessingUrl("/adminLogin")
+                .successHandler(adminLoginSuccessHandler)
+                .permitAll()
+            )
+
+            .logout(logout -> logout
+                .logoutUrl("/adminLogout")
+                .logoutSuccessUrl("/adminLogin")
+                .invalidateHttpSession(false)
+                .clearAuthentication(true)
+                .permitAll()
+            );
+
+        return http.build();
+    }
+
+    /*
+     * ==========================================
+     * 管理者ログイン成功後の遷移先
      * ==========================================
      */
 	@Bean
@@ -170,28 +255,43 @@ public class SecurityConfig {
 
     /*
      * ==========================================
-     * 会員側のログイン
+     * 会員側のセキュリティ設定
      * ==========================================
      */
-	@Bean
-	@Order(2)
-	SecurityFilterChain memberSecurityFilterChain(
-	        HttpSecurity http,
-	        DaoAuthenticationProvider memberAuthenticationProvider)
-	        throws Exception {
+    @Bean
+    @Order(2)
+    SecurityFilterChain memberSecurityFilterChain(
+            HttpSecurity http,
+            DaoAuthenticationProvider memberAuthenticationProvider)
+            throws Exception {
 
-        // ★追加：会員のログイン状態をセッション内の専用キーに保存する
+        /*
+         * 会員側の認証情報は専用キーに保存する。
+         * 管理者側とは分離する。
+         */
         HttpSessionSecurityContextRepository memberContextRepository =
                 new HttpSessionSecurityContextRepository();
-        memberContextRepository.setSpringSecurityContextKey("MEMBER_SECURITY_CONTEXT");
+
+        memberContextRepository.setSpringSecurityContextKey(
+                "MEMBER_SECURITY_CONTEXT"
+        );
 
         http
-            .securityContext(context -> context                         // ★追加
-                .securityContextRepository(memberContextRepository)
+            .securityContext(context ->
+                context.securityContextRepository(
+                    memberContextRepository
+                )
             )
-            .authenticationProvider(memberAuthenticationProvider)
+
+            .authenticationProvider(
+                memberAuthenticationProvider
+            )
+
             .authorizeHttpRequests(auth -> auth
 
+                /*
+                 * 一般公開ページ
+                 */
                 .requestMatchers(
                     "/",
                     "/shops/**",
@@ -202,16 +302,22 @@ public class SecurityConfig {
                     "/images/**"
                 ).permitAll()
 
+                /*
+                 * ログインが必要なページ
+                 */
                 .requestMatchers(
                     "/members/**",
                     "/reservations/history"
                 ).authenticated()
 
+                /*
+                 * 既存仕様を維持し、その他は許可する。
+                 * 各Controllerでも権限確認を行うこと。
+                 */
                 .anyRequest().permitAll()
             )
 
             .formLogin(form -> form
-//                .loginPage("/login")
                 .defaultSuccessUrl("/shops", true)
                 .permitAll()
             )
@@ -219,16 +325,17 @@ public class SecurityConfig {
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/shops")
+                .invalidateHttpSession(false)
+                .clearAuthentication(true)
                 .permitAll()
             );
 
         return http.build();
     }
 
-
     /*
      * ==========================================
-     * 会員の認証
+     * 会員の認証情報取得
      * ==========================================
      */
     @Bean
@@ -241,19 +348,15 @@ public class SecurityConfig {
 
             try {
                 memberId = Integer.parseInt(username);
-
             } catch (NumberFormatException e) {
-
                 throw new UsernameNotFoundException(
                     "会員IDは数字で入力してください：" + username
                 );
             }
 
-            Members member =
-                    membersMapper.findById(memberId);
+            Members member = membersMapper.findById(memberId);
 
             if (member == null) {
-
                 throw new UsernameNotFoundException(
                     "会員が見つかりません：" + username
                 );
@@ -267,12 +370,12 @@ public class SecurityConfig {
         };
     }
 
-
     /*
      * ==========================================
-     * 管理者の認証
+     * 管理者・店舗管理者の認証情報取得
      *
-     * admins と shop_admins の両方から探す
+     * 先に admins を検索し、
+     * 見つからなければ shop_admins を検索する。
      * ==========================================
      */
     @Bean
@@ -285,24 +388,19 @@ public class SecurityConfig {
             int id;
 
             try {
-
                 id = Integer.parseInt(username);
-
             } catch (NumberFormatException e) {
-
                 throw new UsernameNotFoundException(
                     "管理者IDは数字で入力してください：" + username
                 );
             }
 
-
             /*
-             * まず admins を検索
+             * システム管理者を検索
              */
             var admin = adminMapper.findById(id);
 
             if (admin != null) {
-
                 return User.builder()
                         .username(String.valueOf(admin.getId()))
                         .password(admin.getPassword())
@@ -310,23 +408,19 @@ public class SecurityConfig {
                         .build();
             }
 
-
             /*
-             * admins にいなければ
-             * shop_admins を検索
+             * 店舗管理者を検索
              */
             ShopAdmin shopAdmin =
                     shopAdminMapper.findById(id);
 
             if (shopAdmin != null) {
-
                 return User.builder()
                         .username(String.valueOf(shopAdmin.getId()))
                         .password(shopAdmin.getPassword())
                         .roles("SHOP_ADMIN")
                         .build();
             }
-
 
             /*
              * どちらにも存在しない
