@@ -111,17 +111,21 @@
 
 	</insert>
 	
-	<!-- ========================= shopIDで店舗検索 ========================= -->
-
-	<select id="findById" resultMap="shopAdminResultMap">
-		SELECT
-		id,
-		password,
-		is_deleted
-		FROM shop_admins
-		WHERE id = #{id}
-		AND is_deleted = false
-	</select>
 	
+<!-- IDで店舗管理者を検索 -->
+<select id="findById" resultMap="shopAdminResultMap">
+    SELECT
+        id,
+        store_id,
+        name,
+        mail,
+        password,
+        is_deleted,
+        birth_date
+    FROM shop_admins
+    WHERE id = #{id}
+      AND is_deleted = false
+</select>
+
 	
 </mapper>
