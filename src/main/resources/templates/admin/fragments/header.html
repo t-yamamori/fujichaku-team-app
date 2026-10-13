@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+</head>
+
+<body>
+
+	<header th:fragment="header">
+
+		<nav>
+
+			<a th:href="@{/admin}">
+				管理者TOP
+			</a>
+
+			<a th:href="@{/admin/shops}">
+				店舗管理
+			</a>
+
+			<a th:href="@{/admin/members}">
+				会員管理
+			</a>
+
+			<a th:href="@{/admin/reviews}">
+				口コミ管理
+			</a>
+
+			<a th:href="@{/admin/reservations}">
+				予約管理
+			</a>
+
+			<form th:action="@{/adminLogout}" method="post" style="display:inline;">
+
+				<button type="submit">
+					ログアウト
+				</button>
+
+			</form>
+
+		</nav>
+
+	</header>
+
+</body>
+
+</html>

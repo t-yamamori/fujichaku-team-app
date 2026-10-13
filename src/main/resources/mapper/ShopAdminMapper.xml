@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.ShopAdminMapper">
+
+	<!-- ShopAdmin.java ↓ DBのshop_adminsテーブル -->
+
+	<resultMap id="shopAdminResultMap"
+		type="com.example.demo.entity.ShopAdmin">
+
+		<id property="id" column="id" />
+
+		<result property="storeId" column="store_id" />
+
+		<result property="name" column="name" />
+
+		<result property="mail" column="mail" />
+
+		<result property="password" column="password" />
+
+		<result property="isDeleted" column="is_deleted" />
+
+		<result property="birthDate" column="birth_date" />
+
+	</resultMap>
+
+
+	<!-- ========================= 一覧取得 ========================= -->
+
+	<select id="findAll" resultMap="shopAdminResultMap">
+
+		SELECT
+		id,
+		store_id,
+		name,
+		mail,
+		password,
+		is_deleted,
+		birth_date
+
+		FROM shop_admins
+
+		WHERE is_deleted = false
+
+		ORDER BY id
+
+	</select>
+
+
+	<!-- ========================= 更新 ========================= -->
+
+	<update id="update">
+
+		UPDATE shop_admins
+
+		SET
+		store_id = #{storeId},
+		name = #{name},
+		mail = #{mail},
+		birth_date = #{birthDate}
+
+		WHERE id = #{id}
+
+	</update>
+
+
+	<!-- ========================= 論理削除 ========================= -->
+
+	<update id="deleteByIds">
+
+		UPDATE shop_admins
+
+		SET is_deleted = true
+
+		WHERE id IN
+
+		<foreach item="id" collection="list" open="(" separator=","
+			close=")">
+
+			#{id}
+
+		</foreach>
+
+	</update>
+
+
+	<!-- ========================= 新規登録 ========================= -->
+
+	<insert id="create">
+
+		INSERT INTO shop_admins (
+		store_id,
+		name,
+		mail,
+		password,
+		is_deleted,
+		birth_date
+		)
+
+		VALUES (
+		#{storeId},
+		#{name},
+		#{mail},
+		#{password},
+		false,
+		#{birthDate}
+		)
+
+	</insert>
+	
+	<!-- ========================= shopIDで店舗検索 ========================= -->
+
+	<select id="findById" resultMap="shopAdminResultMap">
+		SELECT
+		id,
+		password,
+		is_deleted
+		FROM shop_admins
+		WHERE id = #{id}
+		AND is_deleted = false
+	</select>
+	
+	
+</mapper>
