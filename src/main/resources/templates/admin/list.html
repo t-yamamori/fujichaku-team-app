@@ -514,32 +514,6 @@
     <div class="layout">
 
 
-        <!-- =========================
-             サイドバー
-        ========================== -->
-
-        <aside class="sidebar">
-
-            <div class="sidebar-title">
-                ADMIN MENU
-            </div>
-
-            <a href="#" class="menu-item active">
-                <span class="menu-icon">◆</span>
-                会員管理
-            </a>
-
-            <a href="#" class="menu-item">
-                <span class="menu-icon">◆</span>
-                テナント管理
-            </a>
-
-            <a href="#" class="menu-item">
-                <span class="menu-icon">◆</span>
-                口コミ管理
-            </a>
-
-        </aside>
 
 
         <!-- =========================
@@ -590,38 +564,35 @@
                         </thead>
 
 
-                        <tbody>
+                  
 
-							<tbody>
+						<tbody>
+						    <tr th:each="member : ${members}"
+						        th:attr="data-id=${member.id},
+						                 data-name=${member.name},
+						                 data-birth-date=${member.birthDate},
+						                 data-mail=${member.mail}">
 
-							    <tr th:each="member : ${members}">
+						        <td>
+						            <input type="checkbox"
+						                   name="selectedId"
+						                   th:value="${member.id}">
+						        </td>
 
-							        <td>
-							            <input type="checkbox"
-							                   name="selectedId"
-							                   th:value="${member.id}">
-							        </td>
+						        <td th:text="${member.id}"></td>
+						        <td th:text="${member.name}"></td>
+						        <td th:text="${member.birthDate}"></td>
+						        <td th:text="${member.mail}"></td>
+						        <td th:text="${member.point}"></td>
 
-							        <td th:text="${member.id}"></td>
+						        <td>
+						            <button type="button">確認</button>
+						        </td>
 
-							        <td th:text="${member.name}"></td>
-
-							        <td th:text="${member.birthDate}"></td>
-
-							        <td th:text="${member.mail}"></td>
-
-							        <td th:text="${member.point}"></td>
-
-							        <td>
-							            <button type="button">
-							                確認
-							            </button>
-							        </td>
-
-							    </tr>
-
-							</tbody>
-                        </tbody>
+						    </tr>
+						</tbody>
+					
+                        
 
                     </table>
 
@@ -632,30 +603,178 @@
                      下部ボタン
                 ========================== -->
 
-                <div class="button-area">
+				<div class="button-area">
+				    <button type="button"
+				            class="update-button"
+				            onclick="openEditModal()">
+				        更新
+				    </button>
 
-                    <button type="button"
-                            class="update-button">
-                        更新
-                    </button>
+				    <button type="button"
+				            class="delete-button"
+				            onclick="openDeleteModal()">
+				        削除
+				    </button>
 
-                    <button type="button"
-                            class="delete-button">
-                        削除
-                    </button>
-
-                    <button type="button"
-                            class="create-button">
-                        ＋ 新規登録
-                    </button>
-
-                </div>
+				    <button type="button"
+				            class="create-button"
+				            onclick="openCreateModal()">
+				        ＋ 新規登録
+				    </button>
+				</div>
 
             </div>
+			
+			<!-- 編集モーダル -->
+			<div id="editModal" class="modal">
+			    <div class="modal-content">
+			        <h2>会員情報の更新</h2>
+
+			        <form action="/admin/members/update" method="post">
+			            <input type="hidden" id="editId" name="id">
+
+			            <p>氏名</p>
+			            <input type="text" id="editName" name="name"
+			                   required>
+
+			            <p>生年月日</p>
+			            <input type="date" id="editBirthDate" name="birthDate"
+			                   required>
+
+			            <p>メールアドレス</p>
+			            <input type="email" id="editMail" name="mail"
+			                   required>
+
+			            <div class="modal-button-area">
+			                <button type="submit" class="save-button">
+			                    保存
+			                </button>
+			                <button type="button" class="close-button"
+			                        onclick="closeModal('editModal')">
+			                    キャンセル
+			                </button>
+			            </div>
+			        </form>
+			    </div>
+			</div>
+
+			<!-- 削除確認モーダル -->
+			<div id="deleteModal" class="modal">
+			    <div class="delete-modal-content">
+			        <h2>会員の削除</h2>
+			        <p>この会員を削除してもよろしいですか？</p>
+			        <p id="deleteMemberName"></p>
+
+			        <form action="/admin/members/delete" method="post">
+			            <input type="hidden" id="deleteId" name="id">
+
+			            <div class="delete-modal-buttons">
+			                <button type="submit"
+			                        class="delete-confirm-button">
+			                    削除する
+			                </button>
+			                <button type="button"
+			                        class="delete-cancel-button"
+			                        onclick="closeModal('deleteModal')">
+			                    キャンセル
+			                </button>
+			            </div>
+			        </form>
+			    </div>
+			</div>
+
+			<!-- 新規登録モーダル -->
+			<div id="createModal" class="modal">
+			    <div class="modal-content">
+			        <h2>新規会員登録</h2>
+
+			        <form action="/admin/members/create" method="post">
+			            <p>氏名</p>
+			            <input type="text" name="name" required>
+
+			            <p>生年月日</p>
+			            <input type="date" name="birthDate" required>
+
+			            <p>メールアドレス</p>
+			            <input type="email" name="mail" required>
+
+			            <p>パスワード</p>
+			            <input type="password" name="password" required>
+
+			            <div class="modal-button-area">
+			                <button type="submit" class="save-button">
+			                    登録
+			                </button>
+			                <button type="button" class="close-button"
+			                        onclick="closeModal('createModal')">
+			                    キャンセル
+			                </button>
+			            </div>
+			        </form>
+			    </div>
+			</div>
 
         </main>
 
     </div>
+	<script>
+	    // 選択されている会員を取得する
+	    function getSelectedMember() {
+	        const checked = document.querySelectorAll(
+	            'input[name="selectedId"]:checked'
+	        );
+
+	        if (checked.length !== 1) {
+	            alert("会員を1人だけ選択してください。");
+	            return null;
+	        }
+
+	        return checked[0].closest("tr");
+	    }
+
+	    // 更新モーダルを開く
+	    function openEditModal() {
+	        const row = getSelectedMember();
+	        if (!row) return;
+
+	        document.getElementById("editId").value =
+	            row.dataset.id;
+	        document.getElementById("editName").value =
+	            row.dataset.name;
+	        document.getElementById("editBirthDate").value =
+	            row.dataset.birthDate;
+	        document.getElementById("editMail").value =
+	            row.dataset.mail;
+
+	        document.getElementById("editModal").style.display =
+	            "block";
+	    }
+
+	    // 削除確認モーダルを開く
+	    function openDeleteModal() {
+	        const row = getSelectedMember();
+	        if (!row) return;
+
+	        document.getElementById("deleteId").value =
+	            row.dataset.id;
+	        document.getElementById("deleteMemberName").textContent =
+	            row.dataset.name + " さん";
+
+	        document.getElementById("deleteModal").style.display =
+	            "block";
+	    }
+
+	    // 新規登録モーダルを開く
+	    function openCreateModal() {
+	        document.getElementById("createModal").style.display =
+	            "block";
+	    }
+
+	    // モーダルを閉じる
+	    function closeModal(id) {
+	        document.getElementById(id).style.display = "none";
+	    }
+	</script>
 
 </body>
 
