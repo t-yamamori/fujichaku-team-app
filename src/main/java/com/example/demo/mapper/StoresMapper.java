@@ -28,6 +28,7 @@ public interface StoresMapper {
     Stores selectDetailByName(String name);
 
     // 店舗IDから取得
+
     Stores selectById(int id);
 
 }

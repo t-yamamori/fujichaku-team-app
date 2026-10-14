@@ -3,60 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>予約完了 - FUJICHAKU</title>
     <link rel="stylesheet" th:href="@{/css/shops.css}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #080808;
+            color: #f5f5f5;
+            font-family:
+                "Noto Serif JP",
+                "Yu Mincho",
+                "Hiragino Mincho ProN",
+                serif;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            height: 80px;
+            border-bottom: 1px solid #292929;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 60px;
+            background: #090909;
+        }
+
+        .logo {
+            color: #d4af37;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+        }
+
+        .header-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .header-link:hover {
+            color: #d4af37;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 30px 100px;
+        }
+
+        .complete-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .complete-mark {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 30px;
+            border: 1px solid #d4af37;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4af37;
+            font-size: 40px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+        }
+
+        .complete-header h1 {
+            color: #d4af37;
+            font-size: 32px;
+            letter-spacing: 5px;
+            margin-bottom: 15px;
+        }
+
+        .complete-header p {
+            color: #aaa;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        .reservation-card {
+            background: #101010;
+            border: 1px solid #292929;
+            padding: 45px;
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            color: #d4af37;
+            font-size: 18px;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #292929;
+        }
+
+        .reservation-number {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #0a0a0a;
+            border: 1px solid #242424;
+        }
+
+        .reservation-number-label {
+            color: #888;
+            font-size: 12px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .reservation-number-value {
+            color: #d4af37;
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            padding: 18px 0;
+            border-bottom: 1px solid #242424;
+        }
+
+        .info-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #888;
+            font-size: 13px;
+            letter-spacing: 2px;
+            min-width: 130px;
+        }
+
+        .info-value {
+            color: #eee;
+            font-size: 14px;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .complete-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 220px;
+            padding: 16px 30px;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-gold {
+            background: #d4af37;
+            color: #080808;
+            border: 1px solid #d4af37;
+            font-weight: bold;
+        }
+
+        .btn-gold:hover {
+            background: #f0d76a;
+            border-color: #f0d76a;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+
+        .btn-outline:hover {
+            background: #d4af37;
+            color: #080808;
+        }
+
+        .notice {
+            margin-top: 40px;
+            text-align: center;
+            color: #777;
+            font-size: 12px;
+            line-height: 2;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 700px) {
+            header {
+                padding: 0 20px;
+                height: 70px;
+            }
+
+            .logo {
+                font-size: 18px;
+                letter-spacing: 3px;
+            }
+
+            main {
+                padding: 50px 15px 70px;
+            }
+
+            .complete-header h1 {
+                font-size: 24px;
+                letter-spacing: 3px;
+            }
+
+            .reservation-card {
+                padding: 25px 20px;
+            }
+
+            .info-row {
+                display: block;
+            }
+
+            .info-label {
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+
+            .complete-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .reservation-number-value {
+                font-size: 26px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="container">
 
-    <h1 class="page-title">予約完了</h1>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">FUJICHAKU</div>
 
-    <p class="result-count">予約が完了しました。ご予約ありがとうございます。</p>
+        <a th:href="@{/shops}" class="header-link">
+            店舗一覧
+        </a>
+    </header>
 
-    <!-- 予約番号 -->
-    <section class="section">
-        <h2>予約番号</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>予約番号</th><td><strong th:text="${reservation.id}">100</strong></td></tr>
-            </tbody>
-        </table>
-        <p class="note">こちらの予約番号をお控えください。</p>
-    </section>
+    <!-- MAIN -->
+    <main>
 
-    <!-- 店舗情報 -->
-    <section class="section">
-        <h2>店舗情報</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>店舗名</th><td th:text="${store.name}">店舗名</td></tr>
-                <tr><th>住所</th><td th:text="${store.address}">住所</td></tr>
-                <tr><th>連絡先</th><td th:text="${store.mail}">メールアドレス</td></tr>
-                <tr><th>代表者</th><td th:text="${store.representative}">代表者</td></tr>
-            </tbody>
-        </table>
-    </section>
+        <!-- 予約完了メッセージ -->
+        <section class="complete-header">
+            <div class="complete-mark">✓</div>
 
-    <!-- 予約内容 -->
-    <section class="section">
-        <h2>予約内容</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>予約日時</th><td th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">2026/10/07 18:00</td></tr>
-                <tr><th>人数</th><td><span th:text="${reservation.number}">2</span> 名</td></tr>
-                <tr><th>予約状況</th><td th:text="${reservation.status}">予約済み</td></tr>
-                <tr><th>予約ID</th><td th:text="${reservation.id}">100</td></tr>
-            </tbody>
-        </table>
-    </section>
+            <h1>Reservation Complete</h1>
 
-    <p class="note">ご来店の際は、予約番号をご確認いただけるようお控えください。</p>
+            <p>ご予約ありがとうございます</p>
+        </section>
 
-    <div class="top-bar">
-        <a class="btn btn-primary" th:href="@{/reservations/history}">予約履歴を見る</a>
-        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
-    </div>
+        <!-- 予約情報 -->
+        <section class="reservation-card">
 
-</div>
+            <div class="card-title">
+                予約情報
+            </div>
+
+            <!-- 予約番号 -->
+            <div class="reservation-number">
+                <div class="reservation-number-label">
+                    RESERVATION NUMBER
+                </div>
+
+                <div
+                    class="reservation-number-value"
+                    th:text="${reservation.id}">
+                    000000
+                </div>
+            </div>
+
+            <!-- 店舗名 -->
+            <div class="info-row">
+                <div class="info-label">店舗名</div>
+
+                <div
+                    class="info-value"
+                    th:text="${store.name}">
+                    店舗名
+                </div>
+            </div>
+
+            <!-- 住所 -->
+            <div class="info-row">
+                <div class="info-label">住所</div>
+
+                <div
+                    class="info-value"
+                    th:text="${store.address}">
+                    住所
+                </div>
+            </div>
+
+            <!-- メール -->
+            <div class="info-row">
+                <div class="info-label">メール</div>
+
+                <div
+                    class="info-value"
+                    th:text="${store.mail}">
+                    mail@example.com
+                </div>
+            </div>
+
+            <!-- 代表者 -->
+            <div class="info-row">
+                <div class="info-label">代表者</div>
+
+                <div
+                    class="info-value"
+                    th:text="${store.representative}">
+                    代表者
+                </div>
+            </div>
+
+            <!-- 予約日時 -->
+            <div class="info-row">
+                <div class="info-label">予約日時</div>
+
+                <div
+                    class="info-value"
+                    th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">
+                    2026/10/07 18:00
+                </div>
+            </div>
+
+            <!-- 予約人数 -->
+            <div class="info-row">
+                <div class="info-label">予約人数</div>
+
+                <div
+                    class="info-value"
+                    th:text="${reservation.number + '名'}">
+                    2名
+                </div>
+            </div>
+
+            <!-- 予約状況 -->
+            <div class="info-row">
+                <div class="info-label">予約状況</div>
+
+                <div
+                    class="info-value"
+                    th:text="${reservation.status}">
+                    予約済み
+                </div>
+            </div>
+
+            <!-- ボタン -->
+            <div class="complete-actions">
+
+                <a
+                    th:href="@{/reservations/history}"
+                    class="btn btn-gold">
+                    予約内容を確認する
+                </a>
+
+                <a
+                    th:href="@{/shops}"
+                    class="btn btn-outline">
+                    店舗一覧へ戻る
+                </a>
+
+            </div>
+
+        </section>
+
+        <!-- 案内メッセージ -->
+        <div class="notice">
+            ご予約内容は予約履歴からいつでもご確認いただけます。
+            <br>
+            ご来店の際は、予約番号をお控えください。
+        </div>
+
+    </main>
+
 </body>
 </html>

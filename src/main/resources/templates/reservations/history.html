@@ -1,50 +1,387 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>予約履歴 | FUJICHAKU</title>
-    <link rel="stylesheet" th:href="@{/css/shops.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>予約履歴 - FUJICHAKU</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #080808;
+            color: #f5f5f5;
+            font-family:
+                "Noto Serif JP",
+                "Yu Mincho",
+                "Hiragino Mincho ProN",
+                serif;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+
+        header {
+            width: 100%;
+            height: 80px;
+            padding: 0 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #090909;
+            border-bottom: 1px solid #292929;
+        }
+
+        .logo {
+            color: #d4af37;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+        }
+
+        .header-link {
+            color: #aaa;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .header-link:hover {
+            color: #d4af37;
+        }
+
+        /* MAIN */
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 70px 30px 100px;
+        }
+
+        /* TITLE */
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-header h1 {
+            color: #d4af37;
+            font-size: 32px;
+            letter-spacing: 5px;
+            margin-bottom: 15px;
+        }
+
+        .page-header p {
+            color: #888;
+            font-size: 13px;
+            letter-spacing: 2px;
+        }
+
+        .result-count {
+            color: #aaa;
+            font-size: 13px;
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .result-count span {
+            color: #d4af37;
+            font-weight: bold;
+        }
+
+        /* HISTORY CARD */
+
+        .history-card {
+            background: #101010;
+            border: 1px solid #292929;
+            padding: 30px;
+        }
+
+        /* TABLE */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            padding: 18px 15px;
+            background: #0a0a0a;
+            border-bottom: 1px solid #d4af37;
+            color: #d4af37;
+            font-size: 12px;
+            font-weight: normal;
+            letter-spacing: 2px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .history-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #292929;
+            color: #ddd;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .history-table tbody tr {
+            transition: 0.3s;
+        }
+
+        .history-table tbody tr:hover {
+            background: #151515;
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* RESERVATION NUMBER */
+
+        .reservation-id {
+            color: #d4af37;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* STATUS */
+
+        .status {
+            color: #d4af37;
+        }
+
+        /* DETAIL BUTTON */
+
+        .detail-button {
+            display: inline-block;
+            padding: 9px 18px;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .detail-button:hover {
+            background: #d4af37;
+            color: #080808;
+        }
+
+        /* NO RESERVATION */
+
+        .no-reservation {
+            padding: 60px 20px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            letter-spacing: 2px;
+            line-height: 2;
+        }
+
+        /* BACK BUTTON */
+
+        .back-area {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 14px 35px;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            background: #d4af37;
+            color: #080808;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 800px) {
+            header {
+                height: 70px;
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 18px;
+                letter-spacing: 3px;
+            }
+
+            main {
+                padding: 50px 15px 70px;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+                letter-spacing: 3px;
+            }
+
+            .history-card {
+                padding: 15px;
+            }
+
+            .history-table {
+                min-width: 650px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 15px 12px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="container">
 
-    <h1 class="page-title">予約履歴</h1>
+    <!-- HEADER -->
 
-    <div class="top-bar">
-        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
-    </div>
+    <header>
+        <div class="logo">FUJICHAKU</div>
 
-    <p class="result-count">
-        予約件数：
-        <span th:text="${#lists.size(reservations)}">0</span>件
-    </p>
+        <a th:href="@{/shops}" class="header-link">
+            店舗一覧
+        </a>
+    </header>
 
-    <section class="section" th:if="${!#lists.isEmpty(reservations)}">
-        <table class="reservation-table">
-            <thead>
-                <tr>
-                    <th>予約番号</th>
-                    <th>予約日時</th>
-                    <th>人数</th>
-                    <th>状況</th>
-                    <th>店舗</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="reservation : ${reservations}">
-                    <td th:text="${reservation.id}">100</td>
-                    <td th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">2026/10/10 18:00</td>
-                    <td th:text="${reservation.number}">2</td>
-                    <td th:text="${reservation.status}">予約済み</td>
-                    <td th:text="${storeNames[reservation.id]}">店舗名</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+    <!-- MAIN -->
 
-    <div class="empty" th:if="${#lists.isEmpty(reservations)}">予約履歴はありません。</div>
+    <main>
 
-</div>
+        <!-- PAGE HEADER -->
+
+        <section class="page-header">
+            <h1>Reservation History</h1>
+            <p>予約履歴</p>
+        </section>
+
+        <!-- HISTORY -->
+
+        <section class="history-card">
+
+            <!-- 予約件数 -->
+
+            <div class="result-count">
+                予約件数：
+                <span th:text="${reservations != null ? #lists.size(reservations) : 0}">0</span>件
+            </div>
+
+            <!-- 予約が存在する場合 -->
+
+            <div
+                class="table-wrapper"
+                th:if="${reservations != null and !#lists.isEmpty(reservations)}">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th>予約番号</th>
+                            <th>予約日時</th>
+                            <th>人数</th>
+                            <th>状況</th>
+                            <th>詳細</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="reservation : ${reservations}">
+
+                            <!-- 予約番号 -->
+
+                            <td>
+                                <span
+                                    class="reservation-id"
+                                    th:text="${reservation.id}">
+                                    000000
+                                </span>
+                            </td>
+
+                            <!-- 予約日時 -->
+
+                            <td
+                                th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">
+                                2026/10/07 18:00
+                            </td>
+
+                            <!-- 予約人数 -->
+
+                            <td th:text="${reservation.number + '名'}">
+                                2名
+                            </td>
+
+                            <!-- 予約状況 -->
+
+                            <td>
+                                <span
+                                    class="status"
+                                    th:text="${reservation.status}">
+                                    予約済み
+                                </span>
+                            </td>
+
+                            <!-- 予約詳細 -->
+
+                            <td>
+                                <a
+                                    th:href="@{/reservations/{reservationId}(reservationId=${reservation.id})}"
+                                    class="detail-button">
+                                    確認
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- 予約がない場合 -->
+
+            <div
+                class="no-reservation"
+                th:if="${reservations == null or #lists.isEmpty(reservations)}">
+
+                現在、予約履歴はありません。
+
+            </div>
+
+        </section>
+
+        <!-- BACK -->
+
+        <div class="back-area">
+            <a
+                th:href="@{/shops}"
+                class="back-button">
+                店舗一覧へ戻る
+            </a>
+        </div>
+
+    </main>
+
 </body>
 </html>

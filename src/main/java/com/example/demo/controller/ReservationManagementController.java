@@ -32,8 +32,16 @@ public class ReservationManagementController {
     private final StoresMapper storesMapper;
     private final ShopAdminMapper shopAdminMapper;
 
+    private static final String STATUS_RESERVED = "予約済み";
+    private static final String STATUS_VISITED = "来店済み";
+    private static final String STATUS_CANCELLED = "キャンセル";
+
     private static final List<String> ALLOWED_STATUSES =
-            List.of("予約済み", "来店済み", "キャンセル");
+            List.of(
+                    STATUS_RESERVED,
+                    STATUS_VISITED,
+                    STATUS_CANCELLED
+            );
 
     public ReservationManagementController(
             ReservationMapper reservationMapper,
@@ -62,14 +70,17 @@ public class ReservationManagementController {
 
         List<Reservations> reservations =
                 reservationMapper.searchAllForAdmin(
-                        reservationId, searchDate);
+                        reservationId,
+                        searchDate
+                );
 
         prepareModel(
                 model,
                 reservations,
                 "/admin/reservations",
                 true,
-                null);
+                null
+        );
 
         model.addAttribute("stores", storesMapper.selectList());
         model.addAttribute("searchReservationId", reservationId);
@@ -95,14 +106,16 @@ public class ReservationManagementController {
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
-                    "担当店舗以外にはアクセスできません。");
+                    "担当店舗以外にはアクセスできません。"
+            );
         }
 
         Stores store = storesMapper.selectById(assignedStoreId);
 
         if (store == null) {
             throw new AccessDeniedException(
-                    "担当店舗が見つかりません。");
+                    "担当店舗が見つかりません。"
+            );
         }
 
         LocalDate searchDate = parseSearchDate(reservationDate);
@@ -111,14 +124,16 @@ public class ReservationManagementController {
                 reservationMapper.searchForStoreAdmin(
                         assignedStoreId,
                         reservationId,
-                        searchDate);
+                        searchDate
+                );
 
         prepareModel(
                 model,
                 reservations,
                 "/shop-admin/" + assignedStoreId + "/reservations",
                 false,
-                store.getName());
+                store.getName()
+        );
 
         model.addAttribute("stores", List.of(store));
         model.addAttribute("searchReservationId", reservationId);
@@ -148,14 +163,19 @@ public class ReservationManagementController {
                     reservationDateTime,
                     number,
                     memberId,
-                    userId);
+                    userId
+            );
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "予約を追加しました。");
+                    "successMessage",
+                    "予約を追加しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/admin/reservations";
@@ -179,7 +199,8 @@ public class ReservationManagementController {
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
-                    "担当店舗以外には予約を追加できません。");
+                    "担当店舗以外には予約を追加できません。"
+            );
         }
 
         try {
@@ -188,14 +209,19 @@ public class ReservationManagementController {
                     reservationDateTime,
                     number,
                     memberId,
-                    userId);
+                    userId
+            );
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "予約を追加しました。");
+                    "successMessage",
+                    "予約を追加しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/shop-admin/" + assignedStoreId
@@ -222,19 +248,27 @@ public class ReservationManagementController {
             validateReservation(dateTime, number);
 
             int updated = reservationMapper.updateForAdmin(
-                    reservationId, dateTime, number);
+                    reservationId,
+                    dateTime,
+                    number
+            );
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
-                        "予約が存在しないか、キャンセル済みです。");
+                        "予約が存在しないか、キャンセル済みです。"
+                );
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "予約内容を更新しました。");
+                    "successMessage",
+                    "予約内容を更新しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/admin/reservations";
@@ -257,7 +291,8 @@ public class ReservationManagementController {
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
-                    "担当店舗以外の予約は編集できません。");
+                    "担当店舗以外の予約は編集できません。"
+            );
         }
 
         try {
@@ -270,19 +305,26 @@ public class ReservationManagementController {
                     reservationId,
                     assignedStoreId,
                     dateTime,
-                    number);
+                    number
+            );
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
-                        "予約が存在しない、担当店舗外、またはキャンセル済みです。");
+                        "予約が存在しない、担当店舗外、"
+                        + "またはキャンセル済みです。"
+                );
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "予約内容を更新しました。");
+                    "successMessage",
+                    "予約内容を更新しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/shop-admin/" + assignedStoreId
@@ -291,6 +333,8 @@ public class ReservationManagementController {
 
     // =====================================================
     // モール管理者：ステータス変更
+    // 予約日・予約時刻・人数は受け取らないため、
+    // 過去の予約でもキャンセル可能
     // =====================================================
     @PostMapping("/admin/reservations/status")
     public String changeStatusByMallAdmin(
@@ -305,19 +349,27 @@ public class ReservationManagementController {
             validateStatus(status);
 
             int updated = reservationMapper.updateStatusForAdmin(
-                    reservationId, status);
+                    reservationId,
+                    status
+            );
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
-                        "対象の予約が見つかりません。");
+                        "対象の予約が見つかりません。"
+                );
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "ステータスを変更しました。");
+                    "successMessage",
+                    "予約ID：" + reservationId
+                    + " のステータスを「" + status + "」に変更しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/admin/reservations";
@@ -325,6 +377,8 @@ public class ReservationManagementController {
 
     // =====================================================
     // 店舗管理者：自店舗のステータス変更
+    // 予約日・予約時刻・人数は受け取らないため、
+    // 過去の予約でもキャンセル可能
     // =====================================================
     @PostMapping("/shop-admin/{storeId}/reservations/status")
     public String changeStatusByShopAdmin(
@@ -339,7 +393,8 @@ public class ReservationManagementController {
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
-                    "担当店舗以外の予約は変更できません。");
+                    "担当店舗以外の予約は変更できません。"
+            );
         }
 
         try {
@@ -348,19 +403,26 @@ public class ReservationManagementController {
             int updated = reservationMapper.updateStatusForStore(
                     reservationId,
                     assignedStoreId,
-                    status);
+                    status
+            );
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
-                        "担当店舗の対象予約が見つかりません。");
+                        "担当店舗の対象予約が見つかりません。"
+                );
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "ステータスを変更しました。");
+                    "successMessage",
+                    "予約ID：" + reservationId
+                    + " のステータスを「" + status + "」に変更しました。"
+            );
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
-                    "errorMessage", e.getMessage());
+                    "errorMessage",
+                    e.getMessage()
+            );
         }
 
         return "redirect:/shop-admin/" + assignedStoreId
@@ -381,27 +443,31 @@ public class ReservationManagementController {
 
         if (store == null) {
             throw new IllegalArgumentException(
-                    "指定された店舗が存在しないか、利用できません。");
+                    "指定された店舗が存在しないか、利用できません。"
+            );
         }
 
         // 会員IDとゲストユーザーIDは同時に指定できない
         if (memberId != null && userId != null) {
             throw new IllegalArgumentException(
-                    "会員IDとゲストユーザーIDは同時に指定できません。");
+                    "会員IDとゲストユーザーIDは同時に指定できません。"
+            );
         }
 
         // 会員IDが入力されている場合は存在確認
         if (memberId != null
                 && reservationMapper.countMemberId(memberId) == 0) {
             throw new IllegalArgumentException(
-                    "指定された会員IDが存在しません。");
+                    "指定された会員IDが存在しません。"
+            );
         }
 
         // ゲストユーザーIDが入力されている場合は存在確認
         if (userId != null
                 && reservationMapper.countUserId(userId) == 0) {
             throw new IllegalArgumentException(
-                    "指定されたゲストユーザーIDが存在しません。");
+                    "指定されたゲストユーザーIDが存在しません。"
+            );
         }
 
         LocalDateTime dateTime =
@@ -415,7 +481,7 @@ public class ReservationManagementController {
         reservation.setStoreId(storeId);
         reservation.setReservationDate(dateTime);
         reservation.setNumber(number);
-        reservation.setStatus("予約済み");
+        reservation.setStatus(STATUS_RESERVED);
         reservation.setCreatedAt(LocalDateTime.now());
 
         reservationMapper.insertReservation(reservation);
@@ -461,7 +527,8 @@ public class ReservationManagementController {
                             a.getAuthority()))) {
 
             throw new AccessDeniedException(
-                    "この操作を行う権限がありません。");
+                    "この操作を行う権限がありません。"
+            );
         }
     }
 
@@ -483,7 +550,8 @@ public class ReservationManagementController {
         } catch (NumberFormatException
                 | NullPointerException e) {
             throw new AccessDeniedException(
-                    "店舗管理者のログインIDを確認できません。");
+                    "店舗管理者のログインIDを確認できません。"
+            );
         }
 
         ShopAdmin shopAdmin =
@@ -491,15 +559,16 @@ public class ReservationManagementController {
 
         if (shopAdmin == null) {
             throw new AccessDeniedException(
-                    "店舗管理者が見つかりません。");
+                    "店舗管理者が見つかりません。"
+            );
         }
 
-        // getStoreId() が Integer 型でも int 型でも扱えるようにする
         Integer assignedStoreId = shopAdmin.getStoreId();
 
         if (assignedStoreId == null || assignedStoreId <= 0) {
             throw new AccessDeniedException(
-                    "担当店舗が設定されていません。");
+                    "担当店舗が設定されていません。"
+            );
         }
 
         return assignedStoreId;
@@ -519,7 +588,8 @@ public class ReservationManagementController {
 
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(
-                    "検索日はYYYY-MM-DD形式で指定してください。");
+                    "検索日はYYYY-MM-DD形式で指定してください。"
+            );
         }
     }
 
@@ -534,25 +604,35 @@ public class ReservationManagementController {
         } catch (DateTimeParseException
                 | NullPointerException e) {
             throw new IllegalArgumentException(
-                    "予約日時を正しく入力してください。");
+                    "予約日時を正しく入力してください。"
+            );
         }
     }
 
     // =====================================================
-    // 共通：予約内容チェック
+    // 共通：予約日時・人数チェック
+    // 予約追加・日時編集で使用
     // =====================================================
     private void validateReservation(
-            LocalDateTime reservationDateTime,
+            LocalDateTime reservationDate,
             int number) {
 
-        if (reservationDateTime.isBefore(LocalDateTime.now())) {
+        if (reservationDate == null) {
             throw new IllegalArgumentException(
-                    "過去の予約はできません。");
+                    "予約日と予約時刻を入力してください。"
+            );
         }
 
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException(
-                    "予約人数は1人から10人まで指定できます。");
+                    "人数は1～10人で入力してください。"
+            );
+        }
+
+        if (reservationDate.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException(
+                    "過去の予約日時には変更できません。"
+            );
         }
     }
 
@@ -563,7 +643,8 @@ public class ReservationManagementController {
 
         if (!ALLOWED_STATUSES.contains(status)) {
             throw new IllegalArgumentException(
-                    "指定されたステータスは使用できません。");
+                    "指定されたステータスは使用できません。"
+            );
         }
     }
 }
