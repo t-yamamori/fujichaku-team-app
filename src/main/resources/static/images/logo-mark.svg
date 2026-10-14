@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- FUJICHAKU TOWN ロゴマーク（ダミー）：空・太陽・砂丘 -->
+  <defs>
+    <clipPath id="c"><rect width="64" height="64" rx="14"/></clipPath>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect width="64" height="64" fill="#5aa0cc"/>
+    <circle cx="42" cy="22" r="9" fill="#ffffff"/>
+    <path d="M0 44 C14 34 26 34 38 42 C48 48 56 46 64 40 L64 64 L0 64 Z" fill="#e8cf9c"/>
+    <path d="M0 54 C16 46 30 48 44 54 C52 57 58 57 64 54 L64 64 L0 64 Z" fill="#c98f5a"/>
+  </g>
+</svg>
