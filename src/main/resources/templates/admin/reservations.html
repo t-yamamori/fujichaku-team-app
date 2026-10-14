@@ -1,0 +1,605 @@
+
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予約管理 | FUJICHAKU</title>
+
+    <style>
+        :root {
+            --bg: #101010;
+            --panel: #1a1a1a;
+            --panel2: #222222;
+            --gold: #d4af37;
+            --gold-light: #f2d675;
+            --text: #f4f0e6;
+            --muted: #aaa49a;
+            --border: #48402a;
+            --danger: #ff7777;
+            --success: #9be0ad;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background:
+                radial-gradient(circle at top right, #292315 0, transparent 35%),
+                var(--bg);
+            color: var(--text);
+            font-family: "Yu Gothic", "Meiryo", sans-serif;
+        }
+
+        header {
+            padding: 22px 5%;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            color: var(--gold);
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 4px;
+        }
+
+        .brand-sub {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        .header-label {
+            color: var(--gold-light);
+            font-size: 13px;
+            letter-spacing: 2px;
+        }
+
+        main {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 32px 22px 60px;
+        }
+
+        h1 {
+            color: var(--gold);
+            font-size: 28px;
+            letter-spacing: 3px;
+            margin: 0 0 8px;
+        }
+
+        .description {
+            color: var(--muted);
+            margin-bottom: 30px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .panel {
+            background: linear-gradient(145deg, var(--panel), #141414);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: var(--gold-light);
+            font-size: 17px;
+            letter-spacing: 2px;
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            color: var(--text);
+            background: #101010;
+            border: 1px solid #51472c;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+        }
+
+        input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+
+        button, .link-button {
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            padding: 11px 17px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .primary {
+            background: var(--gold);
+            color: #15120a;
+        }
+
+        .primary:hover {
+            background: var(--gold-light);
+        }
+
+        .secondary {
+            background: transparent;
+            color: var(--gold-light);
+        }
+
+        .secondary:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .danger {
+            border-color: #9c4747;
+            background: #341a1a;
+            color: #ffb0b0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .message {
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 18px;
+            line-height: 1.7;
+        }
+
+        .error {
+            color: var(--danger);
+            border: 1px solid #763939;
+            background: #271616;
+        }
+
+        .success {
+            color: var(--success);
+            border: 1px solid #315d3b;
+            background: #142318;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1150px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #383328;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #272319;
+            color: var(--gold-light);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        td {
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: rgba(212, 175, 55, 0.04);
+        }
+
+        .id-cell {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .inline-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 330px;
+        }
+
+        .inline-form input {
+            min-width: 180px;
+        }
+
+        .inline-form .number-input {
+            min-width: 75px;
+            width: 75px;
+        }
+
+        .status-form {
+            display: flex;
+            gap: 8px;
+            min-width: 210px;
+        }
+
+        .status-form select {
+            min-width: 120px;
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 12px;
+        }
+
+        .count {
+            color: var(--gold-light);
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            main {
+                padding: 24px 12px 40px;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            header {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <div class="brand">FUJICHAKU</div>
+        <div class="brand-sub">RESERVATION MANAGEMENT</div>
+    </div>
+
+    <div class="header-label"
+         th:if="${mallAdmin}">
+        MALL ADMINISTRATOR
+    </div>
+
+    <div class="header-label"
+         th:unless="${mallAdmin}">
+        SHOP ADMINISTRATOR
+        <span th:if="${currentStoreName != null}"
+              th:text="' / ' + ${currentStoreName}"></span>
+    </div>
+</header>
+
+<main>
+
+    <h1>予約管理</h1>
+
+    <div class="description">
+        予約情報の検索・新規登録・編集を行います。
+        <span th:if="${mallAdmin}">
+            モール管理者は全店舗の予約を管理できます。
+        </span>
+        <span th:unless="${mallAdmin}">
+            店舗管理者は担当店舗の予約のみ管理できます。
+        </span>
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div class="message error"
+         th:if="${errorMessage != null}"
+         th:text="${errorMessage}">
+    </div>
+
+    <!-- 成功メッセージ -->
+    <div class="message success"
+         th:if="${successMessage != null}"
+         th:text="${successMessage}">
+    </div>
+
+    <!-- 検索 -->
+    <section class="panel">
+        <h2>RESERVATION SEARCH</h2>
+
+        <form method="get" th:action="${basePath}">
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="reservationId">予約ID</label>
+                    <input type="number"
+                           id="reservationId"
+                           name="reservationId"
+                           min="1"
+                           placeholder="例：100"
+                           th:value="${searchReservationId}">
+                </div>
+
+                <div class="field">
+                    <label for="reservationDate">予約日</label>
+                    <input type="date"
+                           id="reservationDate"
+                           name="reservationDate"
+                           th:value="${searchReservationDate}">
+                </div>
+
+            </div>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    検索する
+                </button>
+                <a class="link-button secondary"
+                   th:href="${basePath}">
+                    条件をクリア
+                </a>
+            </div>
+
+            <div class="hint">
+                予約IDだけ、予約日だけ、両方の組み合わせで検索できます。
+                両方空欄の場合は、管理権限の範囲内にある予約をすべて表示します。
+            </div>
+        </form>
+    </section>
+
+    <!-- 新規予約 -->
+    <section class="panel">
+        <h2>ADD RESERVATION</h2>
+
+        <form method="post"
+              th:action="${basePath + '/add'}">
+
+            <div class="form-grid">
+
+                <div class="field" th:if="${mallAdmin}">
+                    <label for="storeId">店舗</label>
+                    <select id="storeId" name="storeId" required>
+                        <option value="">店舗を選択してください</option>
+                        <option th:each="store : ${stores}"
+                                th:value="${store.id}"
+                                th:text="${store.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="reservationDateTime">予約日時</label>
+                    <input type="datetime-local"
+                           id="reservationDateTime"
+                           name="reservationDateTime"
+                           required>
+                </div>
+
+                <div class="field">
+                    <label for="number">予約人数</label>
+                    <select id="number" name="number" required>
+                        <option th:each="n : ${#numbers.sequence(1, 10)}"
+                                th:value="${n}"
+                                th:text="${n} + '人'">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="memberId">会員ID（任意）</label>
+                    <input type="number"
+                           id="memberId"
+                           name="memberId"
+                           min="1"
+                           placeholder="未指定なら空欄">
+                </div>
+
+                <div class="field">
+                    <label for="userId">ゲストユーザーID（任意）</label>
+                    <input type="number"
+                           id="userId"
+                           name="userId"
+                           min="1"
+                           placeholder="未指定なら空欄">
+                </div>
+
+            </div>
+
+            <div class="hint">
+                会員IDとゲストユーザーIDは同時に入力できません。
+                両方空欄の場合は、顧客IDを紐づけずに登録します。
+                新規予約のステータスは「予約済み」になります。
+            </div>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    予約を追加
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <!-- 予約一覧 -->
+    <section class="panel">
+        <h2>RESERVATION LIST</h2>
+
+        <div class="count">
+            表示件数：
+            <span th:text="${#lists.size(reservations)}">0</span>
+            件
+        </div>
+
+        <div class="table-wrap"
+             th:if="${!#lists.isEmpty(reservations)}">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>予約ID</th>
+                    <th>店舗</th>
+                    <th>会員ID</th>
+                    <th>ゲストID</th>
+                    <th>予約日時・人数の編集</th>
+                    <th>ステータス</th>
+                    <th>登録日時</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="reservation : ${reservations}">
+
+                    <td class="id-cell"
+                        th:text="${reservation.id}">
+                        1
+                    </td>
+
+                    <td th:text="${storeNames[reservation.storeId] != null
+                                  ? storeNames[reservation.storeId]
+                                  : '店舗ID：' + reservation.storeId}">
+                        店舗名
+                    </td>
+
+                    <td th:text="${reservation.memberId != null
+                                  ? reservation.memberId : '—'}">
+                        —
+                    </td>
+
+                    <td th:text="${reservation.userId != null
+                                  ? reservation.userId : '—'}">
+                        —
+                    </td>
+
+                    <td>
+                        <form class="inline-form"
+                              method="post"
+                              th:action="${basePath + '/edit'}">
+
+                            <input type="hidden"
+                                   name="reservationId"
+                                   th:value="${reservation.id}">
+
+                            <input type="datetime-local"
+                                   name="reservationDateTime"
+                                   required
+                                   th:value="${#temporals.format(
+                                       reservation.reservationDate,
+                                       'yyyy-MM-dd''T''HH:mm')}">
+
+                            <input class="number-input"
+                                   type="number"
+                                   name="number"
+                                   min="1"
+                                   max="10"
+                                   required
+                                   th:value="${reservation.number}">
+
+                            <button class="secondary" type="submit">
+                                更新
+                            </button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <form class="status-form"
+                              method="post"
+                              th:action="${basePath + '/status'}">
+
+                            <input type="hidden"
+                                   name="reservationId"
+                                   th:value="${reservation.id}">
+
+                            <select name="status" required>
+                                <option th:each="s : ${reservationStatuses}"
+                                        th:value="${s}"
+                                        th:text="${s}"
+                                        th:selected="${s == reservation.status}">
+                                </option>
+                            </select>
+
+                            <button class="secondary" type="submit">
+                                変更
+                            </button>
+                        </form>
+                    </td>
+
+                    <td th:text="${reservation.createdAt != null
+                                  ? #temporals.format(
+                                      reservation.createdAt,
+                                      'yyyy-MM-dd HH:mm')
+                                  : '—'}">
+                        —
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty"
+             th:if="${#lists.isEmpty(reservations)}">
+            該当する予約はありません。
+        </div>
+
+    </section>
+
+</main>
+</body>
+</html>
