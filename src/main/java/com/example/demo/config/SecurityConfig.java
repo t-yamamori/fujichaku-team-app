@@ -146,80 +146,112 @@ public class SecurityConfig {
      * 管理者ログイン成功後の遷移先
      * ==========================================
      */
-    @Bean
-    AuthenticationSuccessHandler adminLoginSuccessHandler(
-            ShopAdminMapper shopAdminMapper) {
+	@Bean
+	@Order(1)
+	SecurityFilterChain adminSecurityFilterChain(
+	        HttpSecurity http,
+	        DaoAuthenticationProvider adminAuthenticationProvider,
+	        AuthenticationSuccessHandler adminLoginSuccessHandler)
+	        throws Exception {
 
-        return (request, response, authentication) -> {
+	    // ★追加：管理者のログイン状態をセッション内の専用キーに保存する
+	    HttpSessionSecurityContextRepository adminContextRepository =
+	            new HttpSessionSecurityContextRepository();
+	    adminContextRepository.setSpringSecurityContextKey("ADMIN_SECURITY_CONTEXT");
 
-            boolean isAdmin =
-                    authentication.getAuthorities().stream()
-                        .anyMatch(authority ->
-                            authority.getAuthority()
-                                .equals("ROLE_ADMIN")
-                        );
+	    http
+	        .securityMatcher(
+	        		"/adminLogin",
+	        		"/adminLogin/**",
+	        		"/admin/**",
+	        		"/shop-admin/**"
+	        )
+	        .securityContext(context -> context                         // ★追加
+	            .securityContextRepository(adminContextRepository)
+	        )
+	        .authenticationProvider(adminAuthenticationProvider)
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers(
+	                "/adminLogin",
+	                "/css/**",
+	                "/js/**",
+	                "/images/**"
+	            ).permitAll()
+	            .anyRequest().hasAnyRole("ADMIN", "SHOP_ADMIN")        // ★変更：authenticated() から
+	        )
+	        .formLogin(form -> form
+	            .loginPage("/adminLogin")
+	            .loginProcessingUrl("/adminLogin")
+	            .successHandler(adminLoginSuccessHandler)
+	            .permitAll()
+	        )
+	        .logout(logout -> logout
+	            .logoutUrl("/adminLogout")
+	            .logoutSuccessUrl("/adminLogin")
+	            .permitAll()
+	        );
 
-            /*
-             * システム管理者
-             */
-            if (isAdmin) {
-                response.sendRedirect(
-                    request.getContextPath() + "/admin/index"
-                );
-                return;
-            }
+	    return http.build();
+	}
 
-            boolean isShopAdmin =
-                    authentication.getAuthorities().stream()
-                        .anyMatch(authority ->
-                            authority.getAuthority()
-                                .equals("ROLE_SHOP_ADMIN")
-                        );
 
-            /*
-             * 店舗管理者
-             */
-            if (isShopAdmin) {
+	@Bean
+	AuthenticationSuccessHandler adminLoginSuccessHandler(
+	        ShopAdminMapper shopAdminMapper) {
 
-                int shopAdminId;
+	    return (request, response, authentication) -> {
 
-                try {
-                    shopAdminId = Integer.parseInt(
-                        authentication.getName()
-                    );
-                } catch (NumberFormatException e) {
-                    response.sendError(
-                        HttpServletResponse.SC_FORBIDDEN
-                    );
-                    return;
-                }
+	        // 通常の管理者：admins テーブル
+	        boolean isAdmin = authentication.getAuthorities().stream()
+	                .anyMatch(authority ->
+	                    authority.getAuthority().equals("ROLE_ADMIN"));
 
-                ShopAdmin shopAdmin =
-                        shopAdminMapper.findById(shopAdminId);
+	        if (isAdmin) {
+	            // 管理者は従来どおり管理者TOPへ
+	            response.sendRedirect(
+	                request.getContextPath() + "/admin/index");
+	            return;
+	        }
 
-                if (shopAdmin == null
-                        || shopAdmin.getStoreId() == null) {
-                    response.sendError(
-                        HttpServletResponse.SC_FORBIDDEN
-                    );
-                    return;
-                }
+	     // 店舗管理者：shop_admins テーブル
+	        boolean isShopAdmin = authentication.getAuthorities().stream()
+	                .anyMatch(authority ->
+	                    authority.getAuthority().equals("ROLE_SHOP_ADMIN"));
 
-                response.sendRedirect(
-                    request.getContextPath()
-                    + "/shops/" + shopAdmin.getStoreId()
-                );
-                return;
-            }
+	        if (isShopAdmin) {
 
-            /*
-             * 想定外の権限
-             */
-            response.sendError(
-                HttpServletResponse.SC_FORBIDDEN
-            );
-        };
-    }
+	            int shopAdminId =
+	                    Integer.parseInt(authentication.getName());
+
+	            ShopAdmin shopAdmin =
+	                    shopAdminMapper.findById(shopAdminId);
+
+	            if (shopAdmin == null) {
+	                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+	                return;
+	            }
+
+	            // store_id が未設定の場合のエラー処理
+	            Integer storeId = shopAdmin.getStoreId();
+
+	            if (storeId == null) {
+	                response.sendError(
+	                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+	                    "店舗管理者に store_id が設定されていません。"
+	                );
+	                return;
+	            }
+
+	            // 店舗管理画面へ遷移
+	            response.sendRedirect(
+	                request.getContextPath() + "/shop-admin/" + storeId);
+	            return;
+	        }
+
+	        // 想定外の権限
+	        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+	    };
+	}
 
     /*
      * ==========================================
