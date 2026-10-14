@@ -390,3 +390,64 @@ a:hover { color: var(--main); }
     .cactus, .camel, .camel svg, .camel .leg, .cloud { animation: none; }
     .camel { transform: translateX(20vw); }
 }
+
+
+/* ===== お試し：トップ画像（消せば元に戻る） ===== */
+.hero {
+    background:
+        linear-gradient(rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)),   /* 写真を少し暗くする */
+        url("../images/hero-mall.jpg") center 60% / cover no-repeat;
+}
+.dunes { display: none; }
+
+/* ロゴの文字を白＋影にして、写真の上でも読めるようにする */
+.hero-logo, .hero-sub {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .6), 0 4px 20px rgba(0, 0, 0, .5);
+}
+.hero-logo span { color: #ffe2b0; }   /* TOWN は砂色でアクセント */
+/* ===== お試しここまで ===== */
+
+
+
+/* ===== ヘッダー：パスワードをお忘れの方リンク ===== */
+.header-inner {
+    height: 72px;                 /* 2段になる分、白い部分を少し広げる（60px → 72px） */
+    padding: 0 20px;
+    align-items: center;          /* 右のかたまり全体を、ロゴの上下中央にそろえる */
+}
+
+/* 未ログインのとき（パスワードリンクがある nav）だけ、2段のレイアウトにする */
+.account-nav:has(.forgot-link) {
+    display: grid;
+    grid-template-columns: auto auto;   /* 1段目：会員登録｜ログイン */
+    column-gap: 20px;
+    row-gap: 4px;
+    align-items: center;
+}
+.account-nav a.forgot-link {
+    grid-column: 1 / -1;          /* 2段目を横いっぱい使う */
+    justify-self: end;            /* 右寄せ → ログインボタンの下にくる */
+    font-size: .75rem;
+    line-height: 1;
+    color: var(--text-sub);
+    text-decoration: underline;
+}
+.account-nav a.forgot-link:hover { color: var(--sky-deep); }
+
+/* スマホ：リンクは隠して、高さも元に戻す */
+@media (max-width: 720px) {
+    .header-inner { height: var(--header-h); padding: 0 14px; }
+    .account-nav a.forgot-link { display: none; }
+}
+
+/* ===== ふちだけのボタン（会員登録） ===== */
+.btn-outline {
+    background: #fff;
+    color: var(--main);
+    border: 1px solid var(--main);
+}
+.btn-outline:hover {
+    background: var(--main);
+    color: #fff;
+}
