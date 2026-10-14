@@ -31,6 +31,8 @@ import com.example.demo.mapper.ShopAdminMapper;
 import com.example.demo.mapper.StoresMapper;
 import com.example.demo.service.ReviewService;
 import com.example.demo.service.serviceInterface.MembersService;
+import com.example.demo.util.ReadingConverter;
+import com.example.demo.util.SearchTextUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -54,6 +56,9 @@ public class ShopController {
 
 	// ReservationMapper.java に宣言のないSQLを、XMLのIDを指定して直接呼ぶために使う
 	private final SqlSession sqlSession;
+
+	// 【追加】店舗検索で、入力された漢字を読みがな（ひらがな）に変換するために使う
+	private final ReadingConverter readingConverter;
 
 	//店舗一覧表示（トップ画面）  GET /shops
 	//同じ shops.html の中で「未ログイン」と「ログイン済み」の表示を切り替える
@@ -132,11 +137,29 @@ public class ShopController {
 
 	//検索した店舗を表示  GET /shops/search?name=xxx
 	//検索キーワード(name)が付いているときだけこちらが呼ばれる
+	//【変更】ひらがな・カタカナ・漢字・英字のどれで入力しても検索できるようにした
+	//  例：「かふぇ」「カフェ」「ｶﾌｪ」「CAFE」→ Cafe Aozora（name_kana = かふぇあおぞら）
+	//      「珈琲」「こーひー」→ 珈琲館、コーヒー工房
 	@GetMapping(value = "/search", params = "name")
 	public String showSearchResults(@RequestParam("name") String name, Model model) {
-		List<Stores> st = storesMapper.selectByName(name);
+
+		// 空白だけの入力は検索しない（結果0件として表示）
+		if (name == null || name.isBlank()) {
+			model.addAttribute("stores", new ArrayList<Stores>());
+			model.addAttribute("name", name);
+			return "shops/search";
+		}
+
+		// ① 入力そのまま        → stores.name（漢字・英字）と比較
+		String keyword = SearchTextUtil.escapeLike(name.trim());
+		// ② ひらがなに揃えたもの → stores.name_kana と比較（カフェ → かふぇ）
+		String kana = SearchTextUtil.escapeLike(SearchTextUtil.normalize(name));
+		// ③ 漢字を読みに変換     → stores.name_kana と比較（珈琲 → こーひー）
+		String reading = SearchTextUtil.escapeLike(readingConverter.toReading(name.trim()));
+
+		List<Stores> st = storesMapper.selectByKeyword(keyword, kana, reading);
 		model.addAttribute("stores", st);
-		model.addAttribute("name", name);
+		model.addAttribute("name", name);  // 画面には入力そのままを表示する
 		return "shops/search";
 	}
 

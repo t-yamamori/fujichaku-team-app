@@ -14,7 +14,8 @@
     <!-- 検索入力（左上） -->
     <div class="top-bar">
         <form class="search-form" th:action="@{/shops/search}" method="get">
-            <input type="text" name="name" th:value="${name}" placeholder="店舗名で検索" required>
+            <!-- 【変更】ひらがな・カタカナ・漢字のどれでも検索できることを案内 -->
+            <input type="text" name="name" th:value="${name}" placeholder="店舗名で検索（ひらがな・カタカナ・漢字OK）" required>
             <button type="submit" class="btn btn-primary">検索</button>
         </form>
         <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
@@ -85,4 +86,3 @@
 </script>
 </body>
 </html>
-

@@ -61,4 +61,6 @@ public class Stores {
         message = "電話番号は数字11桁で入力してください"
     )
     private String phone;
+    
+    private String nameKana;  // 店舗名の読みかな
 }

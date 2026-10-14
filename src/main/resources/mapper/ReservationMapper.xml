@@ -4,6 +4,18 @@
 
 <mapper namespace="com.example.demo.mapper.ReservationMapper">
 
+    <!-- 予約の共通取得項目 -->
+    <sql id="reservationColumns">
+        id,
+        member_id AS memberId,
+        user_id AS userId,
+        reservation_date AS reservationDate,
+        status,
+        created_at AS createdAt,
+        store_id AS storeId,
+        number
+    </sql>
+
     <!-- 予約登録 -->
     <insert id="insertReservation"
             parameterType="com.example.demo.entity.Reservations"
@@ -32,15 +44,7 @@
     <!-- 予約IDから1件取得 -->
     <select id="findById"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE id = #{reservationId}
     </select>
@@ -48,33 +52,17 @@
     <!-- 会員IDから予約取得 -->
     <select id="findByMemberId"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE member_id = #{memberId}
           AND user_id IS NULL
         ORDER BY reservation_date DESC
     </select>
 
-    <!-- ユーザーIDから予約取得 -->
+    <!-- ゲストユーザーIDから予約取得 -->
     <select id="findByUserId"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE user_id = #{userId}
           AND member_id IS NULL
@@ -84,15 +72,7 @@
     <!-- 全予約取得 -->
     <select id="findAll"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         ORDER BY reservation_date DESC
     </select>
@@ -100,15 +80,7 @@
     <!-- 店舗IDと会員IDから予約取得 -->
     <select id="selectByStoreIdAndMemberId"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE store_id = #{storeId}
           AND member_id = #{memberId}
@@ -119,37 +91,91 @@
     <!-- 店舗IDから予約一覧取得 -->
     <select id="findByStoreId"
             resultType="com.example.demo.entity.Reservations">
-        SELECT
-            id,
-            member_id AS memberId,
-            user_id AS userId,
-            reservation_date AS reservationDate,
-            status,
-            created_at AS createdAt,
-            store_id AS storeId,
-            number
+        SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE store_id = #{storeId}
         ORDER BY reservation_date DESC
     </select>
 
-    <!-- 店舗予約の日時・人数を変更 -->
+    <!-- 店舗管理者：日時・人数を変更 -->
     <update id="updateForStore">
         UPDATE reservations
-        SET
-            reservation_date = #{reservationDate},
+        SET reservation_date = #{reservationDate},
             number = #{number}
         WHERE id = #{reservationId}
           AND store_id = #{storeId}
           AND status != 'キャンセル'
     </update>
 
-    <!-- 店舗予約のステータスを変更 -->
+    <!-- 店舗管理者：ステータスを変更 -->
     <update id="updateStatusForStore">
         UPDATE reservations
         SET status = #{status}
         WHERE id = #{reservationId}
           AND store_id = #{storeId}
     </update>
+
+    <!-- モール管理者：全店舗を対象に予約検索 -->
+    <select id="searchAllForAdmin"
+            resultType="com.example.demo.entity.Reservations">
+        SELECT <include refid="reservationColumns"/>
+        FROM reservations
+        <where>
+            <if test="reservationId != null">
+                AND id = #{reservationId}
+            </if>
+            <if test="reservationDate != null">
+                AND reservation_date::date = #{reservationDate}
+            </if>
+        </where>
+        ORDER BY reservation_date DESC, id DESC
+    </select>
+
+    <!-- 店舗管理者：担当店舗の予約だけ検索 -->
+    <select id="searchForStoreAdmin"
+            resultType="com.example.demo.entity.Reservations">
+        SELECT <include refid="reservationColumns"/>
+        FROM reservations
+        WHERE store_id = #{storeId}
+        <if test="reservationId != null">
+            AND id = #{reservationId}
+        </if>
+        <if test="reservationDate != null">
+            AND reservation_date::date = #{reservationDate}
+        </if>
+        ORDER BY reservation_date DESC, id DESC
+    </select>
+
+    <!-- モール管理者：日時・人数を変更 -->
+    <update id="updateForAdmin">
+        UPDATE reservations
+        SET reservation_date = #{reservationDate},
+            number = #{number}
+        WHERE id = #{reservationId}
+          AND status != 'キャンセル'
+    </update>
+
+    <!-- モール管理者：ステータスを変更 -->
+    <update id="updateStatusForAdmin">
+        UPDATE reservations
+        SET status = #{status}
+        WHERE id = #{reservationId}
+    </update>
+
+    <!-- 会員IDの存在確認
+         membersテーブルの主キーがmember_idである構成 -->
+    <select id="countMemberId" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+        WHERE member_id = #{memberId}
+    </select>
+
+    <!-- ゲストユーザーIDの存在確認
+         usersテーブルの主キーがidである構成 -->
+    <select id="countUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE id = #{userId}
+    </select>
 
 </mapper>
