@@ -1,0 +1,245 @@
+/* 店舗管理画面 */
+.tenant-page {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 検索フォーム
+   削除チェックボックス列（55px）の右側から配置する */
+.tenant-search {
+    display: grid;
+    grid-template-columns:
+        45px
+        110px
+        150px
+        100px
+        140px
+        140px
+        140px
+        110px;
+    gap: 8px;
+    align-items: end;
+
+    margin: 0 0 15px 55px;
+    padding: 10px 0;
+    width: calc(100% - 55px);
+    box-sizing: border-box;
+}
+
+/* 各検索項目 */
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.search-field label {
+    font-size: 0.9em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.search-field input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* 検索ボタン・条件クリア
+   検索項目の下の行に配置する */
+.search-buttons {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-buttons button {
+    padding: 6px 16px;
+    cursor: pointer;
+}
+
+.search-buttons a {
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+/* 一覧表のスクロール領域 */
+.tenant-table-wrapper {
+    width: 100%;
+    max-height: calc(100vh - 250px);
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+/* 店舗一覧表 */
+.tenant-table {
+    width: 100%;
+    min-width: 1210px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* セル共通 */
+.tenant-table th,
+.tenant-table td {
+    padding: 5px;
+    border: 1px solid #ccc;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+/* ヘッダー固定 */
+.tenant-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #eee;
+    white-space: nowrap;
+}
+
+/* 1列目：削除チェックボックス */
+.tenant-table th:nth-child(1),
+.tenant-table td:nth-child(1) {
+    width: 55px;
+    text-align: center;
+}
+
+/* 2列目：ID */
+.tenant-table th:nth-child(2),
+.tenant-table td:nth-child(2) {
+    width: 45px;
+}
+
+/* 3列目：店舗名 */
+.tenant-table th:nth-child(3),
+.tenant-table td:nth-child(3) {
+    width: 110px;
+}
+
+/* 4列目：メールアドレス */
+.tenant-table th:nth-child(4),
+.tenant-table td:nth-child(4) {
+    width: 150px;
+}
+
+/* 5列目：代表者 */
+.tenant-table th:nth-child(5),
+.tenant-table td:nth-child(5) {
+    width: 100px;
+}
+
+/* 6列目：住所 */
+.tenant-table th:nth-child(6),
+.tenant-table td:nth-child(6) {
+    width: 140px;
+}
+
+/* 7列目：説明 */
+.tenant-table th:nth-child(7),
+.tenant-table td:nth-child(7) {
+    width: 140px;
+}
+
+/* 8列目：画像URL */
+.tenant-table th:nth-child(8),
+.tenant-table td:nth-child(8) {
+    width: 140px;
+}
+
+/* 9列目：電話番号 */
+.tenant-table th:nth-child(9),
+.tenant-table td:nth-child(9) {
+    width: 110px;
+}
+
+/* 10列目：操作 */
+.tenant-table th:nth-child(10),
+.tenant-table td:nth-child(10) {
+    width: 160px;
+}
+
+/* 一覧表内の入力欄 */
+.tenant-table input[type="text"],
+.tenant-table input[type="email"],
+.tenant-table input[type="password"],
+.tenant-table input[type="tel"],
+.tenant-table textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 一覧表内の説明欄 */
+.tenant-table textarea {
+    resize: vertical;
+}
+
+/* エラーメッセージ */
+.field-error {
+    display: block;
+    margin-top: 4px;
+    color: #d00;
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+/* 画面幅が狭い場合 */
+@media (max-width: 1100px) {
+    .tenant-search {
+        margin-left: 0;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .tenant-table-wrapper {
+        max-height: calc(100vh - 250px);
+    }
+}
+
+
+/* 一括更新ボタンだけを操作列の右端に配置 */
+.update-button-area {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.update-button-area button {
+    margin-left: auto;
+}
+
+
+/* 更新完了メッセージ */
+.success-message {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    color: #216e39;
+    background-color: #eaf6ed;
+    border: 1px solid #b7dfc0;
+    border-radius: 4px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+}
+
+/* 一括更新ボタンを一覧表の右上へ配置 */
+.table-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin: 0 0 8px;
+    box-sizing: border-box;
+}
+
+.table-actions button {
+    padding: 7px 16px;
+    cursor: pointer;
+}
