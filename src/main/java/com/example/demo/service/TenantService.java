@@ -23,10 +23,16 @@ public class TenantService {
         return tenantMapper.findAll();
     }
 
-    // 更新
+    // 複数店舗の一括更新
     @Transactional
-    public void update(Stores store) {
-        tenantMapper.update(store);
+    public void updateAll(List<Stores> stores) {
+        if (stores == null || stores.isEmpty()) {
+            return;
+        }
+
+        for (Stores store : stores) {
+            tenantMapper.update(store);
+        }
     }
 
     // 論理削除
@@ -35,6 +41,7 @@ public class TenantService {
         if (ids == null || ids.isEmpty()) {
             return;
         }
+
         tenantMapper.deleteByIds(ids);
     }
 
@@ -44,7 +51,9 @@ public class TenantService {
         // パスワードをBCryptでハッシュ化
         String hashedPassword =
                 passwordEncoder.encode(store.getPassword());
+
         store.setPassword(hashedPassword);
+
         // DBへ登録
         tenantMapper.create(store);
     }

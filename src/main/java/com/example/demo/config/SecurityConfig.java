@@ -141,58 +141,58 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /*
-     * ==========================================
-     * 管理者ログイン成功後の遷移先
-     * ==========================================
-     */
-	@Bean
-	@Order(1)
-	SecurityFilterChain adminSecurityFilterChain(
-	        HttpSecurity http,
-	        DaoAuthenticationProvider adminAuthenticationProvider,
-	        AuthenticationSuccessHandler adminLoginSuccessHandler)
-	        throws Exception {
-
-	    // ★追加：管理者のログイン状態をセッション内の専用キーに保存する
-	    HttpSessionSecurityContextRepository adminContextRepository =
-	            new HttpSessionSecurityContextRepository();
-	    adminContextRepository.setSpringSecurityContextKey("ADMIN_SECURITY_CONTEXT");
-
-	    http
-	        .securityMatcher(
-	        		"/adminLogin",
-	        		"/adminLogin/**",
-	        		"/admin/**",
-	        		"/shop-admin/**"
-	        )
-	        .securityContext(context -> context                         // ★追加
-	            .securityContextRepository(adminContextRepository)
-	        )
-	        .authenticationProvider(adminAuthenticationProvider)
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers(
-	                "/adminLogin",
-	                "/css/**",
-	                "/js/**",
-	                "/images/**"
-	            ).permitAll()
-	            .anyRequest().hasAnyRole("ADMIN", "SHOP_ADMIN")        // ★変更：authenticated() から
-	        )
-	        .formLogin(form -> form
-	            .loginPage("/adminLogin")
-	            .loginProcessingUrl("/adminLogin")
-	            .successHandler(adminLoginSuccessHandler)
-	            .permitAll()
-	        )
-	        .logout(logout -> logout
-	            .logoutUrl("/adminLogout")
-	            .logoutSuccessUrl("/adminLogin")
-	            .permitAll()
-	        );
-
-	    return http.build();
-	}
+//    /*
+//     * ==========================================
+//     * 管理者ログイン成功後の遷移先
+//     * ==========================================
+//     */
+//	@Bean
+//	@Order(1)
+//	SecurityFilterChain adminSecurityFilterChain(
+//	        HttpSecurity http,
+//	        DaoAuthenticationProvider adminAuthenticationProvider,
+//	        AuthenticationSuccessHandler adminLoginSuccessHandler)
+//	        throws Exception {
+//
+//	    // ★追加：管理者のログイン状態をセッション内の専用キーに保存する
+//	    HttpSessionSecurityContextRepository adminContextRepository =
+//	            new HttpSessionSecurityContextRepository();
+//	    adminContextRepository.setSpringSecurityContextKey("ADMIN_SECURITY_CONTEXT");
+//
+//	    http
+//	        .securityMatcher(
+//	        		"/adminLogin",
+//	        		"/adminLogin/**",
+//	        		"/admin/**",
+//	        		"/shop-admin/**"
+//	        )
+//	        .securityContext(context -> context                         // ★追加
+//	            .securityContextRepository(adminContextRepository)
+//	        )
+//	        .authenticationProvider(adminAuthenticationProvider)
+//	        .authorizeHttpRequests(auth -> auth
+//	            .requestMatchers(
+//	                "/adminLogin",
+//	                "/css/**",
+//	                "/js/**",
+//	                "/images/**"
+//	            ).permitAll()
+//	            .anyRequest().hasAnyRole("ADMIN", "SHOP_ADMIN")        // ★変更：authenticated() から
+//	        )
+//	        .formLogin(form -> form
+//	            .loginPage("/adminLogin")
+//	            .loginProcessingUrl("/adminLogin")
+//	            .successHandler(adminLoginSuccessHandler)
+//	            .permitAll()
+//	        )
+//	        .logout(logout -> logout
+//	            .logoutUrl("/adminLogout")
+//	            .logoutSuccessUrl("/adminLogin")
+//	            .permitAll()
+//	        );
+//
+//	    return http.build();
+//	}
 
 
 	@Bean
