@@ -117,11 +117,18 @@
         </a>
  
         <!-- 未ログイン -->
+<<<<<<< HEAD
 		<nav class="account-nav" th:unless="${isMember}" aria-label="アカウント">
 		    <a class="btn btn-outline" th:href="@{/register/register}">会員登録</a>
 		    <a class="btn" th:href="@{/login}">ログイン</a>
 		    <a class="forgot-link" th:href="@{/password/reset/verify}">パスワードをお忘れの方</a>
 		</nav>
+=======
+        <nav class="account-nav" th:unless="${isMember}" aria-label="アカウント">
+            <a th:href="@{/register/register}">会員登録</a>
+            <a class="btn" th:href="@{/login}">ログイン</a>
+        </nav>
+>>>>>>> stash
  
         <!-- ログイン中 -->
         <nav class="account-nav" th:if="${isMember}" aria-label="アカウント">
@@ -156,7 +163,11 @@
     <div class="hero-center">
         <img class="hero-mark" th:src="@{/images/logo-mark.svg}" alt="" width="72" height="72">
         <h1 class="hero-logo">FUJICHAKU<span>TOWN</span></h1>
+<<<<<<< HEAD
         <p class="hero-sub">フジチャクタウンへ、ようこそ。</p>
+=======
+        <p class="hero-sub">フジチャク タウン</p>
+>>>>>>> stash
     </div>
 </section>
  
