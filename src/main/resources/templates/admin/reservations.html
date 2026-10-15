@@ -80,9 +80,51 @@
 
         .description {
             color: var(--muted);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 13px;
             line-height: 1.8;
+        }
+
+        /* 戻るボタン */
+        .navigation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0 0 28px;
+        }
+
+        .navigation-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 42px;
+            padding: 10px 20px;
+            border: 1px solid var(--gold);
+            border-radius: 6px;
+            background: #171717;
+            color: var(--gold-light);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition:
+                background 0.2s,
+                color 0.2s,
+                box-shadow 0.2s,
+                transform 0.2s;
+        }
+
+        .navigation-button:hover {
+            background: var(--gold);
+            color: #15120a;
+            box-shadow: 0 0 14px rgba(212, 175, 55, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .navigation-button:focus-visible {
+            outline: 2px solid var(--gold-light);
+            outline-offset: 3px;
         }
 
         .panel {
@@ -265,6 +307,28 @@
             min-width: 120px;
         }
 
+        .bulk-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin: 0 0 18px;
+        }
+
+        .bulk-toolbar .count {
+            margin: 0;
+        }
+
+        .bulk-save:disabled {
+            opacity: .55;
+            cursor: wait;
+        }
+
+        #bulkMessage {
+            margin-top: 14px;
+        }
+
         .empty {
             padding: 35px;
             text-align: center;
@@ -310,6 +374,14 @@
             header {
                 padding: 18px;
             }
+
+            .navigation-buttons {
+                flex-direction: column;
+            }
+
+            .navigation-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -322,13 +394,11 @@
         <div class="brand-sub">RESERVATION MANAGEMENT</div>
     </div>
 
-    <div class="header-label"
-         th:if="${mallAdmin}">
+    <div class="header-label" th:if="${mallAdmin}">
         MALL ADMINISTRATOR
     </div>
 
-    <div class="header-label"
-         th:unless="${mallAdmin}">
+    <div class="header-label" th:unless="${mallAdmin}">
         SHOP ADMINISTRATOR
         <span th:if="${currentStoreName != null}"
               th:text="' / ' + ${currentStoreName}"></span>
@@ -336,7 +406,6 @@
 </header>
 
 <main>
-
     <h1>予約管理</h1>
 
     <div class="description">
@@ -348,6 +417,26 @@
             店舗管理者は担当店舗の予約のみ管理できます。
         </span>
     </div>
+
+    <!-- 前に戻る・トップに戻る -->
+    <nav class="navigation-buttons" aria-label="ページ移動">
+
+        <!-- 履歴があれば前のページへ。なければ予約管理URLを使用 -->
+        <a class="navigation-button"
+           th:href="${basePath}"
+           onclick="if (window.history.length > 1) { window.history.back(); return false; }">
+            <span aria-hidden="true">←</span>
+            前に戻る
+        </a>
+
+        <!-- モール管理者と店舗管理者で遷移先を切り替える -->
+        <a class="navigation-button"
+           th:href="@{${topPath}}">
+            <span aria-hidden="true">⌂</span>
+            トップに戻る
+        </a>
+
+    </nav>
 
     <!-- エラーメッセージ -->
     <div class="message error"
@@ -367,7 +456,6 @@
 
         <form method="get" th:action="${basePath}">
             <div class="form-grid">
-
                 <div class="field">
                     <label for="reservationId">予約ID</label>
                     <input type="number"
@@ -385,13 +473,13 @@
                            name="reservationDate"
                            th:value="${searchReservationDate}">
                 </div>
-
             </div>
 
             <div class="actions">
                 <button class="primary" type="submit">
                     検索する
                 </button>
+
                 <a class="link-button secondary"
                    th:href="${basePath}">
                     条件をクリア
@@ -409,11 +497,14 @@
     <section class="panel">
         <h2>ADD RESERVATION</h2>
 
-        <form method="post"
-              th:action="${basePath + '/add'}">
+        <form method="post" th:action="${basePath + '/add'}">
+
+            <!-- Spring SecurityのCSRFトークン -->
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
 
             <div class="form-grid">
-
                 <div class="field" th:if="${mallAdmin}">
                     <label for="storeId">店舗</label>
                     <select id="storeId" name="storeId" required>
@@ -460,7 +551,6 @@
                            min="1"
                            placeholder="未指定なら空欄">
                 </div>
-
             </div>
 
             <div class="hint">
@@ -477,7 +567,7 @@
         </form>
     </section>
 
-    <!-- 予約一覧 -->
+    <!-- 予約一覧・一括更新 -->
     <section class="panel">
         <h2>RESERVATION LIST</h2>
 
@@ -487,119 +577,249 @@
             件
         </div>
 
-        <div class="table-wrap"
-             th:if="${!#lists.isEmpty(reservations)}">
+        <div class="bulk-toolbar">
+            <div class="count">
+                変更件数：<span id="changedCount">0</span> 件
+            </div>
 
-            <table>
-                <thead>
-                <tr>
-                    <th>予約ID</th>
-                    <th>店舗</th>
-                    <th>会員ID</th>
-                    <th>ゲストID</th>
-                    <th>予約日時・人数の編集</th>
-                    <th>ステータス</th>
-                    <th>登録日時</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr th:each="reservation : ${reservations}">
-
-                    <td class="id-cell"
-                        th:text="${reservation.id}">
-                        1
-                    </td>
-
-                    <td th:text="${storeNames[reservation.storeId] != null
-                                  ? storeNames[reservation.storeId]
-                                  : '店舗ID：' + reservation.storeId}">
-                        店舗名
-                    </td>
-
-                    <td th:text="${reservation.memberId != null
-                                  ? reservation.memberId : '—'}">
-                        —
-                    </td>
-
-                    <td th:text="${reservation.userId != null
-                                  ? reservation.userId : '—'}">
-                        —
-                    </td>
-
-                    <td>
-                        <form class="inline-form"
-                              method="post"
-                              th:action="${basePath + '/edit'}">
-
-                            <input type="hidden"
-                                   name="reservationId"
-                                   th:value="${reservation.id}">
-
-                            <input type="datetime-local"
-                                   name="reservationDateTime"
-                                   required
-                                   th:value="${#temporals.format(
-                                       reservation.reservationDate,
-                                       'yyyy-MM-dd''T''HH:mm')}">
-
-                            <input class="number-input"
-                                   type="number"
-                                   name="number"
-                                   min="1"
-                                   max="10"
-                                   required
-                                   th:value="${reservation.number}">
-
-                            <button class="secondary" type="submit">
-                                更新
-                            </button>
-                        </form>
-                    </td>
-
-                    <td>
-                        <form class="status-form"
-                              method="post"
-                              th:action="${basePath + '/status'}">
-
-                            <input type="hidden"
-                                   name="reservationId"
-                                   th:value="${reservation.id}">
-
-                            <select name="status" required>
-                                <option th:each="s : ${reservationStatuses}"
-                                        th:value="${s}"
-                                        th:text="${s}"
-                                        th:selected="${s == reservation.status}">
-                                </option>
-                            </select>
-
-                            <button class="secondary" type="submit">
-                                変更
-                            </button>
-                        </form>
-                    </td>
-
-                    <td th:text="${reservation.createdAt != null
-                                  ? #temporals.format(
-                                      reservation.createdAt,
-                                      'yyyy-MM-dd HH:mm')
-                                  : '—'}">
-                        —
-                    </td>
-
-                </tr>
-                </tbody>
-            </table>
+            <button class="primary bulk-save"
+                    id="bulkSaveButton"
+                    type="submit"
+                    form="bulkUpdateForm">
+                変更を保存
+            </button>
         </div>
+
+        <!-- 一括保存結果 -->
+        <div id="bulkMessage"
+             class="message"
+             role="status"
+             aria-live="polite"
+             hidden>
+        </div>
+
+        <form id="bulkUpdateForm"
+              method="post"
+              th:action="${basePath + '/bulk-update'}">
+
+            <!-- Spring SecurityのCSRFトークン -->
+            <input type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+
+            <div class="table-wrap"
+                 th:if="${!#lists.isEmpty(reservations)}">
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>予約ID</th>
+                        <th>店舗</th>
+                        <th>会員ID</th>
+                        <th>ゲストID</th>
+                        <th>予約日時・人数</th>
+                        <th>ステータス</th>
+                        <th>登録日時</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="reservation : ${reservations}"
+                        data-reservation-row>
+
+                        <td class="id-cell"
+                            th:text="${reservation.id}">
+                            1
+                        </td>
+
+                        <td th:text="${storeNames[reservation.storeId] != null ? storeNames[reservation.storeId] : '店舗ID：' + reservation.storeId}">
+                            店舗名
+                        </td>
+
+                        <td th:text="${reservation.memberId != null ? reservation.memberId : '—'}">
+                            —
+                        </td>
+
+                        <td th:text="${reservation.userId != null ? reservation.userId : '—'}">
+                            —
+                        </td>
+
+                        <td>
+                            <div class="inline-form">
+                                <input type="hidden"
+                                       name="reservationIds"
+                                       th:value="${reservation.id}">
+
+                                <input type="datetime-local"
+                                       name="reservationDateTimes"
+                                       required
+                                       th:value="${#temporals.format(reservation.reservationDate, 'yyyy-MM-dd''T''HH:mm')}">
+
+                                <input class="number-input"
+                                       type="number"
+                                       name="numbers"
+                                       min="1"
+                                       max="10"
+                                       required
+                                       th:value="${reservation.number}">
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="status-form">
+                                <select name="statuses" required>
+                                    <option th:each="s : ${reservationStatuses}"
+                                            th:value="${s}"
+                                            th:text="${s}"
+                                            th:selected="${s == reservation.status}">
+                                    </option>
+                                </select>
+                            </div>
+                        </td>
+
+                        <td th:text="${reservation.createdAt != null ? #temporals.format(reservation.createdAt, 'yyyy-MM-dd HH:mm') : '—'}">
+                            —
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
 
         <div class="empty"
              th:if="${#lists.isEmpty(reservations)}">
             該当する予約はありません。
         </div>
-
     </section>
-
 </main>
+
+<script>
+(() => {
+    const form = document.getElementById('bulkUpdateForm');
+
+    if (!form) {
+        return;
+    }
+
+    const rows = Array.from(
+        form.querySelectorAll('[data-reservation-row]')
+    );
+
+    const changedCount = document.getElementById('changedCount');
+    const saveButton = document.getElementById('bulkSaveButton');
+    const message = document.getElementById('bulkMessage');
+
+    // 1行分の入力値を取得
+    const getValues = (row) => ({
+        dateTime: row.querySelector('[name="reservationDateTimes"]').value,
+        number: row.querySelector('[name="numbers"]').value,
+        status: row.querySelector('[name="statuses"]').value
+    });
+
+    // 初期値を保存
+    rows.forEach((row) => {
+        const values = getValues(row);
+
+        row.dataset.initialDateTime = values.dateTime;
+        row.dataset.initialNumber = values.number;
+        row.dataset.initialStatus = values.status;
+
+        row.querySelectorAll('input, select').forEach((input) => {
+            input.addEventListener('input', updateChangedCount);
+            input.addEventListener('change', updateChangedCount);
+        });
+    });
+
+    // 初期値と現在値を比較
+    function isChanged(row) {
+        const current = getValues(row);
+
+        return current.dateTime !== row.dataset.initialDateTime
+            || current.number !== row.dataset.initialNumber
+            || current.status !== row.dataset.initialStatus;
+    }
+
+    // 変更した予約の件数を更新
+    function updateChangedCount() {
+        changedCount.textContent =
+            rows.filter(isChanged).length;
+
+        if (!message.hidden) {
+            message.hidden = true;
+            message.textContent = '';
+            message.className = 'message';
+        }
+    }
+
+    // メッセージ表示
+    function showMessage(text, success) {
+        message.textContent = text;
+        message.className = success
+            ? 'message success'
+            : 'message error';
+        message.hidden = false;
+    }
+
+    // 一括保存。画面遷移・再読み込みを行わない
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (Number(changedCount.textContent) === 0) {
+            showMessage('変更する項目はありません。', false);
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.textContent = '保存中...';
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams(new FormData(form))
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showMessage(
+                    result.message
+                        || '保存に失敗しました。入力内容を確認してください。',
+                    false
+                );
+                return;
+            }
+
+            // 保存成功後の入力値を新しい初期値にする
+            rows.forEach((row) => {
+                const values = getValues(row);
+
+                row.dataset.initialDateTime = values.dateTime;
+                row.dataset.initialNumber = values.number;
+                row.dataset.initialStatus = values.status;
+            });
+
+            changedCount.textContent = '0';
+
+            showMessage(
+                result.message || '変更しました',
+                true
+            );
+
+        } catch (error) {
+            showMessage(
+                '通信に失敗しました。ネットワークを確認して、もう一度お試しください。',
+                false
+            );
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = '変更を保存';
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
