@@ -102,8 +102,7 @@
     box-sizing: border-box;
 }
 
-/* 一覧表全体の横スクロール領域
-   ヘッダー・既存データ・新規登録行で横スクロールを共有する */
+/* 一覧表全体の横スクロール領域 */
 .tenant-table-frame {
     width: 100%;
     min-width: 0;
@@ -122,50 +121,26 @@
     margin: 0;
 }
 
-/* 列幅をすべてのテーブルで共通化 */
-.tenant-table .col-delete {
-    width: 55px;
-}
+/* 11列の幅 */
+.tenant-table .col-delete         { width: 55px; }
+.tenant-table .col-id             { width: 45px; }
+.tenant-table .col-name           { width: 110px; }
+.tenant-table .col-name-kana      { width: 120px; }
+.tenant-table .col-mail           { width: 150px; }
+.tenant-table .col-phone          { width: 110px; }
+.tenant-table .col-representative { width: 100px; }
+.tenant-table .col-address        { width: 140px; }
+.tenant-table .col-description    { width: 140px; }
+.tenant-table .col-picture        { width: 200px; }
+.tenant-table .col-operation      { width: 200px; }
 
-.tenant-table .col-id {
-    width: 45px;
-}
-
-.tenant-table .col-name {
-    width: 110px;
-}
-
-.tenant-table .col-name-kana {
-    width: 120px;
-}
-
-.tenant-table .col-mail {
-    width: 150px;
-}
-
-.tenant-table .col-phone {
-    width: 110px;
-}
-
-.tenant-table .col-representative {
-    width: 100px;
-}
-
-.tenant-table .col-address {
-    width: 140px;
-}
-
-.tenant-table .col-description {
-    width: 140px;
-}
-
-.tenant-table .col-picture {
-    width: 140px;
-}
-
-/* 操作列：従来の160pxから約2/3の105pxに縮小 */
-.tenant-table .col-operation {
-    width: 105px;
+/* 3つのテーブルの幅を統一 */
+.tenant-header-table,
+.tenant-data-table,
+.tenant-new-table {
+    width: 1370px;
+    min-width: 1370px;
+    table-layout: fixed;
 }
 
 /* セル共通 */
@@ -197,9 +172,12 @@
     font-weight: bold;
 }
 
-/* 既存データの縦スクロール領域 */
+
+/* 既存データの縦スクロール領域
+   操作列の右側に縦スクロールバーを配置する */
 .tenant-table-data-wrapper {
-    width: 100%;
+    width: 1387px;
+    min-width: 1387px;
     max-height: calc(100vh - 320px);
     overflow-y: auto;
     overflow-x: hidden;
@@ -208,11 +186,12 @@
 
 /* 既存データテーブル */
 .tenant-data-table {
+    width: 1370px;
+    min-width: 1370px;
     border-top: 0;
 }
 
-/* 新規登録テーブル
-   データの縦スクロール領域の外側に配置する */
+/* 新規登録テーブル */
 .tenant-new-table {
     border-top: 0;
 }
