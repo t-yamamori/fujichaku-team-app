@@ -451,3 +451,33 @@ a:hover { color: var(--main); }
     background: var(--main);
     color: #fff;
 }
+
+/* フロア絞り込みで隠したカードを確実に消す */
+.shop[hidden] { display: none; }
+/* 検索欄は左、フロアと並び順は右側にくっつけて並べる */
+.toolbar { justify-content: flex-start; }
+.toolbar .search { margin-right: auto; }
+
+
+
+/* ===== ヒーロー画像（空を少し減らして表示） ===== */
+.hero {
+    height: auto;
+    aspect-ratio: 1698 / 720;            /* 926 → 780 に縮めて、高さを低くする */
+    min-height: 340px;
+    background-position: center bottom;  /* 画像の下側にそろえる → 上（空）から削られる */
+}
+
+@media (max-width: 720px) {
+    .hero { height: auto; min-height: 300px; }
+}
+
+/* ===== フッターの営業時間 ===== */
+.footer-hours {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px;
+    margin: 8px 0 0;
+    font-size: .85rem; color: var(--text);
+}
+.footer-hours dt { font-weight: 700; color: var(--sky-deep); }
+.footer-hours dd { margin: 0; }
+.footer-note { font-size: .72rem; }
