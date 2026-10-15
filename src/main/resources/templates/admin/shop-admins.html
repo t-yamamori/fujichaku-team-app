@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>店舗管理者管理</title>
-
+	
+	<link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
     <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
     <link rel="stylesheet" th:href="@{/css/shop-admins.css}">
 </head>
 <body>
-
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
+    <div class="screen-overlay" aria-hidden="true"></div>
 <div th:replace="~{admin/fragments/adminLayout :: sidebar}"></div>
 
 <main class="shop-admin-page">
@@ -326,6 +328,8 @@
         </table>
     </div>
 </main>
-
+<script th:src="@{/js/matrixRain.js}"></script>
 </body>
+
+
 </html>
