@@ -4,11 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>テナント管理</title>
+	<link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
     <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
     <link rel="stylesheet" th:href="@{/css/tenants.css}">
+	
 </head>
 
 <body>
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
+    <div class="screen-overlay" aria-hidden="true"></div>
     <!-- 共通サイドメニュー -->
     <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
 
@@ -404,5 +408,6 @@
             </table>
         </div>
     </main>
+	<script th:src="@{/js/matrixRain.js}"></script>
 </body>
 </html>

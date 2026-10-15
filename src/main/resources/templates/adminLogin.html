@@ -7,12 +7,12 @@
     <meta charset="UTF-8">
 
     <title>管理者ログイン</title>
-
+	<link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
 </head>
 
 <body>
-
-    <h1>管理者ログイン</h1>
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
+    <div class="screen-overlay" aria-hidden="true"></div>
 
     <form th:action="@{/adminLogin}" method="post">
 
@@ -45,7 +45,7 @@
         </button>
 
     </form>
-
-</body>
+	    <script th:src="@{/js/matrixRain.js}"></script>
+	</body>
 
 </html>
