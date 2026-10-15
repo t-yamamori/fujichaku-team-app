@@ -4,62 +4,16 @@
 
     <!-- 管理者画面共通サイドバー -->
     <header th:fragment="sidebar" class="admin-sidebar">
+        <nav>
+            <a th:href="@{/admin/index}">管理者TOP</a>
+            <a th:href="@{/admin/tenants}">店舗管理</a>
+            <a th:href="@{/admin/shop-admins}">店舗管理者管理</a>
+            <a th:href="@{/admin/members}">会員管理</a>
+            <a th:href="@{/admin/reviews}">口コミ管理</a>
+            <a th:href="@{/admin/reservations}">予約管理</a>
 
-        <div class="admin-sidebar-brand">
-            <div class="admin-sidebar-logo">FUJICHAKU</div>
-            <div class="admin-sidebar-subtitle">ADMIN TERMINAL</div>
-            <div class="admin-sidebar-status">
-                <span class="admin-status-dot"></span>
-                SYSTEM ONLINE
-            </div>
-        </div>
-
-        <nav class="admin-sidebar-nav">
-
-            <div class="admin-menu-label">MAIN MENU</div>
-
-            <a th:href="@{/admin/index}" class="admin-menu-link">
-                <span class="admin-menu-icon">01</span>
-                <span>管理者TOP</span>
-            </a>
-
-            <a th:href="@{/admin/tenants}" class="admin-menu-link">
-                <span class="admin-menu-icon">02</span>
-                <span>店舗管理</span>
-            </a>
-
-            <a th:href="@{/admin/shop-admins}" class="admin-menu-link">
-                <span class="admin-menu-icon">03</span>
-                <span>店舗管理者管理</span>
-            </a>
-
-            <a th:href="@{/admin/members}" class="admin-menu-link">
-                <span class="admin-menu-icon">04</span>
-                <span>会員管理</span>
-            </a>
-
-            <a th:href="@{/reviews/reviews}" class="admin-menu-link">
-                <span class="admin-menu-icon">05</span>
-                <span>口コミ管理</span>
-            </a>
-
-            <a th:href="@{/admin/reservations}" class="admin-menu-link">
-                <span class="admin-menu-icon">06</span>
-                <span>予約管理</span>
-            </a>
-
-            <div class="admin-sidebar-divider"></div>
-
-            <div class="admin-menu-label">SYSTEM</div>
-
-            <form th:action="@{/adminLogout}" method="post"
-                  class="admin-logout-form">
-
-                <button type="submit" class="admin-logout-button">
-                    <span class="admin-menu-icon">OUT</span>
-                    <span>ログアウト</span>
-                </button>
-
+            <form th:action="@{/adminLogout}" method="post">
+                <button type="submit">ログアウト</button>
             </form>
 
         </nav>
