@@ -1,18 +1,15 @@
-/* 店舗管理画面 */
+/* テナント管理画面 */
 .tenant-page {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
 }
 
-
-/* 検索フォーム：入力項目とボタンを1行に配置 */
-/*                削除チェックボックス列の分だけ右へずらす */
+/* 検索フォーム */
 .tenant-search {
     display: flex;
     align-items: flex-end;
     gap: 8px;
-
     margin: 0 0 15px;
     padding: 10px 0 10px 55px;
     width: 100%;
@@ -43,7 +40,12 @@
     box-sizing: border-box;
 }
 
-/* 検索ボタン・条件クリア：入力項目の右側 */
+/* ID検索欄：一覧表のID列に対応 */
+.search-field-id {
+    flex: 0 0 45px;
+}
+
+/* 検索ボタン・条件クリア */
 .search-buttons {
     display: flex;
     align-items: center;
@@ -66,22 +68,6 @@
     padding: 7px 0;
 }
 
-/* 画面幅が狭い場合 */
-@media (max-width: 1100px) {
-    .tenant-search {
-        overflow-x: auto;
-    }
-
-    .search-field {
-        flex: 0 0 110px;
-    }
-}
-
-/* ID検索欄：一覧表のID列（45px）に対応 */
-.search-field-id {
-    flex: 0 0 45px;
-}
-
 /* 一覧表のスクロール領域 */
 .tenant-table-wrapper {
     width: 100%;
@@ -90,10 +76,10 @@
     box-sizing: border-box;
 }
 
-/* 店舗一覧表 */
+/* テナント一覧表 */
 .tenant-table {
     width: 100%;
-    min-width: 1210px;
+    min-width: 1370px;
     table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
@@ -130,51 +116,57 @@
     width: 45px;
 }
 
-/* 3列目：店舗名 */
+/* 3列目：名前 */
 .tenant-table th:nth-child(3),
 .tenant-table td:nth-child(3) {
     width: 110px;
 }
 
-/* 4列目：メールアドレス */
+/* 4列目：ふりがな */
 .tenant-table th:nth-child(4),
 .tenant-table td:nth-child(4) {
+    width: 120px;
+}
+
+/* 5列目：メール */
+.tenant-table th:nth-child(5),
+.tenant-table td:nth-child(5) {
     width: 150px;
 }
 
-/* 5列目：代表者 */
-.tenant-table th:nth-child(5),
-.tenant-table td:nth-child(5) {
+/* 6列目：電話番号 */
+.tenant-table th:nth-child(6),
+.tenant-table td:nth-child(6) {
+    width: 110px;
+}
+
+/* 7列目：代表者 */
+.tenant-table th:nth-child(7),
+.tenant-table td:nth-child(7) {
     width: 100px;
 }
 
-/* 6列目：住所 */
-.tenant-table th:nth-child(6),
-.tenant-table td:nth-child(6) {
-    width: 140px;
-}
-
-/* 7列目：説明 */
-.tenant-table th:nth-child(7),
-.tenant-table td:nth-child(7) {
-    width: 140px;
-}
-
-/* 8列目：画像URL */
+/* 8列目：住所 */
 .tenant-table th:nth-child(8),
 .tenant-table td:nth-child(8) {
     width: 140px;
 }
 
-/* 9列目：電話番号 */
+/* 9列目：説明 */
 .tenant-table th:nth-child(9),
 .tenant-table td:nth-child(9) {
-    width: 110px;
+    width: 140px;
 }
 
-/* 10列目：操作 */
+/* 10列目：画像URL */
 .tenant-table th:nth-child(10),
 .tenant-table td:nth-child(10) {
+    width: 140px;
+}
+
+/* 11列目：操作 */
+.tenant-table th:nth-child(11),
+.tenant-table td:nth-child(11) {
     width: 160px;
 }
 
@@ -195,6 +187,7 @@
 }
 
 /* エラーメッセージ */
+.error-message,
 .field-error {
     display: block;
     margin-top: 4px;
@@ -203,32 +196,20 @@
     overflow-wrap: anywhere;
 }
 
-/* 画面幅が狭い場合 */
-@media (max-width: 1100px) {
-    .tenant-search {
-        margin-left: 0;
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .tenant-table-wrapper {
-        max-height: calc(100vh - 250px);
-    }
-}
-
-
-/* 一括更新ボタンだけを操作列の右端に配置 */
-.update-button-area {
+/* 一括更新・削除ボタン */
+.table-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
+    margin: 0 0 8px;
     box-sizing: border-box;
 }
 
-.update-button-area button {
-    margin-left: auto;
+.table-actions button {
+    padding: 7px 16px;
+    cursor: pointer;
 }
-
 
 /* 更新完了メッセージ */
 .success-message {
@@ -242,19 +223,33 @@
     box-sizing: border-box;
 }
 
-
-/* 一括更新・削除ボタンを一覧表の右上の行に配置 */
-.table-actions {
+/* 操作列内のボタン配置 */
+.update-button-area {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-end;
     width: 100%;
-    margin: 0 0 8px;
     box-sizing: border-box;
 }
 
-/* 両ボタンの高さ・余白を統一 */
-.table-actions button {
-    padding: 7px 16px;
-    cursor: pointer;
+.update-button-area button {
+    margin-left: auto;
+}
+
+/* 画面幅が狭い場合 */
+@media (max-width: 1100px) {
+    .tenant-search {
+        overflow-x: auto;
+    }
+
+    .search-field {
+        flex: 0 0 110px;
+    }
+
+    .search-field-id {
+        flex: 0 0 45px;
+    }
+
+    .tenant-table-wrapper {
+        max-height: calc(100vh - 250px);
+    }
 }
