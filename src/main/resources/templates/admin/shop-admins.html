@@ -33,11 +33,13 @@
         }
 
     </style>
-
+	<link rel="stylesheet" th:href="@{/css/adminLayout.css}">
 </head>
 
 <body>
-
+	<!-- 共通サイドメニュー -->
+	<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+	<main>
     <h1>店舗管理者管理</h1>
 
 
@@ -334,7 +336,7 @@
 
     </form>
 
-
+	</main>
 </body>
 
 </html>

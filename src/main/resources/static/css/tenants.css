@@ -5,25 +5,17 @@
     box-sizing: border-box;
 }
 
-/* 検索フォーム
-   削除チェックボックス列（55px）の右側から配置する */
-.tenant-search {
-    display: grid;
-    grid-template-columns:
-        45px
-        110px
-        150px
-        100px
-        140px
-        140px
-        140px
-        110px;
-    gap: 8px;
-    align-items: end;
 
-    margin: 0 0 15px 55px;
-    padding: 10px 0;
-    width: calc(100% - 55px);
+/* 検索フォーム：入力項目とボタンを1行に配置 */
+/*                削除チェックボックス列の分だけ右へずらす */
+.tenant-search {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+
+    margin: 0 0 15px;
+    padding: 10px 0 10px 55px;
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -32,6 +24,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1 1 0;
     min-width: 0;
 }
 
@@ -50,24 +43,43 @@
     box-sizing: border-box;
 }
 
-/* 検索ボタン・条件クリア
-   検索項目の下の行に配置する */
+/* 検索ボタン・条件クリア：入力項目の右側 */
 .search-buttons {
-    grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 8px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding-bottom: 0;
 }
 
 .search-buttons button {
-    padding: 6px 16px;
+    height: 32px;
+    padding: 0 12px;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .search-buttons a {
     font-size: 0.9em;
     white-space: nowrap;
+    padding: 7px 0;
+}
+
+/* 画面幅が狭い場合 */
+@media (max-width: 1100px) {
+    .tenant-search {
+        overflow-x: auto;
+    }
+
+    .search-field {
+        flex: 0 0 110px;
+    }
+}
+
+/* ID検索欄：一覧表のID列（45px）に対応 */
+.search-field-id {
+    flex: 0 0 45px;
 }
 
 /* 一覧表のスクロール領域 */
@@ -230,15 +242,18 @@
     box-sizing: border-box;
 }
 
-/* 一括更新ボタンを一覧表の右上へ配置 */
+
+/* 一括更新・削除ボタンを一覧表の右上の行に配置 */
 .table-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
     margin: 0 0 8px;
     box-sizing: border-box;
 }
 
+/* 両ボタンの高さ・余白を統一 */
 .table-actions button {
     padding: 7px 16px;
     cursor: pointer;
