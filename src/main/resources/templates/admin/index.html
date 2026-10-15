@@ -1,23 +1,37 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>管理者TOP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>管理者TOP | FUJICHAKU</title>
 
-	<link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
-	<link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+    <!-- 共通CSS -->
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+
+    <!-- 管理者TOP専用CSS -->
+    <link rel="stylesheet" th:href="@{/css/adminTop.css}">
 </head>
+<body class="admin-top-page">
 
-<body>
-    <canvas id="matrixRain" aria-hidden="true"></canvas>
-    <div class="screen-overlay" aria-hidden="true"></div>
-    <!-- 共通サイドメニューを読み込む -->
-	<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+    <!-- 共通サイドバー -->
+    <header th:replace="~{admin/fragments/adminLayout :: sidebar}">
+		
+	</header>
 
-    <!-- この画面固有の内容 -->
-    <main>
-        <h1>管理者TOP</h1>
-        <p>ここは管理者画面です</p>
+    <!-- メイン画面 -->
+    <main class="admin-top-main">
+
+        <!-- ページヘッダー -->
+        <header class="admin-top-header">
+            <h1>管理者TOP</h1>
+            <p>FUJICHAKU 管理システム</p>
+       
+
+        <!-- フッター -->
+        <footer class="admin-top-footer">
+            FUJICHAKU ADMINISTRATION SYSTEM
+        </footer>
+
     </main>
 	<script th:src="@{/js/matrixRain.js}"></script>
 </body>

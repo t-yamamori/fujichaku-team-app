@@ -149,6 +149,11 @@
             padding: 28px;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
             backdrop-filter: blur(10px);
+			
+			display: flex;
+			    flex-direction: column;
+			    height: calc(100vh - 230px);
+			    min-height: 300px;
         }
 
         .card-title {
@@ -182,9 +187,14 @@
            テーブル
         ========================= */
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+
+		.table-wrapper {
+		    flex: 1;
+		    min-height: 0;
+		    overflow-y: auto;
+		    overflow-x: auto;
+		}
+
 
         table {
             width: 100%;
@@ -237,6 +247,7 @@
             justify-content: flex-end;
             gap: 12px;
             margin-top: 25px;
+			flex-shrink: 0;
         }
 
         button {
@@ -484,17 +495,30 @@
                 flex-wrap: wrap;
             }
         }
+		
+		
+
+		
+
+		
     </style>
 
+	<link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+	
+	
+	
 </head>
 
 <body>
+	
+	<!-- 共通サイドメニューを読み込む -->
+	   <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
 
     <!-- =========================
          ヘッダー
     ========================== -->
 
-    <header class="header">
+   <!-- <header class="header">
 
         <div class="logo">
             FUJICHAKU
@@ -504,7 +528,7 @@
             ADMIN SYSTEM
         </div>
 
-    </header>
+    </header>-->
 
 
     <!-- =========================
