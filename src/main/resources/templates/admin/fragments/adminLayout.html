@@ -2,18 +2,64 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-    <!-- 管理者画面共通サイドバー -->
     <header th:fragment="sidebar" class="admin-sidebar">
-        <nav>
-            <a th:href="@{/admin/index}">管理者TOP</a>
-            <a th:href="@{/admin/tenants}">店舗管理</a>
-            <a th:href="@{/admin/shop-admins}">店舗管理者管理</a>
-            <a th:href="@{/admin/members}">会員管理</a>
-            <a th:href="@{/admin/reviews}">口コミ管理</a>
-            <a th:href="@{/admin/reservations}">予約管理</a>
 
-            <form th:action="@{/adminLogout}" method="post">
-                <button type="submit">ログアウト</button>
+        <div class="admin-sidebar-header">
+            <a th:href="@{/admin/index}" class="admin-sidebar-logo">
+                FUJICHAKU
+            </a>
+
+            <div class="admin-sidebar-subtitle">
+                ADMIN TERMINAL
+            </div>
+
+            <div class="admin-system-status">
+                <span class="admin-status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+        </div>
+
+        <nav class="admin-sidebar-nav">
+
+            <a th:href="@{/admin/index}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>管理者TOP</span>
+            </a>
+
+            <a th:href="@{/admin/tenants}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>店舗管理</span>
+            </a>
+
+            <a th:href="@{/admin/shop-admins}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>店舗管理者管理</span>
+            </a>
+
+            <a th:href="@{/admin/members}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>会員管理</span>
+            </a>
+
+            <a th:href="@{/admin/reviews}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>口コミ管理</span>
+            </a>
+
+            <a th:href="@{/admin/reservations}">
+                <span class="admin-menu-marker">&gt;</span>
+                <span>予約管理</span>
+            </a>
+
+            <form th:action="@{/adminLogout}"
+                  method="post"
+                  class="admin-sidebar-logout-form">
+
+                <button type="submit" class="admin-sidebar-logout">
+                    <span class="admin-menu-marker">&gt;</span>
+                    <span>ログアウト</span>
+                </button>
+
             </form>
 
         </nav>
