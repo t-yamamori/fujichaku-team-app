@@ -458,15 +458,7 @@ a:hover { color: var(--main); }
 .toolbar { justify-content: flex-start; }
 .toolbar .search { margin-right: auto; }
 
-/* ===== ヘッダー上の営業時間の帯 ===== */
-.top-bar {
-    margin: 0;
-    padding: 4px 20px;
-    background: var(--sky-deep);
-    color: #fff;
-    font-size: .75rem;
-    text-align: center;
-}
+
 
 /* ===== ヒーロー画像（空を少し減らして表示） ===== */
 .hero {
