@@ -1,187 +1,484 @@
+@charset "UTF-8";
+/* =========================================================
+   top.css
+   配置場所：src/main/resources/static/css/top.css
+   対象画面：shops.html（トップ画面）
+   ========================================================= */
 
-/* ==================================================
-   MATRIX 背景と全画面共通の表示修正
-   ================================================== */
-
-/* ページ全体 */
-html {
-    min-height: 100%;
-    background: #030705;
+/* ===== 色 ===== */
+:root {
+    --main:       #8b4a2b;   /* ボタン（ブラウン） */
+    --main-dark:  #6e3a21;
+    --sky-deep:   #3f82ad;   /* 見出し・リンク（空色） */
+    --sky:        #cfe5f2;
+    --sky-pale:   #eaf4fa;
+    --sand:       #efe2c8;
+    --ground:     #e2cc9f;
+    --panel:      #ffffff;
+    --line:       #d9e3ea;
+    --text:       #2f3437;
+    --text-sub:   #6b7479;
+    --error:      #c0392b;
+    --success:    #3d7a3d;
+    --content:    none;
+    --header-h:   60px;
+    --ground-h:   56px;      /* 一番下の地面の高さ */
 }
 
+/* ===== ベース ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 12px); }
 body {
-    position: relative;
-    isolation: isolate;
-    min-height: 100vh;
     margin: 0;
-    color: #e1ffe8;
-    background: #030705;
+    font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    background: linear-gradient(#bcdcef 0, var(--sky-pale) 520px, #f6fafc 100%);
+    min-height: 100vh;
+    padding-bottom: var(--ground-h);          /* 地面の下に中身が隠れないように */
 }
+img { max-width: 100%; display: block; }
+a { color: var(--sky-deep); }
+a:hover { color: var(--main); }
+:focus-visible { outline: 2px solid var(--sky-deep); outline-offset: 2px; }
 
-/* マトリックス描画用 canvas */
-#matrixRain {
-    position: fixed;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
-    pointer-events: none;
-    opacity: 0.65;
+.visually-hidden {
+    position: absolute !important; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
-
-/* 走査線 */
-.screen-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.08) 0,
-        rgba(0, 0, 0, 0.08) 1px,
-        transparent 1px,
-        transparent 4px
-    );
+.skip-link {
+    position: absolute; left: 12px; top: -40px; z-index: 100;
+    padding: 6px 14px; background: var(--main); color: #fff;
 }
+.skip-link:focus { top: 8px; }
 
-/* 既存の画面コンテンツを前面に配置 */
-body > header,
-body > main,
-body > h1,
-body > form,
-body > p,
-body > div:not(.screen-overlay),
-body > footer {
+/* ===== ボタン ===== */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 38px; padding: 0 20px;
+    border: none; border-radius: 3px;
+    background: var(--main); color: #fff;
+    font: inherit; font-size: .9rem; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--main-dark); color: #fff; }
+
+.link-button {
+    border: none; background: none; padding: 0; cursor: pointer;
+    font: inherit; color: var(--sky-deep); text-decoration: underline;
+}
+.link-button:hover { color: var(--main); }
+
+/* ===== ロゴ（ダミー） ===== */
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.logo-text {
+    font-weight: 700; font-size: 1.15rem; letter-spacing: .06em; line-height: 1;
+}
+.logo-text span {
+    margin-left: .35em;
+    font-weight: 400; color: var(--sky-deep); letter-spacing: .14em;
+}
+.logo-small .logo-text { font-size: .95rem; }
+
+/* ===== ヘッダー ===== */
+.site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+}
+.header-inner {
+    max-width: var(--content); height: var(--header-h);
+	margin: 0 auto; padding: 0 clamp(16px, 3vw, 48px); 
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.account-nav { display: flex; align-items: center; gap: 20px; font-size: .9rem; white-space: nowrap; }
+.account-nav a:not(.btn) { color: var(--text); text-decoration: none; }
+.account-nav a:not(.btn):hover { color: var(--sky-deep); text-decoration: underline; }
+.account-nav form { margin: 0; }
+.account-nav .link-button { color: var(--text-sub); text-decoration: none; font-size: .9rem; }
+.account-nav .link-button:hover { color: var(--main); text-decoration: underline; }
+
+/* ===== メインビジュアル（空・雲・砂丘＋真ん中にロゴ） ===== */
+.hero {
     position: relative;
-    z-index: 1;
+    height: clamp(340px, 62vh, 600px);
+    overflow: hidden;
+    display: grid; place-items: center;
+    text-align: center;
+    background: linear-gradient(#6fb3e0 0%, #9fd0ef 45%, #cfe8f7 72%, #f1ead6 100%);
 }
 
-/* 疑似要素の暗いオーバーレイが文字を隠さないようにする */
-body::after {
-    z-index: -1;
-    pointer-events: none;
+/* 雲：ゆっくり右へ流れる */
+.clouds { position: absolute; inset: 0; }
+.cloud {
+    position: absolute; left: 0;
+    width: 180px; height: 52px; border-radius: 52px;
+    background: #fff; opacity: .9;
+    animation: cloud-drift 70s linear infinite;
+}
+.cloud::before, .cloud::after {
+    content: ""; position: absolute; background: #fff; border-radius: 50%;
+}
+.cloud::before { width: 80px; height: 80px; left: 28px; top: -40px; }
+.cloud::after  { width: 60px; height: 60px; left: 92px; top: -28px; }
+.cloud-1 { top: 16%; animation-delay: -10s; }
+.cloud-2 { top: 34%; transform: scale(.7); animation-duration: 90s; animation-delay: -55s; opacity: .8; }
+.cloud-3 { top: 10%; transform: scale(.5); animation-duration: 110s; animation-delay: -30s; opacity: .7; }
+.cloud-4 { top: 44%; transform: scale(.85); animation-duration: 80s; animation-delay: -68s; }
+@keyframes cloud-drift {
+    from { left: -220px; }
+    to   { left: 100%; }
 }
 
-/* ==================================================
-   テナント管理画面のテーブル背景修正
-   ================================================== */
+.dunes { position: absolute; left: 0; bottom: 0; width: 100%; height: 30%; }
 
-.tenant-table-frame {
-    background-color: #030705 !important;
-    border: 1px solid rgba(0, 255, 65, 0.30);
+.hero-center { position: relative; z-index: 1; padding: 0 16px; margin-top: -4%; }
+.hero-mark {
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    box-shadow: 0 0 0 4px #fff, 0 6px 18px rgba(31, 79, 112, .25);
+}
+.hero-logo {
+    margin: 0;
+    font-size: clamp(2.2rem, 6.6vw, 4.8rem);
+    font-weight: 700; letter-spacing: .08em; line-height: 1.1;
+    color: #1f4f70;
+}
+.hero-logo span {
+    display: block;
+    margin-top: .12em;
+    font-size: .46em; font-weight: 700; letter-spacing: .6em;
+    padding-left: .6em;           /* 文字間の分だけ右にずれるのを戻す */
+    color: var(--main);
+}
+.hero-sub {
+    margin: 14px 0 0;
+    font-size: .9rem; letter-spacing: .3em; color: #2f5f80;
 }
 
-/* ヘッダー・データ・新規登録テーブル */
-.tenant-table-frame .tenant-table {
-    background-color: #030705 !important;
-    color: #e1ffe8;
-    border-collapse: collapse;
+/* ===== 本文 ===== */
+.page {
+    max-width: var(--content);
+    margin: 0 auto;
+	padding: 28px clamp(16px, 3vw, 48px) 56px; 
 }
 
-/* 列ヘッダー */
-.tenant-table-frame .tenant-table thead th {
-    background-color: #07140a !important;
-    color: #00ff41;
+/* お知らせ */
+.flash {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 0 0 16px; padding: 10px 14px;
+    border-left: 4px solid; background: #fff; font-size: .92rem;
+}
+.flash-success { color: var(--success); border-color: var(--success); }
+.flash-error   { color: var(--error);   border-color: var(--error); }
+.flash-close { border: none; background: none; color: inherit; font-size: 1.1rem; cursor: pointer; }
+
+/* 未ログインの人へのご案内 */
+.notice {
+    margin: 0 0 28px; padding: 12px 16px;
+    background: #fff; border: 1px solid var(--line);
+    font-size: .88rem; color: var(--text-sub);
+}
+.notice a { margin: 0 2px; font-weight: 700; }
+
+/* ===== ショップリスト ===== */
+.shops-head {
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+    padding-bottom: 10px; margin-bottom: 16px;
+    border-bottom: 2px solid var(--sky-deep);
+}
+.section-title { margin: 0; font-size: 1.3rem; line-height: 1.3; }
+.section-en {
+    display: block;
+    font-size: .72rem; letter-spacing: .2em; color: var(--sky-deep);
+}
+.result-count { margin: 0; font-size: .88rem; }
+.result-count #visible-count { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.result-count .total { color: var(--text-sub); }
+
+/* 検索・並び順 */
+.toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+.search { display: flex; align-items: center; flex: 0 1 460px; position: relative; }
+.search input {
+    flex: 1; min-width: 0; height: 38px;
+    padding: 0 34px 0 12px;
+    border: 1px solid #bfd0db; border-right: none; border-radius: 3px 0 0 3px;
+    background: #fff; font: inherit; font-size: .92rem; color: var(--text);
+}
+.search input:focus { outline: none; border-color: var(--sky-deep); }
+.search input::-webkit-search-cancel-button { display: none; }
+.search .btn { border-radius: 0 3px 3px 0; }
+.search-clear {
+    position: absolute; right: 78px;
+    border: none; background: none; cursor: pointer;
+    color: var(--text-sub); font-size: 1rem; padding: 4px 6px;
+}
+.sort { display: flex; align-items: center; gap: 8px; font-size: .88rem; color: var(--text-sub); }
+.sort select {
+    height: 38px; padding: 0 10px;
+    border: 1px solid #bfd0db; border-radius: 3px;
+    background: #fff; font: inherit; color: var(--text); cursor: pointer;
 }
 
-/* すべてのセル。新規登録行にも適用 */
-.tenant-table-frame .tenant-table tbody td,
-.tenant-table-frame .tenant-table thead th {
-    background-color: #030705;
-    border-color: rgba(0, 255, 65, 0.22);
+/* ショップの並び（画面の幅で列の数が変わる） */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+    gap: 32px 20px;
+    margin: 0; padding: 0; list-style: none;
+}
+.shop { min-width: 0; }
+.shop[hidden] { display: none; }
+.shop a { display: block; color: var(--text); text-decoration: none; }
+
+.shop-thumb {
+    aspect-ratio: 4 / 3; overflow: hidden;
+    background: #fff; border: 1px solid var(--line);
+}
+.shop-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.shop a:hover .shop-thumb img { transform: scale(1.04); }
+.no-image {
+    width: 100%; height: 100%; display: grid; place-items: center;
+    background: var(--sky-pale); color: #9fb6c5; font-size: .78rem; letter-spacing: .2em;
+}
+.shop-name {
+    margin: 10px 0 2px; font-weight: 700; font-size: .98rem; line-height: 1.4;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.shop a:hover .shop-name { color: var(--sky-deep); text-decoration: underline; }
+.shop-address {
+    margin: 0; font-size: .8rem; color: var(--text-sub);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* ヘッダーは少し明るい緑系の黒にする */
-.tenant-table-frame .tenant-header-table th {
-    background-color: #07140a !important;
+.empty {
+    padding: 40px 16px; text-align: center;
+    background: #fff; border: 1px solid var(--line);
+}
+.empty p { margin: 0 0 8px; }
+
+/* ===== フッター ===== */
+.site-footer {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 28px 20px 24px;
+    background: #fff; border-top: 1px solid var(--line);
+    font-size: .78rem; color: var(--text-sub);
+}
+.site-footer p { margin: 0; }
+
+/* ===== 先頭へ戻る ===== */
+.to-top {
+    position: fixed; right: 18px; bottom: calc(var(--ground-h) + 16px); z-index: 45;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid var(--line); background: #fff; color: var(--sky-deep); cursor: pointer;
+}
+.to-top[hidden] { display: none; }
+.to-top:hover { background: var(--sky-pale); }
+.to-top svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* =========================================================
+   動くオブジェクト
+   ========================================================= */
+.scene {
+    position: fixed; inset: 0; z-index: 40;
+    pointer-events: none;        /* クリックのじゃまをしない */
+    overflow: hidden;
 }
 
-/* 新規登録行の白い背景を明示的に解除 */
-.tenant-table-frame .tenant-new-table,
-.tenant-table-frame .tenant-new-table tbody,
-.tenant-table-frame .tenant-new-table tr,
-.tenant-table-frame .tenant-new-table td {
-    background-color: #030705 !important;
-    color: #c9e8d0;
+/* --- 地面 --- */
+.ground {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: var(--ground-h);
+    background: linear-gradient(var(--ground), #d8bd88);
+    border-top: 2px solid #cfb27c;
 }
 
-/* データ領域 */
-.tenant-table-frame .tenant-table-data-wrapper {
-    background-color: #030705 !important;
+/* --- サボテン：根元を軸に、風でゆれる --- */
+.cactus {
+    position: absolute; bottom: calc(var(--ground-h) - 12px);
+    width: 30px; height: auto;
+    transform-origin: 50% 100%;
+    animation: cactus-sway 3.2s ease-in-out infinite alternate;
+}
+.cactus-1 { left: 6%;  }
+.cactus-2 { left: 47%; width: 22px; animation-duration: 2.6s; animation-delay: -1s; }
+.cactus-3 { left: 86%; width: 36px; animation-duration: 3.8s; animation-delay: -2s; }
+@keyframes cactus-sway {
+    from { transform: rotate(-4deg); }
+    to   { transform: rotate(4deg); }
 }
 
-/* テーブル内の入力欄 */
-.tenant-table-frame .tenant-table input:not([type="checkbox"]) {
-    color: #e1ffe8 !important;
-    background-color: #030705 !important;
-    border: 1px solid rgba(0, 255, 65, 0.45);
+/* --- ラクダ：左から右へ歩く --- */
+.camel {
+    position: absolute; left: 0; bottom: calc(var(--ground-h) - 14px);
+    width: 90px;
+    animation: camel-walk 38s linear infinite;
+}
+.camel svg { display: block; width: 100%; animation: camel-bob .6s ease-in-out infinite alternate; }
+.camel .leg { transform-box: fill-box; transform-origin: 50% 0; animation: camel-step .6s ease-in-out infinite alternate; }
+.camel .leg.b { animation-direction: alternate-reverse; }
+@keyframes camel-walk { from { transform: translateX(-120px); } to { transform: translateX(100vw); } }
+@keyframes camel-bob  { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+@keyframes camel-step { from { transform: rotate(14deg); } to { transform: rotate(-14deg); } }
+
+/* --- 飛行機：煙を出しながら左から右へ --- */
+.plane {
+    position: absolute; top: calc(var(--header-h) + 24px); left: 0;
+    width: 120px;
+    animation: plane-fly 24s linear infinite;
+}
+.plane svg { display: block; width: 100%; overflow: visible; }
+.plane::before {             /* うしろの煙 */
+    content: ""; position: absolute; z-index: -1;
+    right: 92%; top: 42%;
+    width: 200px; height: 14px; border-radius: 50%;
+    background: linear-gradient(to left, rgba(110, 110, 110, .45), rgba(150, 150, 150, 0));
+    filter: blur(4px);
+}
+@keyframes plane-fly {
+    0%   { transform: translate(-160px, 0)     rotate(0deg); }
+    45%  { transform: translate(60vw, 2vh)     rotate(2deg); }
+    100% { transform: translate(calc(100vw + 40px), 12vh) rotate(8deg); }   /* 少しずつ高度が下がる */
 }
 
-/* 新規登録行の入力欄 */
-.tenant-table-frame .tenant-new-table input {
-    color: #e1ffe8 !important;
-    background-color: #030705 !important;
+/* --- パラシュート：飛行機の途中から降りてくる --- */
+.parachute {
+    position: absolute; top: 0; left: 0;
+    width: 52px;
+    opacity: 0;
+    animation: parachute-drop 24s ease-in-out infinite;
+}
+.parachute svg { display: block; width: 100%; transform-origin: 50% 0; animation: parachute-sway 2.4s ease-in-out infinite alternate; }
+@keyframes parachute-drop {
+    0%, 42% { transform: translate(60vw, calc(var(--header-h) + 50px)) scale(.4); opacity: 0; }
+    46%     { transform: translate(62vw, calc(var(--header-h) + 80px)) scale(1);  opacity: 1; }
+    90%     { transform: translate(72vw, calc(100vh - var(--ground-h) - 70px)) scale(1); opacity: 1; }
+    96%, 100% { transform: translate(72vw, calc(100vh - var(--ground-h) - 70px)) scale(1); opacity: 0; }
+}
+@keyframes parachute-sway { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+
+/* ===== スマホ ===== */
+@media (max-width: 720px) {
+    :root { --header-h: 54px; --ground-h: 44px; }
+    .header-inner { padding: 0 14px; }
+    .logo-text { font-size: .86rem; }
+    .logo img { width: 28px; height: 28px; }
+    .account-nav { gap: 10px; font-size: .8rem; white-space: nowrap; }
+    .account-nav .btn { height: 32px; padding: 0 12px; }
+
+    .hero { height: 46vh; min-height: 300px; }
+    .cloud { width: 120px; height: 36px; }
+    .cloud::before { width: 54px; height: 54px; left: 18px; top: -27px; }
+    .cloud::after  { width: 40px; height: 40px; left: 62px; top: -18px; }
+    .hero-mark { width: 54px; height: 54px; }
+    .page { padding: 20px 14px 40px; }
+    .search { flex: 1 1 100%; }
+    .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
+    .plane { width: 84px; }
+    .parachute { width: 40px; }
+    .camel { width: 70px; }
 }
 
-/* スクロール領域の背景 */
-.tenant-table-data-wrapper,
-.tenant-table-frame {
-    scrollbar-color: #008f11 #030705;
-    scrollbar-width: thin;
+/* 「動きを減らす」設定のときは、動きを止める */
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .plane, .parachute { display: none; }
+    .cactus, .camel, .camel svg, .camel .leg, .cloud { animation: none; }
+    .camel { transform: translateX(20vw); }
 }
 
-.tenant-table-data-wrapper::-webkit-scrollbar,
-.tenant-table-frame::-webkit-scrollbar {
-    height: 12px;
-    background-color: #030705;
+
+/* ===== お試し：トップ画像（消せば元に戻る） ===== */
+.hero {
+    background:
+        linear-gradient(rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)),   /* 写真を少し暗くする */
+        url("../images/hero-mall.jpg") center 60% / cover no-repeat;
+}
+.dunes { display: none; }
+
+/* ロゴの文字を白＋影にして、写真の上でも読めるようにする */
+.hero-logo, .hero-sub {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, .6), 0 4px 20px rgba(0, 0, 0, .5);
+}
+.hero-logo span { color: #ffe2b0; }   /* TOWN は砂色でアクセント */
+/* ===== お試しここまで ===== */
+
+
+
+/* ===== ヘッダー：パスワードをお忘れの方リンク ===== */
+.header-inner {
+    height: 72px;                 /* 2段になる分、白い部分を少し広げる（60px → 72px） */
+    padding: 0 20px;
+    align-items: center;          /* 右のかたまり全体を、ロゴの上下中央にそろえる */
 }
 
-.tenant-table-data-wrapper::-webkit-scrollbar-track,
-.tenant-table-frame::-webkit-scrollbar-track {
-    background-color: #030705;
+/* 未ログインのとき（パスワードリンクがある nav）だけ、2段のレイアウトにする */
+.account-nav:has(.forgot-link) {
+    display: grid;
+    grid-template-columns: auto auto;   /* 1段目：会員登録｜ログイン */
+    column-gap: 20px;
+    row-gap: 4px;
+    align-items: center;
+}
+.account-nav a.forgot-link {
+    grid-column: 1 / -1;          /* 2段目を横いっぱい使う */
+    justify-self: end;            /* 右寄せ → ログインボタンの下にくる */
+    font-size: .75rem;
+    line-height: 1;
+    color: var(--text-sub);
+    text-decoration: underline;
+}
+.account-nav a.forgot-link:hover { color: var(--sky-deep); }
+
+/* スマホ：リンクは隠して、高さも元に戻す */
+@media (max-width: 720px) {
+    .header-inner { height: var(--header-h); padding: 0 14px; }
+    .account-nav a.forgot-link { display: none; }
 }
 
-.tenant-table-data-wrapper::-webkit-scrollbar-thumb,
-.tenant-table-frame::-webkit-scrollbar-thumb {
-    background-color: #008f11;
-    border: 2px solid #030705;
-    border-radius: 6px;
+/* ===== ふちだけのボタン（会員登録） ===== */
+.btn-outline {
+    background: #fff;
+    color: var(--main);
+    border: 1px solid var(--main);
+}
+.btn-outline:hover {
+    background: var(--main);
+    color: #fff;
 }
 
-/* 店舗管理者管理画面も同様に暗色化 */
-.shop-admin-table-frame,
-.shop-admin-table,
-.shop-admin-data-wrapper {
-    background-color: #030705 !important;
+/* フロア絞り込みで隠したカードを確実に消す */
+.shop[hidden] { display: none; }
+/* 検索欄は左、フロアと並び順は右側にくっつけて並べる */
+.toolbar { justify-content: flex-start; }
+.toolbar .search { margin-right: auto; }
+
+
+
+/* ===== ヒーロー画像（空を少し減らして表示） ===== */
+.hero {
+    height: auto;
+    aspect-ratio: 1698 / 720;            /* 926 → 780 に縮めて、高さを低くする */
+    min-height: 340px;
+    background-position: center bottom;  /* 画像の下側にそろえる → 上（空）から削られる */
 }
 
-.shop-admin-table-frame .shop-admin-table th {
-    background-color: #07140a !important;
-    color: #00ff41;
+@media (max-width: 720px) {
+    .hero { height: auto; min-height: 300px; }
 }
 
-.shop-admin-table-frame .shop-admin-table td {
-    background-color: #030705 !important;
-    color: #c9e8d0;
+/* ===== フッターの営業時間 ===== */
+.footer-hours {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px;
+    margin: 8px 0 0;
+    font-size: .85rem; color: var(--text);
 }
+.footer-hours dt { font-weight: 700; color: var(--sky-deep); }
+.footer-hours dd { margin: 0; }
+.footer-note { font-size: .72rem; }
 
-.shop-admin-table-frame .shop-admin-table input:not([type="checkbox"]) {
-    color: #e1ffe8 !important;
-    background-color: #030705 !important;
-    border-color: rgba(0, 255, 65, 0.45);
-}
-
-.shop-admin-table-frame {
-    scrollbar-color: #008f11 #030705;
-    scrollbar-width: thin;
-}
-
-.shop-admin-table-frame::-webkit-scrollbar {
-    height: 12px;
-    background-color: #030705;
-}
-
-.shop-admin-table-frame::-webkit-scrollbar-thumb {
-    background-color: #008f11;
-}
