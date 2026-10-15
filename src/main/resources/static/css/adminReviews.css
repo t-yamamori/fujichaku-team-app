@@ -1,0 +1,449 @@
+/* レビュー管理画面 */
+.review-page {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0 4px 8px;
+    color: #e8d8ff;
+}
+
+.review-page *,
+.review-page *::before,
+.review-page *::after {
+    box-sizing: border-box;
+}
+
+/* 見出し */
+.review-page h1 {
+    margin: 0 0 16px;
+    color: #e8d8ff;
+}
+
+/* 検索フォーム */
+.review-search {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    margin: 0 0 4px;
+    padding: 10px;
+    border: 1px solid #7840a8;
+    background: rgba(0, 0, 0, 0.86);
+    color: #e8d8ff;
+    overflow-x: auto;
+}
+
+.review-search label,
+.review-create label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: #d8a6ff;
+    white-space: nowrap;
+}
+
+.review-search input,
+.review-search select {
+    width: 136px;
+    min-width: 100px;
+    height: 30px;
+    padding: 4px 6px;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+}
+
+.review-search label:nth-child(6) input {
+    width: 230px;
+}
+
+.review-search label:nth-child(7) select {
+    width: 110px;
+    min-width: 110px;
+}
+
+.review-search label:nth-child(8) input {
+    width: 136px;
+}
+
+.search-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* ボタン・リンク */
+.review-page button {
+    min-height: 30px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+.review-page a {
+    color: #d8a6ff;
+}
+
+.review-page button:focus-visible,
+.review-page input:focus-visible,
+.review-page select:focus-visible,
+.review-page textarea:focus-visible {
+    outline: 1px solid #d8a6ff;
+    outline-offset: 1px;
+}
+
+/* 処理結果メッセージ */
+.review-page .success-message {
+    white-space: pre-line;
+    margin: 6px 0;
+    padding: 8px;
+    border: 1px solid #7840a8;
+    background: rgba(0, 0, 0, 0.86);
+    color: #d8a6ff;
+}
+
+/* 削除・一括更新ボタン */
+.review-table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin: 4px 0;
+}
+
+/* 表と新規登録欄を一体化する外枠 */
+.review-table-frame {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #7840a8;
+    background: rgba(0, 0, 0, 0.86);
+}
+
+/* 一覧表 */
+.review-table {
+    width: 100%;
+    min-width: 1300px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: #e8d8ff;
+    background: transparent;
+    font-size: 13px;
+}
+
+.review-table th,
+.review-table td {
+    border: 1px solid #4b2868;
+    padding: 5px;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.review-table thead th {
+    background: #180b24;
+    color: #d8a6ff;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.review-table tbody tr {
+    background: rgba(0, 0, 0, 0.88);
+}
+
+.review-table tbody tr:nth-child(even) {
+    background: rgba(28, 10, 43, 0.92);
+}
+
+.review-table tbody tr:hover {
+    background: rgba(66, 28, 92, 0.8);
+}
+
+.review-table td:nth-child(1),
+.review-table td:nth-child(2),
+.review-table td:nth-child(3),
+.review-table td:nth-child(5),
+.review-table td:nth-child(8) {
+    text-align: center;
+}
+
+.review-table input[type="checkbox"] {
+    accent-color: #b56cff;
+}
+
+/* コメント・評価欄 */
+.review-table textarea,
+.review-table select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+}
+
+.review-table textarea {
+    min-height: 40px;
+    resize: vertical;
+}
+
+.review-table select {
+    min-width: 50px;
+}
+
+.created-at {
+    white-space: nowrap;
+    overflow-wrap: normal !important;
+    font-size: 12px;
+}
+
+/* ID入力欄が名前欄にはみ出さないようにする */
+.review-table td:nth-child(3),
+.review-table td:nth-child(5) {
+    overflow: hidden;
+}
+
+.review-table td:nth-child(3) .lookup-id,
+.review-table td:nth-child(5) .lookup-id {
+    display: block;
+    width: 62px;
+    min-width: 0;
+    max-width: 100%;
+    height: 28px;
+    margin: 0 auto;
+    padding: 3px;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+    font-size: 12px;
+}
+
+.review-table td:nth-child(4) .lookup-name,
+.review-table td:nth-child(6) .lookup-name {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: #e8d8ff;
+}
+
+/* エラーメッセージ */
+.lookup-message {
+    display: block;
+    margin-top: 3px;
+    color: #d8a6ff;
+    font-size: 11px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* 列幅：一覧表と新規登録で共通 */
+.col-delete {
+    width: 52px;
+}
+
+.col-id {
+    width: 66px;
+}
+
+.col-store-id {
+    width: 82px;
+}
+
+.col-store-name {
+    width: 160px;
+}
+
+.col-member-id {
+    width: 82px;
+}
+
+.col-member-name {
+    width: 130px;
+}
+
+.col-comment {
+    width: 450px;
+}
+
+.col-grade {
+    width: 92px;
+}
+
+.col-created {
+    width: 160px;
+}
+
+/*
+ * 列幅合計：
+ * 52 + 66 + 82 + 160 + 82 + 130 + 450 + 92 + 160
+ * = 1274px
+ *
+ * 表と新規登録欄の横幅を一致させるため、
+ * どちらも最小幅1300pxに統一する。
+ */
+
+/* 新規登録欄 */
+.review-create {
+    width: 100%;
+    min-width: 1300px;
+    margin: 0;
+    padding: 10px 0 12px;
+    border: 0;
+    border-top: 1px solid #4b2868;
+    background: rgba(0, 0, 0, 0.88);
+    color: #e8d8ff;
+}
+
+.review-create h2 {
+    margin: 0 0 12px;
+    padding: 0 12px;
+    color: #e8d8ff;
+    font-size: 18px;
+}
+
+/*
+ * 新規登録の入力項目を表の列位置に合わせる。
+ * hidden inputは表示されないため、列配置には影響しない。
+ */
+.review-create form {
+    display: grid;
+    grid-template-columns:
+        52px
+        66px
+        82px
+        160px
+        82px
+        130px
+        450px
+        92px
+        160px;
+    align-items: end;
+    column-gap: 0;
+    row-gap: 8px;
+    width: 1274px;
+    min-width: 1274px;
+    margin: 0;
+}
+
+/* 店舗ID：一覧表の店舗ID列 */
+.review-create form label:nth-of-type(1) {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+/* 店舗名：一覧表の店舗名列 */
+.review-create form label:nth-of-type(2) {
+    grid-column: 4;
+    grid-row: 1;
+}
+
+/* 会員ID：一覧表の会員ID列 */
+.review-create form label:nth-of-type(3) {
+    grid-column: 5;
+    grid-row: 1;
+}
+
+/* 会員名：一覧表の会員名列 */
+.review-create form label:nth-of-type(4) {
+    grid-column: 6;
+    grid-row: 1;
+}
+
+/* コメント：一覧表のコメント列 */
+.review-create form label:nth-of-type(5) {
+    grid-column: 7;
+    grid-row: 1;
+}
+
+/* 評価：一覧表の評価列 */
+.review-create form label:nth-of-type(6) {
+    grid-column: 8;
+    grid-row: 1;
+}
+
+/* 登録ボタン：投稿日列 */
+.review-create form button {
+    grid-column: 9;
+    grid-row: 1;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 0 6px;
+}
+
+/* 新規登録のID欄 */
+.review-create form label:nth-of-type(1) input,
+.review-create form label:nth-of-type(3) input {
+    width: 62px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* 新規登録の店舗名・会員名表示欄 */
+.review-create .create-name-label {
+    min-width: 0;
+    white-space: normal;
+}
+
+.review-create .lookup-name {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 6px;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* 新規登録のコメント・評価 */
+.review-create form label:nth-of-type(5) textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 4px 6px;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+    resize: vertical;
+}
+
+.review-create form label:nth-of-type(6) select {
+    width: 100%;
+    min-width: 0;
+    height: 30px;
+    padding: 4px;
+    color: #e8d8ff;
+    background: #08040d;
+    border: 1px solid #7840a8;
+}
+
+.review-create .help-text {
+    margin: 8px 12px 0;
+    font-size: 12px;
+    color: #aa8ac2;
+}
+
+/* 狭い画面でも列幅を維持して横スクロール */
+@media (max-width: 700px) {
+    .review-search {
+        flex-wrap: wrap;
+    }
+
+    .review-table {
+        min-width: 1300px;
+    }
+
+    .review-create {
+        min-width: 1300px;
+    }
+}
