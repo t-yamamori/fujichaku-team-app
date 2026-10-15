@@ -112,6 +112,9 @@
     box-sizing: border-box;
 }
 
+
+/* テーブル共通 */
+
 /* テーブル共通 */
 .tenant-table {
     width: 1370px;
@@ -122,51 +125,29 @@
     margin: 0;
 }
 
-/* 列幅をすべてのテーブルで共通化 */
-.tenant-table .col-delete {
-    width: 55px;
+/* 11列の幅を明示的に指定 */
+.tenant-table .col-delete        { width: 55px; }
+.tenant-table .col-id            { width: 45px; }
+.tenant-table .col-name          { width: 110px; }
+.tenant-table .col-name-kana     { width: 120px; }
+.tenant-table .col-mail          { width: 150px; }
+.tenant-table .col-phone         { width: 110px; }
+.tenant-table .col-representative { width: 100px; }
+.tenant-table .col-address       { width: 140px; }
+.tenant-table .col-description   { width: 140px; }
+.tenant-table .col-picture       { width: 200px; }
+.tenant-table .col-operation     { width: 200px; }
+
+/* 3つのテーブルの幅を統一 */
+.tenant-header-table,
+.tenant-data-table,
+.tenant-new-table {
+    width: 1370px;
+    min-width: 1370px;
+    table-layout: fixed;
 }
 
-.tenant-table .col-id {
-    width: 45px;
-}
 
-.tenant-table .col-name {
-    width: 110px;
-}
-
-.tenant-table .col-name-kana {
-    width: 120px;
-}
-
-.tenant-table .col-mail {
-    width: 150px;
-}
-
-.tenant-table .col-phone {
-    width: 110px;
-}
-
-.tenant-table .col-representative {
-    width: 100px;
-}
-
-.tenant-table .col-address {
-    width: 140px;
-}
-
-.tenant-table .col-description {
-    width: 140px;
-}
-
-.tenant-table .col-picture {
-    width: 140px;
-}
-
-/* 操作列：従来の160pxから約2/3の105pxに縮小 */
-.tenant-table .col-operation {
-    width: 105px;
-}
 
 /* セル共通 */
 .tenant-table th,
