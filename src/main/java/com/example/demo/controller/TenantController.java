@@ -2,9 +2,11 @@ package com.example.demo.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -58,126 +60,252 @@ public class TenantController {
         return "admin/tenants";
     }
 
+    // 複数店舗の一括更新
+    @PostMapping("/update")
+    public String updateAll(
+            @Valid @ModelAttribute("updateForm") TenantUpdateForm form,
+            BindingResult bindingResult,
+            @ModelAttribute("filters") TenantSearchForm filters,
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
- // 複数店舗の一括更新
- @PostMapping("/update")
- public String updateAll(
-         @Valid @ModelAttribute("updateForm") TenantUpdateForm form,
-         BindingResult bindingResult,
-         @ModelAttribute("filters") TenantSearchForm filters,
-         Model model,
-         RedirectAttributes redirectAttributes) {
+        // バリデーションエラーがある場合
+        if (bindingResult.hasErrors()) {
 
-     // バリデーションエラーがある場合
-     if (bindingResult.hasErrors()) {
+            List<Stores> submittedStores = form.getStores();
 
-         List<Stores> submittedStores = form.getStores();
+            if (submittedStores == null) {
+                submittedStores = new ArrayList<>();
+            }
 
-         if (submittedStores == null) {
-             submittedStores = new ArrayList<>();
-         }
+            model.addAttribute("stores", submittedStores);
+            model.addAttribute("newStore", new Stores());
 
-         model.addAttribute("stores", submittedStores);
-         model.addAttribute("newStore", new Stores());
+            Map<Integer, Map<String, String>> updateErrors =
+                    new HashMap<>();
 
-         Map<Integer, Map<String, String>> updateErrors =
-                 new HashMap<>();
+            Pattern pattern =
+                    Pattern.compile("^stores\\[(\\d+)\\]\\.(.+)$");
 
-         Pattern pattern =
-                 Pattern.compile("^stores\\[(\\d+)\\]\\.(.+)$");
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                Matcher matcher = pattern.matcher(error.getField());
 
-         for (FieldError error : bindingResult.getFieldErrors()) {
-             Matcher matcher = pattern.matcher(error.getField());
+                if (!matcher.matches()) {
+                    continue;
+                }
 
-             if (!matcher.matches()) {
-                 continue;
-             }
+                int index = Integer.parseInt(matcher.group(1));
+                String field = matcher.group(2);
 
-             int index = Integer.parseInt(matcher.group(1));
-             String field = matcher.group(2);
+                updateErrors
+                        .computeIfAbsent(index, k -> new HashMap<>())
+                        .put(field, error.getDefaultMessage());
+            }
 
-             updateErrors
-                     .computeIfAbsent(index, k -> new HashMap<>())
-                     .put(field, error.getDefaultMessage());
-         }
+            model.addAttribute("updateErrors", updateErrors);
 
-         model.addAttribute("updateErrors", updateErrors);
+            return "admin/tenants";
+        }
 
-         return "admin/tenants";
-     }
+        List<Stores> submittedStores = form.getStores();
 
-     List<Stores> submittedStores = form.getStores();
+        if (submittedStores == null || submittedStores.isEmpty()) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "更新対象の店舗はありませんでした。"
+            );
 
-     if (submittedStores == null || submittedStores.isEmpty()) {
-         redirectAttributes.addFlashAttribute(
-                 "successMessage",
-                 "更新対象の店舗はありませんでした。"
-         );
-         addFilters(redirectAttributes, filters);
-         return "redirect:/admin/tenants";
-     }
+            addFilters(redirectAttributes, filters);
 
-     // 更新前のDBデータを取得
-     Map<Integer, Stores> originalStores = tenantService.findAll()
-             .stream()
-             .collect(Collectors.toMap(Stores::getId, store -> store));
+            return "redirect:/admin/tenants";
+        }
 
-     // 実際に変更された店舗だけを抽出
-     List<Stores> changedStores = submittedStores.stream()
-             .filter(submitted -> {
-                 Stores original = originalStores.get(submitted.getId());
+        // 更新前のDBデータを取得
+        Map<Integer, Stores> originalStores = tenantService.findAll()
+                .stream()
+                .collect(Collectors.toMap(
+                        Stores::getId,
+                        store -> store
+                ));
 
-                 if (original == null) {
-                     return false;
-                 }
+        // 実際に変更された店舗だけを抽出
+        List<Stores> changedStores = submittedStores.stream()
+                .filter(submitted -> {
+                    Stores original =
+                            originalStores.get(submitted.getId());
 
-                 return !same(original.getName(), submitted.getName())
-                         || !same(original.getMail(), submitted.getMail())
-                         || !same(original.getRepresentative(),
-                                  submitted.getRepresentative())
-                         || !same(original.getAddress(), submitted.getAddress())
-                         || !same(original.getDescription(),
-                                  submitted.getDescription())
-                         || !same(original.getPictureUrl(),
-                                  submitted.getPictureUrl())
-                         || !same(original.getPhone(), submitted.getPhone());
-             })
-             .collect(Collectors.toList());
+                    return original != null
+                            && !getChanges(original, submitted).isEmpty();
+                })
+                .collect(Collectors.toList());
 
-     if (!changedStores.isEmpty()) {
-         tenantService.updateAll(changedStores);
+        if (!changedStores.isEmpty()) {
 
-         String updatedStoreNames = changedStores.stream()
-                 .map(store -> store.getName()
-                         + "（ID: " + store.getId() + "）")
-                 .collect(Collectors.joining("、"));
+            // DBを更新
+            tenantService.updateAll(changedStores);
 
-         redirectAttributes.addFlashAttribute(
-                 "successMessage",
-                 "以下の店舗を更新しました：" + updatedStoreNames
-         );
-     } else {
-         redirectAttributes.addFlashAttribute(
-                 "successMessage",
-                 "変更された店舗はありませんでした。"
-         );
-     }
+            // 項目ごとの変更前・変更後をメッセージにまとめる
+            String message = buildUpdateMessage(
+                    changedStores,
+                    originalStores
+            );
 
-     // 更新後も検索条件を保持
-     addFilters(redirectAttributes, filters);
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    message
+            );
 
-     return "redirect:/admin/tenants";
- }
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "変更された店舗はありませんでした。"
+            );
+        }
 
- // nullも安全に比較する
- private boolean same(String a, String b) {
-     return java.util.Objects.equals(a, b);
- }
+        // 更新後も検索条件を保持
+        addFilters(redirectAttributes, filters);
+
+        return "redirect:/admin/tenants";
+    }
+
+    // 変更された項目と変更前・変更後の値を取得
+    private Map<String, String> getChanges(
+            Stores original,
+            Stores submitted) {
+
+        Map<String, String> changes = new LinkedHashMap<>();
+
+        addChange(
+                changes,
+                "名前",
+                original.getName(),
+                submitted.getName()
+        );
+
+        addChange(
+                changes,
+                "ふりがな",
+                original.getNameKana(),
+                submitted.getNameKana()
+        );
+
+        addChange(
+                changes,
+                "メール",
+                original.getMail(),
+                submitted.getMail()
+        );
+
+        addChange(
+                changes,
+                "電話番号",
+                original.getPhone(),
+                submitted.getPhone()
+        );
+
+        addChange(
+                changes,
+                "代表者",
+                original.getRepresentative(),
+                submitted.getRepresentative()
+        );
+
+        addChange(
+                changes,
+                "住所",
+                original.getAddress(),
+                submitted.getAddress()
+        );
+
+        addChange(
+                changes,
+                "説明",
+                original.getDescription(),
+                submitted.getDescription()
+        );
+
+        addChange(
+                changes,
+                "画像URL",
+                original.getPictureUrl(),
+                submitted.getPictureUrl()
+        );
+
+        return changes;
+    }
+
+    // 値が異なる場合だけ変更項目に追加
+    private void addChange(
+            Map<String, String> changes,
+            String label,
+            String oldValue,
+            String newValue) {
+
+        if (!same(oldValue, newValue)) {
+            changes.put(
+                    label,
+                    formatValue(oldValue)
+                            + " → "
+                            + formatValue(newValue)
+            );
+        }
+    }
+
+    // null・空欄を表示用に整形
+    private String formatValue(String value) {
+        if (value == null || value.isEmpty()) {
+            return "（空欄）";
+        }
+
+        return value;
+    }
+
+    // 店舗ごとに変更内容をまとめる
+    private String buildUpdateMessage(
+            List<Stores> changedStores,
+            Map<Integer, Stores> originalStores) {
+
+        StringBuilder message = new StringBuilder();
+        message.append("以下の店舗を更新しました。");
+
+        for (Stores submitted : changedStores) {
+
+            Stores original = originalStores.get(submitted.getId());
+
+            Map<String, String> changes =
+                    getChanges(original, submitted);
+
+            message.append("\n\n");
+            message.append("■ ")
+                    .append(formatValue(original.getName()))
+                    .append("（ID: ")
+                    .append(submitted.getId())
+                    .append("）");
+
+            for (Map.Entry<String, String> entry
+                    : changes.entrySet()) {
+
+                message.append("\n  ")
+                        .append(entry.getKey())
+                        .append("：")
+                        .append(entry.getValue());
+            }
+        }
+
+        return message.toString();
+    }
+
+    // nullも安全に比較する
+    private boolean same(String a, String b) {
+        return Objects.equals(a, b);
+    }
 
     // 論理削除
     @PostMapping("/delete")
     public String delete(
-            @RequestParam(value = "deleteIds", required = false)
+            @RequestParam(
+                    value = "deleteIds",
+                    required = false)
             List<Integer> deleteIds,
             @ModelAttribute("filters") TenantSearchForm filters,
             RedirectAttributes redirectAttributes) {
@@ -251,22 +379,32 @@ public class TenantController {
 
         return stores.stream()
                 .filter(store -> matches(
-                        String.valueOf(store.getId()), filters.getId()))
+                        String.valueOf(store.getId()),
+                        filters.getId()))
                 .filter(store -> matches(
-                        store.getName(), filters.getName()))
+                        store.getName(),
+                        filters.getName()))
                 .filter(store -> matches(
-                        store.getMail(), filters.getMail()))
+                        store.getNameKana(),
+                        filters.getNameKana()))
+                .filter(store -> matches(
+                        store.getMail(),
+                        filters.getMail()))
+                .filter(store -> matches(
+                        store.getPhone(),
+                        filters.getPhone()))
                 .filter(store -> matches(
                         store.getRepresentative(),
                         filters.getRepresentative()))
                 .filter(store -> matches(
-                        store.getAddress(), filters.getAddress()))
+                        store.getAddress(),
+                        filters.getAddress()))
                 .filter(store -> matches(
-                        store.getDescription(), filters.getDescription()))
+                        store.getDescription(),
+                        filters.getDescription()))
                 .filter(store -> matches(
-                        store.getPictureUrl(), filters.getPictureUrl()))
-                .filter(store -> matches(
-                        store.getPhone(), filters.getPhone()))
+                        store.getPictureUrl(),
+                        filters.getPictureUrl()))
                 .collect(Collectors.toList());
     }
 
@@ -292,7 +430,12 @@ public class TenantController {
 
         addFilter(redirectAttributes, "id", filters.getId());
         addFilter(redirectAttributes, "name", filters.getName());
+        addFilter(
+                redirectAttributes,
+                "nameKana",
+                filters.getNameKana());
         addFilter(redirectAttributes, "mail", filters.getMail());
+        addFilter(redirectAttributes, "phone", filters.getPhone());
         addFilter(
                 redirectAttributes,
                 "representative",
@@ -306,7 +449,6 @@ public class TenantController {
                 redirectAttributes,
                 "pictureUrl",
                 filters.getPictureUrl());
-        addFilter(redirectAttributes, "phone", filters.getPhone());
     }
 
     private void addFilter(

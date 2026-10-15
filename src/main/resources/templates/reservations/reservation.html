@@ -2,97 +2,734 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>予約確認</title>
-    <link rel="stylesheet" th:href="@{/css/shops.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>予約確認 | FUJICHAKU SYSTEM</title>
+
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008f11;
+            --matrix-bg: #030805;
+            --panel-bg: rgba(0, 12, 4, 0.94);
+            --border-green: rgba(0, 255, 65, 0.45);
+            --text-green: #b7ffc5;
+            --text-muted: #79a985;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 28px 16px 45px;
+            background: var(--matrix-bg);
+            color: var(--text-green);
+            font-family: "Consolas", "Courier New", monospace;
+            overflow-x: hidden;
+        }
+
+        #matrixRain {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.38;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .container {
+            position: relative;
+            padding: 30px;
+            background: var(--panel-bg);
+            border: 1px solid var(--matrix-dark-green);
+            border-radius: 5px;
+            box-shadow:
+                0 0 12px rgba(0, 255, 65, 0.18),
+                0 0 35px rgba(0, 255, 65, 0.07),
+                inset 0 0 25px rgba(0, 255, 65, 0.025);
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--matrix-green);
+            box-shadow: 0 0 15px var(--matrix-green);
+        }
+
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-green);
+        }
+
+        .brand {
+            margin: 0;
+            color: var(--matrix-green);
+            font-size: clamp(20px, 4vw, 29px);
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.65);
+        }
+
+        .brand-subtitle {
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--matrix-green);
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .status-light {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--matrix-green);
+            box-shadow: 0 0 10px var(--matrix-green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--matrix-green);
+            }
+
+            50% {
+                opacity: 0.45;
+                box-shadow: 0 0 3px var(--matrix-green);
+            }
+        }
+
+        .page-title-area {
+            padding: 28px 0 24px;
+            text-align: center;
+        }
+
+        .page-code {
+            margin-bottom: 10px;
+            color: var(--matrix-dark-green);
+            font-size: 11px;
+            letter-spacing: 4px;
+        }
+
+        .page-title-frame {
+            display: inline-block;
+            position: relative;
+            padding: 13px 28px;
+            border: 1px solid var(--matrix-green);
+            background: rgba(0, 255, 65, 0.045);
+            box-shadow:
+                0 0 12px rgba(0, 255, 65, 0.13),
+                inset 0 0 12px rgba(0, 255, 65, 0.035);
+        }
+
+        .page-title-frame::before,
+        .page-title-frame::after {
+            content: "";
+            position: absolute;
+            width: 13px;
+            height: 13px;
+            border-color: var(--matrix-green);
+            border-style: solid;
+        }
+
+        .page-title-frame::before {
+            top: -4px;
+            left: -4px;
+            border-width: 2px 0 0 2px;
+        }
+
+        .page-title-frame::after {
+            right: -4px;
+            bottom: -4px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .page-title {
+            margin: 0;
+            color: var(--matrix-green);
+            font-size: clamp(22px, 5vw, 31px);
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .page-description {
+            margin: 17px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .top-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 26px;
+        }
+
+        .top-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 9px 17px;
+            border: 1px solid var(--matrix-dark-green);
+            border-radius: 2px;
+            color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.045);
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 1px;
+            transition: 0.2s ease;
+        }
+
+        .top-button:hover {
+            color: #000;
+            background: var(--matrix-green);
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.45);
+        }
+
+        .section {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-green);
+            background: rgba(0, 18, 6, 0.68);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.22);
+            color: var(--matrix-green);
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 25px;
+            height: 25px;
+            border: 1px solid var(--matrix-dark-green);
+            color: var(--matrix-green);
+            font-size: 11px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 150px minmax(0, 1fr);
+            border-top: 1px solid rgba(0, 255, 65, 0.12);
+        }
+
+        .info-label,
+        .info-value {
+            min-width: 0;
+            padding: 13px 12px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.12);
+            overflow-wrap: anywhere;
+            line-height: 1.7;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+            font-size: 12px;
+            background: rgba(0, 255, 65, 0.025);
+        }
+
+        .info-value {
+            color: #e0ffe6;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .highlight-value {
+            color: var(--matrix-green);
+            font-size: 17px;
+            text-shadow: 0 0 7px rgba(0, 255, 65, 0.22);
+        }
+
+        .notice {
+            margin-top: 22px;
+            padding: 16px 18px;
+            border: 1px solid rgba(0, 255, 65, 0.35);
+            border-left: 4px solid var(--matrix-green);
+            background: rgba(0, 255, 65, 0.045);
+            color: var(--text-green);
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .notice-title {
+            margin-bottom: 6px;
+            color: var(--matrix-green);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .action-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+        .confirm-button {
+            position: relative;
+            display: block;
+            width: 100%;
+            max-width: 420px;
+            min-height: 58px;
+            padding: 16px 20px;
+            border: 1px solid var(--matrix-green);
+            border-radius: 2px;
+            background: var(--matrix-green);
+            color: #001b07;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            cursor: pointer;
+            box-shadow:
+                0 0 14px rgba(0, 255, 65, 0.28),
+                inset 0 0 8px rgba(0, 0, 0, 0.08);
+            transition: 0.2s ease;
+        }
+
+        .confirm-button:hover {
+            background: #b8ffc7;
+            box-shadow:
+                0 0 25px rgba(0, 255, 65, 0.55),
+                0 0 45px rgba(0, 255, 65, 0.16);
+            transform: translateY(-2px);
+        }
+
+        .confirm-button:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 9px 15px;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--matrix-green);
+            border-bottom-color: var(--matrix-green);
+        }
+
+        .footer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            color: #477b53;
+            text-align: center;
+            font-size: 10px;
+            letter-spacing: 1px;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px 10px 28px;
+            }
+
+            .container {
+                padding: 20px 14px;
+            }
+
+            .system-header {
+                align-items: flex-start;
+            }
+
+            .brand {
+                letter-spacing: 1px;
+            }
+
+            .brand-subtitle {
+                font-size: 9px;
+                letter-spacing: 1px;
+            }
+
+            .system-status {
+                font-size: 9px;
+            }
+
+            .page-title-frame {
+                padding: 12px 17px;
+            }
+
+            .page-title {
+                letter-spacing: 3px;
+            }
+
+            .section {
+                padding: 14px 11px;
+            }
+
+            .section-heading {
+                font-size: 13px;
+                letter-spacing: 1px;
+            }
+
+            .info-grid {
+                grid-template-columns: 105px minmax(0, 1fr);
+            }
+
+            .info-label,
+            .info-value {
+                padding: 11px 8px;
+                font-size: 12px;
+            }
+
+            .highlight-value {
+                font-size: 15px;
+            }
+
+            .top-button {
+                flex: 1;
+                padding: 9px 10px;
+                font-size: 11px;
+            }
+
+            .confirm-button {
+                font-size: 14px;
+                letter-spacing: 2px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="container">
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
 
-    <h1 class="page-title">予約確認</h1>
+    <main class="page-wrapper">
+        <div class="container">
 
-    <div class="top-bar">
-        <a class="btn btn-secondary" th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}">予約内容を変更する</a>
-        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
-    </div>
+            <header class="system-header">
+                <div>
+                    <h1 class="brand">FUJICHAKU</h1>
+                    <div class="brand-subtitle">RESERVATION MANAGEMENT SYSTEM</div>
+                </div>
 
-    <!-- 店舗情報 -->
-    <section class="section">
-        <h2>店舗情報</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>店舗名</th><td th:text="${store.name}">店舗名</td></tr>
-                <tr><th>住所</th><td th:text="${store.address}">住所</td></tr>
-            </tbody>
-        </table>
-    </section>
+                <div class="system-status">
+                    <span class="status-light"></span>
+                    SYSTEM ONLINE
+                </div>
+            </header>
 
-    <!-- 予約者情報（非会員） -->
-    <section class="section" th:if="${userId != null}">
-        <h2>予約者情報（非会員）</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>氏名</th><td th:text="${userName}">氏名</td></tr>
-                <tr><th>メールアドレス</th><td th:text="${userMail}">メールアドレス</td></tr>
-            </tbody>
-        </table>
-    </section>
+            <section class="page-title-area">
+                <div class="page-code">SECURE TRANSACTION // 02</div>
 
-    <!-- 予約者情報（会員） -->
-    <section class="section" th:if="${memberId != null}">
-        <h2>予約者情報</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>会員ID</th><td th:text="${memberId}">会員ID</td></tr>
-            </tbody>
-        </table>
-    </section>
+                <div class="page-title-frame">
+                    <h2 class="page-title">予約確認</h2>
+                </div>
 
-    <!-- 予約内容 -->
-    <section class="section">
-        <h2>予約内容</h2>
-        <table class="reservation-table">
-            <tbody>
-                <tr><th>予約日</th><td th:text="${reservationDate}">2026-10-07</td></tr>
-                <tr><th>予約時間</th><td th:text="${reservationTime}">18:00</td></tr>
-                <tr><th>人数</th><td><span th:text="${number}">2</span> 名</td></tr>
-            </tbody>
-        </table>
-    </section>
+                <p class="page-description">
+                    以下の予約内容をご確認ください。<br>
+                    内容に問題がなければ、予約確定ボタンを押してください。
+                </p>
+            </section>
 
-    <!-- 最終確定（POST /shops/{shopId}/reservations） -->
-    <form method="post" th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}">
+            <nav class="top-buttons" aria-label="ページメニュー">
+                <a class="top-button"
+                   th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}">
+                    ← 予約入力に戻る
+                </a>
 
-        <!-- CSRF -->
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <a class="top-button" th:href="@{/shops}">
+                    店舗一覧へ
+                </a>
+            </nav>
 
-        <!-- 予約日 -->
-        <input type="hidden" name="date" th:value="${reservationDate}">
+            <!-- 店舗情報 -->
+            <section class="section">
+                <h3 class="section-heading">
+                    <span class="section-number">01</span>
+                    店舗情報
+                </h3>
 
-        <!-- 予約時間 -->
-        <input type="hidden" name="time" th:value="${reservationTime}">
+                <div class="info-grid">
+                    <div class="info-label">店舗名</div>
+                    <div class="info-value" th:text="${store.name}"></div>
 
-        <!-- 人数 -->
-        <input type="hidden" name="number" th:value="${number}">
+                    <div class="info-label">住所</div>
+                    <div class="info-value" th:text="${store.address}"></div>
+                </div>
+            </section>
 
-        <!-- 会員：memberIdは表示用として送信 -->
-        <input type="hidden" th:if="${memberId != null}" name="memberId" th:value="${memberId}">
+            <!-- 非会員情報 -->
+            <section class="section" th:if="${userId != null}">
+                <h3 class="section-heading">
+                    <span class="section-number">02</span>
+                    お客様情報
+                </h3>
 
-        <!-- 非会員：userIdは表示用として送信（Controllerでは最終的にmailから再確認する） -->
-        <input type="hidden" th:if="${userId != null}" name="userId" th:value="${userId}">
+                <div class="info-grid">
+                    <div class="info-label">お名前</div>
+                    <div class="info-value" th:text="${userName}"></div>
 
-        <!-- 非会員氏名 -->
-        <input type="hidden" th:if="${userName != null}" name="name" th:value="${userName}">
+                    <div class="info-label">メールアドレス</div>
+                    <div class="info-value" th:text="${userMail}"></div>
+                </div>
+            </section>
 
-        <!-- 非会員メール -->
-        <input type="hidden" th:if="${userMail != null}" name="mail" th:value="${userMail}">
+            <!-- 会員情報 -->
+            <section class="section" th:if="${memberId != null}">
+                <h3 class="section-heading">
+                    <span class="section-number">02</span>
+                    会員情報
+                </h3>
 
-        <!-- 確定ボタン -->
-        <button type="submit" class="btn btn-accent btn-block">予約を確定する</button>
-    </form>
+                <div class="info-grid">
+                    <div class="info-label">会員ID</div>
+                    <div class="info-value" th:text="${memberId}"></div>
+                </div>
+            </section>
 
-    <a class="back-link" th:href="@{/shops}">← 店舗一覧へ戻る</a>
+            <!-- 予約情報 -->
+            <section class="section">
+                <h3 class="section-heading">
+                    <span class="section-number">03</span>
+                    予約内容
+                </h3>
 
-</div>
+                <div class="info-grid">
+                    <div class="info-label">予約日</div>
+                    <div class="info-value highlight-value"
+                         th:text="${reservationDate}"></div>
+
+                    <div class="info-label">予約時間</div>
+                    <div class="info-value highlight-value"
+                         th:text="${reservationTime}"></div>
+
+                    <div class="info-label">利用人数</div>
+                    <div class="info-value highlight-value">
+                        <span th:text="${number}"></span> 名
+                    </div>
+                </div>
+            </section>
+
+            <div class="notice">
+                <div class="notice-title">! CONFIRMATION REQUIRED</div>
+                予約内容に間違いがないか、もう一度ご確認ください。<br>
+                「予約を確定する」を押すと、予約手続きが完了します。
+            </div>
+
+            <!-- 予約確定フォーム -->
+            <form method="post"
+                  th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}">
+
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <input type="hidden" name="date" th:value="${reservationDate}">
+                <input type="hidden" name="time" th:value="${reservationTime}">
+                <input type="hidden" name="number" th:value="${number}">
+
+                <input type="hidden"
+                       name="memberId"
+                       th:if="${memberId != null}"
+                       th:value="${memberId}">
+
+                <input type="hidden"
+                       name="userId"
+                       th:if="${userId != null}"
+                       th:value="${userId}">
+
+                <input type="hidden"
+                       name="name"
+                       th:if="${userName != null}"
+                       th:value="${userName}">
+
+                <input type="hidden"
+                       name="mail"
+                       th:if="${userMail != null}"
+                       th:value="${userMail}">
+
+                <div class="action-area">
+                    <button type="submit" class="confirm-button">
+                        ▶ 予約を確定する
+                    </button>
+
+                    <a class="back-link" th:href="@{/shops}">
+                        ← 店舗一覧に戻る
+                    </a>
+                </div>
+            </form>
+
+            <footer class="footer">
+                FUJICHAKU SYSTEM // RESERVATION MODULE<br>
+                SECURE CONNECTION ESTABLISHED
+            </footer>
+
+        </div>
+    </main>
+
+    <!-- Matrix Digital Rain -->
+    <script>
+        (() => {
+            const canvas = document.getElementById("matrixRain");
+            const ctx = canvas.getContext("2d");
+
+			const characters =
+						    "テストしたくない" +
+						    "テストめんどくさい" + "テストいやだ" +
+						    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+						    "reservation" + "reserve" + "FUJICHAKU" +
+						    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+						    "完了" + "予約完了" + "不時着" + "不時着しました" +
+						    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+						    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+						    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+						    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+						    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+						    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+						    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+						    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+						    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+						    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+						    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+						    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+						    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+						    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+						    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+						    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+						    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+						    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+						    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
+
+            const fontSize = 14;
+            let columns = 0;
+            let drops = [];
+            let animationId = null;
+
+            function resizeCanvas() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                canvas.width = Math.floor(window.innerWidth * dpr);
+                canvas.height = Math.floor(window.innerHeight * dpr);
+
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                columns = Math.ceil(window.innerWidth / fontSize);
+                drops = Array.from(
+                    { length: columns },
+                    () => Math.random() * -window.innerHeight / fontSize
+                );
+            }
+
+            function drawMatrix() {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.075)";
+                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+                ctx.font = fontSize + "px Consolas, monospace";
+
+                for (let i = 0; i < drops.length; i++) {
+                    const character =
+                        characters.charAt(
+                            Math.floor(Math.random() * characters.length)
+                        );
+
+                    ctx.fillStyle =
+                        Math.random() > 0.96 ? "#c7ffd4" : "#00ff41";
+
+                    ctx.fillText(
+                        character,
+                        i * fontSize,
+                        drops[i] * fontSize
+                    );
+
+                    if (
+                        drops[i] * fontSize > window.innerHeight &&
+                        Math.random() > 0.975
+                    ) {
+                        drops[i] = 0;
+                    }
+
+                    drops[i] += 0.45;
+                }
+
+                animationId = window.requestAnimationFrame(drawMatrix);
+            }
+
+            resizeCanvas();
+            drawMatrix();
+
+            window.addEventListener("resize", resizeCanvas);
+
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    if (animationId !== null) {
+                        window.cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                } else if (animationId === null) {
+                    drawMatrix();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -1,0 +1,351 @@
+/* 店舗管理者管理画面 */
+.shop-admin-page {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/*
+ * 表の列幅
+ * 合計870px。ヘッダー・データ・新規登録の3つの表で統一する。
+ */
+.shop-admin-table {
+    width: 870px;
+    min-width: 870px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.shop-admin-table col.col-delete {
+    width: 55px;
+}
+
+.shop-admin-table col.col-id {
+    width: 55px;
+}
+
+.shop-admin-table col.col-store {
+    width: 90px;
+}
+
+.shop-admin-table col.col-name {
+    width: 150px;
+}
+
+.shop-admin-table col.col-mail {
+    width: 190px;
+}
+
+.shop-admin-table col.col-date {
+    width: 150px;
+}
+
+.shop-admin-table col.col-operation {
+    width: 180px;
+}
+
+/* 検索フォーム：表の列に対応させる */
+.shop-admin-search {
+    display: grid;
+    grid-template-columns: 55px 55px 90px 150px 190px 150px minmax(150px, 1fr);
+    align-items: end;
+    column-gap: 0;
+	width: 100%;
+	min-width: 0;
+    margin: 0 0 15px;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+.search-spacer {
+    width: 55px;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+
+.search-field label {
+    font-size: 0.9em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.search-field input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* 検索・条件クリア */
+.search-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding-left: 8px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.search-buttons button {
+    height: 32px;
+    padding: 0 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.search-buttons a {
+    font-size: 0.9em;
+    white-space: nowrap;
+    padding: 7px 0;
+}
+
+/* 一括更新・削除ボタン */
+.table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 870px;
+    min-width: 0;
+    margin: 0 0 8px;
+    box-sizing: border-box;
+}
+
+.table-actions button {
+    padding: 7px 16px;
+    cursor: pointer;
+}
+
+/* 一括保存ボタンを右端に配置 */
+.table-actions button[form="bulkUpdateForm"] {
+    margin-left: auto;
+}
+
+/*
+ * 表全体の横スクロール領域
+ * 870pxを超える場合に横スクロールを表示する。
+ */
+.shop-admin-table-frame {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+}
+
+/* ヘッダー表・データ表・新規登録表の幅を統一 */
+.shop-admin-header-table,
+.shop-admin-data-table,
+.shop-admin-new-table {
+    width: 870px;
+    min-width: 870px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/* 固定ヘッダー */
+.shop-admin-header-table th {
+    padding: 6px 5px;
+    border: 1px solid #ccc;
+    background-color: #eee;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+/*
+ * データ部分のみ縦スクロール
+ * 表の幅は870pxに統一し、列の位置ずれを防ぐ。
+ */
+.shop-admin-data-wrapper {
+    width: 870px;
+    max-width: 100%;
+    max-height: calc(100vh - 390px);
+    min-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* データ表 */
+.shop-admin-data-table {
+    width: 870px;
+    min-width: 870px;
+}
+
+/* データ表・新規登録表のセル */
+.shop-admin-data-table td,
+.shop-admin-new-table td {
+    padding: 5px;
+    border: 1px solid #ccc;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+/* 削除チェックボックス */
+.shop-admin-table th:nth-child(1),
+.shop-admin-table td:nth-child(1) {
+    text-align: center;
+}
+
+/* ID */
+.shop-admin-table td:nth-child(2) {
+    overflow-wrap: anywhere;
+}
+
+/*
+ * 入力欄は各セル幅の約2/3
+ * 左寄せにする。
+ */
+.shop-admin-table input[type="text"],
+.shop-admin-table input[type="email"],
+.shop-admin-table input[type="password"],
+.shop-admin-table input[type="number"],
+.shop-admin-table input[type="date"] {
+    display: block;
+    width: 66.666%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 入力欄が狭い列でも操作できるようにする */
+.shop-admin-table input[type="number"] {
+    min-width: 45px;
+}
+
+.shop-admin-table input[type="date"] {
+    min-width: 105px;
+}
+
+/* 操作欄 */
+.shop-admin-table .operation-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 新規登録行はデータスクロールの外に固定 */
+.shop-admin-new-table {
+    width: 870px;
+    min-width: 870px;
+    margin: 0;
+}
+
+.shop-admin-table .new-row {
+    background-color: #fafafa;
+}
+
+.new-operation-cell button {
+    margin-top: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+}
+
+.new-password-input {
+    margin-bottom: 6px;
+}
+
+/* エラーメッセージ */
+.error-message,
+.field-error {
+    display: block;
+    margin-top: 4px;
+    color: #d00;
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+/* 更新完了メッセージ */
+.success-message {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    color: #216e39;
+    background-color: #eaf6ed;
+    border: 1px solid #b7dfc0;
+    border-radius: 4px;
+    font-size: 0.9em;
+    white-space: pre-line;
+    box-sizing: border-box;
+}
+
+/* 狭い画面 */
+@media (max-width: 1100px) {
+    .shop-admin-search {
+        overflow: visible;
+    }
+
+    .shop-admin-data-wrapper {
+        max-height: calc(100vh - 390px);
+    }
+}
+
+/* 画面の高さが小さい場合 */
+@media (max-height: 700px) {
+    .shop-admin-data-wrapper {
+        max-height: calc(100vh - 330px);
+    }
+}
+
+
+
+/* 店舗管理者画面の横はみ出し対策 */
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.shop-admin-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+    box-sizing: border-box;
+}
+
+/* 検索フォームが画面幅を超えないようにする */
+.shop-admin-search {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns:
+        55px
+        55px
+        90px
+        150px
+        190px
+        150px
+        minmax(0, 1fr);
+}
+
+/* 表だけを横スクロールさせる */
+.shop-admin-table-frame {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+}
+
+/* 表の上のボタンを表の幅に合わせる */
+.table-actions {
+    width: 100%;
+    max-width: 870px;
+    min-width: 0;
+    box-sizing: border-box;
+}

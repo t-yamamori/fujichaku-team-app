@@ -54,13 +54,19 @@ public class Stores {
     )
     private String pictureUrl;
 
-    // 電話番号
-    @NotBlank(message = "電話番号を入力してください")
-    @Pattern(
-        regexp = "^$|^[0-9]{11}$",
-        message = "電話番号は数字11桁で入力してください"
-    )
-    private String phone;
+	 // 電話番号
+	 @NotBlank(message = "電話番号を入力してください")
+	 @Pattern(
+	     regexp = "^(?:[0-9]{10,11}|(?=[0-9-]{12,13}$)(?:[0-9]+-){2}[0-9]+)$",
+	     message = "電話番号は数字10桁または11桁で入力してください（ハイフンは区切りとして2つ使用できます）"
+	 )
+	 private String phone;
+
     
+    @NotBlank(message = "ふりがなを入力してください")
     private String nameKana;  // 店舗名の読みかな
+    
+    private boolean reservable;//店舗ごとの予約機能付与
+    
+    
 }

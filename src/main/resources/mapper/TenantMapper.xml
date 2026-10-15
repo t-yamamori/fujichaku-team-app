@@ -2,23 +2,25 @@
 <!DOCTYPE mapper
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-    
+
 <mapper namespace="com.example.demo.mapper.TenantMapper">
-    <!-- Stores.java
-        ↓
-        DBのStoreテーブル
-    -->
-    <resultMap id="storeResultMap" type="com.example.demo.entity.Stores">
+
+    <!-- Stores.java とDBカラムの対応 -->
+    <resultMap id="storeResultMap"
+               type="com.example.demo.entity.Stores">
+
         <id property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="nameKana" column="name_kana"/>
         <result property="mail" column="mail"/>
         <result property="password" column="password"/>
         <result property="representative" column="representative"/>
         <result property="isDeleted" column="is_deleted"/>
-        <result property="address"  column="address"/>
+        <result property="address" column="address"/>
         <result property="description" column="description"/>
         <result property="pictureUrl" column="picture_url"/>
         <result property="phone" column="phone"/>
+
     </resultMap>
 
     <!-- =========================
@@ -28,6 +30,7 @@
         SELECT
             id,
             name,
+            name_kana,
             mail,
             password,
             representative,
@@ -40,6 +43,7 @@
         WHERE is_deleted = false
         ORDER BY id
     </select>
+
     <!-- =========================
          更新
          ========================= -->
@@ -47,6 +51,7 @@
         UPDATE "stores"
         SET
             name = #{name},
+            name_kana = #{nameKana},
             mail = #{mail},
             representative = #{representative},
             address = #{address},
@@ -78,6 +83,7 @@
     <insert id="create">
         INSERT INTO "stores" (
             name,
+            name_kana,
             mail,
             password,
             representative,
@@ -89,6 +95,7 @@
         )
         VALUES (
             #{name},
+            #{nameKana},
             #{mail},
             #{password},
             #{representative},
@@ -99,4 +106,5 @@
             #{phone}
         )
     </insert>
+
 </mapper>
