@@ -1,340 +1,331 @@
 <!DOCTYPE html>
-
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
-
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>店舗管理者管理</title>
 
-    <style>
-
-        table {
-            border-collapse: collapse;
-            table-layout: auto;
-        }
-
-        th,
-        td {
-            padding: 5px;
-            vertical-align: top;
-        }
-
-        .error-message {
-            display: block;
-            color: red;
-            font-size: 0.9em;
-            margin-top: 2px;
-        }
-
-        button {
-            white-space: nowrap;
-        }
-
-    </style>
-
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+    <link rel="stylesheet" th:href="@{/css/shop-admins.css}">
 </head>
-
 <body>
 
+<div th:replace="~{admin/fragments/adminLayout :: sidebar}"></div>
+
+<main class="shop-admin-page">
     <h1>店舗管理者管理</h1>
 
+    <!-- 更新・登録・削除の結果 -->
+    <div class="success-message"
+         th:if="${successMessage != null}"
+         th:text="${successMessage}">
+    </div>
 
-    <table border="1">
+    <!-- 検索フォーム -->
+    <form class="shop-admin-search"
+          method="get"
+          th:action="@{/admin/shop-admins}"
+          th:object="${filters}">
 
-        <thead>
+        <!-- 削除チェックボックス列に対応する余白 -->
+        <div class="search-spacer" aria-hidden="true"></div>
 
+        <div class="search-field search-field-id">
+            <label for="searchId">ID</label>
+            <input id="searchId" type="text" th:field="*{id}">
+        </div>
+
+        <div class="search-field search-field-store">
+            <label for="searchStoreId">店舗ID</label>
+            <input id="searchStoreId" type="text" th:field="*{storeId}">
+        </div>
+
+        <div class="search-field search-field-name">
+            <label for="searchName">管理者名</label>
+            <input id="searchName" type="text" th:field="*{name}">
+        </div>
+
+        <div class="search-field search-field-mail">
+            <label for="searchMail">メール</label>
+            <input id="searchMail" type="text" th:field="*{mail}">
+        </div>
+
+        <div class="search-field search-field-date">
+            <label for="searchBirthDate">生年月日</label>
+            <input id="searchBirthDate" type="date"
+                   th:field="*{birthDate}">
+        </div>
+
+        <div class="search-buttons">
+            <button type="submit">検索</button>
+            <a th:href="@{/admin/shop-admins}">条件クリア</a>
+        </div>
+    </form>
+
+    <!-- 一括更新フォーム -->
+    <form id="bulkUpdateForm"
+          method="post"
+          th:action="@{/admin/shop-admins/update}"
+          th:object="${updateForm}">
+
+        <input type="hidden" name="filterId" th:value="${filters.id}">
+        <input type="hidden" name="filterStoreId"
+               th:value="${filters.storeId}">
+        <input type="hidden" name="filterName" th:value="${filters.name}">
+        <input type="hidden" name="filterMail" th:value="${filters.mail}">
+        <input type="hidden" name="filterBirthDate"
+               th:value="${filters.birthDate}">
+    </form>
+
+    <!-- 削除フォーム -->
+    <form id="deleteForm"
+          method="post"
+          th:action="@{/admin/shop-admins/delete}">
+
+        <input type="hidden" name="filterId" th:value="${filters.id}">
+        <input type="hidden" name="filterStoreId"
+               th:value="${filters.storeId}">
+        <input type="hidden" name="filterName" th:value="${filters.name}">
+        <input type="hidden" name="filterMail" th:value="${filters.mail}">
+        <input type="hidden" name="filterBirthDate"
+               th:value="${filters.birthDate}">
+    </form>
+
+    <!-- 新規登録フォーム -->
+    <form id="createForm"
+          method="post"
+          th:action="@{/admin/shop-admins/create}">
+
+        <input type="hidden" name="filterId" th:value="${filters.id}">
+        <input type="hidden" name="filterStoreId"
+               th:value="${filters.storeId}">
+        <input type="hidden" name="filterName" th:value="${filters.name}">
+        <input type="hidden" name="filterMail" th:value="${filters.mail}">
+        <input type="hidden" name="filterBirthDate"
+               th:value="${filters.birthDate}">
+    </form>
+
+    <!-- 一括操作ボタン -->
+    <div class="table-actions">
+        <button type="submit"
+                form="deleteForm"
+                onclick="return confirm('チェックした店舗管理者を削除しますか？');">
+            チェックした管理者を削除
+        </button>
+
+        <button type="submit" form="bulkUpdateForm">
+            一括保存
+        </button>
+    </div>
+
+    <!-- 一覧表：横幅は共通、データ行だけ縦スクロール -->
+    <div class="shop-admin-table-frame">
+
+        <!-- 固定ヘッダー -->
+        <table class="shop-admin-table shop-admin-header-table">
+            <colgroup>
+                <col class="col-delete">
+                <col class="col-id">
+                <col class="col-store">
+                <col class="col-name">
+                <col class="col-mail">
+                <col class="col-date">
+                <col class="col-operation">
+            </colgroup>
+            <thead>
             <tr>
-
                 <th>削除</th>
                 <th>ID</th>
                 <th>店舗ID</th>
                 <th>管理者名</th>
                 <th>メール</th>
                 <th>生年月日</th>
-                <th>更新</th>
-
+                <th>操作</th>
             </tr>
+            </thead>
+        </table>
 
-        </thead>
+        <!-- 既存データ部分だけをスクロール -->
+        <div class="shop-admin-data-wrapper">
+            <table class="shop-admin-table shop-admin-data-table">
+                <colgroup>
+                    <col class="col-delete">
+                    <col class="col-id">
+                    <col class="col-store">
+                    <col class="col-name">
+                    <col class="col-mail">
+                    <col class="col-date">
+                    <col class="col-operation">
+                </colgroup>
+                <tbody>
+                <tr th:each="shopAdmin, stat : ${shopAdmins}">
 
+                    <!-- 削除チェックボックス -->
+                    <td class="delete-cell">
+                        <input type="checkbox"
+                               name="deleteIds"
+                               th:value="${shopAdmin.id}"
+                               form="deleteForm"
+                               aria-label="削除対象">
+                    </td>
 
-        <tbody>
-
-            <!-- =========================
-                 既存店舗管理者
-                 ========================= -->
-
-            <tr th:each="shopAdmin : ${shopAdmins}">
-
-                <!-- 削除チェックボックス -->
-
-                <td>
-
-                    <input type="checkbox"
-                           name="deleteIds"
-                           th:value="${shopAdmin.id}"
-                           form="deleteForm">
-
-                </td>
-
-
-                <!-- ID -->
-
-                <td>
-
-                    <span th:text="${shopAdmin.id}">1</span>
-
-                </td>
-
-
-                <!-- 店舗ID -->
-
-                <td>
-
-                    <input type="number"
-                           name="storeId"
-                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.storeId : shopAdmin.storeId}"
-                           th:form="'updateForm-' + ${shopAdmin.id}">
-
-                    <div class="error-message"
-                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
-                                 and updateErrors.containsKey('storeId')}"
-                         th:text="${updateErrors['storeId']}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 管理者名 -->
-
-                <td>
-
-                    <input type="text"
-                           name="name"
-                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.name : shopAdmin.name}"
-                           th:form="'updateForm-' + ${shopAdmin.id}">
-
-                    <div class="error-message"
-                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
-                                 and updateErrors.containsKey('name')}"
-                         th:text="${updateErrors['name']}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- メール -->
-
-                <td>
-
-                    <input type="email"
-                           name="mail"
-                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.mail : shopAdmin.mail}"
-                           th:form="'updateForm-' + ${shopAdmin.id}">
-
-                    <div class="error-message"
-                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
-                                 and updateErrors.containsKey('mail')}"
-                         th:text="${updateErrors['mail']}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 生年月日 -->
-
-                <td>
-
-                    <input type="date"
-                           name="birthDate"
-                           th:value="${shopAdmin.id == updateErrorShopAdmin?.id ? updateErrorShopAdmin.birthDate : shopAdmin.birthDate}"
-                           th:form="'updateForm-' + ${shopAdmin.id}">
-
-                    <div class="error-message"
-                         th:if="${shopAdmin.id == updateErrorShopAdmin?.id
-                                 and updateErrors.containsKey('birthDate')}"
-                         th:text="${updateErrors['birthDate']}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 更新ボタン -->
-
-                <td>
-
-                    <form th:id="'updateForm-' + ${shopAdmin.id}"
-                          th:action="@{/admin/shop-admins/update}"
-                          method="post">
-
+                    <!-- ID -->
+                    <td>
+                        <span th:text="${shopAdmin.id}"></span>
                         <input type="hidden"
-                               name="id"
-                               th:value="${shopAdmin.id}">
-
-                        <button type="submit">
-                            更新
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
-
-
-            <!-- =========================
-                 新規登録
-                 ========================= -->
-
-            <tr th:object="${newShopAdmin}">
-
-                <td></td>
-
-                <td>新規</td>
-
-
-                <!-- 店舗ID -->
-
-                <td>
-
-                    <input type="number"
-                           th:field="*{storeId}"
-                           form="createForm">
-
-                    <div class="error-message"
-                         th:if="${#fields.hasErrors('storeId')}"
-                         th:errors="*{storeId}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 管理者名 -->
-
-                <td>
-
-                    <input type="text"
-                           th:field="*{name}"
-                           form="createForm">
-
-                    <div class="error-message"
-                         th:if="${#fields.hasErrors('name')}"
-                         th:errors="*{name}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- メール -->
-
-                <td>
-
-                    <input type="email"
-                           th:field="*{mail}"
-                           form="createForm">
-
-                    <div class="error-message"
-                         th:if="${#fields.hasErrors('mail')}"
-                         th:errors="*{mail}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 生年月日 -->
-
-                <td>
-
-                    <input type="date"
-                           th:field="*{birthDate}"
-                           form="createForm">
-
-                    <div class="error-message"
-                         th:if="${#fields.hasErrors('birthDate')}"
-                         th:errors="*{birthDate}">
-
-                    </div>
-
-                </td>
-
-
-                <!-- 作成 -->
-
-                <td>
-
-                    <button type="submit"
-                            form="createForm">
-
-                        作成
-
-                    </button>
-
-                </td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-
-    <br>
-
-
-    <!-- =========================
-         削除フォーム
-         ========================= -->
-
-    <form id="deleteForm"
-          th:action="@{/admin/shop-admins/delete}"
-          method="post">
-
-        <button type="submit">
-
-            チェックした管理者を削除
-
-        </button>
-
-    </form>
-
-
-    <br>
-
-
-    <!-- =========================
-         新規登録フォーム
-         ========================= -->
-
-    <form id="createForm"
-          th:action="@{/admin/shop-admins/create}"
-          th:object="${newShopAdmin}"
-          method="post">
-
-        <label>
-            新規登録パスワード：
-        </label>
-
-        <input type="password"
-               th:field="*{password}">
-
-        <div class="error-message"
-             th:if="${#fields.hasErrors('password')}"
-             th:errors="*{password}">
-
+                               th:name="'shopAdmins[' + ${stat.index} + '].id'"
+                               th:value="${shopAdmin.id}"
+                               form="bulkUpdateForm">
+                    </td>
+
+                    <!-- 店舗ID -->
+                    <td>
+                        <input type="number"
+                               min="1"
+                               th:name="'shopAdmins[' + ${stat.index} + '].storeId'"
+                               th:value="${shopAdmin.storeId}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['storeId'] != null}"
+                              th:text="${updateErrors[stat.index]['storeId']}">
+                        </span>
+                    </td>
+
+                    <!-- 管理者名 -->
+                    <td>
+                        <input type="text"
+                               th:name="'shopAdmins[' + ${stat.index} + '].name'"
+                               th:value="${shopAdmin.name}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['name'] != null}"
+                              th:text="${updateErrors[stat.index]['name']}">
+                        </span>
+                    </td>
+
+                    <!-- メール -->
+                    <td>
+                        <input type="email"
+                               th:name="'shopAdmins[' + ${stat.index} + '].mail'"
+                               th:value="${shopAdmin.mail}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['mail'] != null}"
+                              th:text="${updateErrors[stat.index]['mail']}">
+                        </span>
+                    </td>
+
+                    <!-- 生年月日 -->
+                    <td>
+                        <input type="date"
+                               th:name="'shopAdmins[' + ${stat.index} + '].birthDate'"
+                               th:value="${shopAdmin.birthDate}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['birthDate'] != null}"
+                              th:text="${updateErrors[stat.index]['birthDate']}">
+                        </span>
+                    </td>
+
+                    <td class="operation-cell">-</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
 
-    </form>
+        <!-- 固定の新規登録行 -->
+        <table class="shop-admin-table shop-admin-new-table">
+            <colgroup>
+                <col class="col-delete">
+                <col class="col-id">
+                <col class="col-store">
+                <col class="col-name">
+                <col class="col-mail">
+                <col class="col-date">
+                <col class="col-operation">
+            </colgroup>
+            <tbody>
+            <tr class="new-row">
+                <td></td>
+                <td>新規</td>
 
+                <td>
+                    <input type="number"
+                           min="1"
+                           name="storeId"
+                           th:value="${newShopAdmin.storeId}"
+                           form="createForm">
+
+                    <span class="field-error"
+                          th:if="${createErrors['storeId'] != null}"
+                          th:text="${createErrors['storeId']}">
+                    </span>
+                </td>
+
+                <td>
+                    <input type="text"
+                           name="name"
+                           th:value="${newShopAdmin.name}"
+                           form="createForm">
+
+                    <span class="field-error"
+                          th:if="${createErrors['name'] != null}"
+                          th:text="${createErrors['name']}">
+                    </span>
+                </td>
+
+                <td>
+                    <input type="email"
+                           name="mail"
+                           th:value="${newShopAdmin.mail}"
+                           form="createForm">
+
+                    <span class="field-error"
+                          th:if="${createErrors['mail'] != null}"
+                          th:text="${createErrors['mail']}">
+                    </span>
+                </td>
+
+                <td>
+                    <input type="date"
+                           name="birthDate"
+                           th:value="${newShopAdmin.birthDate}"
+                           form="createForm">
+
+                    <span class="field-error"
+                          th:if="${createErrors['birthDate'] != null}"
+                          th:text="${createErrors['birthDate']}">
+                    </span>
+                </td>
+
+                <td class="new-operation-cell">
+                    <input class="new-password-input"
+                           type="password"
+                           name="password"
+                           placeholder="新規パスワード"
+                           autocomplete="new-password"
+                           form="createForm">
+
+                    <span class="field-error"
+                          th:if="${createErrors['password'] != null}"
+                          th:text="${createErrors['password']}">
+                    </span>
+
+                    <button type="submit" form="createForm">登録</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 </body>
-
 </html>
