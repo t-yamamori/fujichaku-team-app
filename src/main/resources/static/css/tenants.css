@@ -2,6 +2,7 @@
 .tenant-page {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
     box-sizing: border-box;
 }
 
@@ -40,7 +41,7 @@
     box-sizing: border-box;
 }
 
-/* ID検索欄：一覧表のID列に対応 */
+/* ID検索欄 */
 .search-field-id {
     flex: 0 0 45px;
 }
@@ -68,135 +69,9 @@
     padding: 7px 0;
 }
 
-/* 一覧表のスクロール領域 */
-.tenant-table-wrapper {
-    width: 100%;
-    max-height: calc(100vh - 250px);
-    overflow: auto;
-    box-sizing: border-box;
-}
 
-/* テナント一覧表 */
-.tenant-table {
-    width: 100%;
-    min-width: 1370px;
-    table-layout: fixed;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-/* セル共通 */
-.tenant-table th,
-.tenant-table td {
-    padding: 5px;
-    border: 1px solid #ccc;
-    vertical-align: top;
-    box-sizing: border-box;
-}
-
-/* ヘッダー固定 */
-.tenant-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background-color: #eee;
-    white-space: nowrap;
-}
-
-/* 1列目：削除チェックボックス */
-.tenant-table th:nth-child(1),
-.tenant-table td:nth-child(1) {
-    width: 55px;
-    text-align: center;
-}
-
-/* 2列目：ID */
-.tenant-table th:nth-child(2),
-.tenant-table td:nth-child(2) {
-    width: 45px;
-}
-
-/* 3列目：名前 */
-.tenant-table th:nth-child(3),
-.tenant-table td:nth-child(3) {
-    width: 110px;
-}
-
-/* 4列目：ふりがな */
-.tenant-table th:nth-child(4),
-.tenant-table td:nth-child(4) {
-    width: 120px;
-}
-
-/* 5列目：メール */
-.tenant-table th:nth-child(5),
-.tenant-table td:nth-child(5) {
-    width: 150px;
-}
-
-/* 6列目：電話番号 */
-.tenant-table th:nth-child(6),
-.tenant-table td:nth-child(6) {
-    width: 110px;
-}
-
-/* 7列目：代表者 */
-.tenant-table th:nth-child(7),
-.tenant-table td:nth-child(7) {
-    width: 100px;
-}
-
-/* 8列目：住所 */
-.tenant-table th:nth-child(8),
-.tenant-table td:nth-child(8) {
-    width: 140px;
-}
-
-/* 9列目：説明 */
-.tenant-table th:nth-child(9),
-.tenant-table td:nth-child(9) {
-    width: 140px;
-}
-
-/* 10列目：画像URL */
-.tenant-table th:nth-child(10),
-.tenant-table td:nth-child(10) {
-    width: 140px;
-}
-
-/* 11列目：操作 */
-.tenant-table th:nth-child(11),
-.tenant-table td:nth-child(11) {
-    width: 160px;
-}
-
-/* 一覧表内の入力欄 */
-.tenant-table input[type="text"],
-.tenant-table input[type="email"],
-.tenant-table input[type="password"],
-.tenant-table input[type="tel"],
-.tenant-table textarea {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
-
-/* 一覧表内の説明欄 */
-.tenant-table textarea {
-    resize: vertical;
-}
-
-/* エラーメッセージ */
-.error-message,
-.field-error {
-    display: block;
-    margin-top: 4px;
-    color: #d00;
-    font-size: 0.85em;
-    overflow-wrap: anywhere;
-}
-
-/* 一括更新・削除ボタン */
+/* 一括削除・一括更新ボタン
+   削除は左端、更新は右端に配置し、同じ高さに揃える */
 .table-actions {
     display: flex;
     justify-content: space-between;
@@ -206,10 +81,14 @@
     box-sizing: border-box;
 }
 
+/* 両ボタンの高さを統一 */
 .table-actions button {
+    min-height: 32px;
     padding: 7px 16px;
     cursor: pointer;
+    box-sizing: border-box;
 }
+
 
 /* 更新完了メッセージ */
 .success-message {
@@ -223,7 +102,164 @@
     box-sizing: border-box;
 }
 
-/* 操作列内のボタン配置 */
+/* 一覧表全体の横スクロール領域
+   ヘッダー・既存データ・新規登録行で横スクロールを共有する */
+.tenant-table-frame {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-sizing: border-box;
+}
+
+/* テーブル共通 */
+.tenant-table {
+    width: 1370px;
+    min-width: 1370px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+/* 列幅をすべてのテーブルで共通化 */
+.tenant-table .col-delete {
+    width: 55px;
+}
+
+.tenant-table .col-id {
+    width: 45px;
+}
+
+.tenant-table .col-name {
+    width: 110px;
+}
+
+.tenant-table .col-name-kana {
+    width: 120px;
+}
+
+.tenant-table .col-mail {
+    width: 150px;
+}
+
+.tenant-table .col-phone {
+    width: 110px;
+}
+
+.tenant-table .col-representative {
+    width: 100px;
+}
+
+.tenant-table .col-address {
+    width: 140px;
+}
+
+.tenant-table .col-description {
+    width: 140px;
+}
+
+.tenant-table .col-picture {
+    width: 140px;
+}
+
+/* 操作列：従来の160pxから約2/3の105pxに縮小 */
+.tenant-table .col-operation {
+    width: 105px;
+}
+
+/* セル共通 */
+.tenant-table th,
+.tenant-table td {
+    padding: 5px;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    vertical-align: top;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* 左端の罫線 */
+.tenant-table th:first-child,
+.tenant-table td:first-child {
+    border-left: 1px solid #ccc;
+}
+
+/* ヘッダー */
+.tenant-header-table {
+    border-top: 1px solid #ccc;
+}
+
+.tenant-header-table thead th {
+    background-color: #eee;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+}
+
+/* 既存データの縦スクロール領域 */
+.tenant-table-data-wrapper {
+    width: 100%;
+    max-height: calc(100vh - 320px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* 既存データテーブル */
+.tenant-data-table {
+    border-top: 0;
+}
+
+/* 新規登録テーブル
+   データの縦スクロール領域の外側に配置する */
+.tenant-new-table {
+    border-top: 0;
+}
+
+/* 新規登録行の背景 */
+.tenant-new-table tbody tr {
+    background-color: #f7f7f7;
+}
+
+/* 入力欄共通 */
+.tenant-table input[type="text"],
+.tenant-table input[type="email"],
+.tenant-table input[type="password"],
+.tenant-table input[type="tel"],
+.tenant-table textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 操作列のパスワード入力欄 */
+.tenant-table .new-password-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 操作列の作成ボタン */
+.tenant-new-table td:last-child button {
+    margin-top: 5px;
+    max-width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* エラーメッセージ */
+.error-message,
+.field-error {
+    display: block;
+    margin-top: 4px;
+    color: #d00;
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+/* 更新ボタン領域 */
 .update-button-area {
     display: flex;
     justify-content: flex-end;
@@ -235,7 +271,7 @@
     margin-left: auto;
 }
 
-/* 画面幅が狭い場合 */
+/* 狭い画面 */
 @media (max-width: 1100px) {
     .tenant-search {
         overflow-x: auto;
@@ -249,7 +285,7 @@
         flex: 0 0 45px;
     }
 
-    .tenant-table-wrapper {
-        max-height: calc(100vh - 250px);
+    .tenant-table-data-wrapper {
+        max-height: calc(100vh - 320px);
     }
 }

@@ -27,6 +27,9 @@
           th:action="@{/admin/shop-admins}"
           th:object="${filters}">
 
+        <!-- 削除チェックボックス列に対応する余白 -->
+        <div class="search-spacer" aria-hidden="true"></div>
+
         <div class="search-field search-field-id">
             <label for="searchId">ID</label>
             <input id="searchId" type="text" th:field="*{id}">
@@ -111,13 +114,24 @@
         </button>
 
         <button type="submit" form="bulkUpdateForm">
-            一括更新
+            一括保存
         </button>
     </div>
 
-    <!-- 店舗管理者一覧 -->
-    <div class="shop-admin-table-wrapper">
-        <table class="shop-admin-table">
+    <!-- 一覧表：横幅は共通、データ行だけ縦スクロール -->
+    <div class="shop-admin-table-frame">
+
+        <!-- 固定ヘッダー -->
+        <table class="shop-admin-table shop-admin-header-table">
+            <colgroup>
+                <col class="col-delete">
+                <col class="col-id">
+                <col class="col-store">
+                <col class="col-name">
+                <col class="col-mail">
+                <col class="col-date">
+                <col class="col-operation">
+            </colgroup>
             <thead>
             <tr>
                 <th>削除</th>
@@ -129,88 +143,116 @@
                 <th>操作</th>
             </tr>
             </thead>
+        </table>
 
+        <!-- 既存データ部分だけをスクロール -->
+        <div class="shop-admin-data-wrapper">
+            <table class="shop-admin-table shop-admin-data-table">
+                <colgroup>
+                    <col class="col-delete">
+                    <col class="col-id">
+                    <col class="col-store">
+                    <col class="col-name">
+                    <col class="col-mail">
+                    <col class="col-date">
+                    <col class="col-operation">
+                </colgroup>
+                <tbody>
+                <tr th:each="shopAdmin, stat : ${shopAdmins}">
+
+                    <!-- 削除チェックボックス -->
+                    <td class="delete-cell">
+                        <input type="checkbox"
+                               name="deleteIds"
+                               th:value="${shopAdmin.id}"
+                               form="deleteForm"
+                               aria-label="削除対象">
+                    </td>
+
+                    <!-- ID -->
+                    <td>
+                        <span th:text="${shopAdmin.id}"></span>
+                        <input type="hidden"
+                               th:name="'shopAdmins[' + ${stat.index} + '].id'"
+                               th:value="${shopAdmin.id}"
+                               form="bulkUpdateForm">
+                    </td>
+
+                    <!-- 店舗ID -->
+                    <td>
+                        <input type="number"
+                               min="1"
+                               th:name="'shopAdmins[' + ${stat.index} + '].storeId'"
+                               th:value="${shopAdmin.storeId}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['storeId'] != null}"
+                              th:text="${updateErrors[stat.index]['storeId']}">
+                        </span>
+                    </td>
+
+                    <!-- 管理者名 -->
+                    <td>
+                        <input type="text"
+                               th:name="'shopAdmins[' + ${stat.index} + '].name'"
+                               th:value="${shopAdmin.name}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['name'] != null}"
+                              th:text="${updateErrors[stat.index]['name']}">
+                        </span>
+                    </td>
+
+                    <!-- メール -->
+                    <td>
+                        <input type="email"
+                               th:name="'shopAdmins[' + ${stat.index} + '].mail'"
+                               th:value="${shopAdmin.mail}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['mail'] != null}"
+                              th:text="${updateErrors[stat.index]['mail']}">
+                        </span>
+                    </td>
+
+                    <!-- 生年月日 -->
+                    <td>
+                        <input type="date"
+                               th:name="'shopAdmins[' + ${stat.index} + '].birthDate'"
+                               th:value="${shopAdmin.birthDate}"
+                               form="bulkUpdateForm">
+
+                        <span class="field-error"
+                              th:if="${updateErrors[stat.index] != null
+                                  and updateErrors[stat.index]['birthDate'] != null}"
+                              th:text="${updateErrors[stat.index]['birthDate']}">
+                        </span>
+                    </td>
+
+                    <td class="operation-cell">-</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 固定の新規登録行 -->
+        <table class="shop-admin-table shop-admin-new-table">
+            <colgroup>
+                <col class="col-delete">
+                <col class="col-id">
+                <col class="col-store">
+                <col class="col-name">
+                <col class="col-mail">
+                <col class="col-date">
+                <col class="col-operation">
+            </colgroup>
             <tbody>
-            <tr th:each="shopAdmin, stat : ${shopAdmins}">
-                <!-- 削除チェックボックス -->
-                <td class="delete-cell">
-                    <input type="checkbox"
-                           name="deleteIds"
-                           th:value="${shopAdmin.id}"
-                           form="deleteForm"
-                           aria-label="削除対象">
-                </td>
-
-                <!-- ID -->
-                <td>
-                    <span th:text="${shopAdmin.id}"></span>
-                    <input type="hidden"
-                           th:name="'shopAdmins[' + ${stat.index} + '].id'"
-                           th:value="${shopAdmin.id}"
-                           form="bulkUpdateForm">
-                </td>
-
-                <!-- 店舗ID -->
-                <td>
-                    <input type="number"
-                           min="1"
-                           th:name="'shopAdmins[' + ${stat.index} + '].storeId'"
-                           th:value="${shopAdmin.storeId}"
-                           form="bulkUpdateForm">
-
-                    <span class="field-error"
-                          th:if="${updateErrors[stat.index] != null
-                              and updateErrors[stat.index]['storeId'] != null}"
-                          th:text="${updateErrors[stat.index]['storeId']}">
-                    </span>
-                </td>
-
-                <!-- 管理者名 -->
-                <td>
-                    <input type="text"
-                           th:name="'shopAdmins[' + ${stat.index} + '].name'"
-                           th:value="${shopAdmin.name}"
-                           form="bulkUpdateForm">
-
-                    <span class="field-error"
-                          th:if="${updateErrors[stat.index] != null
-                              and updateErrors[stat.index]['name'] != null}"
-                          th:text="${updateErrors[stat.index]['name']}">
-                    </span>
-                </td>
-
-                <!-- メール -->
-                <td>
-                    <input type="email"
-                           th:name="'shopAdmins[' + ${stat.index} + '].mail'"
-                           th:value="${shopAdmin.mail}"
-                           form="bulkUpdateForm">
-
-                    <span class="field-error"
-                          th:if="${updateErrors[stat.index] != null
-                              and updateErrors[stat.index]['mail'] != null}"
-                          th:text="${updateErrors[stat.index]['mail']}">
-                    </span>
-                </td>
-
-                <!-- 生年月日 -->
-                <td>
-                    <input type="date"
-                           th:name="'shopAdmins[' + ${stat.index} + '].birthDate'"
-                           th:value="${shopAdmin.birthDate}"
-                           form="bulkUpdateForm">
-
-                    <span class="field-error"
-                          th:if="${updateErrors[stat.index] != null
-                              and updateErrors[stat.index]['birthDate'] != null}"
-                          th:text="${updateErrors[stat.index]['birthDate']}">
-                    </span>
-                </td>
-
-                <td class="operation-cell">一括更新で保存</td>
-            </tr>
-
-            <!-- 新規登録行 -->
             <tr class="new-row">
                 <td></td>
                 <td>新規</td>
@@ -264,12 +306,11 @@
                     </span>
                 </td>
 
-                <td>
+                <td class="new-operation-cell">
                     <input class="new-password-input"
                            type="password"
                            name="password"
-                           th:value="${newShopAdmin.password}"
-                           placeholder="新規登録時のパスワード"
+                           placeholder="新規パスワード"
                            autocomplete="new-password"
                            form="createForm">
 
