@@ -111,9 +111,9 @@
 
     <!-- 会員の合計ポイントを増やす（今の値に足す） -->
     <update id="addPoint">
-        UPDATE members
-        SET point = point + #{points}
-        WHERE id = #{id} AND is_deleted = false
+       <!-- 変更後：0 より下にはならない -->
+		UPDATE members SET point = GREATEST(point + #{points}, 0) 
+		WHERE id = #{id} AND is_deleted = false
     </update>
 
     <!-- 理由ごとのポイント合計（1件もないときは NULL ではなく 0 を返す） -->

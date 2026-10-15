@@ -3,31 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${store.name} + ' | 店舗詳細'">店舗詳細</title>
-    <link rel="stylesheet" th:href="@{/css/shops.css}">
-    <!-- 口コミ投稿・削除まわりで追加した要素用（shops.css に移してもOK） -->
-    <style>
-        .flash { padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; }
-        .flash-success { background: #e8f5e9; color: #1b5e20; }
-        .flash-error   { background: #fdecea; color: #b71c1c; }
-        .review .meta { display: flex; align-items: center; gap: 12px; }
-        .review .delete-form { margin-left: auto; }
-        .btn-small { padding: 4px 10px; font-size: 0.85em; }
-        .review-form { display: grid; gap: 10px; margin-top: 20px; }
-        .review-form textarea { width: 100%; min-height: 100px; box-sizing: border-box; }
-        /* 【追加】店舗管理者用 */
-        .admin-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px;
-                     padding: 10px 14px; margin-bottom: 16px; border-radius: 6px; background: #e3f2ec; color: #1b5e45; }
-        .admin-bar form { margin: 0; }
-    </style>
+    <title th:text="${store.name} + ' | FUJICHAKU TOWN'">店舗詳細 | FUJICHAKU TOWN</title>
+    <!-- 【変更】トップ画面と同じ文字（BIZ UDPゴシック）と、店舗詳細専用の detail.css だけを読み込む -->
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/detail.css}">
 </head>
-<body>
+
+<!-- 【追加】フロアで背景の濃さを変える（floor-b1 / floor-1 / floor-2）
+             予約できる店（＝レストラン）は is-restaurant を追加して深い青の背景にする -->
+<body th:classappend="${(store.address == '地下1階' ? 'floor-b1' : (store.address == '2階' ? 'floor-2' : 'floor-1'))
+                        + (store.reservable ? ' is-restaurant' : '')}">
+
+<!-- ======================================================
+     【追加】ヘッダー（トップ画面と同じ）
+     ====================================================== -->
+<header class="site-header">
+    <div class="header-inner">
+        <!-- 店舗管理者は画面移動しないのでリンクなし -->
+        <a class="logo" th:href="${isShopAdmin} ? null : @{/shops}">
+            <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
+            <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+        </a>
+
+        <!-- 未ログイン -->
+        <nav class="account-nav" th:unless="${isMember or isShopAdmin}" aria-label="アカウント">
+            <a class="btn btn-outline" th:href="@{/register/register}">会員登録</a>
+            <a class="btn" th:href="@{/login}">ログイン</a>
+            <a class="forgot-link" th:href="@{/password/reset/verify}">パスワードをお忘れの方</a>
+        </nav>
+
+        <!-- 会員ログイン中 -->
+        <nav class="account-nav" th:if="${isMember}" aria-label="アカウント">
+            <a th:href="@{/members/showEdit}">会員情報</a>
+            <a th:href="@{/reservations/history}">予約履歴</a>
+            <form th:action="@{/shops/logout}" method="post">
+                <button type="submit" class="link-button">ログアウト</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
 <div class="container">
 
-    <!-- 【追加】店舗管理者でログイン中の表示とログアウト（ヘッダーはログアウトのみ）
-         【変更】ログアウト先を店舗管理者専用の POST /shop-admin/logout に変更
-                 （ShopDashboardController → 処理後はトップ画面(/shops)の未ログイン表示へ）
-                 th:action なので CSRF トークンは自動で入る -->
+    <!-- 店舗管理者でログイン中の表示とログアウト（POST /shop-admin/logout） -->
     <div class="admin-bar" th:if="${isShopAdmin}">
         <span>店舗管理者としてログイン中</span>
         <form th:action="@{/shop-admin/logout}" method="post">
@@ -35,40 +54,65 @@
         </form>
     </div>
 
-    <h1 class="page-title" th:text="${store.name}">店舗名</h1>
+    <!-- 【追加】パンくずリスト（「← 店舗一覧へ戻る」の代わり。店舗管理者には出さない） -->
+    <p class="crumbs" th:unless="${isShopAdmin}">
+        <a th:href="@{/shops}">TOP</a><span>＞</span>
+        <a th:href="@{/shops#shops-title}">ショップ一覧</a><span>＞</span>
+        <th:block th:text="${store.name}">店舗名</th:block>
+    </p>
 
-    <!-- 口コミ投稿・削除の結果メッセージ（POST後のリダイレクトで受け取るフラッシュ属性） -->
+    <!-- 【追加】フロア・レストランのラベル -->
+    <div class="tags">
+        <span class="tag tag-floor"
+              th:text="${store.address == '地下1階' ? 'B1' : (store.address == '2階' ? '2F' : '1F')}">1F</span>
+        <span class="tag tag-cat" th:if="${store.reservable}">レストラン</span>
+    </div>
+
+	<h1 class="page-title">
+	    <!-- 【追加】トップ画面に戻るボタン（店舗管理者は画面移動しないので出さない） -->
+	    <a class="back-btn" th:href="@{/shops}" th:unless="${isShopAdmin}" aria-label="トップ画面に戻る">&lt;</a>
+	    <span th:text="${store.name}">店舗名</span>
+	</h1>
+
+    <!-- 口コミ投稿・削除の結果メッセージ -->
     <div class="flash flash-success" th:if="${message}" th:text="${message}">口コミを投稿しました。</div>
     <div class="flash flash-error" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</div>
 
-    <!-- ① 店舗情報 -->
+    <!-- ① 店舗情報（【変更】代表者・連絡先はお客さん向けではないので表示しない） -->
     <section class="section">
         <div class="shop-detail">
             <div>
-                <img th:if="${store.pictureUrl != null}"  th:src="@{${store.pictureUrl}}" th:alt="${store.name}">
-                <div th:unless="${store.pictureUrl != null}" class="no-image">No Image</div>
+                <img th:if="${store.pictureUrl != null}" th:src="@{${store.pictureUrl}}" th:alt="${store.name}">
+                <div th:unless="${store.pictureUrl != null}" class="no-image">NO IMAGE</div>
             </div>
-            <dl>
-                <dt>店舗名</dt> <dd th:text="${store.name}">店舗名</dd>
-                <dt>代表者</dt> <dd th:text="${store.representative}">代表者</dd>
-                <dt>住所</dt>   <dd th:text="${store.address}">住所</dd>
-                <dt>連絡先</dt> <dd th:text="${store.mail}">mail</dd>
-                <!-- 追加：電話番号（既存店舗はNULLなので未登録表示） -->
-                <dt>電話番号</dt>
-                <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
-                <dt>説明</dt>   <dd th:text="${store.description}">説明</dd>
-            </dl>
+
+            <div>
+                <dl>
+                    <dt>フロア</dt>
+                    <dd th:text="${store.address}">1階</dd>
+                    <dt>電話番号</dt>
+                    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
+                    <dt>説明</dt>
+                    <dd th:text="${store.description}">説明</dd>
+                </dl>
+
+                <!-- ② 予約ボタン：予約できる店だけ／店舗管理者には出さない -->
+                <th:block th:if="${store.reservable}">
+                    <div class="reserve-area" th:unless="${isShopAdmin}">
+                        <a class="btn btn-block"
+                           th:href="@{/shops/{shopId}/reservations/new(shopId=${store.id})}">この店舗を予約する</a>
+                    </div>
+                </th:block>
+
+                <!-- 予約できない店には案内だけ -->
+                <p class="no-reserve" th:unless="${store.reservable or isShopAdmin}">
+                    この店舗では予約を受け付けていません。
+                </p>
+            </div>
         </div>
     </section>
 
-    <!-- ② 予約ボタン（ReservationController：GET /shops/{shopId}/reservations/new） -->
-    <!-- 【変更】店舗管理者は予約できないので非表示 -->
-    <div class="reserve-area" th:unless="${isShopAdmin}">
-        <a class="btn btn-accent btn-block"
-           th:href="@{/shops/{shopId}/reservations/new(shopId=${store.id})}">この店舗を予約する</a>
-    </div>
-
-    <!-- 【追加】②' 予約履歴（店舗管理者のみ：この店舗の予約を会員・非会員とも全件表示） -->
+    <!-- ②' 予約履歴（店舗管理者のみ：この店舗の予約を会員・非会員とも全件表示） -->
     <section class="section" th:if="${isShopAdmin}">
         <h2>これまでの予約履歴</h2>
 
@@ -82,7 +126,6 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- 会員予約は member_id、非会員予約は user_id が入る（もう一方は NULL） -->
                 <tr th:each="sr : ${storeReservations}">
                     <td th:text="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy/MM/dd(E) HH:mm')} : ''">2026/10/10 18:00</td>
                     <td th:text="${sr.memberId != null}
@@ -96,7 +139,22 @@
 
         <p class="note" th:if="${#lists.isEmpty(storeReservations)}">この店舗の予約はまだありません。</p>
     </section>
-
+	
+	<!-- 【追加】ポイントの案内（店舗管理者には出さない） -->
+	<section class="section point-card" th:unless="${isShopAdmin}">
+	    <div class="point-badge" aria-hidden="true">P</div>
+	    <div class="point-body">
+	        <p class="point-title">このお店でポイントがたまります</p>
+	        <ul class="point-list">
+	            <li>口コミを投稿すると<b>5P</b></li>
+	            <li th:if="${store.reservable}">予約すると<b>10P</b></li>
+	            <li>会員情報ページのガチャでもポイントGET!</li>
+	        </ul>
+	    </div>
+	    <!-- 未ログインの人には会員登録への入口を出す -->
+	    <a class="btn btn-outline" th:href="@{/register/register}" th:unless="${isMember}">会員登録してためる</a>
+	</section>
+	
     <!-- ③ 口コミ -->
     <section class="section">
         <h2>口コミ</h2>
@@ -109,9 +167,7 @@
                       th:text="${#strings.repeat('★', r.grade) + #strings.repeat('☆', 5 - r.grade)}">★★★☆☆</span>
                 <span th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
 
-                <!-- 口コミ削除（POST /shops/{shopId} action=delete）
-                     会員：自分の口コミにだけ表示
-                     【変更】店舗管理者：自店舗のすべての口コミに表示 -->
+                <!-- 口コミ削除（会員：自分の口コミ／店舗管理者：自店舗のすべての口コミ） -->
                 <form class="delete-form" method="post"
                       th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
                       th:action="@{/shops/{shopId}(shopId=${store.id})}"
@@ -124,12 +180,11 @@
             <p class="comment" th:text="${r.comment}">コメント</p>
         </div>
 
-        <!-- 【変更】店舗管理者には会員向けの案内を出さない -->
         <p class="note" th:unless="${isMember or isShopAdmin}">
             ※会員の方はすべての口コミを見ることができます。
         </p>
 
-        <!-- 口コミ追加：会員のみ表示（POST /shops/{shopId} action=add） -->
+        <!-- 口コミ追加：会員のみ（POST /shops/{shopId} action=add） -->
         <form class="review-form" method="post"
               th:if="${isMember}"
               th:action="@{/shops/{shopId}(shopId=${store.id})}">
@@ -149,35 +204,52 @@
             <textarea id="comment" name="comment" maxlength="500" required
                       placeholder="お店の感想を書いてください"></textarea>
 
-            <button type="submit" class="btn btn-primary">口コミを投稿する</button>
+            <button type="submit" class="btn">口コミを投稿する</button>
         </form>
     </section>
 
-    <!-- ④ 予約がある場合、予約日時を表示（会員限定） -->
-    <section class="section" th:if="${isMember}">
-        <h2>あなたの予約</h2>
+    <!-- ④ あなたの予約（会員かつ予約できる店のみ） -->
+    <th:block th:if="${store.reservable}">
+        <section class="section" th:if="${isMember}">
+            <h2>あなたの予約</h2>
 
-        <table class="reservation-table" th:if="${!#lists.isEmpty(reservations)}">
-            <thead>
-                <tr>
-                    <th>予約日時</th>
-                    <th>予約状況</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="rs : ${reservations}">
-                    <td th:text="${#temporals.format(rs.reservationDate, 'yyyy/MM/dd(E) HH:mm')}">2026/10/10 18:00</td>
-                    <td th:text="${rs.status}">予約済み</td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="reservation-table" th:if="${!#lists.isEmpty(reservations)}">
+                <thead>
+                    <tr>
+                        <th>予約日時</th>
+                        <th>予約状況</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="rs : ${reservations}">
+                        <td th:text="${#temporals.format(rs.reservationDate, 'yyyy/MM/dd(E) HH:mm')}">2026/10/10 18:00</td>
+                        <td th:text="${rs.status}">予約済み</td>
+                    </tr>
+                </tbody>
+            </table>
 
-        <p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
-    </section>
-
-    <!-- 【変更】店舗管理者には表示しない（店舗管理者の画面移動はログアウトのみ） -->
-    <a class="back-link" th:href="@{/shops}" th:unless="${isShopAdmin}">← 店舗一覧へ戻る</a>
+            <p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
+        </section>
+    </th:block>
 
 </div>
+
+<!-- ======================================================
+     【追加】フッター（トップ画面と同じ＋営業時間）
+     ====================================================== -->
+<footer class="site-footer">
+    <span class="logo logo-small">
+        <img th:src="@{/images/logo-mark.svg}" alt="" width="26" height="26">
+        <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+    </span>
+    <dl class="footer-hours">
+        <dt>営業時間</dt>
+        <dd>ショップ 10:00〜21:00</dd>
+        <dd>2F レストラン・フードコート 11:00〜22:00</dd>
+    </dl>
+    <p class="footer-note">※一部店舗により営業時間が異なります</p>
+    <p>&copy; FUJICHAKU TOWN</p>
+</footer>
+
 </body>
 </html>

@@ -46,6 +46,26 @@ document.addEventListener('DOMContentLoaded', () => {
             sorted.forEach((card) => grid.appendChild(card));
         });
     }
+	
+	/* ----- 2-2. フロアで絞り込み ----- */
+	const floorSelect = document.getElementById('floor-filter');
+	const countEl     = document.getElementById('visible-count');
+
+	if (grid && floorSelect) {
+	    floorSelect.addEventListener('change', () => {
+	        const floor = floorSelect.value;
+	        let count = 0;
+
+	        grid.querySelectorAll('.shop').forEach((card) => {
+	            // 「すべて」か、住所（＝階数）が選んだ階と同じなら表示
+	            const show = floor === 'all' || card.dataset.address === floor;
+	            card.hidden = !show;
+	            if (show) count++;
+	        });
+
+	        if (countEl) countEl.textContent = count;   // 「全N件」の数字も更新
+	    });
+	}
 
     /* ----- 3. お知らせを閉じる ----- */
     document.querySelectorAll('.flash-close').forEach((btn) => {

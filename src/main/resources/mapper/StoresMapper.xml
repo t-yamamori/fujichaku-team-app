@@ -16,13 +16,16 @@
     <result property="phone"          column="phone"/>
     <!-- 【追加】店舗名の読みかな（ひらがな） -->
     <result property="nameKana"       column="name_kana"/>
+    <!-- 【追加】予約できる店舗かどうか（true＝予約あり） -->
+    <result property="reservable"     column="reservable"/>
 </resultMap>
 
 <!-- 画面表示用のカラム（パスワードは画面に不要なので取得しない） -->
 <!-- 追加：phone（電話番号） -->
 <!-- 【追加】name_kana（店舗名の読みかな） -->
 <sql id="storeColumns">
-    id, name, mail, representative, is_deleted, address, description, picture_url, phone, name_kana
+    id, name, mail, representative, is_deleted, 
+    address, description, picture_url, phone, name_kana, reservable
 </sql>
 
 <!-- 店舗一覧表示（過去フラグが立っている店舗は除く） -->
