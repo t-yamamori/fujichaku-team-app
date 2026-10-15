@@ -4,6 +4,7 @@ package com.example.demo.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +12,13 @@ import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.demo.entity.Reservations;
@@ -32,23 +35,23 @@ public class ReservationManagementController {
     private final StoresMapper storesMapper;
     private final ShopAdminMapper shopAdminMapper;
 
-    private static final List<String> ALLOWED_STATUSES =
-            List.of("予約済み", "来店済み", "キャンセル");
+    private static final String STATUS_RESERVED = "予約済み";
+    private static final String STATUS_VISITED = "来店済み";
+    private static final String STATUS_CANCELLED = "キャンセル";
+
+    private static final List<String> ALLOWED_STATUSES = List.of(
+            STATUS_RESERVED, STATUS_VISITED, STATUS_CANCELLED);
 
     public ReservationManagementController(
             ReservationMapper reservationMapper,
             StoresMapper storesMapper,
             ShopAdminMapper shopAdminMapper) {
-
         this.reservationMapper = reservationMapper;
         this.storesMapper = storesMapper;
         this.shopAdminMapper = shopAdminMapper;
     }
 
-    // =====================================================
     // モール管理者：予約一覧・検索
-    // GET /admin/reservations
-    // =====================================================
     @GetMapping("/admin/reservations")
     public String mallAdminReservations(
             Authentication authentication,
@@ -61,16 +64,9 @@ public class ReservationManagementController {
         LocalDate searchDate = parseSearchDate(reservationDate);
 
         List<Reservations> reservations =
-                reservationMapper.searchAllForAdmin(
-                        reservationId, searchDate);
+                reservationMapper.searchAllForAdmin(reservationId, searchDate);
 
-        prepareModel(
-                model,
-                reservations,
-                "/admin/reservations",
-                true,
-                null);
-
+        prepareModel(model, reservations, "/admin/reservations", true, null);
         model.addAttribute("stores", storesMapper.selectList());
         model.addAttribute("searchReservationId", reservationId);
         model.addAttribute("searchReservationDate", reservationDate);
@@ -78,10 +74,7 @@ public class ReservationManagementController {
         return "admin/reservations";
     }
 
-    // =====================================================
-    // 店舗管理者：自店舗の予約一覧・検索
-    // GET /shop-admin/{storeId}/reservations
-    // =====================================================
+    // 店舗管理者：担当店舗の予約一覧・検索
     @GetMapping("/shop-admin/{storeId}/reservations")
     public String shopAdminReservations(
             @PathVariable int storeId,
@@ -90,8 +83,7 @@ public class ReservationManagementController {
             @RequestParam(required = false) String reservationDate,
             Model model) {
 
-        int assignedStoreId =
-                requireShopAdminStoreId(authentication);
+        int assignedStoreId = requireShopAdminStoreId(authentication);
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
@@ -99,19 +91,15 @@ public class ReservationManagementController {
         }
 
         Stores store = storesMapper.selectById(assignedStoreId);
-
         if (store == null) {
-            throw new AccessDeniedException(
-                    "担当店舗が見つかりません。");
+            throw new AccessDeniedException("担当店舗が見つかりません。");
         }
 
         LocalDate searchDate = parseSearchDate(reservationDate);
 
         List<Reservations> reservations =
                 reservationMapper.searchForStoreAdmin(
-                        assignedStoreId,
-                        reservationId,
-                        searchDate);
+                        assignedStoreId, reservationId, searchDate);
 
         prepareModel(
                 model,
@@ -127,9 +115,7 @@ public class ReservationManagementController {
         return "admin/reservations";
     }
 
-    // =====================================================
     // モール管理者：予約追加
-    // =====================================================
     @PostMapping("/admin/reservations/add")
     public String addReservationByMallAdmin(
             Authentication authentication,
@@ -144,15 +130,9 @@ public class ReservationManagementController {
 
         try {
             createReservation(
-                    storeId,
-                    reservationDateTime,
-                    number,
-                    memberId,
-                    userId);
-
+                    storeId, reservationDateTime, number, memberId, userId);
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約を追加しました。");
-
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
@@ -161,9 +141,7 @@ public class ReservationManagementController {
         return "redirect:/admin/reservations";
     }
 
-    // =====================================================
-    // 店舗管理者：自店舗の予約追加
-    // =====================================================
+    // 店舗管理者：担当店舗の予約追加
     @PostMapping("/shop-admin/{storeId}/reservations/add")
     public String addReservationByShopAdmin(
             @PathVariable int storeId,
@@ -174,8 +152,7 @@ public class ReservationManagementController {
             @RequestParam(required = false) Integer userId,
             RedirectAttributes redirectAttributes) {
 
-        int assignedStoreId =
-                requireShopAdminStoreId(authentication);
+        int assignedStoreId = requireShopAdminStoreId(authentication);
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
@@ -184,27 +161,19 @@ public class ReservationManagementController {
 
         try {
             createReservation(
-                    assignedStoreId,
-                    reservationDateTime,
-                    number,
-                    memberId,
-                    userId);
-
+                    assignedStoreId, reservationDateTime,
+                    number, memberId, userId);
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約を追加しました。");
-
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
         }
 
-        return "redirect:/shop-admin/" + assignedStoreId
-                + "/reservations";
+        return "redirect:/shop-admin/" + assignedStoreId + "/reservations";
     }
 
-    // =====================================================
     // モール管理者：予約日時・人数の編集
-    // =====================================================
     @PostMapping("/admin/reservations/edit")
     public String editReservationByMallAdmin(
             Authentication authentication,
@@ -219,6 +188,7 @@ public class ReservationManagementController {
             LocalDateTime dateTime =
                     parseReservationDateTime(reservationDateTime);
 
+            // 編集時は過去の日時も許可する
             validateReservation(dateTime, number);
 
             int updated = reservationMapper.updateForAdmin(
@@ -231,7 +201,6 @@ public class ReservationManagementController {
 
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約内容を更新しました。");
-
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
@@ -240,9 +209,7 @@ public class ReservationManagementController {
         return "redirect:/admin/reservations";
     }
 
-    // =====================================================
-    // 店舗管理者：自店舗の予約日時・人数の編集
-    // =====================================================
+    // 店舗管理者：担当店舗の予約日時・人数の編集
     @PostMapping("/shop-admin/{storeId}/reservations/edit")
     public String editReservationByShopAdmin(
             @PathVariable int storeId,
@@ -252,8 +219,7 @@ public class ReservationManagementController {
             @RequestParam int number,
             RedirectAttributes redirectAttributes) {
 
-        int assignedStoreId =
-                requireShopAdminStoreId(authentication);
+        int assignedStoreId = requireShopAdminStoreId(authentication);
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
@@ -264,13 +230,11 @@ public class ReservationManagementController {
             LocalDateTime dateTime =
                     parseReservationDateTime(reservationDateTime);
 
+            // 編集時は過去の日時も許可する
             validateReservation(dateTime, number);
 
             int updated = reservationMapper.updateForStore(
-                    reservationId,
-                    assignedStoreId,
-                    dateTime,
-                    number);
+                    reservationId, assignedStoreId, dateTime, number);
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
@@ -279,19 +243,15 @@ public class ReservationManagementController {
 
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約内容を更新しました。");
-
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
         }
 
-        return "redirect:/shop-admin/" + assignedStoreId
-                + "/reservations";
+        return "redirect:/shop-admin/" + assignedStoreId + "/reservations";
     }
 
-    // =====================================================
     // モール管理者：ステータス変更
-    // =====================================================
     @PostMapping("/admin/reservations/status")
     public String changeStatusByMallAdmin(
             Authentication authentication,
@@ -313,8 +273,10 @@ public class ReservationManagementController {
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "ステータスを変更しました。");
-
+                    "successMessage",
+                    "予約ID：" + reservationId
+                            + " のステータスを「" + status
+                            + "」に変更しました。");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
@@ -323,9 +285,7 @@ public class ReservationManagementController {
         return "redirect:/admin/reservations";
     }
 
-    // =====================================================
-    // 店舗管理者：自店舗のステータス変更
-    // =====================================================
+    // 店舗管理者：担当店舗のステータス変更
     @PostMapping("/shop-admin/{storeId}/reservations/status")
     public String changeStatusByShopAdmin(
             @PathVariable int storeId,
@@ -334,8 +294,7 @@ public class ReservationManagementController {
             @RequestParam String status,
             RedirectAttributes redirectAttributes) {
 
-        int assignedStoreId =
-                requireShopAdminStoreId(authentication);
+        int assignedStoreId = requireShopAdminStoreId(authentication);
 
         if (assignedStoreId != storeId) {
             throw new AccessDeniedException(
@@ -346,9 +305,7 @@ public class ReservationManagementController {
             validateStatus(status);
 
             int updated = reservationMapper.updateStatusForStore(
-                    reservationId,
-                    assignedStoreId,
-                    status);
+                    reservationId, assignedStoreId, status);
 
             if (updated == 0) {
                 throw new IllegalArgumentException(
@@ -356,20 +313,237 @@ public class ReservationManagementController {
             }
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage", "ステータスを変更しました。");
-
+                    "successMessage",
+                    "予約ID：" + reservationId
+                            + " のステータスを「" + status
+                            + "」に変更しました。");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
                     "errorMessage", e.getMessage());
         }
 
-        return "redirect:/shop-admin/" + assignedStoreId
-                + "/reservations";
+        return "redirect:/shop-admin/" + assignedStoreId + "/reservations";
     }
 
-    // =====================================================
+    // モール管理者：一括更新（AJAX）
+    @PostMapping("/admin/reservations/bulk-update")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> bulkUpdateByMallAdmin(
+            Authentication authentication,
+            @RequestParam("reservationIds") List<Integer> reservationIds,
+            @RequestParam("reservationDateTimes")
+            List<String> reservationDateTimes,
+            @RequestParam("numbers") List<Integer> numbers,
+            @RequestParam("statuses") List<String> statuses) {
+
+        requireRole(authentication, "ROLE_ADMIN");
+
+        return bulkUpdateReservations(
+                reservationIds, reservationDateTimes,
+                numbers, statuses, null, true);
+    }
+
+    // 店舗管理者：担当店舗の予約を一括更新（AJAX）
+    @PostMapping("/shop-admin/{storeId}/reservations/bulk-update")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> bulkUpdateByShopAdmin(
+            @PathVariable int storeId,
+            Authentication authentication,
+            @RequestParam("reservationIds") List<Integer> reservationIds,
+            @RequestParam("reservationDateTimes")
+            List<String> reservationDateTimes,
+            @RequestParam("numbers") List<Integer> numbers,
+            @RequestParam("statuses") List<String> statuses) {
+
+        int assignedStoreId = requireShopAdminStoreId(authentication);
+
+        if (assignedStoreId != storeId) {
+            throw new AccessDeniedException(
+                    "担当店舗以外の予約は変更できません。");
+        }
+
+        return bulkUpdateReservations(
+                reservationIds, reservationDateTimes,
+                numbers, statuses, assignedStoreId, false);
+    }
+
+    // 共通：一括更新
+    // 全行を検証してから更新する
+    private Map<String, Object> bulkUpdateReservations(
+            List<Integer> reservationIds,
+            List<String> reservationDateTimes,
+            List<Integer> numbers,
+            List<String> statuses,
+            Integer storeId,
+            boolean mallAdmin) {
+
+        Map<String, Object> result = new LinkedHashMap<>();
+
+        if (reservationIds == null || reservationDateTimes == null
+                || numbers == null || statuses == null
+                || reservationIds.size() != reservationDateTimes.size()
+                || reservationIds.size() != numbers.size()
+                || reservationIds.size() != statuses.size()) {
+
+            result.put("success", false);
+            result.put("message",
+                    "送信データが正しくありません。画面を更新してやり直してください。");
+            result.put("updatedCount", 0);
+            return result;
+        }
+
+        List<ReservationBulkChange> changes = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < reservationIds.size(); i++) {
+                Integer id = reservationIds.get(i);
+
+                if (id == null || id <= 0) {
+                    throw new IllegalArgumentException(
+                            "予約IDが正しくありません。");
+                }
+
+                Reservations current;
+
+                if (mallAdmin) {
+                    List<Reservations> found =
+                            reservationMapper.searchAllForAdmin(id, null);
+                    current = found.isEmpty() ? null : found.get(0);
+                } else {
+                    List<Reservations> found =
+                            reservationMapper.searchForStoreAdmin(
+                                    storeId, id, null);
+                    current = found.isEmpty() ? null : found.get(0);
+                }
+
+                if (current == null) {
+                    throw new IllegalArgumentException(
+                            "予約ID：" + id
+                                    + " が見つからないか、変更権限がありません。");
+                }
+
+                LocalDateTime newDateTime =
+                        parseReservationDateTime(reservationDateTimes.get(i));
+
+                Integer newNumber = numbers.get(i);
+                String newStatus = statuses.get(i);
+
+                if (newNumber == null || newNumber < 1 || newNumber > 10) {
+                    throw new IllegalArgumentException(
+                            "予約ID：" + id
+                                    + " の人数は1～10人で入力してください。");
+                }
+
+                validateStatus(newStatus);
+
+                LocalDateTime currentDateTime = current.getReservationDate();
+
+                if (currentDateTime != null) {
+                    currentDateTime =
+                            currentDateTime.withSecond(0).withNano(0);
+                }
+
+                boolean dateOrNumberChanged =
+                        !newDateTime.equals(currentDateTime)
+                        || newNumber.intValue() != current.getNumber();
+
+                boolean statusChanged =
+                        !newStatus.equals(current.getStatus());
+
+                if (dateOrNumberChanged) {
+                    if (STATUS_CANCELLED.equals(current.getStatus())) {
+                        throw new IllegalArgumentException(
+                                "予約ID：" + id
+                                        + " はキャンセル済みのため、"
+                                        + "日時・人数を変更できません。");
+                    }
+
+                    // 編集時は過去の日時も許可する
+                    validateReservation(newDateTime, newNumber);
+                }
+
+                if (dateOrNumberChanged || statusChanged) {
+                    changes.add(new ReservationBulkChange(
+                            id, newDateTime, newNumber, newStatus,
+                            dateOrNumberChanged, statusChanged));
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+            result.put("updatedCount", 0);
+            return result;
+        }
+
+        int updatedRows = 0;
+
+        for (ReservationBulkChange change : changes) {
+            int updated;
+
+            if (change.dateOrNumberChanged()) {
+                if (mallAdmin) {
+                    updated = reservationMapper.updateForAdmin(
+                            change.reservationId(),
+                            change.reservationDateTime(),
+                            change.number());
+                } else {
+                    updated = reservationMapper.updateForStore(
+                            change.reservationId(),
+                            storeId,
+                            change.reservationDateTime(),
+                            change.number());
+                }
+
+                if (updated == 0) {
+                    throw new IllegalStateException(
+                            "予約ID：" + change.reservationId()
+                                    + " の日時・人数を更新できませんでした。"
+                                    + "画面を更新してやり直してください。");
+                }
+            }
+
+            if (change.statusChanged()) {
+                if (mallAdmin) {
+                    updated = reservationMapper.updateStatusForAdmin(
+                            change.reservationId(), change.status());
+                } else {
+                    updated = reservationMapper.updateStatusForStore(
+                            change.reservationId(), storeId, change.status());
+                }
+
+                if (updated == 0) {
+                    throw new IllegalStateException(
+                            "予約ID：" + change.reservationId()
+                                    + " のステータスを更新できませんでした。"
+                                    + "画面を更新してやり直してください。");
+                }
+            }
+
+            updatedRows++;
+        }
+
+        result.put("success", true);
+        result.put("message",
+                updatedRows > 0
+                        ? "変更しました"
+                        : "変更する項目はありません");
+        result.put("updatedCount", updatedRows);
+
+        return result;
+    }
+
+    private record ReservationBulkChange(
+            int reservationId,
+            LocalDateTime reservationDateTime,
+            int number,
+            String status,
+            boolean dateOrNumberChanged,
+            boolean statusChanged) {
+    }
+
     // 共通：予約追加
-    // =====================================================
     private void createReservation(
             int storeId,
             String reservationDateTime,
@@ -384,20 +558,17 @@ public class ReservationManagementController {
                     "指定された店舗が存在しないか、利用できません。");
         }
 
-        // 会員IDとゲストユーザーIDは同時に指定できない
         if (memberId != null && userId != null) {
             throw new IllegalArgumentException(
                     "会員IDとゲストユーザーIDは同時に指定できません。");
         }
 
-        // 会員IDが入力されている場合は存在確認
         if (memberId != null
                 && reservationMapper.countMemberId(memberId) == 0) {
             throw new IllegalArgumentException(
                     "指定された会員IDが存在しません。");
         }
 
-        // ゲストユーザーIDが入力されている場合は存在確認
         if (userId != null
                 && reservationMapper.countUserId(userId) == 0) {
             throw new IllegalArgumentException(
@@ -407,7 +578,8 @@ public class ReservationManagementController {
         LocalDateTime dateTime =
                 parseReservationDateTime(reservationDateTime);
 
-        validateReservation(dateTime, number);
+        // 新規予約では過去の日時を禁止する
+        validateNewReservation(dateTime, number);
 
         Reservations reservation = new Reservations();
         reservation.setMemberId(memberId);
@@ -415,15 +587,13 @@ public class ReservationManagementController {
         reservation.setStoreId(storeId);
         reservation.setReservationDate(dateTime);
         reservation.setNumber(number);
-        reservation.setStatus("予約済み");
+        reservation.setStatus(STATUS_RESERVED);
         reservation.setCreatedAt(LocalDateTime.now());
 
         reservationMapper.insertReservation(reservation);
     }
 
-    // =====================================================
     // 共通：画面表示用データ
-    // =====================================================
     private void prepareModel(
             Model model,
             List<Reservations> reservations,
@@ -432,11 +602,22 @@ public class ReservationManagementController {
             String currentStoreName) {
 
         List<Stores> stores = storesMapper.selectList();
-
         Map<Integer, String> storeNames = new LinkedHashMap<>();
 
         for (Stores store : stores) {
             storeNames.put(store.getId(), store.getName());
+        }
+
+        // トップ画面のURLを管理者の種類に応じて設定
+        String topPath;
+
+        if (mallAdmin) {
+            // モール管理者のトップ画面
+            topPath = "/admin/index";
+        } else {
+            // 店舗管理者の担当店舗トップ画面
+            topPath = basePath.substring(
+                    0, basePath.lastIndexOf("/reservations"));
         }
 
         model.addAttribute("reservations", reservations);
@@ -445,11 +626,12 @@ public class ReservationManagementController {
         model.addAttribute("mallAdmin", mallAdmin);
         model.addAttribute("currentStoreName", currentStoreName);
         model.addAttribute("reservationStatuses", ALLOWED_STATUSES);
+
+        // 追加：トップ画面へのリンク
+        model.addAttribute("topPath", topPath);
     }
 
-    // =====================================================
     // 共通：権限チェック
-    // =====================================================
     private void requireRole(
             Authentication authentication,
             String requiredRole) {
@@ -457,18 +639,15 @@ public class ReservationManagementController {
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication.getAuthorities().stream()
-                    .noneMatch(a -> requiredRole.equals(
-                            a.getAuthority()))) {
-
+                        .noneMatch(a ->
+                                requiredRole.equals(a.getAuthority()))) {
             throw new AccessDeniedException(
                     "この操作を行う権限がありません。");
         }
     }
 
-    // =====================================================
     // 店舗管理者のログインIDから担当店舗IDを取得
     // Authentication.getName() が shop_admins.id である前提
-    // =====================================================
     private int requireShopAdminStoreId(
             Authentication authentication) {
 
@@ -477,24 +656,19 @@ public class ReservationManagementController {
         final int shopAdminId;
 
         try {
-            shopAdminId =
-                    Integer.parseInt(authentication.getName());
-
-        } catch (NumberFormatException
-                | NullPointerException e) {
+            shopAdminId = Integer.parseInt(authentication.getName());
+        } catch (NumberFormatException | NullPointerException e) {
             throw new AccessDeniedException(
                     "店舗管理者のログインIDを確認できません。");
         }
 
-        ShopAdmin shopAdmin =
-                shopAdminMapper.findById(shopAdminId);
+        ShopAdmin shopAdmin = shopAdminMapper.findById(shopAdminId);
 
         if (shopAdmin == null) {
             throw new AccessDeniedException(
                     "店舗管理者が見つかりません。");
         }
 
-        // getStoreId() が Integer 型でも int 型でも扱えるようにする
         Integer assignedStoreId = shopAdmin.getStoreId();
 
         if (assignedStoreId == null || assignedStoreId <= 0) {
@@ -505,9 +679,7 @@ public class ReservationManagementController {
         return assignedStoreId;
     }
 
-    // =====================================================
     // 共通：検索日チェック
-    // =====================================================
     private LocalDate parseSearchDate(String value) {
 
         if (value == null || value.isBlank()) {
@@ -516,49 +688,53 @@ public class ReservationManagementController {
 
         try {
             return LocalDate.parse(value);
-
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(
                     "検索日はYYYY-MM-DD形式で指定してください。");
         }
     }
 
-    // =====================================================
     // 共通：予約日時チェック
-    // =====================================================
     private LocalDateTime parseReservationDateTime(String value) {
 
         try {
             return LocalDateTime.parse(value);
-
-        } catch (DateTimeParseException
-                | NullPointerException e) {
+        } catch (DateTimeParseException | NullPointerException e) {
             throw new IllegalArgumentException(
                     "予約日時を正しく入力してください。");
         }
     }
 
-    // =====================================================
-    // 共通：予約内容チェック
-    // =====================================================
-    private void validateReservation(
-            LocalDateTime reservationDateTime,
+    // 新規予約用：過去の日時は登録できない
+    private void validateNewReservation(
+            LocalDateTime reservationDate,
             int number) {
 
-        if (reservationDateTime.isBefore(LocalDateTime.now())) {
+        validateReservation(reservationDate, number);
+
+        if (reservationDate.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException(
-                    "過去の予約はできません。");
+                    "新規予約に過去の日時は指定できません。");
+        }
+    }
+
+    // 予約編集用：過去の予約日時も変更できる
+    private void validateReservation(
+            LocalDateTime reservationDate,
+            int number) {
+
+        if (reservationDate == null) {
+            throw new IllegalArgumentException(
+                    "予約日と予約時刻を入力してください。");
         }
 
         if (number < 1 || number > 10) {
             throw new IllegalArgumentException(
-                    "予約人数は1人から10人まで指定できます。");
+                    "人数は1～10人で入力してください。");
         }
     }
 
-    // =====================================================
     // 共通：ステータスチェック
-    // =====================================================
     private void validateStatus(String status) {
 
         if (!ALLOWED_STATUSES.contains(status)) {
