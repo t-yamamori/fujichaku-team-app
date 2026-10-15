@@ -14,18 +14,106 @@
 </head>
  
 <body>
- 
-<a class="skip-link" href="#shop-list">ショップリストへ移動</a>
- 
-<!-- ======================================================
-     ヘッダー
-     ====================================================== -->
-<header class="site-header">
-    <div class="header-inner">
- 
-        <a class="logo" th:href="@{/shops}">
-            <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
-            <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+
+
+<div class="container">
+
+    <!-- =========================
+         上部：タイトル / アカウントメニュー
+         ========================= -->
+    <div class="header">
+
+        <h1 class="page-title">店舗一覧</h1>
+
+        <!-- 未ログイン：会員登録／ログイン -->
+        <div class="account-menu" th:unless="${isMember}">
+
+            <!-- 会員登録：RegisterController（GET /register → register/register.html） -->
+            <a class="btn btn-accent" th:href="@{/register/register}">会員登録</a>
+            <!-- ログイン：register/complete.html と同じ /login に合わせている（担当者の実装に合わせて変更可） -->
+            <a class="btn btn-primary" th:href="@{/login}">ログイン</a>
+
+        </div>
+
+        <!-- ログイン済み：会員情報／ログアウト -->
+        <div class="account-menu" th:if="${isMember}">
+            <span class="welcome">ログイン中</span>
+
+            <!-- 会員情報：MembersController の showEdit（GET /members/edit）→ showEdit.html
+                 ※showEdit.html の変更フォームが POST /members/edit なので、表示も同じURLの GET と想定。
+                   MembersController の @GetMapping が違う場合はここを合わせてください -->
+
+            <a class="btn btn-secondary" th:href="@{/members/showEdit}">会員情報</a>
+            <!-- ログアウト：POST /shops/logout → 処理後はトップ画面(/shops)へリダイレクト
+                 （Spring Security を使う場合も th:action ならCSRFトークンが自動で入る） -->
+            <form th:action="@{/shops/logout}" method="post">
+
+                <button type="submit"
+                        class="btn btn-secondary">
+                    ログアウト
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================
+         結果メッセージ
+         ========================= -->
+
+    <!-- 成功メッセージ -->
+    <div class="flash flash-success"
+         th:if="${message}"
+         th:text="${message}">
+        ログアウトしました。
+    </div>
+
+    <!-- エラーメッセージ -->
+    <div class="flash flash-error"
+         th:if="${errorMessage}"
+         th:text="${errorMessage}">
+        エラーメッセージ
+    </div>
+
+
+    <!-- =========================
+         店舗検索
+         ========================= -->
+
+    <div class="top-bar">
+
+        <form class="search-form"
+              th:action="@{/shops/search}"
+              method="get">
+
+            <input type="text"
+                   name="name"
+                   placeholder="店舗名で検索"
+                   required>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                検索
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- =========================
+         パスワード再設定
+         ========================= -->
+
+    <div class="sub-link"
+         th:unless="${isMember}">
+
+        <a th:href="@{/password/reset/verify}">
+            パスワードをお忘れの方はこちら（パスワード再設定）
+
         </a>
  
         <!-- 未ログイン -->
