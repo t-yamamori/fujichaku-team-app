@@ -63,4 +63,8 @@ public class Stores {
     private String phone;
     
     private String nameKana;  // 店舗名の読みかな
+    
+    private boolean reservable;//店舗ごとの予約機能付与
+    
+    
 }

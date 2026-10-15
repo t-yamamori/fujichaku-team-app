@@ -120,14 +120,25 @@
                 <button type="button" class="search-clear" aria-label="入力を消す" hidden>×</button>
                 <button type="submit" class="btn">検索</button>
             </form>
- 
-            <label class="sort">
-                <span>並び順</span>
-                <select id="store-sort">
-                    <option value="default">標準</option>
-                    <option value="name">名前順</option>
-                </select>
-            </label>
+			
+			<!-- 【追加】フロアで絞り込み -->
+			<label class="sort">
+			    <span>フロア</span>
+			    <select id="floor-filter">
+			        <option value="all">すべて</option>
+			        <option value="地下1階">地下1階</option>
+			        <option value="1階">1階</option>
+			        <option value="2階">2階</option>
+			    </select>
+			</label>
+
+			<label class="sort">
+			    <span>並び順</span>
+			    <select id="store-sort">
+			        <option value="default">標準</option>
+			        <option value="name">名前順</option>
+			    </select>
+			</label>
         </div>
  
         <ul class="shop-grid" th:if="${!#lists.isEmpty(stores)}">
@@ -164,6 +175,15 @@
         <img th:src="@{/images/logo-mark.svg}" alt="" width="26" height="26">
         <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
     </a>
+
+    <!-- 【追加】営業時間 -->
+    <dl class="footer-hours">
+        <dt>営業時間</dt>
+        <dd>ショップ  10:00〜21:00</dd>
+        <dd>レストラン・フードコート(2階） 11:00〜22:00</dd>
+    </dl>
+    <p class="footer-note">※一部店舗により営業時間が異なります</p>
+
     <p>&copy; FUJICHAKU TOWN</p>
 </footer>
  
