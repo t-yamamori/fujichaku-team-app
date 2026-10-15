@@ -87,14 +87,29 @@
             </div>
 
             <div>
-                <dl>
-                    <dt>フロア</dt>
-                    <dd th:text="${store.address}">1階</dd>
-                    <dt>電話番号</dt>
-                    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
-                    <dt>説明</dt>
-                    <dd th:text="${store.description}">説明</dd>
-                </dl>
+				<dl>
+				    <!-- 【戻す】店舗管理者のみ：店舗名・代表者 -->
+				    <th:block th:if="${isShopAdmin}">
+				        <dt>店舗名</dt>
+				        <dd th:text="${store.name}">店舗名</dd>
+				        <dt>代表者</dt>
+				        <dd th:text="${store.representative}">代表者</dd>
+				    </th:block>
+
+				    <dt>フロア</dt>
+				    <dd th:text="${store.address}">1階</dd>
+
+				    <!-- 【戻す】店舗管理者のみ：連絡先（メールアドレス） -->
+				    <th:block th:if="${isShopAdmin}">
+				        <dt>連絡先</dt>
+				        <dd th:text="${store.mail}">mail</dd>
+				    </th:block>
+
+				    <dt>電話番号</dt>
+				    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
+				    <dt>説明</dt>
+				    <dd th:text="${store.description}">説明</dd>
+				</dl>
 
                 <!-- ② 予約ボタン：予約できる店だけ／店舗管理者には出さない -->
                 <th:block th:if="${store.reservable}">
@@ -168,14 +183,14 @@
                 <span th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
 
                 <!-- 口コミ削除（会員：自分の口コミ／店舗管理者：自店舗のすべての口コミ） -->
-                <form class="delete-form" method="post"
-                      th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
-                      th:action="@{/shops/{shopId}(shopId=${store.id})}"
-                      onsubmit="return confirm('この口コミを削除しますか？');">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="reviewId" th:value="${r.id}">
-                    <button type="submit" class="btn btn-secondary btn-small">削除</button>
-                </form>
+				<form class="delete-form" method="post"
+				      th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
+				      th:action="${isShopAdmin} ? @{/shop-admin/{storeId}(storeId=${store.id})} : @{/shops/{shopId}(shopId=${store.id})}"
+				      onsubmit="return confirm('この口コミを削除しますか？');">
+				    <input type="hidden" name="action" value="delete">
+				    <input type="hidden" name="reviewId" th:value="${r.id}">
+				    <button type="submit" class="btn btn-secondary btn-small">削除</button>
+				</form>
             </div>
             <p class="comment" th:text="${r.comment}">コメント</p>
         </div>
