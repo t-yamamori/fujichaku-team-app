@@ -18,21 +18,28 @@ public class ShopAdminService {
     private final ShopAdminMapper shopAdminMapper;
     private final PasswordEncoder passwordEncoder;
 
-    // 一覧取得
     public List<ShopAdmin> findAll() {
         return shopAdminMapper.findAll();
     }
 
-    // 更新
     @Transactional
     public void update(ShopAdmin shopAdmin) {
         shopAdminMapper.update(shopAdmin);
     }
 
-    // 論理削除
+    @Transactional
+    public void updateAll(List<ShopAdmin> shopAdmins) {
+        if (shopAdmins == null || shopAdmins.isEmpty()) {
+            return;
+        }
+
+        for (ShopAdmin shopAdmin : shopAdmins) {
+            shopAdminMapper.update(shopAdmin);
+        }
+    }
+
     @Transactional
     public void deleteByIds(List<Integer> ids) {
-
         if (ids == null || ids.isEmpty()) {
             return;
         }
@@ -40,17 +47,17 @@ public class ShopAdminService {
         shopAdminMapper.deleteByIds(ids);
     }
 
-    // 新規登録
     @Transactional
     public void create(ShopAdmin shopAdmin) {
-
-        // パスワードをBCryptでハッシュ化
-        String hashedPassword =
-                passwordEncoder.encode(shopAdmin.getPassword());
-
+        String hashedPassword = passwordEncoder.encode(shopAdmin.getPassword());
         shopAdmin.setPassword(hashedPassword);
-
-        // DBへ登録
         shopAdminMapper.create(shopAdmin);
+    }
+    
+    public boolean existsStoreId(Integer storeId) {
+        if (storeId == null) {
+            return false;
+        }
+        return shopAdminMapper.existsStoreId(storeId);
     }
 }

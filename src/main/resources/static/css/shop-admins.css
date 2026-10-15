@@ -1,0 +1,246 @@
+/* 店舗管理者管理画面 */
+.shop-admin-page {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 検索フォーム */
+.shop-admin-search {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin: 0 0 15px;
+    padding: 10px 0 10px 55px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 検索項目 */
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.search-field label {
+    font-size: 0.9em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.search-field input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.search-field-id {
+    flex: 0 0 45px;
+}
+
+.search-field-store {
+    flex: 0 0 85px;
+}
+
+.search-field-name {
+    flex: 1 1 130px;
+}
+
+.search-field-mail {
+    flex: 1 1 170px;
+}
+
+.search-field-date {
+    flex: 0 0 150px;
+}
+
+/* 検索・条件クリア */
+.search-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.search-buttons button {
+    height: 32px;
+    padding: 0 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.search-buttons a {
+    font-size: 0.9em;
+    white-space: nowrap;
+    padding: 7px 0;
+}
+
+/* 一覧表のスクロール領域 */
+.shop-admin-table-wrapper {
+    width: 100%;
+    max-height: calc(100vh - 250px);
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+/* 一覧表 */
+.shop-admin-table {
+    width: 100%;
+    min-width: 900px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* セル共通 */
+.shop-admin-table th,
+.shop-admin-table td {
+    padding: 5px;
+    border: 1px solid #ccc;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+/* 固定ヘッダー */
+.shop-admin-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #eee;
+    white-space: nowrap;
+}
+
+/* 削除チェック */
+.shop-admin-table th:nth-child(1),
+.shop-admin-table td:nth-child(1) {
+    width: 55px;
+    text-align: center;
+}
+
+/* ID */
+.shop-admin-table th:nth-child(2),
+.shop-admin-table td:nth-child(2) {
+    width: 55px;
+}
+
+/* 店舗ID */
+.shop-admin-table th:nth-child(3),
+.shop-admin-table td:nth-child(3) {
+    width: 90px;
+}
+
+/* 管理者名 */
+.shop-admin-table th:nth-child(4),
+.shop-admin-table td:nth-child(4) {
+    width: 150px;
+}
+
+/* メール */
+.shop-admin-table th:nth-child(5),
+.shop-admin-table td:nth-child(5) {
+    width: 190px;
+}
+
+/* 生年月日 */
+.shop-admin-table th:nth-child(6),
+.shop-admin-table td:nth-child(6) {
+    width: 150px;
+}
+
+/* 操作 */
+.shop-admin-table th:nth-child(7),
+.shop-admin-table td:nth-child(7) {
+    width: 180px;
+}
+
+/* 一覧内の入力欄 */
+.shop-admin-table input[type="text"],
+.shop-admin-table input[type="email"],
+.shop-admin-table input[type="password"],
+.shop-admin-table input[type="number"],
+.shop-admin-table input[type="date"] {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* エラーメッセージ */
+.error-message,
+.field-error {
+    display: block;
+    margin-top: 4px;
+    color: #d00;
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+/* 一括更新・削除ボタン */
+.table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 0 8px;
+    box-sizing: border-box;
+}
+
+.table-actions button {
+    padding: 7px 16px;
+    cursor: pointer;
+}
+
+/* 更新完了メッセージ */
+.success-message {
+    margin: 0 0 12px;
+    padding: 8px 12px;
+    color: #216e39;
+    background-color: #eaf6ed;
+    border: 1px solid #b7dfc0;
+    border-radius: 4px;
+    font-size: 0.9em;
+    white-space: pre-line;
+    box-sizing: border-box;
+}
+
+/* 新規登録行 */
+.shop-admin-table .new-row {
+    background-color: #fafafa;
+}
+
+.new-password-input {
+    margin-bottom: 6px;
+}
+
+/* 狭い画面 */
+@media (max-width: 1100px) {
+    .shop-admin-search {
+        overflow-x: auto;
+    }
+
+    .search-field {
+        flex: 0 0 120px;
+    }
+
+    .search-field-id {
+        flex: 0 0 45px;
+    }
+
+    .search-field-store {
+        flex: 0 0 85px;
+    }
+
+    .search-field-date {
+        flex: 0 0 150px;
+    }
+
+    .shop-admin-table-wrapper {
+        max-height: calc(100vh - 250px);
+    }
+}
