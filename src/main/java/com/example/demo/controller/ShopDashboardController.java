@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -45,6 +47,7 @@ public class ShopDashboardController {
     private final ReviewsMapper reviewsMapper;
 
     // 店舗の予約一覧（既存の findByStoreId を使う。会員・非会員とも全件）
+    // 【追加】予約の編集（既存の updateForStore / updateStatusForStore を使う）
     private final ReservationMapper reservationMapper;
 
     // ログイン中の店舗管理者を shop_admins テーブルで確認するために使う
@@ -53,31 +56,33 @@ public class ShopDashboardController {
     /*
      * 店舗管理者向けの自店舗の店舗詳細
      *
-     *   【変更】URLを /shops/{storeId} → /shop-admin/{storeId} に変更
-     *     変更前は ShopController の店舗詳細（/shops/{shopId}）と同じURLで、
-     *     利用者が店舗一覧から店舗をタップしたときにこちらが呼ばれてしまっていた。
-     *
      *   ShopController.showDetail から forward で呼ばれる（ブラウザのURLは /shops/{storeId} のまま）
      *     GET  → 店舗詳細（利用者の会員と同じ内容 ＋ 予約履歴 ＋ 口コミ削除ボタン）を表示
      *     POST action=delete, reviewId → 自店舗の口コミを削除し、/shops/{storeId} へ戻す
+     *     【追加】POST action=updateReservation → 自店舗の予約を編集し、/shops/{storeId} へ戻す
+     *            （detail.html の予約履歴の「保存」から、/shop-admin/{storeId} に直接送られてくる）
      *
      *   戻り値について：
      *     ここで "redirect:/shops/{storeId}" を返すと、showDetail → ここ → showDetail … と
      *     無限ループになるため、GET では店舗詳細のテンプレート（shops/detail）をそのまま返す。
-     *     URLは /shops/{storeId} のままなので、見た目は「店舗管理者用の /shops/{id}」になる。
      */
     @RequestMapping(value = "/shop-admin/{storeId:\\d+}", method = { RequestMethod.GET, RequestMethod.POST })
     public String dashboard(
             @PathVariable("storeId") int storeId,
             @RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "reviewId", required = false) Integer reviewId,
+            // 【追加】予約の編集で使う値
+            @RequestParam(value = "reservationId", required = false) Integer reservationId,
+            @RequestParam(value = "reservationDate", required = false)
+                @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime reservationDate,
+            @RequestParam(value = "number", required = false) Integer number,
+            @RequestParam(value = "status", required = false) String status,
             HttpMethod method,
             Model model,
             RedirectAttributes redirectAttributes) {
 
         // ==================================================
         // 本人確認：自店舗の店舗管理者だけが使える
-        // （/shop-admin/{storeId} を直接開かれても、他人・他店舗には見せない）
         // ==================================================
         ShopAdmin shopAdmin = getLoginShopAdmin();
         if (shopAdmin == null || shopAdmin.getStoreId() == null
@@ -92,19 +97,22 @@ public class ShopDashboardController {
         }
 
         // ==================================================
-        // POST：口コミ削除（店舗管理者は自店舗の口コミなら誰の口コミでも削除できる）
+        // POST：口コミ削除・【追加】予約の編集
         // ==================================================
         if (method == HttpMethod.POST) {
 
             if ("delete".equals(action)) {
                 deleteReviewByShopAdmin(storeId, reviewId, redirectAttributes);
+            } else if ("updateReservation".equals(action)) {
+                // 【追加】予約の編集
+                updateReservation(storeId, reservationId, reservationDate, number, status, redirectAttributes);
             } else {
                 // 店舗管理者は口コミ投稿などはできない
                 redirectAttributes.addFlashAttribute("errorMessage", "不正な操作です。");
             }
 
             // 処理後は店舗詳細(GET)へ戻す（再読み込みでの二重送信を防ぐ）
-            return "redirect:/shops/" + storeId;
+            return "redirect:/shop-admin/" + storeId;
         }
 
         // ==================================================
@@ -131,15 +139,7 @@ public class ShopDashboardController {
     }
 
     /*
-     * 【追加】店舗管理者のログアウト  POST /shop-admin/logout
-     *
-     *   店舗詳細画面（detail.html）の「ログアウト」ボタンから呼ばれる（店舗管理者のみ表示）。
-     *   ログイン情報とセッションを破棄して、トップ画面（/shops）へリダイレクトする。
-     *   ログアウト後は未ログイン扱いなので、shops.html は「会員登録／ログイン」側の表示になる。
-     *
-     *   利用者（会員）のログアウト（ShopController の POST /shops/logout）とは分けてあるので、
-     *   利用者側の処理には影響しない。
-     *   URLの "logout" は数字ではないので、/shop-admin/{storeId:\\d+} とはぶつからない。
+     * 店舗管理者のログアウト  POST /shop-admin/logout
      */
     @PostMapping("/shop-admin/logout")
     public String logout(
@@ -148,11 +148,9 @@ public class ShopDashboardController {
             RedirectAttributes redirectAttributes) {
 
         // Spring Security 標準のログアウト処理
-        // （ログイン情報(SecurityContext)のクリアと、セッションの破棄をまとめて行う）
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         new SecurityContextLogoutHandler().logout(request, response, auth);
 
-        // トップ画面に「ログアウトしました。」を表示する（shops.html の成功メッセージ欄）
         redirectAttributes.addFlashAttribute("message", "ログアウトしました。");
         return "redirect:/shops";
     }
@@ -168,6 +166,39 @@ public class ShopDashboardController {
             redirectAttributes.addFlashAttribute("message", "口コミを削除しました");
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "削除できる口コミが見つかりませんでした。");
+        }
+    }
+
+    //【追加】予約の編集（店舗管理者用）
+    //既存の updateForStore（日時・人数）と updateStatusForStore（予約状況）を使う
+    //どちらも店舗IDを条件に入れているので、他店舗の予約は変更できない
+    private void updateReservation(int storeId, Integer reservationId, LocalDateTime reservationDate,
+            Integer number, String status, RedirectAttributes redirectAttributes) {
+
+        // 入力チェック
+        if (reservationId == null || reservationDate == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "予約日時を入力してください。");
+            return;
+        }
+        if (number == null || number < 1) {
+            redirectAttributes.addFlashAttribute("errorMessage", "人数は1名以上で入力してください。");
+            return;
+        }
+        if (status == null || status.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "予約状況を選択してください。");
+            return;
+        }
+
+        // ① 日時・人数を変更（キャンセル済みの予約は SQL 側で変更されない）
+        reservationMapper.updateForStore(reservationId, storeId, reservationDate, number);
+
+        // ② 予約状況を変更（①より後にする：先にキャンセルにすると①が反映されないため）
+        int count = reservationMapper.updateStatusForStore(reservationId, storeId, status);
+
+        if (count > 0) {
+            redirectAttributes.addFlashAttribute("message", "予約内容を変更しました。");
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", "変更できる予約が見つかりませんでした。");
         }
     }
 
