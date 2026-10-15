@@ -1,0 +1,187 @@
+
+/* ==================================================
+   MATRIX 背景と全画面共通の表示修正
+   ================================================== */
+
+/* ページ全体 */
+html {
+    min-height: 100%;
+    background: #030705;
+}
+
+body {
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    margin: 0;
+    color: #e1ffe8;
+    background: #030705;
+}
+
+/* マトリックス描画用 canvas */
+#matrixRain {
+    position: fixed;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    pointer-events: none;
+    opacity: 0.65;
+}
+
+/* 走査線 */
+.screen-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.08) 0,
+        rgba(0, 0, 0, 0.08) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+}
+
+/* 既存の画面コンテンツを前面に配置 */
+body > header,
+body > main,
+body > h1,
+body > form,
+body > p,
+body > div:not(.screen-overlay),
+body > footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* 疑似要素の暗いオーバーレイが文字を隠さないようにする */
+body::after {
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* ==================================================
+   テナント管理画面のテーブル背景修正
+   ================================================== */
+
+.tenant-table-frame {
+    background-color: #030705 !important;
+    border: 1px solid rgba(0, 255, 65, 0.30);
+}
+
+/* ヘッダー・データ・新規登録テーブル */
+.tenant-table-frame .tenant-table {
+    background-color: #030705 !important;
+    color: #e1ffe8;
+    border-collapse: collapse;
+}
+
+/* 列ヘッダー */
+.tenant-table-frame .tenant-table thead th {
+    background-color: #07140a !important;
+    color: #00ff41;
+}
+
+/* すべてのセル。新規登録行にも適用 */
+.tenant-table-frame .tenant-table tbody td,
+.tenant-table-frame .tenant-table thead th {
+    background-color: #030705;
+    border-color: rgba(0, 255, 65, 0.22);
+}
+
+/* ヘッダーは少し明るい緑系の黒にする */
+.tenant-table-frame .tenant-header-table th {
+    background-color: #07140a !important;
+}
+
+/* 新規登録行の白い背景を明示的に解除 */
+.tenant-table-frame .tenant-new-table,
+.tenant-table-frame .tenant-new-table tbody,
+.tenant-table-frame .tenant-new-table tr,
+.tenant-table-frame .tenant-new-table td {
+    background-color: #030705 !important;
+    color: #c9e8d0;
+}
+
+/* データ領域 */
+.tenant-table-frame .tenant-table-data-wrapper {
+    background-color: #030705 !important;
+}
+
+/* テーブル内の入力欄 */
+.tenant-table-frame .tenant-table input:not([type="checkbox"]) {
+    color: #e1ffe8 !important;
+    background-color: #030705 !important;
+    border: 1px solid rgba(0, 255, 65, 0.45);
+}
+
+/* 新規登録行の入力欄 */
+.tenant-table-frame .tenant-new-table input {
+    color: #e1ffe8 !important;
+    background-color: #030705 !important;
+}
+
+/* スクロール領域の背景 */
+.tenant-table-data-wrapper,
+.tenant-table-frame {
+    scrollbar-color: #008f11 #030705;
+    scrollbar-width: thin;
+}
+
+.tenant-table-data-wrapper::-webkit-scrollbar,
+.tenant-table-frame::-webkit-scrollbar {
+    height: 12px;
+    background-color: #030705;
+}
+
+.tenant-table-data-wrapper::-webkit-scrollbar-track,
+.tenant-table-frame::-webkit-scrollbar-track {
+    background-color: #030705;
+}
+
+.tenant-table-data-wrapper::-webkit-scrollbar-thumb,
+.tenant-table-frame::-webkit-scrollbar-thumb {
+    background-color: #008f11;
+    border: 2px solid #030705;
+    border-radius: 6px;
+}
+
+/* 店舗管理者管理画面も同様に暗色化 */
+.shop-admin-table-frame,
+.shop-admin-table,
+.shop-admin-data-wrapper {
+    background-color: #030705 !important;
+}
+
+.shop-admin-table-frame .shop-admin-table th {
+    background-color: #07140a !important;
+    color: #00ff41;
+}
+
+.shop-admin-table-frame .shop-admin-table td {
+    background-color: #030705 !important;
+    color: #c9e8d0;
+}
+
+.shop-admin-table-frame .shop-admin-table input:not([type="checkbox"]) {
+    color: #e1ffe8 !important;
+    background-color: #030705 !important;
+    border-color: rgba(0, 255, 65, 0.45);
+}
+
+.shop-admin-table-frame {
+    scrollbar-color: #008f11 #030705;
+    scrollbar-width: thin;
+}
+
+.shop-admin-table-frame::-webkit-scrollbar {
+    height: 12px;
+    background-color: #030705;
+}
+
+.shop-admin-table-frame::-webkit-scrollbar-thumb {
+    background-color: #008f11;
+}

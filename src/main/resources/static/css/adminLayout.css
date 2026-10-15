@@ -1,4 +1,4 @@
-css
+
 /* ページ共通 */
 body {
     margin: 0;
@@ -66,4 +66,6 @@ main {
     min-width: 0;
     padding: 20px;
     box-sizing: border-box;
+
 }
+

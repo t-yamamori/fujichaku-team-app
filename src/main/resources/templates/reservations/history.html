@@ -1,50 +1,741 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>予約履歴 | FUJICHAKU</title>
-    <link rel="stylesheet" th:href="@{/css/shops.css}">
+
+    <style>
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008f11;
+            --matrix-bg: #000000;
+            --matrix-panel: rgba(0, 8, 2, 0.90);
+            --matrix-border: rgba(0, 255, 65, 0.7);
+            --matrix-text: #d5ffdc;
+            --matrix-muted: #72a77c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--matrix-bg);
+        }
+
+        body {
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background: var(--matrix-bg);
+            color: var(--matrix-text);
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        /* DIGITAL RAIN */
+
+        #matrix-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.95;
+            filter: brightness(1.15) contrast(1.1);
+        }
+
+        /* HEADER */
+
+        header {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            min-height: 80px;
+            padding: 15px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: rgba(0, 5, 1, 0.94);
+            border-bottom: 1px solid var(--matrix-green);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.22);
+        }
+
+        .logo {
+            color: var(--matrix-green);
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            text-shadow:
+                0 0 5px var(--matrix-green),
+                0 0 15px rgba(0, 255, 65, 0.7);
+        }
+
+        .header-link {
+            display: inline-block;
+            color: var(--matrix-green);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            padding: 10px 15px;
+            border: 1px solid rgba(0, 255, 65, 0.45);
+            transition: 0.3s;
+        }
+
+        .header-link:hover {
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.7);
+        }
+
+        /* MAIN */
+
+        main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 70px 30px 70px;
+        }
+
+        /* PAGE HEADER */
+
+        .page-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 45px;
+            padding: 25px 15px;
+            border: 1px solid var(--matrix-border);
+            background: rgba(0, 8, 2, 0.82);
+            box-shadow:
+                0 0 12px rgba(0, 255, 65, 0.18),
+                inset 0 0 18px rgba(0, 255, 65, 0.04);
+        }
+
+        .system-label {
+            display: block;
+            margin-bottom: 14px;
+            color: var(--matrix-dark-green);
+            font-size: 11px;
+            letter-spacing: 4px;
+        }
+
+        .page-header h1 {
+            color: var(--matrix-green);
+            font-size: 32px;
+            letter-spacing: 5px;
+            margin-bottom: 15px;
+            text-shadow:
+                0 0 5px rgba(0, 255, 65, 0.9),
+                0 0 16px rgba(0, 255, 65, 0.4);
+        }
+
+        .page-header p {
+            color: var(--matrix-muted);
+            font-size: 13px;
+            letter-spacing: 3px;
+        }
+
+        .title-line {
+            width: 100px;
+            height: 2px;
+            margin: 20px auto 0;
+            background: var(--matrix-green);
+            box-shadow: 0 0 10px var(--matrix-green);
+        }
+
+        /* HISTORY CARD */
+
+        .history-card {
+            position: relative;
+            padding: 30px;
+            background: var(--matrix-panel);
+            border: 1px solid var(--matrix-border);
+            box-shadow:
+                0 0 15px rgba(0, 255, 65, 0.12),
+                inset 0 0 25px rgba(0, 255, 65, 0.025);
+        }
+
+        .history-card::before {
+            content: "[ RESERVATION DATABASE ]";
+            display: block;
+            margin-bottom: 25px;
+            color: var(--matrix-dark-green);
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        /* RESULT COUNT */
+
+        .result-count {
+            color: var(--matrix-muted);
+            font-size: 13px;
+            text-align: right;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .result-count span {
+            color: var(--matrix-green);
+            font-weight: bold;
+            text-shadow: 0 0 7px rgba(0, 255, 65, 0.45);
+        }
+
+        /* TABLE */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 255, 65, 0.25);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            padding: 18px 15px;
+            background: rgba(0, 30, 8, 0.88);
+            border-bottom: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            font-size: 12px;
+            font-weight: normal;
+            letter-spacing: 2px;
+            text-align: left;
+            white-space: nowrap;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.4);
+        }
+
+        .history-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.17);
+            color: var(--matrix-text);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .history-table tbody tr {
+            background: rgba(0, 8, 2, 0.65);
+            transition: background 0.25s, box-shadow 0.25s;
+        }
+
+        .history-table tbody tr:hover {
+            background: rgba(0, 50, 12, 0.55);
+            box-shadow: inset 3px 0 0 var(--matrix-green);
+        }
+
+        .history-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* RESERVATION ID */
+
+        .reservation-id {
+            color: var(--matrix-green);
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
+        }
+
+        /* STATUS */
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border: 1px solid rgba(0, 255, 65, 0.55);
+            color: var(--matrix-green);
+            background: rgba(0, 40, 10, 0.45);
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* DETAIL BUTTON */
+
+        .detail-button {
+            display: inline-block;
+            padding: 9px 18px;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            background: rgba(0, 20, 5, 0.6);
+            text-decoration: none;
+            font-size: 12px;
+            letter-spacing: 2px;
+            transition: 0.25s;
+        }
+
+        .detail-button:hover {
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.55);
+        }
+
+        /* NO RESERVATION */
+
+        .no-reservation {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--matrix-muted);
+            font-size: 14px;
+            letter-spacing: 2px;
+            line-height: 2.5;
+            border: 1px dashed rgba(0, 255, 65, 0.3);
+            background: rgba(0, 15, 4, 0.55);
+        }
+
+        .no-reservation::before {
+            content: "[ NO DATA FOUND ]";
+            display: block;
+            margin-bottom: 18px;
+            color: var(--matrix-dark-green);
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        /* BACK BUTTON */
+
+        .back-area {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 14px 35px;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            background: rgba(0, 8, 2, 0.88);
+            text-decoration: none;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .back-button:hover {
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+        }
+
+        /* FOOTER */
+
+        .footer-text {
+            margin-top: 50px;
+            color: var(--matrix-dark-green);
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-align: center;
+            line-height: 2;
+        }
+
+        .footer-text span {
+            display: block;
+            color: rgba(0, 255, 65, 0.4);
+            font-size: 9px;
+            letter-spacing: 2px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 800px) {
+            header {
+                min-height: 70px;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 18px;
+                letter-spacing: 3px;
+            }
+
+            main {
+                padding: 45px 15px 60px;
+            }
+
+            .page-header h1 {
+                font-size: 25px;
+                letter-spacing: 3px;
+            }
+
+            .history-card {
+                padding: 18px;
+            }
+
+            .history-table {
+                min-width: 650px;
+            }
+
+            .history-table th,
+            .history-table td {
+                padding: 15px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 15px;
+            }
+
+            .logo {
+                font-size: 16px;
+                letter-spacing: 2px;
+            }
+
+            .header-link {
+                padding: 8px 10px;
+                font-size: 11px;
+                letter-spacing: 1px;
+            }
+
+            main {
+                padding: 30px 10px 45px;
+            }
+
+            .page-header {
+                margin-bottom: 30px;
+                padding: 22px 10px;
+            }
+
+            .page-header h1 {
+                font-size: 21px;
+                letter-spacing: 2px;
+            }
+
+            .page-header p {
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+
+            .system-label {
+                font-size: 9px;
+                letter-spacing: 2px;
+            }
+
+            .history-card {
+                padding: 12px;
+            }
+
+            .history-card::before {
+                font-size: 10px;
+                letter-spacing: 2px;
+            }
+
+            .result-count {
+                font-size: 12px;
+            }
+
+            .back-button {
+                padding: 12px 25px;
+                font-size: 12px;
+            }
+
+            .footer-text {
+                font-size: 9px;
+                letter-spacing: 2px;
+            }
+        }
+
+        /* REDUCE MOTION */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
 </head>
+
 <body>
-<div class="container">
 
-    <h1 class="page-title">予約履歴</h1>
+    <!-- MATRIX DIGITAL RAIN -->
+    <canvas id="matrix-canvas" aria-hidden="true"></canvas>
 
-    <div class="top-bar">
-        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
-    </div>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">FUJICHAKU</div>
 
-    <p class="result-count">
-        予約件数：
-        <span th:text="${#lists.size(reservations)}">0</span>件
-    </p>
+        <a th:href="@{/shops}" class="header-link">
+            &lt; 店舗一覧
+        </a>
+    </header>
 
-    <section class="section" th:if="${!#lists.isEmpty(reservations)}">
-        <table class="reservation-table">
-            <thead>
-                <tr>
-                    <th>予約番号</th>
-                    <th>予約日時</th>
-                    <th>人数</th>
-                    <th>状況</th>
-                    <th>店舗</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="reservation : ${reservations}">
-                    <td th:text="${reservation.id}">100</td>
-                    <td th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">2026/10/10 18:00</td>
-                    <td th:text="${reservation.number}">2</td>
-                    <td th:text="${reservation.status}">予約済み</td>
-                    <td th:text="${storeNames[reservation.id]}">店舗名</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
+    <!-- MAIN -->
+    <main>
 
-    <div class="empty" th:if="${#lists.isEmpty(reservations)}">予約履歴はありません。</div>
+        <!-- PAGE HEADER -->
+        <section class="page-header">
+            <span class="system-label">SYSTEM ACCESS // RESERVATION DATABASE</span>
 
-</div>
+            <h1>RESERVATION HISTORY</h1>
+
+            <p>予約履歴</p>
+
+            <div class="title-line"></div>
+        </section>
+
+        <!-- HISTORY -->
+        <section class="history-card">
+
+            <!-- 予約件数 -->
+            <div class="result-count">
+                DATABASE RECORDS：
+                <span
+                    th:text="${reservations != null ? #lists.size(reservations) : 0}">
+                    0
+                </span>
+                件
+            </div>
+
+            <!-- 予約が存在する場合 -->
+            <div
+                class="table-wrapper"
+                th:if="${reservations != null and !#lists.isEmpty(reservations)}">
+
+                <table class="history-table">
+
+                    <thead>
+                        <tr>
+                            <th>予約番号</th>
+                            <th>予約日時</th>
+                            <th>人数</th>
+                            <th>状況</th>
+                            <th>詳細</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr th:each="reservation : ${reservations}">
+
+                            <!-- 予約番号 -->
+                            <td>
+                                <span
+                                    class="reservation-id"
+                                    th:text="${reservation.id}">
+                                    000000
+                                </span>
+                            </td>
+
+                            <!-- 予約日時 -->
+                            <td
+                                th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">
+                                2026/10/07 18:00
+                            </td>
+
+                            <!-- 予約人数 -->
+                            <td th:text="${reservation.number + '名'}">
+                                2名
+                            </td>
+
+                            <!-- 予約状況 -->
+                            <td>
+                                <span
+                                    class="status"
+                                    th:text="${reservation.status}">
+                                    予約済み
+                                </span>
+                            </td>
+
+                            <!-- 予約詳細 -->
+                            <td>
+                                <a
+                                    th:href="@{/reservations/{reservationId}(reservationId=${reservation.id})}"
+                                    class="detail-button">
+                                    DETAILS &gt;
+                                </a>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <!-- 予約がない場合 -->
+            <div
+                class="no-reservation"
+                th:if="${reservations == null or #lists.isEmpty(reservations)}">
+
+                現在、予約履歴はありません。
+
+            </div>
+
+        </section>
+
+        <!-- BACK -->
+        <div class="back-area">
+            <a
+                th:href="@{/shops}"
+                class="back-button">
+                &lt; 店舗一覧へ戻る
+            </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer-text">
+            FUJICHAKU — RESERVATION MANAGEMENT
+            <span>SECURE DATABASE // SYSTEM ONLINE</span>
+        </div>
+
+    </main>
+
+    <!-- MATRIX DIGITAL RAIN SCRIPT -->
+    <script>
+        (() => {
+            const canvas = document.getElementById("matrix-canvas");
+
+            if (!canvas) {
+                return;
+            }
+
+            const ctx = canvas.getContext("2d");
+
+            if (!ctx) {
+                return;
+            }
+
+			const characters =
+						    "テストしたくない" +
+						    "テストめんどくさい" + "テストいやだ" +
+						    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+						    "reservation" + "reserve" + "FUJICHAKU" +
+						    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+						    "完了" + "予約完了" + "不時着" + "不時着しました" +
+						    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+						    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+						    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+						    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+						    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+						    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+						    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+						    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+						    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+						    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+						    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+						    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+						    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+						    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+						    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+						    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+						    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+						    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+						    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
+
+            const fontSize = 14;
+
+            let columns = [];
+            let width = 0;
+            let height = 0;
+            let animationId = null;
+            let lastFrameTime = 0;
+
+            const frameInterval = 40;
+
+            function resizeCanvas() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                width = window.innerWidth;
+                height = window.innerHeight;
+
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+
+                canvas.style.width = width + "px";
+                canvas.style.height = height + "px";
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                const columnCount = Math.ceil(width / fontSize);
+
+                columns = Array.from(
+                    { length: columnCount },
+                    () => Math.random() * (height / fontSize)
+                );
+
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            function drawMatrix(timestamp) {
+                if (timestamp - lastFrameTime < frameInterval) {
+                    animationId = requestAnimationFrame(drawMatrix);
+                    return;
+                }
+
+                lastFrameTime = timestamp;
+
+                ctx.fillStyle = "rgba(0, 0, 0, 0.075)";
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.font = fontSize + "px Consolas, monospace";
+                ctx.textBaseline = "top";
+
+                for (let i = 0; i < columns.length; i++) {
+                    const character =
+                        characters.charAt(
+                            Math.floor(Math.random() * characters.length)
+                        );
+
+                    const x = i * fontSize;
+                    const y = columns[i] * fontSize;
+
+                    if (Math.random() > 0.985) {
+                        ctx.fillStyle = "#d5ffdc";
+                    } else {
+                        ctx.fillStyle = "#00ff41";
+                    }
+
+                    ctx.fillText(character, x, y);
+
+                    if (
+                        y > height &&
+                        Math.random() > 0.975
+                    ) {
+                        columns[i] = 0;
+                    } else {
+                        columns[i] += Math.random() * 0.65 + 0.45;
+                    }
+                }
+
+                animationId = requestAnimationFrame(drawMatrix);
+            }
+
+            resizeCanvas();
+
+            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                animationId = requestAnimationFrame(drawMatrix);
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    if (animationId !== null) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                } else if (
+                    animationId === null &&
+                    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ) {
+                    lastFrameTime = 0;
+                    animationId = requestAnimationFrame(drawMatrix);
+                }
+            });
+        })();
+    </script>
+
 </body>
 </html>

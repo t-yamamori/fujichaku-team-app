@@ -349,7 +349,11 @@ public class ShopController {
 		boolean deleted = reviewId != null && reviewService.deleteReview(reviewId, shopId, loginId);
 
 		if (deleted) {
-			redirectAttributes.addFlashAttribute("message", "口コミを削除しました");
+			// ★追加：口コミ投稿でもらったポイントを取り消す（マイナスの値を渡すと減る）
+			membersService.addPoint(loginId, -MembersService.REVIEW_POINT, "REVIEW");
+
+			redirectAttributes.addFlashAttribute("message",
+					"口コミを削除しました。（−" + MembersService.REVIEW_POINT + "P）");
 		} else {
 			redirectAttributes.addFlashAttribute("errorMessage", "削除できる口コミが見つかりませんでした。");
 		}

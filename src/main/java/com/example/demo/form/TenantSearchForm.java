@@ -15,4 +15,5 @@ public class TenantSearchForm {
     private String description;
     private String pictureUrl;
     private String phone;
+    private String nameKana;
 }

@@ -1,29 +1,19 @@
-/* 店舗管理画面 */
+/* テナント管理画面 */
 .tenant-page {
     width: 100%;
     min-width: 0;
+    max-width: 100%;
     box-sizing: border-box;
 }
 
-/* 検索フォーム
-   削除チェックボックス列（55px）の右側から配置する */
+/* 検索フォーム */
 .tenant-search {
-    display: grid;
-    grid-template-columns:
-        45px
-        110px
-        150px
-        100px
-        140px
-        140px
-        140px
-        110px;
+    display: flex;
+    align-items: flex-end;
     gap: 8px;
-    align-items: end;
-
-    margin: 0 0 15px 55px;
-    padding: 10px 0;
-    width: calc(100% - 55px);
+    margin: 0 0 15px;
+    padding: 10px 0 10px 55px;
+    width: 100%;
     box-sizing: border-box;
 }
 
@@ -32,6 +22,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    flex: 1 1 0;
     min-width: 0;
 }
 
@@ -50,171 +41,52 @@
     box-sizing: border-box;
 }
 
-/* 検索ボタン・条件クリア
-   検索項目の下の行に配置する */
+/* ID検索欄 */
+.search-field-id {
+    flex: 0 0 45px;
+}
+
+/* 検索ボタン・条件クリア */
 .search-buttons {
-    grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 8px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding-bottom: 0;
 }
 
 .search-buttons button {
-    padding: 6px 16px;
+    height: 32px;
+    padding: 0 12px;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .search-buttons a {
     font-size: 0.9em;
     white-space: nowrap;
-}
-
-/* 一覧表のスクロール領域 */
-.tenant-table-wrapper {
-    width: 100%;
-    max-height: calc(100vh - 250px);
-    overflow: auto;
-    box-sizing: border-box;
-}
-
-/* 店舗一覧表 */
-.tenant-table {
-    width: 100%;
-    min-width: 1210px;
-    table-layout: fixed;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-/* セル共通 */
-.tenant-table th,
-.tenant-table td {
-    padding: 5px;
-    border: 1px solid #ccc;
-    vertical-align: top;
-    box-sizing: border-box;
-}
-
-/* ヘッダー固定 */
-.tenant-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background-color: #eee;
-    white-space: nowrap;
-}
-
-/* 1列目：削除チェックボックス */
-.tenant-table th:nth-child(1),
-.tenant-table td:nth-child(1) {
-    width: 55px;
-    text-align: center;
-}
-
-/* 2列目：ID */
-.tenant-table th:nth-child(2),
-.tenant-table td:nth-child(2) {
-    width: 45px;
-}
-
-/* 3列目：店舗名 */
-.tenant-table th:nth-child(3),
-.tenant-table td:nth-child(3) {
-    width: 110px;
-}
-
-/* 4列目：メールアドレス */
-.tenant-table th:nth-child(4),
-.tenant-table td:nth-child(4) {
-    width: 150px;
-}
-
-/* 5列目：代表者 */
-.tenant-table th:nth-child(5),
-.tenant-table td:nth-child(5) {
-    width: 100px;
-}
-
-/* 6列目：住所 */
-.tenant-table th:nth-child(6),
-.tenant-table td:nth-child(6) {
-    width: 140px;
-}
-
-/* 7列目：説明 */
-.tenant-table th:nth-child(7),
-.tenant-table td:nth-child(7) {
-    width: 140px;
-}
-
-/* 8列目：画像URL */
-.tenant-table th:nth-child(8),
-.tenant-table td:nth-child(8) {
-    width: 140px;
-}
-
-/* 9列目：電話番号 */
-.tenant-table th:nth-child(9),
-.tenant-table td:nth-child(9) {
-    width: 110px;
-}
-
-/* 10列目：操作 */
-.tenant-table th:nth-child(10),
-.tenant-table td:nth-child(10) {
-    width: 160px;
-}
-
-/* 一覧表内の入力欄 */
-.tenant-table input[type="text"],
-.tenant-table input[type="email"],
-.tenant-table input[type="password"],
-.tenant-table input[type="tel"],
-.tenant-table textarea {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-}
-
-/* 一覧表内の説明欄 */
-.tenant-table textarea {
-    resize: vertical;
-}
-
-/* エラーメッセージ */
-.field-error {
-    display: block;
-    margin-top: 4px;
-    color: #d00;
-    font-size: 0.85em;
-    overflow-wrap: anywhere;
-}
-
-/* 画面幅が狭い場合 */
-@media (max-width: 1100px) {
-    .tenant-search {
-        margin-left: 0;
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .tenant-table-wrapper {
-        max-height: calc(100vh - 250px);
-    }
+    padding: 7px 0;
 }
 
 
-/* 一括更新ボタンだけを操作列の右端に配置 */
-.update-button-area {
+/* 一括削除・一括更新ボタン
+   削除は左端、更新は右端に配置し、同じ高さに揃える */
+.table-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
+    margin: 0 0 8px;
     box-sizing: border-box;
 }
 
-.update-button-area button {
-    margin-left: auto;
+/* 両ボタンの高さを統一 */
+.table-actions button {
+    min-height: 32px;
+    padding: 7px 16px;
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 
@@ -230,16 +102,169 @@
     box-sizing: border-box;
 }
 
-/* 一括更新ボタンを一覧表の右上へ配置 */
-.table-actions {
-    display: flex;
-    justify-content: flex-end;
+/* 一覧表全体の横スクロール領域 */
+.tenant-table-frame {
     width: 100%;
-    margin: 0 0 8px;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
     box-sizing: border-box;
 }
 
-.table-actions button {
-    padding: 7px 16px;
+/* テーブル共通 */
+.tenant-table {
+    width: 1370px;
+    min-width: 1370px;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 0;
+}
+
+/* 11列の幅 */
+.tenant-table .col-delete         { width: 55px; }
+.tenant-table .col-id             { width: 45px; }
+.tenant-table .col-name           { width: 110px; }
+.tenant-table .col-name-kana      { width: 120px; }
+.tenant-table .col-mail           { width: 150px; }
+.tenant-table .col-phone          { width: 110px; }
+.tenant-table .col-representative { width: 100px; }
+.tenant-table .col-address        { width: 140px; }
+.tenant-table .col-description    { width: 140px; }
+.tenant-table .col-picture        { width: 200px; }
+.tenant-table .col-operation      { width: 200px; }
+
+/* 3つのテーブルの幅を統一 */
+.tenant-header-table,
+.tenant-data-table,
+.tenant-new-table {
+    width: 1370px;
+    min-width: 1370px;
+    table-layout: fixed;
+}
+
+/* セル共通 */
+.tenant-table th,
+.tenant-table td {
+    padding: 5px;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    vertical-align: top;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+}
+
+/* 左端の罫線 */
+.tenant-table th:first-child,
+.tenant-table td:first-child {
+    border-left: 1px solid #ccc;
+}
+
+/* ヘッダー */
+.tenant-header-table {
+    border-top: 1px solid #ccc;
+}
+
+.tenant-header-table thead th {
+    background-color: #eee;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+}
+
+
+/* 既存データの縦スクロール領域
+   操作列の右側に縦スクロールバーを配置する */
+.tenant-table-data-wrapper {
+    width: 1387px;
+    min-width: 1387px;
+    max-height: calc(100vh - 320px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+/* 既存データテーブル */
+.tenant-data-table {
+    width: 1370px;
+    min-width: 1370px;
+    border-top: 0;
+}
+
+/* 新規登録テーブル */
+.tenant-new-table {
+    border-top: 0;
+}
+
+/* 新規登録行の背景 */
+.tenant-new-table tbody tr {
+    background-color: #f7f7f7;
+}
+
+/* 入力欄共通 */
+.tenant-table input[type="text"],
+.tenant-table input[type="email"],
+.tenant-table input[type="password"],
+.tenant-table input[type="tel"],
+.tenant-table textarea {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 操作列のパスワード入力欄 */
+.tenant-table .new-password-input {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* 操作列の作成ボタン */
+.tenant-new-table td:last-child button {
+    margin-top: 5px;
+    max-width: 100%;
+    box-sizing: border-box;
     cursor: pointer;
+}
+
+/* エラーメッセージ */
+.error-message,
+.field-error {
+    display: block;
+    margin-top: 4px;
+    color: #d00;
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+}
+
+/* 更新ボタン領域 */
+.update-button-area {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.update-button-area button {
+    margin-left: auto;
+}
+
+/* 狭い画面 */
+@media (max-width: 1100px) {
+    .tenant-search {
+        overflow-x: auto;
+    }
+
+    .search-field {
+        flex: 0 0 110px;
+    }
+
+    .search-field-id {
+        flex: 0 0 45px;
+    }
+
+    .tenant-table-data-wrapper {
+        max-height: calc(100vh - 320px);
+    }
 }

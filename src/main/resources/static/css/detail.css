@@ -1,0 +1,301 @@
+@charset "UTF-8";
+/* =========================================================
+   detail.css
+   配置場所：src/main/resources/static/css/detail.css
+   対象画面：店舗詳細画面（templates/shops/detail.html など）
+
+   ・トップ画面（top.css）と同じ色・文字・ヘッダー・フッター
+   ・フロアごとに背景の濃さが変わる（地下1階 → 1階 → 2階の順に濃くなる）
+   ・レストラン（予約できる店）は黒に近い深い青の背景
+   ・この1ファイルだけで画面が完成する（shops.css は読み込まない）
+   ========================================================= */
+
+/* ===== 1. 色 ===== */
+:root {
+    --main:       #8b4a2b;   /* ボタン（ブラウン） */
+    --main-dark:  #6e3a21;
+    --sky-deep:   #3f82ad;   /* 見出し・リンク（空色） */
+    --sky-pale:   #eaf4fa;
+    --line:       #d9e3ea;
+    --text:       #2f3437;
+    --text-sub:   #6b7479;
+    --star:       #e0a526;   /* 口コミの星 */
+    --gold:       #c9a45c;   /* レストランのアクセント */
+    --content:    1040px;
+    --header-h:   60px;
+}
+
+/* ===== 2. ベース ===== */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex; flex-direction: column;     /* フッターを一番下に置くため */
+    background: linear-gradient(#bcdcef 0, var(--sky-pale) 520px, #f6fafc 100%);
+}
+img { max-width: 100%; display: block; }
+a { color: var(--sky-deep); }
+a:hover { color: var(--main); }
+:focus-visible { outline: 2px solid var(--sky-deep); outline-offset: 2px; }
+
+/* ===== 3. ボタン ===== */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 38px; padding: 0 20px;
+    border: 1px solid var(--main); border-radius: 3px;
+    background: var(--main); color: #fff;
+    font: inherit; font-size: .9rem; font-weight: 700;
+    text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--main-dark); border-color: var(--main-dark); color: #fff; }
+.btn-outline { background: #fff; color: var(--main); }
+.btn-outline:hover { background: var(--main); color: #fff; }
+.btn-secondary { background: #fff; border-color: var(--line); color: var(--text-sub); }
+.btn-secondary:hover { background: #fff; border-color: var(--main); color: var(--main); }
+.btn-small { height: auto; padding: 4px 10px; font-size: .8rem; }
+.btn-block { display: flex; width: 100%; height: 50px; font-size: 1rem; }
+
+.link-button {
+    border: none; background: none; padding: 0; cursor: pointer;
+    font: inherit; color: var(--text-sub);
+}
+.link-button:hover { color: var(--main); text-decoration: underline; }
+
+/* ===== 4. ヘッダー（トップ画面と同じ） ===== */
+.site-header {
+    position: sticky; top: 0; z-index: 50;
+    background: #fff; border-bottom: 1px solid var(--line);
+}
+.header-inner {
+    max-width: var(--content); height: var(--header-h);
+    margin: 0 auto; padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); }
+.logo-text { font-weight: 700; font-size: 1.15rem; letter-spacing: .06em; line-height: 1; }
+.logo-text span { margin-left: .35em; font-weight: 400; color: var(--sky-deep); letter-spacing: .14em; }
+.logo-small .logo-text { font-size: .95rem; }
+
+.account-nav { display: flex; align-items: center; gap: 14px; font-size: .88rem; white-space: nowrap; }
+.account-nav a:not(.btn) { color: var(--text); text-decoration: none; }
+.account-nav a:not(.btn):hover { color: var(--sky-deep); text-decoration: underline; }
+.account-nav form { margin: 0; }
+.account-nav a.forgot-link { font-size: .75rem; color: var(--text-sub); text-decoration: underline; }
+
+/* ===== 5. 本文 ===== */
+.container {
+    flex: 1;
+    width: 100%; max-width: var(--content);
+    margin: 0 auto; padding: 18px 20px 48px;
+}
+
+/* パンくずリスト */
+.crumbs { margin: 0 0 16px; font-size: .8rem; color: var(--text-sub); }
+.crumbs a { text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.crumbs span { margin: 0 8px; }
+
+/* フロア・レストランのラベル */
+.tags { display: flex; gap: 8px; margin-bottom: 6px; }
+.tag { font-size: .75rem; font-weight: 700; padding: 2px 10px; border-radius: 2px; line-height: 1.6; }
+.tag-floor { background: var(--sky-deep); color: #fff; }
+.tag-cat { background: #fff; color: var(--main); border: 1px solid var(--main); }
+
+/* 店舗名 */
+.page-title {
+    margin: 0 0 20px; padding-bottom: 10px;
+    font-size: 1.8rem; letter-spacing: .06em; line-height: 1.4;
+    color: var(--text);
+    border-bottom: 2px solid var(--sky-deep);
+}
+
+/* 白いカード */
+.section {
+    background: #fff;
+    border: 1px solid var(--line); border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(63, 130, 173, .08);
+    padding: 24px; margin-bottom: 22px;
+}
+.section h2 {
+    display: flex; align-items: baseline; gap: 14px;
+    margin: 0 0 8px; padding-left: 12px;
+    font-size: 1.15rem;
+    border-left: 3px solid var(--sky-deep);
+}
+
+/* メッセージ */
+.flash { padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-size: .92rem; }
+.flash-success { background: #eaf5ea; color: #2f6b2f; border: 1px solid #cfe6cf; }
+.flash-error   { background: #fdecea; color: #a5281b; border: 1px solid #f5c9c3; }
+
+/* 店舗管理者バー */
+.admin-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 14px; margin-bottom: 16px; border-radius: 4px;
+    background: #fff; color: var(--sky-deep); border: 1px solid var(--line);
+    font-weight: 700; font-size: .9rem;
+}
+.admin-bar form { margin: 0; }
+
+/* ===== 6. 店舗情報（左：画像／右：情報＋予約ボタン） ===== */
+.shop-detail { display: grid; grid-template-columns: 400px 1fr; gap: 28px; align-items: start; }
+.shop-detail img { width: 100%; border: 1px solid var(--line); border-radius: 4px; }
+.no-image {
+    aspect-ratio: 4 / 3;
+    display: grid; place-items: center;
+    background: var(--sky-pale); color: var(--text-sub);
+    border: 1px solid var(--line); border-radius: 4px;
+    font-weight: 700; letter-spacing: .1em;
+}
+.shop-detail dl { display: grid; grid-template-columns: 96px 1fr; margin: 0 0 20px; }
+.shop-detail dt,
+.shop-detail dd { margin: 0; padding: 11px 4px; border-bottom: 1px solid var(--line); font-size: .92rem; }
+.shop-detail dt { color: var(--sky-deep); font-weight: 700; font-size: .82rem; }
+
+.reserve-note { margin: 6px 0 0; text-align: center; font-size: .75rem; color: var(--text-sub); }
+.no-reserve  { margin: 0; padding: 12px; text-align: center; font-size: .85rem;
+               color: var(--text-sub); background: var(--sky-pale); border-radius: 3px; }
+
+/* ===== 7. 口コミ ===== */
+.review { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.review .meta { display: flex; align-items: center; gap: 12px; font-size: .8rem; color: var(--text-sub); }
+.review .stars { color: var(--star); font-size: 1rem; letter-spacing: .05em; }
+.review .delete-form { margin: 0 0 0 auto; }
+.review .comment { margin: 6px 0 0; }
+.note { color: var(--text-sub); font-size: .88rem; }
+
+.review-form { display: grid; gap: 10px; margin-top: 20px; }
+.review-form label { font-weight: 700; font-size: .9rem; }
+.review-form select,
+.review-form textarea {
+    width: 100%; padding: 8px 10px;
+    font: inherit; font-size: .92rem; color: var(--text);
+    background: #fff; border: 1px solid var(--line); border-radius: 3px;
+}
+.review-form select { max-width: 260px; }
+.review-form textarea { min-height: 100px; resize: vertical; }
+.review-form select:focus,
+.review-form textarea:focus { outline: 2px solid var(--sky-deep); outline-offset: 0; border-color: var(--sky-deep); }
+.review-form .btn { justify-self: start; }
+
+/* ===== 8. 予約の表 ===== */
+.reservation-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.reservation-table th,
+.reservation-table td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; }
+.reservation-table th { background: var(--sky-pale); color: var(--sky-deep); font-weight: 700; }
+
+/* ===== 9. フッター（トップ画面と同じ＋営業時間） ===== */
+.site-footer {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 26px 20px 22px;
+    background: #fff; border-top: 1px solid var(--line);
+    font-size: .78rem; color: var(--text-sub);
+}
+.site-footer p { margin: 0; }
+.footer-hours {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 16px;
+    margin: 8px 0 0; font-size: .85rem; color: var(--text);
+}
+.footer-hours dt { font-weight: 700; color: var(--sky-deep); }
+.footer-hours dd { margin: 0; }
+.footer-note { font-size: .72rem; }
+
+/* ===== 10. フロア別の背景（上の階ほど濃い空色） ===== */
+body.floor-b1 { --floor-top: #e4eff6; --floor-mid: #f3f8fb; --floor-tag: #7fb0cf; }
+body.floor-1  { --floor-top: #bcdcef; --floor-mid: #eaf4fa; --floor-tag: #3f82ad; }
+body.floor-2  { --floor-top: #8fc0de; --floor-mid: #d3e7f3; --floor-tag: #2a5f82; }
+
+body[class*="floor-"] {
+    background: linear-gradient(var(--floor-top) 0, var(--floor-mid) 520px, #f6fafc 100%);
+}
+body[class*="floor-"] .tag-floor { background: var(--floor-tag); }
+
+/* ===== 11. レストラン：砂漠の夕焼け（砂ぼこりで赤みの強い空＋砂丘のシルエット） ===== */
+body.is-restaurant {
+    background:
+        /* 砂丘のシルエット（画面の一番下） */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23733a2a'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%234a2219'/%3E%3C/svg%3E") bottom / 100% 160px no-repeat,
+        /* 沈んだ太陽の光（地平線の真ん中） */
+        radial-gradient(ellipse 45% 30% at 50% 88%, rgba(255, 196, 110, .75), transparent 70%),
+        /* 空：すみれ色 → ばら色 → 赤橙 → 琥珀色 */
+        linear-gradient(#2b1e3f 0%, #5b2f4f 28%, #a24a4a 52%, #d9733f 72%, #f0a85a 88%, #f6c77e 100%);
+    background-attachment: fixed;
+    --dusk-accent: #f0b46a;   /* 琥珀色 */
+}
+body.is-restaurant .crumbs,
+body.is-restaurant .crumbs a  { color: #ead2c9; }
+body.is-restaurant .page-title { color: #fff; border-bottom-color: var(--dusk-accent); letter-spacing: .1em; text-shadow: 0 1px 4px rgba(40, 15, 20, .35); }
+body.is-restaurant .tag-floor  { background: var(--dusk-accent); color: #3a1c22; }
+body.is-restaurant .tag-cat    { background: transparent; color: #ffdcae; border-color: var(--dusk-accent); }
+body.is-restaurant .section    { border-color: transparent; box-shadow: 0 12px 32px rgba(60, 20, 20, .35); }
+body.is-restaurant .section h2 { border-left-color: #d9733f; }
+
+/* ===== 12. スマホ ===== */
+@media (max-width: 720px) {
+    :root { --header-h: 54px; }
+    .header-inner { padding: 0 14px; }
+    .logo-text { font-size: .86rem; }
+    .logo img { width: 28px; height: 28px; }
+    .account-nav { gap: 10px; font-size: .8rem; }
+    .account-nav .btn { height: 32px; padding: 0 12px; }
+    .account-nav a.forgot-link { display: none; }
+
+    .container { padding: 14px 14px 40px; }
+    .page-title { font-size: 1.4rem; }
+    .section { padding: 18px 16px; }
+    .shop-detail { grid-template-columns: 1fr; gap: 18px; }   /* 画像の下に情報 */
+    .shop-detail dl { grid-template-columns: 84px 1fr; }
+}
+
+/* ===== ポイントの案内 ===== */
+.point-card {
+    display: flex; align-items: center; gap: 20px;
+    padding: 18px 24px;
+}
+.point-badge {
+    flex: none;
+    width: 56px; height: 56px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: #fdf3e2; color: #b7791f;
+    border: 2px solid #e8c27a;
+    font-weight: 700; font-size: 1.3rem;
+}
+.point-body { flex: 1; min-width: 0; }
+.point-title { margin: 0 0 6px; font-weight: 700; font-size: 1rem; }
+.point-list { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: .88rem; }
+.point-list b { color: #b7791f; font-size: 1.05rem; margin-left: 4px; }
+.point-card .btn { flex: none; }
+
+@media (max-width: 720px) {
+    .point-card { flex-wrap: wrap; }
+    .point-card .btn { width: 100%; }
+}
+
+/* ===== 店名の左の「＜」戻るボタン（B：空色で塗る） ===== */
+.page-title {
+    display: flex; align-items: center; gap: 14px;
+}
+.back-btn {
+    flex: none;
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    background: var(--sky-deep);
+    border: 1px solid var(--sky-deep); border-radius: 4px;
+    color: #fff;
+    font-size: 1rem; font-weight: 400; letter-spacing: 0;
+    text-decoration: none;
+    text-shadow: none;
+}
+.back-btn:hover { background: var(--main); border-color: var(--main); color: #fff; }
+
+/* レストラン（夕焼けの背景）：金オレンジで塗る */
+body.is-restaurant .back-btn       { background: var(--dusk-accent); border-color: var(--dusk-accent); color: #1d1b44; }
+body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color: #1d1b44; }
+
+@media (max-width: 720px) {
+    .back-btn { width: 32px; height: 32px; }
+}
+
