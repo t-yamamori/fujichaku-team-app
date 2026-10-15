@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>店舗予約 | FUJICHAKU SYSTEM</title>
+    <title>予約フォーム | FUJICHAKU</title>
 
     <style>
         :root {
@@ -11,9 +11,11 @@
             --green-soft: #00cc33;
             --green-dim: #008f11;
             --bg: #030705;
-            --panel: rgba(0, 20, 7, 0.93);
-            --text: #c8ffd2;
-            --border: rgba(0, 255, 65, 0.35);
+            --panel: rgba(0, 15, 5, 0.94);
+            --panel-light: rgba(0, 255, 65, 0.045);
+            --text: #d5ffdc;
+            --muted: #8abf94;
+            --border: rgba(0, 255, 65, 0.38);
             --error: #ff6464;
         }
 
@@ -27,648 +29,808 @@
         }
 
         body {
-            position: relative;
-            min-height: 100vh;
             margin: 0;
-            padding: 35px 16px 50px;
-            overflow-x: hidden;
+            min-height: 100vh;
             color: var(--text);
-            background: var(--bg);
-            font-family: "Consolas", "Courier New", monospace;
+            background:
+                radial-gradient(
+                    ellipse at top,
+                    rgba(0, 100, 25, 0.14),
+                    transparent 65%
+                ),
+                var(--bg);
+            font-family: Consolas, "Courier New", monospace;
+            overflow-x: hidden;
         }
 
+        /* デジタルレイン */
         #matrixRain {
             position: fixed;
             inset: 0;
-            z-index: 0;
             width: 100%;
             height: 100%;
+            z-index: 0;
             pointer-events: none;
             opacity: 0.24;
         }
 
+        /* 走査線 */
         body::before {
+            content: "";
             position: fixed;
             inset: 0;
             z-index: 1;
-            content: "";
             pointer-events: none;
             background: repeating-linear-gradient(
                 to bottom,
                 transparent 0,
                 transparent 3px,
-                rgba(0, 0, 0, 0.18) 4px
+                rgba(0, 255, 65, 0.025) 4px
             );
         }
 
+        /* 画面周辺の暗さ */
         body::after {
+            content: "";
             position: fixed;
             inset: 0;
             z-index: 1;
-            content: "";
             pointer-events: none;
             background: radial-gradient(
                 ellipse at center,
-                transparent 30%,
-                rgba(0, 0, 0, 0.78) 100%
+                transparent 35%,
+                rgba(0, 0, 0, 0.58) 100%
             );
+        }
+
+        a {
+            color: var(--green);
+            text-decoration: none;
+            transition:
+                color 0.2s ease,
+                text-shadow 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+        }
+
+        a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px var(--green);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
         .container {
             position: relative;
             z-index: 2;
-            width: 100%;
-            max-width: 900px;
+            width: min(900px, calc(100% - 32px));
             margin: 0 auto;
-            padding: 30px;
-            border: 1px solid var(--border);
-            background: var(--panel);
-            box-shadow:
-                0 0 18px rgba(0, 255, 65, 0.12),
-                inset 0 0 25px rgba(0, 255, 65, 0.025);
+            padding: 28px 0 60px;
         }
 
-        .system-header {
+        /* ヘッダー */
+        .header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding-bottom: 18px;
-            margin-bottom: 28px;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 0 0 18px;
+            margin-bottom: 30px;
             border-bottom: 1px solid var(--border);
         }
 
         .brand {
+            margin: 0;
             color: var(--green);
-            font-size: 19px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0, 255, 65, 0.55);
+            font-size: clamp(23px, 4vw, 32px);
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-shadow:
+                0 0 5px rgba(0, 255, 65, 0.9),
+                0 0 18px rgba(0, 255, 65, 0.35);
+        }
+
+        .brand-subtitle {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 10px;
+            letter-spacing: 2px;
         }
 
         .system-status {
-            color: var(--green-soft);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--green);
             font-size: 11px;
             letter-spacing: 1px;
+            white-space: nowrap;
         }
 
         .status-dot {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            margin-right: 6px;
+            width: 8px;
+            height: 8px;
+            flex: 0 0 8px;
             border-radius: 50%;
             background: var(--green);
-            box-shadow: 0 0 8px var(--green);
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse 1.8s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; }
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 10px var(--green);
+            }
+
+            50% {
+                opacity: 0.45;
+                box-shadow: 0 0 3px var(--green);
+            }
         }
 
-        .page-label {
-            margin-bottom: 8px;
-            color: var(--green-dim);
+        /* ページタイトル */
+        .page-heading {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            color: var(--green-soft);
             font-size: 11px;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
         }
 
         .page-title {
-            margin: 0 0 25px;
-            color: var(--green);
-            font-size: clamp(24px, 5vw, 32px);
-            letter-spacing: 2px;
-            text-shadow: 0 0 12px rgba(0, 255, 65, 0.3);
-        }
-
-        .page-title::before {
-            content: "> ";
-            color: var(--green-dim);
-        }
-
-        .top-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 28px;
-        }
-
-        .section {
-            margin-bottom: 25px;
-            padding: 20px;
+            display: inline-block;
+            margin: 0;
+            padding: 12px 22px;
             border: 1px solid var(--border);
-            background: rgba(0, 12, 4, 0.72);
-        }
-
-        .section h2 {
-            margin: 0 0 18px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed var(--border);
+            background: rgba(0, 20, 7, 0.72);
             color: var(--green);
-            font-size: 16px;
-            letter-spacing: 1px;
-        }
-
-        .section h2::before {
-            content: "[ ";
-            color: var(--green-dim);
-        }
-
-        .section h2::after {
-            content: " ]";
-            color: var(--green-dim);
-        }
-
-        .shop-detail {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
-            align-items: start;
-            gap: 25px;
-        }
-
-        .shop-image-wrapper {
-            width: 100%;
-            min-width: 0;
-        }
-
-        .shop-image {
-            display: block;
-            width: 100%;
-            max-height: 300px;
-            min-height: 160px;
-            object-fit: cover;
-            border: 1px solid var(--border);
-            background: #061009;
-        }
-
-        .no-image {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 180px;
-            border: 1px dashed var(--green-dim);
-            color: var(--green-dim);
-            background: rgba(0, 255, 65, 0.025);
+            font-size: clamp(22px, 4vw, 30px);
+            font-weight: 800;
             letter-spacing: 3px;
+            text-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
+            box-shadow:
+                0 0 18px rgba(0, 255, 65, 0.08),
+                inset 0 0 18px rgba(0, 255, 65, 0.025);
         }
 
-        .shop-info {
-            display: grid;
-            grid-template-columns: 95px minmax(0, 1fr);
-            gap: 0;
-            margin: 0;
-        }
-
-        .shop-info dt,
-        .shop-info dd {
-            margin: 0;
-            padding: 11px 8px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.13);
-            line-height: 1.7;
-            overflow-wrap: anywhere;
-        }
-
-        .shop-info dt {
-            color: var(--green-soft);
-        }
-
-        .shop-info dd {
-            color: var(--text);
-        }
-
-        .reservation-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .reservation-table th,
-        .reservation-table td {
-            padding: 15px 10px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.15);
-            text-align: left;
-            vertical-align: top;
-            line-height: 1.7;
-        }
-
-        .reservation-table tr:last-child th,
-        .reservation-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .reservation-table th {
-            width: 25%;
-            color: var(--green-soft);
-            font-weight: normal;
-        }
-
-        .reservation-table td {
-            color: var(--text);
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="date"],
-        select {
-            width: 100%;
-            max-width: 100%;
-            min-height: 43px;
-            padding: 10px 12px;
-            border: 1px solid var(--green-dim);
-            border-radius: 0;
-            outline: none;
-            background: rgba(0, 8, 3, 0.95);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 14px;
-            color-scheme: dark;
-        }
-
-        input::placeholder {
-            color: #65876c;
-        }
-
-        input:focus,
-        select:focus {
-            border-color: var(--green);
-            box-shadow: 0 0 10px rgba(0, 255, 65, 0.15);
-        }
-
-        input[type="radio"] {
-            accent-color: var(--green);
-        }
-
-        .time-options {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 9px;
-        }
-
-        .time-option {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 43px;
-            padding: 8px;
-            border: 1px solid var(--green-dim);
-            background: rgba(0, 20, 7, 0.7);
-            color: var(--text);
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-        .time-option:has(input:checked) {
-            border-color: var(--green);
-            background: rgba(0, 255, 65, 0.12);
-            color: var(--green);
-            box-shadow: inset 0 0 10px rgba(0, 255, 65, 0.06);
-        }
-
-        .time-option:hover {
-            border-color: var(--green);
-        }
-
-        .time-option input {
-            margin: 0 7px 0 0;
-        }
-
-        .note {
-            margin: 9px 0 0;
-            color: #8dbf96;
+        .page-description {
+            margin: 14px 0 0;
+            color: var(--muted);
             font-size: 12px;
             line-height: 1.8;
         }
 
-        .error-message {
-            margin: 0 0 22px;
-            padding: 13px 15px;
-            border: 1px solid rgba(255, 100, 100, 0.65);
-            background: rgba(80, 0, 0, 0.25);
-            color: var(--error);
-            font-size: 13px;
-            line-height: 1.8;
-            overflow-wrap: anywhere;
+        /* ナビゲーション */
+        .top-links {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 0 0 26px;
         }
 
-        .error-message::before {
-            content: "[ ERROR ] ";
-            font-weight: bold;
-        }
-
-        .btn {
+        .nav-link {
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            min-height: 42px;
-            padding: 10px 16px;
-            border: 1px solid var(--green-dim);
-            background: rgba(0, 30, 10, 0.8);
+            min-height: 38px;
+            padding: 9px 17px;
+            border: 1px solid var(--border);
+            background: rgba(0, 15, 5, 0.86);
             color: var(--green);
-            font-family: inherit;
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-        .btn:hover {
-            border-color: var(--green);
-            background: rgba(0, 255, 65, 0.1);
-            box-shadow: 0 0 12px rgba(0, 255, 65, 0.18);
-        }
-
-        .btn-accent {
-            width: 100%;
-            min-height: 52px;
-            margin-top: 10px;
-            border: 1px solid var(--green);
-            background: var(--green);
-            color: #001a05;
-            font-size: 15px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .btn-accent:hover {
-            background: #8aff9e;
-            color: #001a05;
-            box-shadow: 0 0 22px rgba(0, 255, 65, 0.35);
-        }
-
-        .back-link {
-            display: block;
-            width: fit-content;
-            margin: 24px auto 0;
-            color: var(--green-soft);
-            font-size: 13px;
-            text-decoration: none;
-        }
-
-        .back-link:hover {
-            color: var(--green);
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
-        }
-
-        .footer-text {
-            margin-top: 25px;
-            color: var(--green-dim);
-            font-size: 10px;
-            text-align: center;
+            font-size: 12px;
             letter-spacing: 1px;
         }
 
-        @media (max-width: 650px) {
-            body {
-                padding: 15px 10px 30px;
-            }
+        .nav-link:hover {
+            border-color: var(--green);
+            background: rgba(0, 255, 65, 0.1);
+            color: #ffffff;
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.12);
+        }
 
+        /* 共通パネル */
+        .panel {
+            position: relative;
+            margin-bottom: 24px;
+            padding: clamp(18px, 4vw, 28px);
+            border: 1px solid var(--border);
+            background: var(--panel);
+            box-shadow:
+                0 0 24px rgba(0, 255, 65, 0.055),
+                inset 0 0 28px rgba(0, 255, 65, 0.018);
+        }
+
+        .panel::before,
+        .panel::after {
+            content: "";
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+        }
+
+        .panel::before {
+            top: -1px;
+            left: -1px;
+            border-top: 2px solid var(--green);
+            border-left: 2px solid var(--green);
+        }
+
+        .panel::after {
+            right: -1px;
+            bottom: -1px;
+            border-right: 2px solid var(--green);
+            border-bottom: 2px solid var(--green);
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 22px;
+            padding-bottom: 13px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.24);
+            color: var(--green);
+            font-size: 17px;
+            letter-spacing: 1px;
+        }
+
+        .section-number {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--green-dim);
+            background: rgba(0, 255, 65, 0.08);
+            color: var(--green);
+            font-size: 12px;
+        }
+
+        /* エラーメッセージ */
+        .error-message {
+            margin-bottom: 24px;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 100, 100, 0.65);
+            background: rgba(70, 0, 0, 0.42);
+            color: var(--error);
+            font-size: 13px;
+            line-height: 1.8;
+            box-shadow: 0 0 16px rgba(255, 50, 50, 0.06);
+        }
+
+        .error-title {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        /* 店舗情報 */
+        .store-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 22px;
+        }
+
+        .store-image-wrap {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #020503;
+        }
+
+        .store-image {
+            display: block;
+            width: 100%;
+            max-height: 330px;
+            object-fit: cover;
+        }
+
+        .no-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 160px;
+            color: var(--green-dim);
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        .store-name {
+            margin: 0 0 18px;
+            color: var(--green);
+            font-size: clamp(20px, 4vw, 25px);
+            font-weight: bold;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+            text-shadow: 0 0 12px rgba(0, 255, 65, 0.2);
+        }
+
+        .store-info {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1fr);
+            border-top: 1px solid rgba(0, 255, 65, 0.18);
+        }
+
+        .store-info-label,
+        .store-info-value {
+            margin: 0;
+            padding: 12px 10px;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.18);
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .store-info-label {
+            color: var(--green-soft);
+            background: rgba(0, 255, 65, 0.035);
+        }
+
+        .store-info-value {
+            color: var(--text);
+        }
+
+        .store-description {
+            margin-top: 18px;
+            padding: 16px;
+            border-left: 2px solid var(--green-dim);
+            background: var(--panel-light);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        /* フォーム */
+        .form-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 22px;
+        }
+
+        .form-group {
+            min-width: 0;
+            margin-bottom: 23px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .required {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 2px 6px;
+            border: 1px solid rgba(255, 100, 100, 0.45);
+            color: #ff8b8b;
+            font-size: 10px;
+            font-weight: normal;
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            min-height: 46px;
+            padding: 12px 14px;
+            border: 1px solid rgba(0, 255, 65, 0.35);
+            border-radius: 0;
+            outline: none;
+            background: rgba(0, 5, 2, 0.85);
+            color: var(--text);
+            font-size: 14px;
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--green);
+            background: rgba(0, 20, 7, 0.95);
+            box-shadow:
+                0 0 0 2px rgba(0, 255, 65, 0.08),
+                0 0 15px rgba(0, 255, 65, 0.12);
+        }
+
+        .form-control::placeholder {
+            color: #66816b;
+        }
+
+        .form-control option {
+            background: #031006;
+            color: var(--text);
+        }
+
+        input[type="date"] {
+            color-scheme: dark;
+        }
+
+        .form-help {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* 時間選択 */
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .time-option {
+            position: relative;
+            display: block;
+            cursor: pointer;
+        }
+
+        .time-option input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
+        .time-option span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 45px;
+            padding: 10px 5px;
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            background: rgba(0, 10, 3, 0.8);
+            color: var(--text);
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .time-option:hover span {
+            border-color: var(--green);
+            background: rgba(0, 255, 65, 0.07);
+        }
+
+        .time-option input:checked + span {
+            border-color: var(--green);
+            background: rgba(0, 255, 65, 0.15);
+            color: var(--green);
+            box-shadow:
+                inset 0 0 12px rgba(0, 255, 65, 0.06),
+                0 0 10px rgba(0, 255, 65, 0.1);
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+        }
+
+        .time-option input:focus-visible + span {
+            outline: 2px solid #ffffff;
+            outline-offset: 3px;
+        }
+
+        /* 予約ボタン */
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .submit-button {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: min(100%, 380px);
+            min-height: 54px;
+            padding: 14px 24px;
+            overflow: hidden;
+            border: 1px solid var(--green);
+            border-radius: 0;
+            background: rgba(0, 255, 65, 0.11);
+            color: var(--green);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.25);
+            box-shadow:
+                0 0 15px rgba(0, 255, 65, 0.08),
+                inset 0 0 15px rgba(0, 255, 65, 0.025);
+            transition: all 0.2s ease;
+        }
+
+        .submit-button:hover {
+            background: rgba(0, 255, 65, 0.2);
+            color: #ffffff;
+            box-shadow:
+                0 0 22px rgba(0, 255, 65, 0.18),
+                inset 0 0 18px rgba(0, 255, 65, 0.06);
+        }
+
+        .submit-button:active {
+            transform: translateY(1px);
+        }
+
+        .submit-button:focus-visible {
+            outline: 2px solid #ffffff;
+            outline-offset: 4px;
+        }
+
+        .footer {
+            margin-top: 35px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            color: var(--green-dim);
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
             .container {
-                padding: 18px 14px;
+                width: calc(100% - 22px);
+                padding-top: 18px;
             }
 
-            .section {
-                padding: 14px 10px;
+            .header {
+                align-items: flex-start;
             }
 
-            .shop-detail {
-                grid-template-columns: 1fr;
-                gap: 18px;
+            .brand {
+                letter-spacing: 2px;
             }
 
-            .shop-image {
-                max-height: 240px;
+            .brand-subtitle {
+                font-size: 9px;
+                letter-spacing: 1px;
             }
 
-            .reservation-table th,
-            .reservation-table td {
-                padding: 12px 7px;
-                font-size: 13px;
+            .system-status {
+                font-size: 9px;
+                gap: 5px;
             }
 
-            .reservation-table th {
-                width: 28%;
+            .page-title {
+                padding: 11px 14px;
+                letter-spacing: 1px;
             }
 
-            .time-options {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+            .panel {
+                padding: 17px 14px;
             }
 
-            .top-bar .btn {
-                flex: 1;
-                padding: 10px 8px;
+            .store-info {
+                grid-template-columns: 95px minmax(0, 1fr);
+            }
+
+            .store-info-label,
+            .store-info-value {
+                padding: 10px 7px;
                 font-size: 12px;
             }
 
-            .shop-info {
-                grid-template-columns: 85px minmax(0, 1fr);
+            .form-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+            .time-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 7px;
+            }
+
+            .time-option span {
+                min-height: 42px;
+                font-size: 12px;
+            }
+
+            .top-links {
+                gap: 8px;
+            }
+
+            .nav-link {
+                padding: 9px 12px;
+                font-size: 11px;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .status-dot {
-                animation: none;
-            }
-
-            .btn,
-            .time-option {
-                transition: none;
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 
 <body>
-<canvas id="matrixRain" aria-hidden="true"></canvas>
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
 
-<div class="container">
+    <main class="container">
 
-    <header class="system-header">
-        <div class="brand">FUJICHAKU</div>
-        <div class="system-status">
-            <span class="status-dot"></span>SYSTEM ONLINE
-        </div>
-    </header>
-
-    <div class="page-label">RESERVATION SYSTEM / NEW RESERVATION</div>
-    <h1 class="page-title">店舗予約</h1>
-
-    <div class="top-bar">
-        <a class="btn"
-           th:href="@{/shops/{shopId}(shopId=${store.id})}">
-            ← 店舗詳細へ
-        </a>
-
-        <a class="btn" th:href="@{/shops}">
-            店舗一覧へ
-        </a>
-    </div>
-
-    <!-- 入力エラー -->
-    <p class="error-message"
-       role="alert"
-       th:if="${error != null}"
-       th:text="${error}">
-        エラー
-    </p>
-
-    <!-- 店舗情報 -->
-    <section class="section">
-        <h2>店舗情報</h2>
-
-        <div class="shop-detail">
-            <div class="shop-image-wrapper">
-                <img class="shop-image"
-                     th:if="${store.pictureUrl != null and !#strings.isEmpty(store.pictureUrl)}"
-                     th:src="${store.pictureUrl}"
-                     th:alt="${store.name}"
-                     onerror="this.style.display='none';">
-
-                <div class="no-image"
-                     th:unless="${store.pictureUrl != null and !#strings.isEmpty(store.pictureUrl)}">
-                    NO IMAGE
-                </div>
+        <!-- ヘッダー -->
+        <header class="header">
+            <div>
+                <h1 class="brand">FUJICHAKU</h1>
+                <div class="brand-subtitle">RESERVATION SYSTEM</div>
             </div>
 
-            <dl class="shop-info">
-                <dt>店舗名</dt>
-                <dd th:text="${store.name}">店舗名</dd>
+            <div class="system-status">
+                <span class="status-dot"></span>
+                SYSTEM ONLINE
+            </div>
+        </header>
 
-                <dt>代表者</dt>
-                <dd th:text="${store.representative}">代表者</dd>
+        <!-- ページタイトル -->
+        <section class="page-heading">
+            <p class="eyebrow">ACCESS TERMINAL // 01</p>
+            <h2 class="page-title">RESERVATION FORM</h2>
+            <p class="page-description">
+                ご希望の日時と人数を入力してください。<br>
+                内容を確認してから予約を確定できます。
+            </p>
+        </section>
 
-                <dt>住所</dt>
-                <dd th:text="${store.address}">住所</dd>
+        <!-- ナビゲーション -->
+        <nav class="top-links" aria-label="ページナビゲーション">
+            <a th:href="@{/shops}" class="nav-link">
+                &lt; 店舗一覧へ戻る
+            </a>
+            <a th:href="@{/reservations/history}" class="nav-link">
+                予約履歴を確認
+            </a>
+        </nav>
 
-                <dt>連絡先</dt>
-                <dd th:text="${store.mail}">mail</dd>
-
-                <dt>説明</dt>
-                <dd th:text="${store.description}">説明</dd>
-            </dl>
+        <!-- エラーメッセージ -->
+        <div class="error-message" th:if="${error != null}">
+            <span class="error-title">SYSTEM MESSAGE</span>
+            <span th:text="${error}"></span>
         </div>
-    </section>
 
-    <!-- 予約内容の入力 -->
-    <section class="section">
-        <h2>予約内容を入力</h2>
+        <!-- 店舗情報 -->
+        <section class="panel">
+            <h3 class="section-heading">
+                <span class="section-number">01</span>
+                STORE INFORMATION
+            </h3>
 
-        <form method="post"
-              th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}">
+            <div class="store-layout">
 
-            <!-- CSRF -->
-            <input type="hidden"
-                   th:name="${_csrf.parameterName}"
-                   th:value="${_csrf.token}">
+                <div class="store-image-wrap">
+                    <img
+                        th:if="${store.pictureUrl != null and !#strings.isEmpty(store.pictureUrl)}"
+                        th:src="${store.pictureUrl}"
+                        th:alt="${store.name}"
+                        class="store-image"
+                        onerror="this.style.display='none';"
+                    >
 
-            <table class="reservation-table">
-                <tbody>
-                <tr>
-                    <th>
-                        <label for="name">氏名</label>
-                    </th>
-                    <td>
-                        <input type="text"
-                               id="name"
-                               name="name"
-                               placeholder="氏名"
-                               autocomplete="name">
-                    </td>
-                </tr>
+                    <div
+                        class="no-image"
+                        th:if="${store.pictureUrl == null or #strings.isEmpty(store.pictureUrl)}"
+                    >
+                        NO IMAGE AVAILABLE
+                    </div>
+                </div>
 
-                <tr>
-                    <th>
-                        <label for="mail">メールアドレス</label>
-                    </th>
-                    <td>
-                        <input type="email"
-                               id="mail"
-                               name="mail"
-                               placeholder="メールアドレス"
-                               autocomplete="email">
+                <div class="store-details">
+                    <h4 class="store-name" th:text="${store.name}">
+                        店舗名
+                    </h4>
 
-                        <p class="note">
-                            ※ 会員の方は氏名・メールアドレスの入力は不要です。<br>
-                            非会員の方は氏名・メールアドレスを入力してください。
+                    <div class="store-info">
+                        <p class="store-info-label">代表者</p>
+                        <p class="store-info-value"
+                           th:text="${store.representative != null ? store.representative : '未登録'}">
+                            代表者
                         </p>
-                    </td>
-                </tr>
 
-                <tr>
-                    <th>
-                        <label for="reservationDate">日付</label>
-                    </th>
-                    <td>
-                        <input type="date"
-                               id="reservationDate"
-                               name="date"
-                               required>
-                        <p class="note">
-                            ※ 過去の日付は選択できません。
+                        <p class="store-info-label">住所</p>
+                        <p class="store-info-value"
+                           th:text="${store.address != null ? store.address : '未登録'}">
+                            住所
                         </p>
-                    </td>
-                </tr>
 
-                <tr>
-                    <th>時間</th>
-                    <td>
-                        <div class="time-options">
-                            <label class="time-option">
-                                <input type="radio" name="time" value="10:00" required>
-                                10:00
-                            </label>
+                        <p class="store-info-label">メール</p>
+                        <p class="store-info-value"
+                           th:text="${store.mail != null ? store.mail : '未登録'}">
+                            メールアドレス
+                        </p>
+                    </div>
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="11:00">
-                                11:00
-                            </label>
+                    <div
+                        class="store-description"
+                        th:if="${store.description != null and !#strings.isEmpty(store.description)}"
+                        th:text="${store.description}"
+                    >
+                        店舗説明
+                    </div>
+                </div>
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="12:00">
-                                12:00
-                            </label>
+            </div>
+        </section>
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="13:00">
-                                13:00
-                            </label>
+        <!-- 予約フォーム -->
+        <section class="panel">
+            <h3 class="section-heading">
+                <span class="section-number">02</span>
+                RESERVATION DETAILS
+            </h3>
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="14:00">
-                                14:00
-                            </label>
+            <form
+                th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}"
+                method="post"
+            >
+                <input
+                    type="hidden"
+                    th:name="${_csrf.parameterName}"
+                    th:value="${_csrf.token}"
+                >
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="15:00">
-                                15:00
-                            </label>
+                <div class="form-grid">
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="16:00">
-                                16:00
-                            </label>
+                    <!-- 予約日 -->
+                    <div class="form-group">
+                        <label class="form-label" for="reservationDate">
+                            予約日
+                            <span class="required">必須</span>
+                        </label>
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="17:00">
-                                17:00
-                            </label>
+                        <input
+                            type="date"
+                            id="reservationDate"
+                            name="date"
+                            class="form-control"
+                            required
+                        >
 
-                            <label class="time-option">
-                                <input type="radio" name="time" value="18:00">
-                                18:00
-                            </label>
-                        </div>
-                    </td>
-                </tr>
+                        <p class="form-help">
+                            ご希望の日付を選択してください。
+                        </p>
+                    </div>
 
-                <tr>
-                    <th>
-                        <label for="numberOfGuests">人数</label>
-                    </th>
-                    <td>
-                        <select id="numberOfGuests" name="number" required>
+                    <!-- 人数 -->
+                    <div class="form-group">
+                        <label class="form-label" for="number">
+                            予約人数
+                            <span class="required">必須</span>
+                        </label>
+
+                        <select
+                            id="number"
+                            name="number"
+                            class="form-control"
+                            required
+                        >
                             <option value="">人数を選択してください</option>
                             <option value="1">1名</option>
                             <option value="2">2名</option>
@@ -681,134 +843,220 @@
                             <option value="9">9名</option>
                             <option value="10">10名</option>
                         </select>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
 
-            <p class="note">
-                ※ 10名以上で予約する場合は、直接店舗へお電話でご確認ください。
-            </p>
+                        <p class="form-help">
+                            1名から10名まで選択できます。
+                        </p>
+                    </div>
 
-            <p class="note">
-                ※ 予約内容を確認してから、次の画面で予約を確定してください。
-            </p>
+                    <!-- 予約時間 -->
+                    <div class="form-group full-width">
+                        <span class="form-label">
+                            予約時間
+                            <span class="required">必須</span>
+                        </span>
 
-            <button type="submit" class="btn btn-accent">
-                予約内容を確認する
-            </button>
-        </form>
-    </section>
+                        <div class="time-grid">
+                            <label class="time-option">
+                                <input type="radio" name="time" value="10:00" required>
+                                <span>10:00</span>
+                            </label>
 
-    <a class="back-link"
-       th:href="@{/shops/{shopId}(shopId=${store.id})}">
-        ← キャンセルして店舗詳細へ戻る
-    </a>
+                            <label class="time-option">
+                                <input type="radio" name="time" value="11:00">
+                                <span>11:00</span>
+                            </label>
 
-    <div class="footer-text">
-        FUJICHAKU RESERVATION SYSTEM // SECURE SESSION
-    </div>
+                            <label class="time-option">
+                                <input type="radio" name="time" value="12:00">
+                                <span>12:00</span>
+                            </label>
 
-</div>
+                            <label class="time-option">
+                                <input type="radio" name="time" value="13:00">
+                                <span>13:00</span>
+                            </label>
 
-<script>
-    (() => {
-        const canvas = document.getElementById("matrixRain");
-        const ctx = canvas.getContext("2d");
+                            <label class="time-option">
+                                <input type="radio" name="time" value="14:00">
+                                <span>14:00</span>
+                            </label>
 
-        if (!ctx) {
-            return;
-        }
+                            <label class="time-option">
+                                <input type="radio" name="time" value="15:00">
+                                <span>15:00</span>
+                            </label>
 
-        const characters =
-            "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                            <label class="time-option">
+                                <input type="radio" name="time" value="16:00">
+                                <span>16:00</span>
+                            </label>
 
-        const fontSize = 14;
-        let columns = 0;
-        let drops = [];
-        let animationId = null;
+                            <label class="time-option">
+                                <input type="radio" name="time" value="17:00">
+                                <span>17:00</span>
+                            </label>
 
-        function resizeCanvas() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                            <label class="time-option">
+                                <input type="radio" name="time" value="18:00">
+                                <span>18:00</span>
+                            </label>
+                        </div>
 
-            canvas.width = Math.floor(window.innerWidth * dpr);
-            canvas.height = Math.floor(window.innerHeight * dpr);
-            canvas.style.width = window.innerWidth + "px";
-            canvas.style.height = window.innerHeight + "px";
+                        <p class="form-help">
+                            ご希望の時間を1つ選択してください。
+                        </p>
+                    </div>
 
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                </div>
 
-            columns = Math.ceil(window.innerWidth / fontSize);
-            drops = Array.from(
-                { length: columns },
-                () => Math.random() * -100
-            );
-        }
+                <div class="form-actions">
+                    <button type="submit" class="submit-button">
+                        &gt; 予約内容を確認する
+                    </button>
+                </div>
+            </form>
+        </section>
 
-        function drawMatrix() {
-            ctx.fillStyle = "rgba(3, 7, 5, 0.08)";
-            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        <footer class="footer">
+            FUJICHAKU // RESERVATION SYSTEM
+        </footer>
 
-            ctx.font = fontSize + "px monospace";
+    </main>
 
-            for (let i = 0; i < drops.length; i++) {
-                const character =
-                    characters.charAt(
-                        Math.floor(Math.random() * characters.length)
-                    );
+    <script>
+        /* Matrixデジタルレイン */
+        (() => {
+            const canvas = document.getElementById("matrixRain");
 
-                ctx.fillStyle = Math.random() > 0.96
-                    ? "#c8ffd2"
-                    : "#00ff41";
+            if (!canvas) {
+                return;
+            }
 
-                ctx.fillText(
-                    character,
-                    i * fontSize,
-                    drops[i] * fontSize
+            const ctx = canvas.getContext("2d");
+
+            if (!ctx) {
+                return;
+            }
+
+			const characters =
+						    "テストしたくない" +
+						    "テストめんどくさい" + "テストいやだ" +
+						    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+						    "reservation" + "reserve" + "FUJICHAKU" +
+						    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+						    "完了" + "予約完了" + "不時着" + "不時着しました" +
+						    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+						    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+						    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+						    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+						    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+						    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+						    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+						    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+						    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+						    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+						    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+						    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+						    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+						    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+						    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+						    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+						    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+						    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+						    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
+
+            const fontSize = 14;
+            let columns = 0;
+            let drops = [];
+            let animationId = null;
+
+            function resizeCanvas() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                canvas.width = Math.floor(window.innerWidth * dpr);
+                canvas.height = Math.floor(window.innerHeight * dpr);
+
+                canvas.style.width = window.innerWidth + "px";
+                canvas.style.height = window.innerHeight + "px";
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                columns = Math.ceil(window.innerWidth / fontSize);
+                drops = Array.from(
+                    { length: columns },
+                    () => Math.random() * -100
                 );
 
-                if (
-                    drops[i] * fontSize > window.innerHeight &&
-                    Math.random() > 0.975
-                ) {
-                    drops[i] = 0;
-                }
-
-                drops[i] += 0.45;
+                ctx.font = fontSize + "px Consolas, monospace";
             }
 
-            animationId = window.requestAnimationFrame(drawMatrix);
-        }
+            function drawRain() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
 
-        resizeCanvas();
-        drawMatrix();
+                ctx.fillStyle = "rgba(0, 0, 0, 0.075)";
+                ctx.fillRect(0, 0, width, height);
 
-        window.addEventListener("resize", resizeCanvas);
+                ctx.fillStyle = "#00ff41";
+                ctx.font = fontSize + "px Consolas, monospace";
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                if (animationId !== null) {
-                    window.cancelAnimationFrame(animationId);
-                    animationId = null;
+                for (let i = 0; i < drops.length; i++) {
+                    const character =
+                        characters.charAt(
+                            Math.floor(Math.random() * characters.length)
+                        );
+
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+
+                    ctx.fillText(character, x, y);
+
+                    if (
+                        y > height &&
+                        Math.random() > 0.975
+                    ) {
+                        drops[i] = 0;
+                    } else {
+                        drops[i]++;
+                    }
                 }
-            } else if (animationId === null) {
-                drawMatrix();
+
+                animationId = requestAnimationFrame(drawRain);
             }
-        });
 
-        // 今日より前の日付を選べないようにする
-        // サーバー側でも過去日付のチェックを行ってください。
-        const dateInput = document.getElementById("reservationDate");
-        const now = new Date();
-        const localToday = [
-            now.getFullYear(),
-            String(now.getMonth() + 1).padStart(2, "0"),
-            String(now.getDate()).padStart(2, "0")
-        ].join("-");
+            resizeCanvas();
+            drawRain();
 
-        dateInput.min = localToday;
-    })();
-</script>
+            window.addEventListener("resize", resizeCanvas);
 
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    if (animationId !== null) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                } else if (animationId === null) {
+                    drawRain();
+                }
+            });
+        })();
+
+        /* 予約日の初期設定 */
+        (() => {
+            const dateInput = document.getElementById("reservationDate");
+
+            if (!dateInput) {
+                return;
+            }
+
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+
+            dateInput.min = `${year}-${month}-${day}`;
+        })();
+    </script>
 </body>
 </html>

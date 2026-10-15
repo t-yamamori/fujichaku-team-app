@@ -5,29 +5,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>予約履歴 - FUJICHAKU</title>
+    <title>予約履歴 | FUJICHAKU</title>
 
     <style>
+        :root {
+            --matrix-green: #00ff41;
+            --matrix-dark-green: #008f11;
+            --matrix-bg: #000000;
+            --matrix-panel: rgba(0, 8, 2, 0.90);
+            --matrix-border: rgba(0, 255, 65, 0.7);
+            --matrix-text: #d5ffdc;
+            --matrix-muted: #72a77c;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
+        html {
+            min-height: 100%;
+            background: var(--matrix-bg);
+        }
+
         body {
-            background: #080808;
-            color: #f5f5f5;
-            font-family:
-                "Noto Serif JP",
-                "Yu Mincho",
-                "Hiragino Mincho ProN",
-                serif;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background: var(--matrix-bg);
+            color: var(--matrix-text);
+            font-family: Consolas, "Courier New", monospace;
+        }
+
+        /* DIGITAL RAIN */
+
+        #matrix-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.95;
+            filter: brightness(1.15) contrast(1.1);
         }
 
         /* HEADER */
 
         header {
+            position: relative;
+            z-index: 2;
             width: 100%;
             min-height: 80px;
             padding: 15px 60px;
@@ -35,75 +63,130 @@
             align-items: center;
             justify-content: space-between;
             gap: 20px;
-            background: #090909;
-            border-bottom: 1px solid #292929;
+            background: rgba(0, 5, 1, 0.94);
+            border-bottom: 1px solid var(--matrix-green);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.22);
         }
 
         .logo {
-            color: #d4af37;
+            color: var(--matrix-green);
             font-size: 24px;
             font-weight: bold;
             letter-spacing: 5px;
+            text-shadow:
+                0 0 5px var(--matrix-green),
+                0 0 15px rgba(0, 255, 65, 0.7);
         }
 
         .header-link {
-            color: #aaa;
+            display: inline-block;
+            color: var(--matrix-green);
             text-decoration: none;
             font-size: 13px;
             letter-spacing: 2px;
+            padding: 10px 15px;
+            border: 1px solid rgba(0, 255, 65, 0.45);
             transition: 0.3s;
         }
 
         .header-link:hover {
-            color: #d4af37;
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.7);
         }
 
         /* MAIN */
 
         main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 70px 30px 100px;
+            padding: 70px 30px 70px;
         }
 
-        /* TITLE */
+        /* PAGE HEADER */
 
         .page-header {
+            position: relative;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 45px;
+            padding: 25px 15px;
+            border: 1px solid var(--matrix-border);
+            background: rgba(0, 8, 2, 0.82);
+            box-shadow:
+                0 0 12px rgba(0, 255, 65, 0.18),
+                inset 0 0 18px rgba(0, 255, 65, 0.04);
+        }
+
+        .system-label {
+            display: block;
+            margin-bottom: 14px;
+            color: var(--matrix-dark-green);
+            font-size: 11px;
+            letter-spacing: 4px;
         }
 
         .page-header h1 {
-            color: #d4af37;
+            color: var(--matrix-green);
             font-size: 32px;
             letter-spacing: 5px;
             margin-bottom: 15px;
+            text-shadow:
+                0 0 5px rgba(0, 255, 65, 0.9),
+                0 0 16px rgba(0, 255, 65, 0.4);
         }
 
         .page-header p {
-            color: #888;
+            color: var(--matrix-muted);
             font-size: 13px;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
 
-        .result-count {
-            color: #aaa;
-            font-size: 13px;
-            text-align: right;
-            margin-bottom: 15px;
-        }
-
-        .result-count span {
-            color: #d4af37;
-            font-weight: bold;
+        .title-line {
+            width: 100px;
+            height: 2px;
+            margin: 20px auto 0;
+            background: var(--matrix-green);
+            box-shadow: 0 0 10px var(--matrix-green);
         }
 
         /* HISTORY CARD */
 
         .history-card {
-            background: #101010;
-            border: 1px solid #292929;
+            position: relative;
             padding: 30px;
+            background: var(--matrix-panel);
+            border: 1px solid var(--matrix-border);
+            box-shadow:
+                0 0 15px rgba(0, 255, 65, 0.12),
+                inset 0 0 25px rgba(0, 255, 65, 0.025);
+        }
+
+        .history-card::before {
+            content: "[ RESERVATION DATABASE ]";
+            display: block;
+            margin-bottom: 25px;
+            color: var(--matrix-dark-green);
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        /* RESULT COUNT */
+
+        .result-count {
+            color: var(--matrix-muted);
+            font-size: 13px;
+            text-align: right;
+            margin-bottom: 18px;
+            letter-spacing: 1px;
+        }
+
+        .result-count span {
+            color: var(--matrix-green);
+            font-weight: bold;
+            text-shadow: 0 0 7px rgba(0, 255, 65, 0.45);
         }
 
         /* TABLE */
@@ -111,6 +194,7 @@
         .table-wrapper {
             width: 100%;
             overflow-x: auto;
+            border: 1px solid rgba(0, 255, 65, 0.25);
         }
 
         .history-table {
@@ -120,48 +204,58 @@
 
         .history-table th {
             padding: 18px 15px;
-            background: #0a0a0a;
-            border-bottom: 1px solid #d4af37;
-            color: #d4af37;
+            background: rgba(0, 30, 8, 0.88);
+            border-bottom: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
             font-size: 12px;
             font-weight: normal;
             letter-spacing: 2px;
             text-align: left;
             white-space: nowrap;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.4);
         }
 
         .history-table td {
             padding: 20px 15px;
-            border-bottom: 1px solid #292929;
-            color: #ddd;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.17);
+            color: var(--matrix-text);
             font-size: 14px;
             white-space: nowrap;
         }
 
         .history-table tbody tr {
-            transition: background 0.3s;
+            background: rgba(0, 8, 2, 0.65);
+            transition: background 0.25s, box-shadow 0.25s;
         }
 
         .history-table tbody tr:hover {
-            background: #151515;
+            background: rgba(0, 50, 12, 0.55);
+            box-shadow: inset 3px 0 0 var(--matrix-green);
         }
 
         .history-table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        /* RESERVATION NUMBER */
+        /* RESERVATION ID */
 
         .reservation-id {
-            color: #d4af37;
+            color: var(--matrix-green);
             font-weight: bold;
             letter-spacing: 2px;
+            text-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
         }
 
         /* STATUS */
 
         .status {
-            color: #d4af37;
+            display: inline-block;
+            padding: 5px 9px;
+            border: 1px solid rgba(0, 255, 65, 0.55);
+            color: var(--matrix-green);
+            background: rgba(0, 40, 10, 0.45);
+            font-size: 12px;
+            letter-spacing: 1px;
         }
 
         /* DETAIL BUTTON */
@@ -169,17 +263,19 @@
         .detail-button {
             display: inline-block;
             padding: 9px 18px;
-            border: 1px solid #d4af37;
-            color: #d4af37;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            background: rgba(0, 20, 5, 0.6);
             text-decoration: none;
             font-size: 12px;
-            letter-spacing: 1px;
-            transition: 0.3s;
+            letter-spacing: 2px;
+            transition: 0.25s;
         }
 
         .detail-button:hover {
-            background: #d4af37;
-            color: #080808;
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.55);
         }
 
         /* NO RESERVATION */
@@ -187,10 +283,21 @@
         .no-reservation {
             padding: 60px 20px;
             text-align: center;
-            color: #777;
+            color: var(--matrix-muted);
             font-size: 14px;
             letter-spacing: 2px;
-            line-height: 2;
+            line-height: 2.5;
+            border: 1px dashed rgba(0, 255, 65, 0.3);
+            background: rgba(0, 15, 4, 0.55);
+        }
+
+        .no-reservation::before {
+            content: "[ NO DATA FOUND ]";
+            display: block;
+            margin-bottom: 18px;
+            color: var(--matrix-dark-green);
+            font-size: 12px;
+            letter-spacing: 3px;
         }
 
         /* BACK BUTTON */
@@ -203,8 +310,9 @@
         .back-button {
             display: inline-block;
             padding: 14px 35px;
-            border: 1px solid #d4af37;
-            color: #d4af37;
+            border: 1px solid var(--matrix-green);
+            color: var(--matrix-green);
+            background: rgba(0, 8, 2, 0.88);
             text-decoration: none;
             font-size: 13px;
             letter-spacing: 2px;
@@ -212,18 +320,27 @@
         }
 
         .back-button:hover {
-            background: #d4af37;
-            color: #080808;
+            color: #000;
+            background: var(--matrix-green);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
         }
 
         /* FOOTER */
 
         .footer-text {
             margin-top: 50px;
-            color: #555;
+            color: var(--matrix-dark-green);
             font-size: 10px;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-align: center;
+            line-height: 2;
+        }
+
+        .footer-text span {
+            display: block;
+            color: rgba(0, 255, 65, 0.4);
+            font-size: 9px;
+            letter-spacing: 2px;
         }
 
         /* RESPONSIVE */
@@ -240,16 +357,16 @@
             }
 
             main {
-                padding: 50px 15px 70px;
+                padding: 45px 15px 60px;
             }
 
             .page-header h1 {
-                font-size: 24px;
+                font-size: 25px;
                 letter-spacing: 3px;
             }
 
             .history-card {
-                padding: 15px;
+                padding: 18px;
             }
 
             .history-table {
@@ -273,16 +390,18 @@
             }
 
             .header-link {
-                font-size: 12px;
+                padding: 8px 10px;
+                font-size: 11px;
                 letter-spacing: 1px;
             }
 
             main {
-                padding: 40px 10px 50px;
+                padding: 30px 10px 45px;
             }
 
             .page-header {
-                margin-bottom: 35px;
+                margin-bottom: 30px;
+                padding: 22px 10px;
             }
 
             .page-header h1 {
@@ -290,8 +409,23 @@
                 letter-spacing: 2px;
             }
 
+            .page-header p {
+                font-size: 11px;
+                letter-spacing: 2px;
+            }
+
+            .system-label {
+                font-size: 9px;
+                letter-spacing: 2px;
+            }
+
             .history-card {
                 padding: 12px;
+            }
+
+            .history-card::before {
+                font-size: 10px;
+                letter-spacing: 2px;
             }
 
             .result-count {
@@ -300,6 +434,23 @@
 
             .back-button {
                 padding: 12px 25px;
+                font-size: 12px;
+            }
+
+            .footer-text {
+                font-size: 9px;
+                letter-spacing: 2px;
+            }
+        }
+
+        /* REDUCE MOTION */
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
@@ -307,43 +458,46 @@
 
 <body>
 
-    <!-- HEADER -->
+    <!-- MATRIX DIGITAL RAIN -->
+    <canvas id="matrix-canvas" aria-hidden="true"></canvas>
 
+    <!-- HEADER -->
     <header>
         <div class="logo">FUJICHAKU</div>
 
         <a th:href="@{/shops}" class="header-link">
-            店舗一覧
+            &lt; 店舗一覧
         </a>
     </header>
 
     <!-- MAIN -->
-
     <main>
 
         <!-- PAGE HEADER -->
-
         <section class="page-header">
-            <h1>Reservation History</h1>
+            <span class="system-label">SYSTEM ACCESS // RESERVATION DATABASE</span>
+
+            <h1>RESERVATION HISTORY</h1>
+
             <p>予約履歴</p>
+
+            <div class="title-line"></div>
         </section>
 
         <!-- HISTORY -->
-
         <section class="history-card">
 
             <!-- 予約件数 -->
-
             <div class="result-count">
-                予約件数：
+                DATABASE RECORDS：
                 <span
                     th:text="${reservations != null ? #lists.size(reservations) : 0}">
                     0
-                </span>件
+                </span>
+                件
             </div>
 
             <!-- 予約が存在する場合 -->
-
             <div
                 class="table-wrapper"
                 th:if="${reservations != null and !#lists.isEmpty(reservations)}">
@@ -365,7 +519,6 @@
                         <tr th:each="reservation : ${reservations}">
 
                             <!-- 予約番号 -->
-
                             <td>
                                 <span
                                     class="reservation-id"
@@ -375,20 +528,17 @@
                             </td>
 
                             <!-- 予約日時 -->
-
                             <td
                                 th:text="${#temporals.format(reservation.reservationDate, 'yyyy/MM/dd HH:mm')}">
                                 2026/10/07 18:00
                             </td>
 
                             <!-- 予約人数 -->
-
                             <td th:text="${reservation.number + '名'}">
                                 2名
                             </td>
 
                             <!-- 予約状況 -->
-
                             <td>
                                 <span
                                     class="status"
@@ -398,12 +548,11 @@
                             </td>
 
                             <!-- 予約詳細 -->
-
                             <td>
                                 <a
                                     th:href="@{/reservations/{reservationId}(reservationId=${reservation.id})}"
                                     class="detail-button">
-                                    確認
+                                    DETAILS &gt;
                                 </a>
                             </td>
 
@@ -415,7 +564,6 @@
             </div>
 
             <!-- 予約がない場合 -->
-
             <div
                 class="no-reservation"
                 th:if="${reservations == null or #lists.isEmpty(reservations)}">
@@ -427,20 +575,167 @@
         </section>
 
         <!-- BACK -->
-
         <div class="back-area">
             <a
                 th:href="@{/shops}"
                 class="back-button">
-                店舗一覧へ戻る
+                &lt; 店舗一覧へ戻る
             </a>
         </div>
 
+        <!-- FOOTER -->
         <div class="footer-text">
             FUJICHAKU — RESERVATION MANAGEMENT
+            <span>SECURE DATABASE // SYSTEM ONLINE</span>
         </div>
 
     </main>
+
+    <!-- MATRIX DIGITAL RAIN SCRIPT -->
+    <script>
+        (() => {
+            const canvas = document.getElementById("matrix-canvas");
+
+            if (!canvas) {
+                return;
+            }
+
+            const ctx = canvas.getContext("2d");
+
+            if (!ctx) {
+                return;
+            }
+
+			const characters =
+						    "テストしたくない" +
+						    "テストめんどくさい" + "テストいやだ" +
+						    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+						    "reservation" + "reserve" + "FUJICHAKU" +
+						    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+						    "完了" + "予約完了" + "不時着" + "不時着しました" +
+						    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+						    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+						    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+						    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+						    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+						    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+						    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+						    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+						    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+						    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+						    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+						    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+						    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+						    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+						    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+						    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+						    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+						    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+						    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
+
+            const fontSize = 14;
+
+            let columns = [];
+            let width = 0;
+            let height = 0;
+            let animationId = null;
+            let lastFrameTime = 0;
+
+            const frameInterval = 40;
+
+            function resizeCanvas() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+                width = window.innerWidth;
+                height = window.innerHeight;
+
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+
+                canvas.style.width = width + "px";
+                canvas.style.height = height + "px";
+
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                const columnCount = Math.ceil(width / fontSize);
+
+                columns = Array.from(
+                    { length: columnCount },
+                    () => Math.random() * (height / fontSize)
+                );
+
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            function drawMatrix(timestamp) {
+                if (timestamp - lastFrameTime < frameInterval) {
+                    animationId = requestAnimationFrame(drawMatrix);
+                    return;
+                }
+
+                lastFrameTime = timestamp;
+
+                ctx.fillStyle = "rgba(0, 0, 0, 0.075)";
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.font = fontSize + "px Consolas, monospace";
+                ctx.textBaseline = "top";
+
+                for (let i = 0; i < columns.length; i++) {
+                    const character =
+                        characters.charAt(
+                            Math.floor(Math.random() * characters.length)
+                        );
+
+                    const x = i * fontSize;
+                    const y = columns[i] * fontSize;
+
+                    if (Math.random() > 0.985) {
+                        ctx.fillStyle = "#d5ffdc";
+                    } else {
+                        ctx.fillStyle = "#00ff41";
+                    }
+
+                    ctx.fillText(character, x, y);
+
+                    if (
+                        y > height &&
+                        Math.random() > 0.975
+                    ) {
+                        columns[i] = 0;
+                    } else {
+                        columns[i] += Math.random() * 0.65 + 0.45;
+                    }
+                }
+
+                animationId = requestAnimationFrame(drawMatrix);
+            }
+
+            resizeCanvas();
+
+            if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                animationId = requestAnimationFrame(drawMatrix);
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    if (animationId !== null) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                } else if (
+                    animationId === null &&
+                    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                ) {
+                    lastFrameTime = 0;
+                    animationId = requestAnimationFrame(drawMatrix);
+                }
+            });
+        })();
+    </script>
 
 </body>
 </html>

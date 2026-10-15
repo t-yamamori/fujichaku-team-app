@@ -9,14 +9,19 @@
         :root {
             --matrix-green: #00ff41;
             --matrix-dark-green: #008f11;
-            --matrix-bg: #000;
-            --matrix-panel: rgba(0, 12, 3, 0.94);
-            --matrix-border: rgba(0, 255, 65, 0.55);
+            --matrix-bg: #000000;
+            --matrix-panel: rgba(0, 8, 2, 0.90);
+            --matrix-border: rgba(0, 255, 65, 0.7);
             --matrix-text: #d5ffdc;
         }
 
         * {
             box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--matrix-bg);
         }
 
         body {
@@ -28,6 +33,7 @@
             font-family: "Consolas", "Courier New", monospace;
         }
 
+        /* デジタルレイン */
         #matrix-canvas {
             position: fixed;
             inset: 0;
@@ -35,7 +41,8 @@
             height: 100%;
             z-index: 0;
             pointer-events: none;
-            opacity: 0.32;
+            opacity: 0.95;
+            filter: brightness(1.5) contrast(1.2);
         }
 
         .page-content {
@@ -46,25 +53,28 @@
             margin: 0 auto;
         }
 
+        /* メインパネル */
         .container {
             padding: 35px;
             background: var(--matrix-panel);
             border: 1px solid var(--matrix-border);
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 255, 65, 0.12),
-                        inset 0 0 20px rgba(0, 255, 65, 0.025);
+            box-shadow:
+                0 0 20px rgba(0, 255, 65, 0.2),
+                inset 0 0 20px rgba(0, 255, 65, 0.04);
         }
 
         .system-label {
             margin: 0 0 12px;
-            color: var(--matrix-dark-green);
+            color: var(--matrix-green);
             font-size: 12px;
             letter-spacing: 3px;
             text-align: center;
+            text-shadow: 0 0 8px var(--matrix-green);
         }
 
         .page-title {
-            margin: 0 0 20px;
+            margin: 0 0 25px;
             color: var(--matrix-green);
             font-size: clamp(26px, 5vw, 36px);
             text-align: center;
@@ -72,32 +82,35 @@
             letter-spacing: 3px;
         }
 
+        /* 予約完了メッセージ */
         .success-message {
             margin: 0 0 30px;
             color: var(--matrix-green);
             font-size: 16px;
             line-height: 1.9;
             text-align: center;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
         }
 
         .success-icon {
             display: block;
-            margin: 0 auto 14px;
             width: 58px;
             height: 58px;
+            margin: 0 auto 14px;
             line-height: 54px;
             border: 2px solid var(--matrix-green);
             border-radius: 50%;
             font-size: 32px;
             text-shadow: 0 0 12px var(--matrix-green);
-            box-shadow: 0 0 18px rgba(0, 255, 65, 0.25);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.4);
         }
 
+        /* 注意メッセージ */
         .note {
             margin-bottom: 30px;
             padding: 18px;
             color: #d9ffd9;
-            background: rgba(0, 40, 12, 0.65);
+            background: rgba(0, 35, 10, 0.92);
             border: 1px solid var(--matrix-dark-green);
             border-left: 4px solid var(--matrix-green);
             border-radius: 4px;
@@ -110,8 +123,10 @@
             margin-bottom: 7px;
             color: var(--matrix-green);
             font-size: 15px;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
         }
 
+        /* 予約内容 */
         .section {
             margin-bottom: 30px;
         }
@@ -122,6 +137,7 @@
             color: var(--matrix-green);
             font-size: 20px;
             border-bottom: 1px solid var(--matrix-border);
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.4);
         }
 
         .section h2::before {
@@ -139,7 +155,7 @@
         .reservation-table th,
         .reservation-table td {
             padding: 16px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            border-bottom: 1px solid rgba(0, 255, 65, 0.25);
             text-align: left;
             line-height: 1.7;
         }
@@ -147,7 +163,7 @@
         .reservation-table th {
             width: 32%;
             color: var(--matrix-green);
-            background: rgba(0, 255, 65, 0.055);
+            background: rgba(0, 255, 65, 0.08);
             font-weight: normal;
         }
 
@@ -159,17 +175,20 @@
             color: var(--matrix-green);
             font-size: 23px;
             font-weight: bold;
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
         }
 
         .status {
             display: inline-block;
             padding: 4px 12px;
             color: var(--matrix-green);
+            background: rgba(0, 255, 65, 0.06);
             border: 1px solid var(--matrix-dark-green);
             border-radius: 3px;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.4);
         }
 
+        /* 店舗一覧へ戻るボタン */
         .top-bar {
             display: flex;
             justify-content: center;
@@ -183,26 +202,95 @@
             border: 1px solid var(--matrix-green);
             border-radius: 4px;
             color: var(--matrix-green);
-            background: rgba(0, 255, 65, 0.06);
+            background: rgba(0, 255, 65, 0.08);
             font-family: inherit;
             font-size: 14px;
             text-align: center;
             text-decoration: none;
-            transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+            transition:
+                background 0.2s,
+                box-shadow 0.2s,
+                color 0.2s;
         }
 
-        .btn:hover {
-            color: #000;
+        .btn:hover,
+        .btn:focus-visible {
+            color: #000000;
             background: var(--matrix-green);
-            box-shadow: 0 0 18px rgba(0, 255, 65, 0.45);
+            box-shadow: 0 0 18px rgba(0, 255, 65, 0.65);
+            outline: none;
         }
 
+        /* RESERVATION COMPLETE 二重ネオン枠 */
         .footer-text {
-            margin: 25px 0 0;
-            color: #438d53;
-            font-size: 11px;
+            display: flex;
+            justify-content: center;
+            margin: 38px 0 10px;
             text-align: center;
-            letter-spacing: 1px;
+        }
+
+        .complete-frame {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            padding: 18px 30px;
+            border: 2px solid var(--matrix-green);
+            border-radius: 5px;
+            background: rgba(0, 15, 3, 0.98);
+            color: var(--matrix-green);
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            line-height: 1.6;
+            text-align: center;
+            overflow-wrap: anywhere;
+            text-shadow:
+                0 0 5px var(--matrix-green),
+                0 0 12px var(--matrix-green);
+            box-shadow:
+                0 0 8px var(--matrix-green),
+                0 0 20px rgba(0, 255, 65, 0.65),
+                0 0 38px rgba(0, 255, 65, 0.25),
+                inset 0 0 12px rgba(0, 255, 65, 0.2);
+            animation: neon-pulse 2s ease-in-out infinite;
+        }
+
+        .complete-frame::before {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border: 1px solid rgba(0, 255, 65, 0.85);
+            border-radius: 7px;
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+            pointer-events: none;
+        }
+
+        .complete-frame::after {
+            content: "";
+            position: absolute;
+            inset: -13px;
+            border-top: 2px solid rgba(0, 255, 65, 0.5);
+            border-bottom: 2px solid rgba(0, 255, 65, 0.5);
+            pointer-events: none;
+        }
+
+        @keyframes neon-pulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 8px #00ff41,
+                    0 0 20px rgba(0, 255, 65, 0.55),
+                    0 0 38px rgba(0, 255, 65, 0.2),
+                    inset 0 0 12px rgba(0, 255, 65, 0.15);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 12px #00ff41,
+                    0 0 28px rgba(0, 255, 65, 0.85),
+                    0 0 48px rgba(0, 255, 65, 0.35),
+                    inset 0 0 18px rgba(0, 255, 65, 0.25);
+            }
         }
 
         @media (max-width: 600px) {
@@ -239,18 +327,32 @@
             .btn {
                 width: 100%;
             }
+
+            .complete-frame {
+                padding: 14px 12px;
+                font-size: 11px;
+                letter-spacing: 1px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .complete-frame {
+                animation: none;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- マトリックス風デジタルレイン -->
+    <!-- 背景のデジタルレイン -->
     <canvas id="matrix-canvas"></canvas>
 
     <main class="page-content">
         <div class="container">
 
-            <p class="system-label">FUJICHAKU // RESERVATION SYSTEM</p>
+            <p class="system-label">
+                FUJICHAKU // RESERVATION SYSTEM
+            </p>
 
             <h1 class="page-title">予約完了</h1>
 
@@ -276,8 +378,9 @@
                         <tr>
                             <th>予約番号</th>
                             <td>
-                                <strong class="reservation-number"
-                                        th:text="${reservation.id}">100</strong>
+                                <strong
+                                    class="reservation-number"
+                                    th:text="${reservation.id}">100</strong>
                             </td>
                         </tr>
 
@@ -303,126 +406,182 @@
                         <tr>
                             <th>状況</th>
                             <td>
-                                <span class="status"
-                                      th:text="${reservation.status}">予約済み</span>
+                                <span
+                                    class="status"
+                                    th:text="${reservation.status}">予約済み</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </section>
 
+            <!-- 店舗一覧へ戻る -->
             <div class="top-bar">
-                <a class="btn" th:href="@{/shops}">▶ 店舗一覧へ戻る</a>
+                <a class="btn" th:href="@{/shops}">
+                    &gt; 店舗一覧へ戻る
+                </a>
             </div>
 
-            <p class="footer-text">
-                SYSTEM STATUS: RESERVATION COMPLETED
-            </p>
+            <!-- 完了メッセージ -->
+            <div class="footer-text">
+                <span class="complete-frame">
+                    &gt;&gt; RESERVATION COMPLETE &lt;&lt;
+                </span>
+            </div>
 
         </div>
     </main>
 
-    <!-- Matrix rain animation -->
-	<script>
-	(() => {
-	    const canvas = document.getElementById("matrix-canvas");
-	    const ctx = canvas.getContext("2d");
+    <!-- Matrix Digital Rain -->
+    <script>
+        (() => {
+            const canvas = document.getElementById("matrix-canvas");
 
-	    const characters =
-	        "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
-	        "ハヒフヘホマミムメモヤユヨラリルレロワヲン" +
-	        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&";
+            if (!canvas) {
+                return;
+            }
 
-	    const fontSize = 16;
-	    let columns = 0;
-	    let drops = [];
-	    let speeds = [];
+            const ctx = canvas.getContext("2d");
 
-	    function resizeCanvas() {
-	        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            if (!ctx) {
+                return;
+            }
 
-	        canvas.width = window.innerWidth * dpr;
-	        canvas.height = window.innerHeight * dpr;
-	        canvas.style.width = window.innerWidth + "px";
-	        canvas.style.height = window.innerHeight + "px";
+            /* 流れる文字：日本語・予約関連・サイバー系英単語 */
+            const characters =
+                "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
+                "ハヒフヘホマミムメモヤユヨラリルレロワヲン" +
+                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+                "reservation" + "reserve" + "FUJICHAKU" +
+                "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+                "完了" + "予約完了" + "不時着" + "不時着しました" +
+                "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+                "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+                "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+                "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+                "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+                "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+                "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+                "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+                "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+                "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+                "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+                "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+                "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+                "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+                "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+                "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+                "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+                "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+                "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION" +
+                "ACCESS GRANTED" + "RESERVATION COMPLETE" +
+                "NO SIGNAL" + "UNKNOWN USER" + "DATA STREAM";
 
-	        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const fontSize = 16;
 
-	        columns = Math.ceil(window.innerWidth / fontSize);
+            let columns = 0;
+            let drops = [];
+            let speeds = [];
+            let animationId = null;
 
-	        drops = Array.from(
-	            { length: columns },
-	            () => Math.random() * -(window.innerHeight / fontSize)
-	        );
+            function resizeCanvas() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                const width = window.innerWidth;
+                const height = window.innerHeight;
 
-	        speeds = Array.from(
-	            { length: columns },
-	            () => 0.7 + Math.random() * 1.5
-	        );
-	    }
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                canvas.style.width = width + "px";
+                canvas.style.height = height + "px";
 
-	    function drawMatrix() {
-	        const width = window.innerWidth;
-	        const height = window.innerHeight;
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-	        // 背景を薄く塗り、文字の軌跡を残す
-	        ctx.fillStyle = "rgba(0, 0, 0, 0.045)";
-	        ctx.fillRect(0, 0, width, height);
+                columns = Math.ceil(width / fontSize);
 
-	        ctx.font = "bold " + fontSize + "px monospace";
-	        ctx.textBaseline = "top";
+                drops = Array.from(
+                    { length: columns },
+                    () => Math.random() * -(height / fontSize)
+                );
 
-	        for (let i = 0; i < drops.length; i++) {
-	            const x = i * fontSize;
-	            const y = drops[i] * fontSize;
+                speeds = Array.from(
+                    { length: columns },
+                    () => 0.7 + Math.random() * 1.5
+                );
 
-	            const character = characters.charAt(
-	                Math.floor(Math.random() * characters.length)
-	            );
+                /* リサイズ直後の背景を黒く初期化 */
+                ctx.fillStyle = "#000000";
+                ctx.fillRect(0, 0, width, height);
+            }
 
-	            // 先頭の文字を白緑に光らせる
-	            ctx.shadowBlur = 12;
+            function drawMatrix() {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
 
-	            if (Math.random() > 0.92) {
-	                ctx.fillStyle = "#ffffff";
-	                ctx.shadowColor = "#baffc5";
-	            } else {
-	                ctx.fillStyle = "#00ff41";
-	                ctx.shadowColor = "#00ff41";
-	            }
+                /* 文字の軌跡を残す */
+                ctx.fillStyle = "rgba(0, 0, 0, 0.045)";
+                ctx.fillRect(0, 0, width, height);
 
-	            ctx.fillText(character, x, y);
+                ctx.font = "bold " + fontSize + "px monospace";
+                ctx.textBaseline = "top";
 
-	            // 光のにじみを解除
-	            ctx.shadowBlur = 0;
+                for (let i = 0; i < drops.length; i++) {
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
 
-	            // 一部の文字を明るい緑で追加表示
-	            if (Math.random() > 0.75) {
-	                ctx.fillStyle = "#39ff70";
-	                ctx.fillText(
-	                    characters.charAt(
-	                        Math.floor(Math.random() * characters.length)
-	                    ),
-	                    x,
-	                    y - fontSize
-	                );
-	            }
+                    const character = characters.charAt(
+                        Math.floor(Math.random() * characters.length)
+                    );
 
-	            drops[i] += speeds[i];
+                    /* 文字を発光させる */
+                    ctx.shadowBlur = 12;
 
-	            if (y > height && Math.random() > 0.96) {
-	                drops[i] = 0;
-	                speeds[i] = 0.7 + Math.random() * 1.5;
-	            }
-	        }
-	    }
+                    if (Math.random() > 0.92) {
+                        ctx.fillStyle = "#ffffff";
+                        ctx.shadowColor = "#baffc5";
+                    } else {
+                        ctx.fillStyle = "#00ff41";
+                        ctx.shadowColor = "#00ff41";
+                    }
 
-	    resizeCanvas();
-	    window.addEventListener("resize", resizeCanvas);
+                    ctx.fillText(character, x, y);
 
-	    // 画面更新を速めて、雨を強調
-	    window.setInterval(drawMatrix, 30);
-	})();
-	</script>
+                    ctx.shadowBlur = 0;
+
+                    /* 明るい緑色の文字を追加 */
+                    if (Math.random() > 0.75) {
+                        ctx.fillStyle = "#39ff70";
+
+                        ctx.fillText(
+                            characters.charAt(
+                                Math.floor(Math.random() * characters.length)
+                            ),
+                            x,
+                            y - fontSize
+                        );
+                    }
+
+                    drops[i] += speeds[i];
+
+                    if (y > height && Math.random() > 0.96) {
+                        drops[i] = 0;
+                        speeds[i] = 0.7 + Math.random() * 1.5;
+                    }
+                }
+
+                animationId = window.requestAnimationFrame(drawMatrix);
+            }
+
+            resizeCanvas();
+
+            window.addEventListener("resize", resizeCanvas);
+
+            /* 二重起動を防止してアニメーションを開始 */
+            if (animationId !== null) {
+                window.cancelAnimationFrame(animationId);
+            }
+
+            drawMatrix();
+        })();
+    </script>
 </body>
 </html>
