@@ -110,9 +110,10 @@ public class ShopDashboardController {
                 // 店舗管理者は口コミ投稿などはできない
                 redirectAttributes.addFlashAttribute("errorMessage", "不正な操作です。");
             }
-
             // 処理後は店舗詳細(GET)へ戻す（再読み込みでの二重送信を防ぐ）
-            return "redirect:/shop-admin/" + storeId;
+            // 【変更】予約の編集のときは、予約履歴の位置（#rsv）まで自動でスクロールさせる
+            String anchor = "updateReservation".equals(action) ? "#rsv" : "";
+            return "redirect:/shop-admin/" + storeId + anchor;
         }
 
         // ==================================================
@@ -177,28 +178,28 @@ public class ShopDashboardController {
 
         // 入力チェック
         if (reservationId == null || reservationDate == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "予約日時を入力してください。");
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "予約日時を入力してください。");
             return;
         }
         if (number == null || number < 1) {
-            redirectAttributes.addFlashAttribute("errorMessage", "人数は1名以上で入力してください。");
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "人数は1名以上で入力してください。");
             return;
         }
         if (status == null || status.isBlank()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "予約状況を選択してください。");
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "予約状況を選択してください。");
             return;
         }
 
         // ① 日時・人数を変更（キャンセル済みの予約は SQL 側で変更されない）
         reservationMapper.updateForStore(reservationId, storeId, reservationDate, number);
 
-        // ② 予約状況を変更（①より後にする：先にキャンセルにすると①が反映されないため）
+        // ② 予約状況を変更
         int count = reservationMapper.updateStatusForStore(reservationId, storeId, status);
 
         if (count > 0) {
-            redirectAttributes.addFlashAttribute("message", "予約内容を変更しました。");
+            redirectAttributes.addFlashAttribute("rsvMessage", "予約内容を変更しました。");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "変更できる予約が見つかりませんでした。");
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "変更できる予約が見つかりませんでした。");
         }
     }
 
