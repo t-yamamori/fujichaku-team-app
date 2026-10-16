@@ -747,15 +747,14 @@
 
 
 
-    .gacha-rates { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 0.85em; }
+	/* 当たりの一覧：「〇等」と「〇P」を左右半分ずつにして、中央にそろえる */
+	.gacha-rates { width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 0.95em; table-layout: fixed; }
 
-    .gacha-rates th, .gacha-rates td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+	.gacha-rates th, .gacha-rates td { width: 50%; padding: 8px; border-bottom: 1px solid var(--line); text-align: center; }
 
-    .gacha-rates th { text-align: left; color: var(--main); }
+	.gacha-rates th { color: var(--main); }
 
-    .gacha-rates td { text-align: right; }
-
-    .gacha-rates td:last-child { color: var(--text-sub); }
+	.gacha-rates td { font-weight: bold; font-variant-numeric: tabular-nums; }
 
 
 
@@ -1254,51 +1253,24 @@
 
 
 		<!-- 当たりの一覧（表示用。実際の確率は MembersServiceImpl で決まる） -->
-
 		<table class="gacha-rates">
-
 			<tr>
-
 				<th>1等</th>
-
 				<td>10P</td>
-
-				<td>5%</td>
-
 			</tr>
-
 			<tr>
-
 				<th>2等</th>
-
 				<td>5P</td>
-
-				<td>15%</td>
-
 			</tr>
-
 			<tr>
-
 				<th>3等</th>
-
 				<td>3P</td>
-
-				<td>30%</td>
-
 			</tr>
-
 			<tr>
-
 				<th>4等</th>
-
 				<td>1P</td>
-
-				<td>50%</td>
-
 			</tr>
-
 		</table>
-
 
 
 		<!-- th:action を使うと、CSRF対策の隠し項目が自動で入る -->
