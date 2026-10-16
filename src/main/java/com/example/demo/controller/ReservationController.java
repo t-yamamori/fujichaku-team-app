@@ -505,6 +505,9 @@ public class ReservationController {
                 model.addAttribute("userMail", user.getMail());
             }
         }
+        
+        // 【追加】予約履歴の DETAILS から開いたときは「見るだけ」にする（確定ボタンを出さない）
+        model.addAttribute("viewOnly", true);
 
         return "reservations/reservation";
     }
