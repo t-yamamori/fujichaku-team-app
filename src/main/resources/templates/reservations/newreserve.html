@@ -6,669 +6,473 @@
     <title>予約フォーム | FUJICHAKU</title>
 
     <style>
+		/* =========================================================
+           予約入力 newreserve.html
+           トップ画面と同じ「砂漠の空」デザイン（<style> の中身をまるごと差し替え）
+           ========================================================= */
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css");
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css");
+
         :root {
-            --green: #00ff41;
-            --green-soft: #00cc33;
-            --green-dim: #008f11;
-            --bg: #030705;
-            --panel: rgba(0, 15, 5, 0.94);
-            --panel-light: rgba(0, 255, 65, 0.045);
-            --text: #d5ffdc;
-            --muted: #8abf94;
-            --border: rgba(0, 255, 65, 0.38);
-            --error: #ff6464;
+            --main:      #8b4a2b;   /* ボタン（ブラウン） */
+            --main-dark: #6e3a21;
+            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
+            --sky-pale:  #eaf4fa;
+            --line:      #d9e3ea;
+            --text:      #2f3437;
+            --text-sub:  #6b7479;
+            --error:     #c0392b;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
-        html {
-            min-height: 100%;
-            background: var(--bg);
-        }
+        html { min-height: 100%; }
 
         body {
             margin: 0;
             min-height: 100vh;
+            padding-bottom: 120px;             /* 下は砂丘のぶん空ける */
+            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
             color: var(--text);
-            background:
-                radial-gradient(
-                    ellipse at top,
-                    rgba(0, 100, 25, 0.14),
-                    transparent 65%
-                ),
-                var(--bg);
-            font-family: Consolas, "Courier New", monospace;
+            line-height: 1.7;
+            background: linear-gradient(#9fcbe8 0, #cfe6f4 40%, #f3f7fa 100%) fixed;
             overflow-x: hidden;
         }
 
-        /* デジタルレイン */
-        #matrixRain {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            opacity: 0.24;
-        }
+        /* 緑の文字の雨（canvas）は使わない */
+        #matrixRain { display: none; }
 
-        /* 走査線 */
+        /* ゆっくり流れる雲（元の走査線の代わり） */
         body::before {
             content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 1;
+            position: fixed; top: 14%; left: -260px; z-index: 0;
+            width: 200px; height: 54px; border-radius: 54px;
+            background: #fff; opacity: .8;
+            box-shadow: 36px -24px 0 6px #fff, 100px -12px 0 0 #fff;
+            animation: cloud-drift 70s linear infinite;
             pointer-events: none;
-            background: repeating-linear-gradient(
-                to bottom,
-                transparent 0,
-                transparent 3px,
-                rgba(0, 255, 65, 0.025) 4px
-            );
+        }
+        @keyframes cloud-drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(calc(100vw + 520px)); }
         }
 
-        /* 画面周辺の暗さ */
+        /* 画面の一番下の砂丘（元の周辺の暗さの代わり） */
         body::after {
             content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 1;
+            position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 0;
+            height: 110px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
             pointer-events: none;
-            background: radial-gradient(
-                ellipse at center,
-                transparent 35%,
-                rgba(0, 0, 0, 0.58) 100%
-            );
         }
 
-        a {
-            color: var(--green);
-            text-decoration: none;
-            transition:
-                color 0.2s ease,
-                text-shadow 0.2s ease,
-                border-color 0.2s ease,
-                background 0.2s ease;
-        }
+        a { color: var(--sky-deep); text-decoration: none; }
+        a:hover { color: var(--main); }
 
-        a:hover {
-            color: #ffffff;
-            text-shadow: 0 0 10px var(--green);
-        }
-
-        button,
-        input,
-        select,
-        textarea {
-            font: inherit;
-        }
+        button, input, select, textarea { font: inherit; }
 
         .container {
-            position: relative;
-            z-index: 2;
+            position: relative; z-index: 2;
             width: min(900px, calc(100% - 32px));
             margin: 0 auto;
-            padding: 28px 0 60px;
+            padding: 24px 0 40px;
         }
 
-        /* ヘッダー */
+        /* ===== ヘッダー：白い帯にロゴ ===== */
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 0 0 18px;
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
             margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            box-shadow: 0 4px 14px rgba(31, 79, 112, .08);
         }
-
         .brand {
+            display: flex; align-items: center; gap: 10px;
             margin: 0;
-            color: var(--green);
-            font-size: clamp(23px, 4vw, 32px);
-            font-weight: 900;
-            letter-spacing: 4px;
-            text-shadow:
-                0 0 5px rgba(0, 255, 65, 0.9),
-                0 0 18px rgba(0, 255, 65, 0.35);
+            color: var(--text);
+            font-size: 1.15rem; font-weight: 700; letter-spacing: .06em; line-height: 1;
         }
-
-        .brand-subtitle {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: 2px;
+        .brand::before {                     /* ロゴマーク（トップ画面と同じ画像） */
+            content: "";
+            width: 34px; height: 34px; flex: none;
+            background: url("/images/logo-mark.svg") center / contain no-repeat;
         }
-
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--green);
-            font-size: 11px;
-            letter-spacing: 1px;
-            white-space: nowrap;
+        .brand::after {                      /* 「TOWN」を空色で添える */
+            content: "TOWN";
+            margin-left: -.35em;
+            font-weight: 400; color: var(--sky-deep); letter-spacing: .14em;
         }
+        .brand-subtitle,
+        .system-status { display: none; }    /* 英語の補足表示は使わない */
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            flex: 0 0 8px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 10px var(--green);
-            animation: pulse 1.8s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-                box-shadow: 0 0 10px var(--green);
-            }
-
-            50% {
-                opacity: 0.45;
-                box-shadow: 0 0 3px var(--green);
-            }
-        }
-
-        /* ページタイトル */
+        /* ===== ページの見出し ===== */
         .page-heading {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             text-align: center;
+            animation: fade-up .5s ease-out both;
         }
-
-        .eyebrow {
-            margin: 0 0 12px;
-            color: var(--green-soft);
-            font-size: 11px;
-            letter-spacing: 4px;
-        }
-
-        .page-title {
-            display: inline-block;
+        .eyebrow { display: none; }
+        .page-title {                        /* 「RESERVATION FORM」は小さな英字に */
             margin: 0;
-            padding: 12px 22px;
-            border: 1px solid var(--border);
-            background: rgba(0, 20, 7, 0.72);
-            color: var(--green);
-            font-size: clamp(22px, 4vw, 30px);
-            font-weight: 800;
-            letter-spacing: 3px;
-            text-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
-            box-shadow:
-                0 0 18px rgba(0, 255, 65, 0.08),
-                inset 0 0 18px rgba(0, 255, 65, 0.025);
+            color: var(--sky-deep);
+            font-size: .8rem; font-weight: 700;
+            letter-spacing: .3em;
         }
-
+        .page-title::after {                 /* 日本語の大きな見出しを足す */
+            content: "ご予約";
+            display: block;
+            margin-top: 4px;
+            color: var(--text);
+            font-size: clamp(1.6rem, 4vw, 2rem);
+            letter-spacing: .14em;
+        }
         .page-description {
-            margin: 14px 0 0;
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.8;
+            margin: 12px 0 0;
+            color: var(--text-sub);
+            font-size: .9rem;
         }
 
-        /* ナビゲーション */
+        /* ===== 上のリンク ===== */
         .top-links {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin: 0 0 26px;
+            display: flex; justify-content: center; flex-wrap: wrap; gap: 10px;
+            margin: 0 0 24px;
         }
-
         .nav-link {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 38px;
-            padding: 9px 17px;
-            border: 1px solid var(--border);
-            background: rgba(0, 15, 5, 0.86);
-            color: var(--green);
-            font-size: 12px;
-            letter-spacing: 1px;
+            display: inline-flex; align-items: center; justify-content: center;
+            height: 38px; padding: 0 18px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: #fff;
+            color: var(--text);
+            font-size: .85rem;
+            transition: border-color .2s, color .2s;
         }
+        .nav-link:hover { border-color: var(--sky-deep); color: var(--sky-deep); }
 
-        .nav-link:hover {
-            border-color: var(--green);
-            background: rgba(0, 255, 65, 0.1);
-            color: #ffffff;
-            box-shadow: 0 0 14px rgba(0, 255, 65, 0.12);
-        }
-
-        /* 共通パネル */
+        /* ===== 白いカード ===== */
         .panel {
             position: relative;
-            margin-bottom: 24px;
-            padding: clamp(18px, 4vw, 28px);
-            border: 1px solid var(--border);
-            background: var(--panel);
-            box-shadow:
-                0 0 24px rgba(0, 255, 65, 0.055),
-                inset 0 0 28px rgba(0, 255, 65, 0.018);
+            margin-bottom: 22px;
+            padding: clamp(20px, 4vw, 30px);
+            background: #fff;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--sky-deep);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(31, 79, 112, .10);
+            animation: fade-up .6s ease-out .1s both;
         }
-
+        .panel + .panel { animation-delay: .2s; }
         .panel::before,
-        .panel::after {
-            content: "";
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            pointer-events: none;
-        }
-
-        .panel::before {
-            top: -1px;
-            left: -1px;
-            border-top: 2px solid var(--green);
-            border-left: 2px solid var(--green);
-        }
-
-        .panel::after {
-            right: -1px;
-            bottom: -1px;
-            border-right: 2px solid var(--green);
-            border-bottom: 2px solid var(--green);
+        .panel::after { content: none; }
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: none; }
         }
 
         .section-heading {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 0 0 22px;
-            padding-bottom: 13px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.24);
-            color: var(--green);
-            font-size: 17px;
-            letter-spacing: 1px;
+            display: flex; align-items: center; gap: 12px;
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line);
+            color: var(--sky-deep);
+            font-size: .85rem; font-weight: 700;
+            letter-spacing: .2em;
         }
-
         .section-number {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 30px;
-            height: 30px;
-            border: 1px solid var(--green-dim);
-            background: rgba(0, 255, 65, 0.08);
-            color: var(--green);
-            font-size: 12px;
+            display: inline-grid; place-items: center;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--sky-deep);
+            color: #fff;
+            font-size: .8rem; letter-spacing: 0;
         }
 
-        /* エラーメッセージ */
+        /* ===== エラーメッセージ ===== */
         .error-message {
-            margin-bottom: 24px;
+            margin-bottom: 22px;
             padding: 14px 18px;
-            border: 1px solid rgba(255, 100, 100, 0.65);
-            background: rgba(70, 0, 0, 0.42);
+            background: #fdecea;
+            border: 1px solid #f5c9c3;
+            border-left: 4px solid var(--error);
+            border-radius: 4px;
             color: var(--error);
-            font-size: 13px;
-            line-height: 1.8;
-            box-shadow: 0 0 16px rgba(255, 50, 50, 0.06);
+            font-size: .9rem;
         }
-
         .error-title {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            letter-spacing: 1px;
+            font-size: 0;                    /* 「SYSTEM MESSAGE」は隠す */
         }
+        .error-title::before { content: "入力内容をご確認ください"; font-size: .9rem; font-weight: 700; }
 
-        /* 店舗情報 */
+        /* ===== 店舗情報（広い画面では 画像｜情報 の2列） ===== */
         .store-layout {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             gap: 22px;
         }
-
+        @media (min-width: 720px) {
+            .store-layout { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; }
+        }
         .store-image-wrap {
-            position: relative;
             overflow: hidden;
-            border: 1px solid var(--border);
-            background: #020503;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: var(--sky-pale);
         }
-
-        .store-image {
-            display: block;
-            width: 100%;
-            max-height: 330px;
-            object-fit: cover;
-        }
-
+        .store-image { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
         .no-image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 160px;
-            color: var(--green-dim);
-            font-size: 12px;
-            letter-spacing: 3px;
+            display: flex; align-items: center; justify-content: center;
+            aspect-ratio: 4 / 3;
+            color: #9fb6c5;
+            font-size: .8rem; letter-spacing: .2em;
         }
-
         .store-name {
-            margin: 0 0 18px;
-            color: var(--green);
-            font-size: clamp(20px, 4vw, 25px);
-            font-weight: bold;
+            margin: 0 0 14px;
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
             line-height: 1.5;
             overflow-wrap: anywhere;
-            text-shadow: 0 0 12px rgba(0, 255, 65, 0.2);
         }
-
         .store-info {
             display: grid;
-            grid-template-columns: 120px minmax(0, 1fr);
-            border-top: 1px solid rgba(0, 255, 65, 0.18);
+            grid-template-columns: 96px minmax(0, 1fr);
+            border-top: 1px solid var(--line);
         }
-
         .store-info-label,
         .store-info-value {
             margin: 0;
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.18);
-            font-size: 13px;
-            line-height: 1.7;
+            padding: 10px 6px;
+            border-bottom: 1px solid var(--line);
+            font-size: .9rem;
             overflow-wrap: anywhere;
         }
-
-        .store-info-label {
-            color: var(--green-soft);
-            background: rgba(0, 255, 65, 0.035);
-        }
-
-        .store-info-value {
-            color: var(--text);
-        }
-
+        .store-info-label { color: var(--sky-deep); font-weight: 700; font-size: .82rem; }
         .store-description {
-            margin-top: 18px;
-            padding: 16px;
-            border-left: 2px solid var(--green-dim);
-            background: var(--panel-light);
-            color: var(--text);
-            font-size: 13px;
+            margin-top: 16px;
+            padding: 14px 16px;
+            background: var(--sky-pale);
+            border-radius: 4px;
+            font-size: .9rem;
             line-height: 1.9;
             overflow-wrap: anywhere;
             white-space: pre-wrap;
         }
 
-        /* フォーム */
+        /* ===== 入力フォーム ===== */
         .form-grid {
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 22px;
+            gap: 0 22px;
         }
-
-        .form-group {
-            min-width: 0;
-            margin-bottom: 23px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
+        .form-group { min-width: 0; margin-bottom: 22px; }
+        .form-group.full-width { grid-column: 1 / -1; }
 
         .form-label {
             display: block;
-            margin-bottom: 10px;
-            color: var(--text);
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-size: .92rem; font-weight: 700;
         }
-
         .required {
             display: inline-block;
             margin-left: 8px;
-            padding: 2px 6px;
-            border: 1px solid rgba(255, 100, 100, 0.45);
-            color: #ff8b8b;
-            font-size: 10px;
-            font-weight: normal;
+            padding: 0 7px;
+            border-radius: 3px;
+            background: var(--main);
+            color: #fff;
+            font-size: .7rem; font-weight: 700;
+            vertical-align: 2px;
         }
 
         .form-control {
             display: block;
             width: 100%;
-            min-height: 46px;
-            padding: 12px 14px;
-            border: 1px solid rgba(0, 255, 65, 0.35);
-            border-radius: 0;
+            height: 46px;
+            padding: 0 14px;
+            background: #fff;
+            border: 1px solid #c5d4de;
+            border-radius: 4px;
+            color: var(--text);
+            font-size: .95rem;
             outline: none;
-            background: rgba(0, 5, 2, 0.85);
-            color: var(--text);
-            font-size: 14px;
-            transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease,
-                background 0.2s ease;
+            transition: border-color .2s, box-shadow .2s;
         }
-
         .form-control:focus {
-            border-color: var(--green);
-            background: rgba(0, 20, 7, 0.95);
-            box-shadow:
-                0 0 0 2px rgba(0, 255, 65, 0.08),
-                0 0 15px rgba(0, 255, 65, 0.12);
+            border-color: var(--sky-deep);
+            box-shadow: 0 0 0 3px rgba(63, 130, 173, .18);
         }
-
-        .form-control::placeholder {
-            color: #66816b;
-        }
-
-        .form-control option {
-            background: #031006;
-            color: var(--text);
-        }
-
-        input[type="date"] {
-            color-scheme: dark;
-        }
+        .form-control::placeholder { color: #a3b1ba; }
+        .form-control option { background: #fff; color: var(--text); }
+        input[type="date"] { color-scheme: light; }
 
         .form-help {
-            margin: 8px 0 0;
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.7;
+            margin: 6px 0 0;
+            color: var(--text-sub);
+            font-size: .78rem;
         }
 
-        /* 時間選択 */
+        /* ===== 時間の選択（ボタン型） ===== */
         .time-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
             gap: 10px;
         }
-
-        .time-option {
-            position: relative;
-            display: block;
-            cursor: pointer;
-        }
-
-        .time-option input {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-        }
-
+        .time-option { position: relative; display: block; cursor: pointer; }
+        .time-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
         .time-option span {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 45px;
-            padding: 10px 5px;
-            border: 1px solid rgba(0, 255, 65, 0.3);
-            background: rgba(0, 10, 3, 0.8);
-            color: var(--text);
-            font-size: 13px;
-            transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center;
+            height: 46px;
+            background: #fff;
+            border: 1px solid #c5d4de;
+            border-radius: 4px;
+            font-size: .95rem;
+            font-variant-numeric: tabular-nums;
+            transition: border-color .2s, background .2s, color .2s, transform .15s;
+        }
+        .time-option:hover span { border-color: var(--sky-deep); color: var(--sky-deep); }
+        .time-option input:checked + span {    /* 選んだ時間は茶色で塗る */
+            background: var(--main);
+            border-color: var(--main);
+            color: #fff;
+            font-weight: 700;
+            animation: pick .25s ease-out;
+        }
+        .time-option input:checked + span::before { content: "✓"; margin-right: 6px; font-size: .85em; }
+        .time-option input:focus-visible + span { outline: 3px solid rgba(63, 130, 173, .4); outline-offset: 2px; }
+        @keyframes pick {
+            0%   { transform: scale(.94); }
+            60%  { transform: scale(1.04); }
+            100% { transform: scale(1); }
         }
 
-        .time-option:hover span {
-            border-color: var(--green);
-            background: rgba(0, 255, 65, 0.07);
-        }
-
-        .time-option input:checked + span {
-            border-color: var(--green);
-            background: rgba(0, 255, 65, 0.15);
-            color: var(--green);
-            box-shadow:
-                inset 0 0 12px rgba(0, 255, 65, 0.06),
-                0 0 10px rgba(0, 255, 65, 0.1);
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
-        }
-
-        .time-option input:focus-visible + span {
-            outline: 2px solid #ffffff;
-            outline-offset: 3px;
-        }
-
-        /* 予約ボタン */
-        .form-actions {
-            display: flex;
-            justify-content: center;
-            margin-top: 12px;
-        }
-
+        /* ===== 確認ボタン ===== */
+        .form-actions { display: flex; justify-content: center; margin-top: 8px; }
         .submit-button {
-            position: relative;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
+            display: inline-flex; align-items: center; justify-content: center;
             width: min(100%, 380px);
-            min-height: 54px;
-            padding: 14px 24px;
-            overflow: hidden;
-            border: 1px solid var(--green);
-            border-radius: 0;
-            background: rgba(0, 255, 65, 0.11);
-            color: var(--green);
+            height: 54px;
+            border: none;
+            border-radius: 3px;
+            background: var(--main);
+            color: #fff;
+            font-size: 1rem; font-weight: 700;
+            letter-spacing: .1em;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-align: center;
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.25);
-            box-shadow:
-                0 0 15px rgba(0, 255, 65, 0.08),
-                inset 0 0 15px rgba(0, 255, 65, 0.025);
-            transition: all 0.2s ease;
+            transition: background .2s, transform .2s;
         }
-
-        .submit-button:hover {
-            background: rgba(0, 255, 65, 0.2);
-            color: #ffffff;
-            box-shadow:
-                0 0 22px rgba(0, 255, 65, 0.18),
-                inset 0 0 18px rgba(0, 255, 65, 0.06);
-        }
-
-        .submit-button:active {
-            transform: translateY(1px);
-        }
-
-        .submit-button:focus-visible {
-            outline: 2px solid #ffffff;
-            outline-offset: 4px;
-        }
+        .submit-button:hover { background: var(--main-dark); transform: translateY(-1px); }
+        .submit-button:active { transform: translateY(1px); }
+        .submit-button:focus-visible { outline: 3px solid rgba(63, 130, 173, .4); outline-offset: 3px; }
 
         .footer {
-            margin-top: 35px;
-            padding-top: 18px;
-            border-top: 1px solid rgba(0, 255, 65, 0.2);
-            color: var(--green-dim);
-            font-size: 10px;
-            letter-spacing: 2px;
+            margin-top: 30px;
+            color: var(--text-sub);
+            font-size: .72rem;
+            letter-spacing: .2em;
             text-align: center;
         }
 
+        /* ===== スマホ ===== */
         @media (max-width: 600px) {
-            .container {
-                width: calc(100% - 22px);
-                padding-top: 18px;
-            }
-
-            .header {
-                align-items: flex-start;
-            }
-
-            .brand {
-                letter-spacing: 2px;
-            }
-
-            .brand-subtitle {
-                font-size: 9px;
-                letter-spacing: 1px;
-            }
-
-            .system-status {
-                font-size: 9px;
-                gap: 5px;
-            }
-
-            .page-title {
-                padding: 11px 14px;
-                letter-spacing: 1px;
-            }
-
-            .panel {
-                padding: 17px 14px;
-            }
-
-            .store-info {
-                grid-template-columns: 95px minmax(0, 1fr);
-            }
-
-            .store-info-label,
-            .store-info-value {
-                padding: 10px 7px;
-                font-size: 12px;
-            }
-
-            .form-grid {
-                grid-template-columns: minmax(0, 1fr);
-                gap: 0;
-            }
-
-            .form-group.full-width {
-                grid-column: auto;
-            }
-
-            .time-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-                gap: 7px;
-            }
-
-            .time-option span {
-                min-height: 42px;
-                font-size: 12px;
-            }
-
-            .top-links {
-                gap: 8px;
-            }
-
-            .nav-link {
-                padding: 9px 12px;
-                font-size: 11px;
-            }
+            .container { width: calc(100% - 20px); padding-top: 14px; }
+            .header { padding: 10px 14px; }
+            .brand { font-size: .9rem; }
+            .brand::before { width: 28px; height: 28px; }
+            .form-grid { grid-template-columns: minmax(0, 1fr); }
+            .store-info { grid-template-columns: 84px minmax(0, 1fr); }
+			.time-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
         }
 
+        /* 「動きを減らす」設定のときはアニメーションを止める */
         @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+            body::before, .page-heading, .panel, .time-option input:checked + span { animation: none; }
         }
+		
+		/* =========================================================
+	       【追加】選んだ予約時間で、背景の空が変わる
+	         昼（11:00〜14:30）… 青空
+	         午後（15:00〜16:30）… やわらかい午後の光
+	         夕方（17:00〜18:30）… 夕焼け
+	         夜（19:00〜21:30）… 夜空と星
+	       ========================================================= */
+	
+	    /* 空の色をなめらかに変えるための準備 */
+	    @property --sky-top    { syntax: "<color>"; inherits: true; initial-value: #9fcbe8; }
+	    @property --sky-mid    { syntax: "<color>"; inherits: true; initial-value: #cfe6f4; }
+	    @property --sky-bottom { syntax: "<color>"; inherits: true; initial-value: #f3f7fa; }
+	
+	    body {
+	        background: linear-gradient(var(--sky-top) 0, var(--sky-mid) 40%, var(--sky-bottom) 100%) fixed;
+	        transition: --sky-top 1.2s ease, --sky-mid 1.2s ease, --sky-bottom 1.2s ease;
+	    }
+	    body::before { transition: opacity 1.2s ease; }
+	    body::after  { transition: filter 1.2s ease; }
+	    .page-title::after, .page-description { transition: color 1.2s ease; }
+	
+	    /* 昼：青空（時間を選ぶ前と同じ） */
+	    body:has(.time-option input:checked:is([value^="11:"], [value^="12:"], [value^="13:"], [value^="14:"])) {
+	        --sky-top: #8ec4e8; --sky-mid: #c8e4f5; --sky-bottom: #f3f7fa;
+	    }
+	
+	    /* 午後：少し黄色みのある光 */
+	    body:has(.time-option input:checked:is([value^="15:"], [value^="16:"])) {
+	        --sky-top: #8fbadb; --sky-mid: #e6dcc0; --sky-bottom: #f8efdc;
+	    }
+	
+	    /* 夕方：夕焼け */
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"])) {
+	        --sky-top: #5b6fa8; --sky-mid: #e39a6e; --sky-bottom: #f6c88f;
+	    }
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"]))::before { opacity: .45; }
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"]))::after  { filter: saturate(1.3) brightness(.92); }
+	
+	    /* 夜：夜空（雲は消して、星を出す） */
+	    body:has(.time-option input:checked:is([value^="19:"], [value^="20:"], [value^="21:"])) {
+	        --sky-top: #0c1430; --sky-mid: #1f2f5c; --sky-bottom: #3a4f7e;
+	    }
+	    body:has(.time-option input:checked:is([value^="19:"], [value^="20:"], [value^="21:"]))::before { opacity: 0; }
+	    body:has(.time-option input:checked:is([value^="19:"], [value^="20:"], [value^="21:"]))::after  { filter: brightness(.45) saturate(.8); }
+	
+	    /* 夕方・夜は、背景の上の文字を白にして読みやすくする */
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .page-title::after,
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .page-description,
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .footer {
+	        color: #fff;
+	    }
+	    body:has(.time-option input:checked:is([value^="17:"], [value^="18:"])) .page-title {
+	        color: #fff3e0;
+	    }
+	    body:has(.time-option input:checked:is([value^="19:"], [value^="20:"], [value^="21:"])) .page-title {
+	        color: #9fd0f0;
+	    }
+	
+	    /* 夜の星（ページ全体にうっすら） */
+	    .container::before {
+	        content: "";
+	        position: fixed; inset: 0 0 40% 0; z-index: -1;
+	        background:
+	            radial-gradient(1.5px 1.5px at 8% 12%,  #fff 50%, transparent 51%),
+	            radial-gradient(1px 1px     at 22% 30%, #fff 50%, transparent 51%),
+	            radial-gradient(1.5px 1.5px at 37% 8%,  #fff 50%, transparent 51%),
+	            radial-gradient(1px 1px     at 55% 22%, #fff 50%, transparent 51%),
+	            radial-gradient(1.5px 1.5px at 68% 6%,  #fff 50%, transparent 51%),
+	            radial-gradient(1px 1px     at 81% 26%, #fff 50%, transparent 51%),
+	            radial-gradient(1.5px 1.5px at 93% 14%, #fff 50%, transparent 51%),
+	            radial-gradient(1px 1px     at 14% 48%, #fff 50%, transparent 51%),
+	            radial-gradient(1px 1px     at 74% 44%, #fff 50%, transparent 51%);
+	        opacity: 0;
+	        transition: opacity 1.2s ease;
+	        pointer-events: none;
+	    }
+	    body:has(.time-option input:checked:is([value^="19:"], [value^="20:"], [value^="21:"])) .container::before {
+	        opacity: .9;
+	        animation: twinkle 3s ease-in-out infinite alternate;
+	    }
+	    @keyframes twinkle { from { opacity: .5; } to { opacity: .95; } }
+	
+	    @media (prefers-reduced-motion: reduce) {
+	        body, body::before, body::after, .container::before { transition: none; animation: none; }
+	    }
     </style>
 </head>
 
@@ -703,10 +507,8 @@
         <!-- ナビゲーション -->
         <nav class="top-links" aria-label="ページナビゲーション">
             <a th:href="@{/shops}" class="nav-link">
-                &lt; 店舗一覧へ戻る
+                店舗一覧へ戻る
             </a>
-
-            <!-- 会員は予約履歴、非会員は会員登録へ -->
 
 			<!-- 会員は予約履歴、非会員は会員登録へ -->
 			<a
@@ -754,32 +556,26 @@
                         店舗名
                     </h4>
 
-                    <div class="store-info">
-                        <p class="store-info-label">代表者</p>
-                        <p
-                            class="store-info-value"
-                            th:text="${store.representative != null ? store.representative : '未登録'}"
-                        >
-                            代表者
-                        </p>
+					<div class="store-info">
+					    <!-- 【変更】代表者・メールはお客さん向けではないので表示しない -->
+					    <p class="store-info-label">フロア</p>
+					    <p
+					        class="store-info-value"
+					        th:text="${store.address != null ? store.address : '未登録'}"
+					    >
+					        1階
+					    </p>
 
-                        <p class="store-info-label">住所</p>
-                        <p
-                            class="store-info-value"
-                            th:text="${store.address != null ? store.address : '未登録'}"
-                        >
-                            住所
-                        </p>
-
-                        <p class="store-info-label">メール</p>
-                        <p
-                            class="store-info-value"
-                            th:text="${store.mail != null ? store.mail : '未登録'}"
-                        >
-                            メールアドレス
-                        </p>
-                    </div>
-
+					    <!-- 【追加】電話番号（店舗詳細画面と同じ項目） -->
+					    <p class="store-info-label">電話番号</p>
+					    <p
+					        class="store-info-value"
+					        th:text="${#strings.isEmpty(store.phone) ? '未登録' : store.phone}"
+					    >
+					        06-0000-0000
+					    </p>
+					</div>
+					
                     <div
                         class="store-description"
                         th:if="${store.description != null and !#strings.isEmpty(store.description)}"
@@ -919,52 +715,15 @@
                             <span class="required">必須</span>
                         </span>
 
-                        <div class="time-grid">
-                            <label class="time-option">
-                                <input type="radio" name="time" value="10:00" required>
-                                <span>10:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="11:00">
-                                <span>11:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="12:00">
-                                <span>12:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="13:00">
-                                <span>13:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="14:00">
-                                <span>14:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="15:00">
-                                <span>15:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="16:00">
-                                <span>16:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="17:00">
-                                <span>17:00</span>
-                            </label>
-
-                            <label class="time-option">
-                                <input type="radio" name="time" value="18:00">
-                                <span>18:00</span>
-                            </label>
-                        </div>
+						<!-- 【変更】11:00〜21:30 の30分刻み（22 = 11:00、43 = 21:30） -->
+						<div class="time-grid">
+						    <label class="time-option"
+						           th:each="i : ${#numbers.sequence(22, 43)}"
+						           th:with="t=${T(java.lang.String).format('%02d:%02d', i / 2, (i % 2) * 30)}">
+						        <input type="radio" name="time" th:value="${t}" required>
+						        <span th:text="${t}">11:00</span>
+						    </label>
+						</div>
 
                         <p class="form-help">
                             ご希望の時間を1つ選択してください。
@@ -975,7 +734,7 @@
 
                 <div class="form-actions">
                     <button type="submit" class="submit-button">
-                        &gt; 予約内容を確認する
+                        予約内容を確認する
                     </button>
                 </div>
             </form>

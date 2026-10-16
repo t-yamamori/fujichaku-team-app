@@ -178,6 +178,20 @@ public class ReservationController {
 
             return "reservations/newreserve";
         }
+        
+        // 【追加】予約時間は 11:00〜21:30 の30分刻みだけ受け付ける
+        if (reservationTime.getMinute() % 30 != 0
+                || reservationTime.isBefore(LocalTime.of(11, 0))
+                || reservationTime.isAfter(LocalTime.of(21, 30))) {
+
+            prepareReservationForm(model, store, shopId, principal);
+
+            model.addAttribute("error", "予約時間は 11:00〜21:30 の間で選択してください。");
+            model.addAttribute("name", name);
+            model.addAttribute("mail", mail);
+
+            return "reservations/newreserve";
+        }
 
         // 予約人数の確認
         if (number == null || number < 1 || number > 10) {
@@ -323,6 +337,32 @@ public class ReservationController {
             prepareReservationForm(model, store, shopId, principal);
 
             model.addAttribute("error", "過去の予約はできません");
+            model.addAttribute("name", name);
+            model.addAttribute("mail", mail);
+
+            return "reservations/newreserve";
+        }
+        
+        // 過去日時の予約は禁止
+        if (reservationDateTime.isBefore(LocalDateTime.now())) {
+
+            prepareReservationForm(model, store, shopId, principal);
+
+            model.addAttribute("error", "過去の予約はできません");
+            model.addAttribute("name", name);
+            model.addAttribute("mail", mail);
+
+            return "reservations/newreserve";
+        }
+        
+        // 【追加】予約時間は 11:00〜21:30 の30分刻みだけ受け付ける
+        if (reservationTime.getMinute() % 30 != 0
+                || reservationTime.isBefore(LocalTime.of(11, 0))
+                || reservationTime.isAfter(LocalTime.of(21, 30))) {
+
+            prepareReservationForm(model, store, shopId, principal);
+
+            model.addAttribute("error", "予約時間は 11:00〜21:30 の間で選択してください。");
             model.addAttribute("name", name);
             model.addAttribute("mail", mail);
 
