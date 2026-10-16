@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,6 +54,10 @@ public class ShopDashboardController {
 
     // ログイン中の店舗管理者を shop_admins テーブルで確認するために使う
     private final ShopAdminMapper shopAdminMapper;
+    
+    // 【追加】予約を受け付ける時間（30分刻み）
+    private static final LocalTime RESERVE_FIRST = LocalTime.of(11, 0);   // 最初の受付
+    private static final LocalTime RESERVE_LAST  = LocalTime.of(21, 30);  // 最後の受付
 
     /*
      * 店舗管理者向けの自店舗の店舗詳細
@@ -73,8 +79,11 @@ public class ShopDashboardController {
             @RequestParam(value = "reviewId", required = false) Integer reviewId,
             // 【追加】予約の編集で使う値
             @RequestParam(value = "reservationId", required = false) Integer reservationId,
-            @RequestParam(value = "reservationDate", required = false)
-                @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime reservationDate,
+            // 変更後（この4行に置き換える）
+            @RequestParam(value = "reservationDay", required = false)
+                @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate reservationDay,
+            @RequestParam(value = "reservationTime", required = false)
+                @DateTimeFormat(pattern = "HH:mm") LocalTime reservationTime,
             @RequestParam(value = "number", required = false) Integer number,
             @RequestParam(value = "status", required = false) String status,
             HttpMethod method,
@@ -104,7 +113,9 @@ public class ShopDashboardController {
             if ("delete".equals(action)) {
                 deleteReviewByShopAdmin(storeId, reviewId, redirectAttributes);
             } else if ("updateReservation".equals(action)) {
-                // 【追加】予約の編集
+            	// 【変更】日付と時刻を1つの日時にまとめる（どちらかが空なら null）
+                LocalDateTime reservationDate = (reservationDay != null && reservationTime != null)
+                        ? LocalDateTime.of(reservationDay, reservationTime) : null;
                 updateReservation(storeId, reservationId, reservationDate, number, status, redirectAttributes);
             } else {
                 // 店舗管理者は口コミ投稿などはできない
@@ -189,17 +200,32 @@ public class ShopDashboardController {
             redirectAttributes.addFlashAttribute("rsvErrorMessage", "予約状況を選択してください。");
             return;
         }
+        // 【追加】30分刻みかどうか
+        LocalTime time = reservationDate.toLocalTime();
+        if (time.getMinute() % 30 != 0) {
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "予約時刻は30分単位で選択してください。");
+            return;
+        }
+        // 【追加】受付時間内かどうか
+        if (time.isBefore(RESERVE_FIRST) || time.isAfter(RESERVE_LAST)) {
+            redirectAttributes.addFlashAttribute("rsvErrorMessage", "予約時刻は 11:00〜21:30 の間で選択してください。");
+            return;
+        }
 
-        // ① 日時・人数を変更（キャンセル済みの予約は SQL 側で変更されない）
-        reservationMapper.updateForStore(reservationId, storeId, reservationDate, number);
-
-        // ② 予約状況を変更
+        // ① 予約状況を先に変更する
+        //    （キャンセル → 予約済み・予約確定 に戻したとき、②で日時・人数も変更できるようにするため）
         int count = reservationMapper.updateStatusForStore(reservationId, storeId, status);
 
-        if (count > 0) {
-            redirectAttributes.addFlashAttribute("rsvMessage", "予約内容を変更しました。");
-        } else {
+        // ② 日時・人数を変更（キャンセルの予約は SQL 側で変更されない）
+        int dateCount = reservationMapper.updateForStore(reservationId, storeId, reservationDate, number);
+
+        if (count == 0) {
             redirectAttributes.addFlashAttribute("rsvErrorMessage", "変更できる予約が見つかりませんでした。");
+        } else if (dateCount == 0) {
+            redirectAttributes.addFlashAttribute("rsvMessage",
+                    "予約状況を変更しました。（キャンセルの予約は、日時・人数を変更できません）");
+        } else {
+            redirectAttributes.addFlashAttribute("rsvMessage", "予約内容を変更しました。");
         }
     }
 
