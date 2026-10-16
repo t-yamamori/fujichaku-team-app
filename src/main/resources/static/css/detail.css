@@ -332,3 +332,15 @@ body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color
 }
 .flash-close:hover { background: rgba(0, 0, 0, .06); }
 
+
+/* 予約日時：日付と時刻を横に並べる */
+.rsv-datetime { white-space: nowrap; }
+.rsv-datetime .rsv-field { width: auto; display: inline-block; }
+.rsv-datetime select.rsv-field { margin-left: 4px; }
+
+/* キャンセルを選んでいるときは、日付・時刻・人数をさわれなくする */
+.rsv-row.is-editing .rsv-field.is-locked {
+    pointer-events: none;
+    background: #f1f3f4; border-color: var(--line); color: var(--text-sub);
+}
+

@@ -157,17 +157,26 @@
 		    <tbody>
 		        <!-- 1行ずつ別のフォーム（入力欄は form 属性で、右端のフォームとつながっている） -->
 		        <tr class="rsv-row" th:each="sr : ${storeReservations}">
-		            <td>
-		                <input type="datetime-local" name="reservationDate" class="rsv-field" required readonly
-		                       th:attr="form=${'rsv-' + sr.id}"
-		                       th:value="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy-MM-dd''T''HH:mm')} : ''">
-		            </td>
+					<td class="rsv-datetime">
+					    <!-- 日付 -->
+					    <input type="date" name="reservationDay" class="rsv-field rsv-lockable" required readonly
+					           th:attr="form=${'rsv-' + sr.id}"
+					           th:value="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy-MM-dd')} : ''">
+					    <!-- 時刻：11:00〜21:30 の30分刻み（22 = 11:00、43 = 21:30） -->
+					    <select name="reservationTime" class="rsv-field rsv-lockable" required disabled
+					            th:attr="form=${'rsv-' + sr.id}"
+					            th:with="cur=${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'HH:mm')} : ''">
+					        <option th:each="i : ${#numbers.sequence(22, 43)}"
+					                th:with="t=${T(java.lang.String).format('%02d:%02d', i / 2, (i % 2) * 30)}"
+					                th:value="${t}" th:text="${t}" th:selected="${t == cur}">11:00</option>
+					    </select>
+					</td>
 		            <td th:text="${sr.memberId != null}
 		                         ? '会員（会員ID：' + ${sr.memberId} + '）'
 		                         : '非会員（ユーザーID：' + ${sr.userId} + '）'">会員（会員ID：10001）</td>
 		            <td class="rsv-num">
-		                <input type="number" name="number" class="rsv-field" min="1" max="99" required readonly
-		                       th:attr="form=${'rsv-' + sr.id}" th:value="${sr.number}">名
+						<input type="number" name="number" class="rsv-field rsv-lockable" min="1" max="30" required readonly
+						       th:attr="form=${'rsv-' + sr.id}" th:value="${sr.number}">名
 		            </td>
 		            <td>
 		                <select name="status" class="rsv-field" required disabled th:attr="form=${'rsv-' + sr.id}">
@@ -322,8 +331,19 @@
             edit.hidden = on;
             save.hidden = !on;
             cancel.hidden = !on;
+			lockIfCanceled();   // 【追加】
         }
-
+		
+		// 予約状況が「キャンセル」のときは、日付・時刻・人数を変更できなくする
+		var statusSelect = row.querySelector('select[name="status"]');
+		function lockIfCanceled() {
+		    var canceled = statusSelect.value === 'キャンセル';
+		    row.querySelectorAll('.rsv-lockable').forEach(function (f) {
+		        f.classList.toggle('is-locked', canceled);
+		    });
+		}
+		statusSelect.addEventListener('change', lockIfCanceled);
+		
         edit.addEventListener('click', function () { setEditing(true); fields[0].focus(); });
         cancel.addEventListener('click', function () { form.reset(); setEditing(false); });
     });
