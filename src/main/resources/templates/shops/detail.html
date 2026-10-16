@@ -128,8 +128,21 @@
     </section>
 
     <!-- ②' 予約履歴（店舗管理者のみ：この店舗の予約を会員・非会員とも全件表示） -->
-    <section class="section" th:if="${isShopAdmin}">
-        <h2>これまでの予約履歴</h2>
+	<!-- 【変更】id="rsv" を追加（保存後にこの位置までスクロールさせるため） -->
+	   <section class="section" id="rsv" th:if="${isShopAdmin}">
+	       <h2>これまでの予約履歴</h2>
+
+		   <!-- 予約編集の結果メッセージ（×で閉じられる） -->
+		   <div class="flash flash-success flash-closable" th:if="${rsvMessage}">
+		       <span th:text="${rsvMessage}">予約内容を変更しました。</span>
+		       <button type="button" class="flash-close" aria-label="閉じる"
+		               onclick="this.parentElement.remove()">×</button>
+		   </div>
+		   <div class="flash flash-error flash-closable" th:if="${rsvErrorMessage}">
+		       <span th:text="${rsvErrorMessage}">エラーメッセージ</span>
+		       <button type="button" class="flash-close" aria-label="閉じる"
+		               onclick="this.parentElement.remove()">×</button>
+		   </div>
 
 		<table class="reservation-table rsv-table" th:if="${!#lists.isEmpty(storeReservations)}">
 		    <thead>
@@ -171,7 +184,7 @@
 		                    <input type="hidden" name="reservationId" th:value="${sr.id}">
 		                    <button type="button" class="btn btn-small btn-outline rsv-edit">編集</button>
 		                    <button type="submit" class="btn btn-small rsv-save" hidden>保存</button>
-		                    <button type="button" class="btn btn-small btn-secondary rsv-cancel" hidden>取消</button>
+		                    <button type="button" class="btn btn-small btn-secondary rsv-cancel" hidden>戻る</button>
 		                </form>
 		            </td>
 		        </tr>
