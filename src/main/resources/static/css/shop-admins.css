@@ -571,3 +571,187 @@ body.shop-admin-screen .admin-sidebar-divider {
 body.shop-admin-screen .admin-sidebar::-webkit-scrollbar-thumb {
     background: #008fa3;
 }
+/* =========================================
+   店舗管理者管理画面：サイドバー重なり修正
+   文字の視認性改善・Matrix配色維持
+   ========================================= */
+
+/* ページ全体の横はみ出しを防止 */
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+/* サイドバーとメイン画面の重なりを防ぐ */
+.shop-admin-page {
+    position: relative;
+    z-index: 1;
+
+    width: calc(100% - 250px);
+    max-width: calc(100% - 250px);
+    min-width: 0;
+
+    margin-left: 250px;
+    padding: 24px 28px 32px;
+
+    box-sizing: border-box;
+    overflow-x: hidden;
+
+    color: #d7faff;
+    background: transparent !important;
+}
+
+/* 見出しを見やすくする */
+.shop-admin-page h1 {
+    margin: 0 0 24px;
+    color: #00eaff;
+    font-size: 26px;
+    font-weight: 700;
+    text-shadow:
+        0 0 5px rgba(0, 234, 255, 0.7),
+        0 0 12px rgba(0, 234, 255, 0.25);
+}
+
+/* サイドバーを常に前面に表示 */
+body.shop-admin-screen .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: 250px;
+    height: 100vh;
+
+    z-index: 1000;
+    box-sizing: border-box;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    color: #e8fbff;
+    background: rgba(3, 10, 14, 0.97);
+
+    border-right: 1px solid #008fa3;
+
+    box-shadow:
+        2px 0 18px rgba(0, 234, 255, 0.12),
+        inset -1px 0 0 rgba(0, 234, 255, 0.08);
+}
+
+/* サイドバーのロゴ */
+body.shop-admin-screen .admin-sidebar-logo {
+    color: #00eaff !important;
+    font-weight: 800;
+    text-shadow: 0 0 8px rgba(0, 234, 255, 0.4);
+}
+
+/* サイドバーのステータス表示 */
+body.shop-admin-screen .admin-sidebar-status {
+    color: #75eaf5 !important;
+}
+
+/* メニューアイコン */
+body.shop-admin-screen .admin-menu-icon {
+    color: #00eaff !important;
+    border-color: #155765 !important;
+    background: rgba(0, 234, 255, 0.07) !important;
+}
+
+/* サイドバーのメニュー文字 */
+body.shop-admin-screen .admin-sidebar .admin-menu-link {
+    color: #d7faff !important;
+    opacity: 1;
+    text-decoration: none;
+    text-shadow: none;
+}
+
+/* メニューのホバー */
+body.shop-admin-screen .admin-sidebar .admin-menu-link:hover {
+    color: #ffffff !important;
+    background: rgba(0, 234, 255, 0.12) !important;
+    border-color: #00eaff !important;
+
+    box-shadow:
+        0 0 10px rgba(0, 234, 255, 0.12),
+        inset 3px 0 0 #00eaff;
+}
+
+/* メニュー区切り線 */
+body.shop-admin-screen .admin-sidebar-divider {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #008fa3,
+        transparent
+    );
+}
+
+/* メイン画面の検索欄・ボタンが縮小領域からはみ出さないようにする */
+.shop-admin-search {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+/* テーブルは従来どおり横スクロール */
+.shop-admin-table-frame {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+/* Matrix背景は最背面 */
+#matrixRain {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* オーバーレイが操作や文字を妨げないようにする */
+.screen-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* 中画面 */
+@media (max-width: 1100px) {
+    .shop-admin-page {
+        width: calc(100% - 230px);
+        max-width: calc(100% - 230px);
+        margin-left: 230px;
+        padding: 20px 16px 28px;
+    }
+
+    body.shop-admin-screen .admin-sidebar {
+        width: 230px;
+    }
+}
+
+/* 狭い画面 */
+@media (max-width: 760px) {
+    .shop-admin-page {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+        padding: 20px 12px;
+        padding-top: 72px;
+    }
+
+    body.shop-admin-screen .admin-sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 58px;
+        bottom: auto;
+        overflow: visible;
+    }
+}

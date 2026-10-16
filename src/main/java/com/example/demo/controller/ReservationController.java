@@ -36,23 +36,25 @@ public class ReservationController {
     private final UsersMapper usersMapper;
 
     // ==================================================
-    // ログイン中の会員ID取得
+    // ログイン中の会員情報を取得
     // ==================================================
-
-    private Integer getLoginMemberId(Principal principal) {
+    private Members getLoginMember(Principal principal) {
 
         if (principal == null) {
             return null;
         }
 
-        Members member =
-                membersService.findByLoginId(principal.getName());
+        return membersService.findByLoginId(principal.getName());
+    }
 
-        if (member == null) {
-            return null;
-        }
+    // ==================================================
+    // ログイン中の会員IDを取得
+    // ==================================================
+    private Integer getLoginMemberId(Principal principal) {
 
-        return member.getId();
+        Members member = getLoginMember(principal);
+
+        return member != null ? member.getId() : null;
     }
 
     // ==================================================
@@ -60,7 +62,6 @@ public class ReservationController {
     // member_id 10001～20000：会員
     // member_id 20001～30000：管理者
     // ==================================================
-
     private boolean isAdmin(Integer memberId) {
 
         return memberId != null
@@ -70,34 +71,42 @@ public class ReservationController {
 
     // ==================================================
     // 予約フォームに必要な共通情報
+    // 会員氏名はDBから取得
     // ==================================================
-
     private void prepareReservationForm(
             Model model,
             Stores store,
             Integer shopId,
             Principal principal) {
 
-        Integer memberId = getLoginMemberId(principal);
+        Members member = getLoginMember(principal);
+        Integer memberId = member != null ? member.getId() : null;
 
         model.addAttribute("store", store);
         model.addAttribute("shopId", shopId);
-        model.addAttribute("isMember", memberId != null);
+        model.addAttribute("isMember", member != null);
+
+        // 会員氏名をDBから取得して画面に渡す
+        model.addAttribute(
+                "memberName",
+                member != null ? member.getName() : null
+        );
+
+        model.addAttribute("memberId", memberId);
 
         // 会員は予約履歴、ゲストは会員登録画面へ
         model.addAttribute(
                 "historyUrl",
-                memberId != null
+                member != null
                         ? "/reservations/history"
                         : "/register"
         );
     }
 
     // ==================================================
-    // 予約画面
+    // 予約入力画面
     // GET /shops/{shopId}/reservations/new
     // ==================================================
-
     @GetMapping("/shops/{shopId}/reservations/new")
     public String showReservationForm(
             @PathVariable Integer shopId,
@@ -110,12 +119,7 @@ public class ReservationController {
             return "redirect:/shops";
         }
 
-        prepareReservationForm(
-                model,
-                store,
-                shopId,
-                principal
-        );
+        prepareReservationForm(model, store, shopId, principal);
 
         return "reservations/newreserve";
     }
@@ -124,7 +128,6 @@ public class ReservationController {
     // 予約内容確認
     // POST /shops/{shopId}/reservations/confirm
     // ==================================================
-
     @PostMapping("/shops/{shopId}/reservations/confirm")
     public String confirmReservation(
             @PathVariable Integer shopId,
@@ -142,7 +145,8 @@ public class ReservationController {
             return "redirect:/shops";
         }
 
-        Integer memberId = getLoginMemberId(principal);
+        Members loginMember = getLoginMember(principal);
+        Integer memberId = loginMember != null ? loginMember.getId() : null;
 
         // 日付・時間の形式を確認
         LocalDate reservationDate;
@@ -207,20 +211,20 @@ public class ReservationController {
 
         // ==================================================
         // 会員
-        // 氏名・メールアドレスの入力は不要
+        // 氏名はフォームから受け取らずDB情報を使用
         // ==================================================
-
-        if (memberId != null) {
+        if (loginMember != null) {
 
             model.addAttribute("memberId", memberId);
             model.addAttribute("userId", null);
+            model.addAttribute("memberName", loginMember.getName());
+            model.addAttribute("isMember", true);
         }
 
         // ==================================================
         // ゲスト
         // 氏名・メールアドレスを必須にする
         // ==================================================
-
         else {
 
             if (name == null || name.trim().isEmpty()) {
@@ -252,7 +256,7 @@ public class ReservationController {
             String trimmedName = name.trim();
             String trimmedMail = mail.trim();
 
-            // メールアドレスで既存のゲスト情報を検索
+            // メールアドレスで既存ゲストを検索
             Users user = usersMapper.findByMail(trimmedMail);
 
             // 登録がなければゲスト情報を作成
@@ -269,16 +273,14 @@ public class ReservationController {
             model.addAttribute("memberId", null);
             model.addAttribute("userName", user.getName());
             model.addAttribute("userMail", user.getMail());
+            model.addAttribute("isMember", false);
         }
 
         // ==================================================
         // 予約確認画面へ渡す情報
         // ==================================================
-
         model.addAttribute("store", store);
         model.addAttribute("shopId", shopId);
-        model.addAttribute("isMember", memberId != null);
-
         model.addAttribute("reservationDate", reservationDate);
         model.addAttribute("reservationTime", reservationTime);
         model.addAttribute("reservationDateTime", reservationDateTime);
@@ -291,7 +293,6 @@ public class ReservationController {
     // 予約確定
     // POST /shops/{shopId}/reservations
     // ==================================================
-
     @PostMapping("/shops/{shopId}/reservations")
     public String reserve(
             @PathVariable Integer shopId,
@@ -309,7 +310,8 @@ public class ReservationController {
             return "redirect:/shops";
         }
 
-        Integer memberId = getLoginMemberId(principal);
+        Members loginMember = getLoginMember(principal);
+        Integer memberId = loginMember != null ? loginMember.getId() : null;
 
         LocalDate reservationDate;
         LocalTime reservationTime;
@@ -332,6 +334,7 @@ public class ReservationController {
         LocalDateTime reservationDateTime =
                 LocalDateTime.of(reservationDate, reservationTime);
 
+        // 過去日時の予約は禁止
         if (reservationDateTime.isBefore(LocalDateTime.now())) {
 
             prepareReservationForm(model, store, shopId, principal);
@@ -369,6 +372,7 @@ public class ReservationController {
             return "reservations/newreserve";
         }
 
+        // 予約人数の確認
         if (number == null || number < 1 || number > 10) {
 
             prepareReservationForm(model, store, shopId, principal);
@@ -385,8 +389,7 @@ public class ReservationController {
         // ==================================================
         // ゲスト情報の取得
         // ==================================================
-
-        if (memberId == null) {
+        if (loginMember == null) {
 
             if (name == null || name.trim().isEmpty()) {
 
@@ -426,6 +429,10 @@ public class ReservationController {
                 user.setMail(trimmedMail);
 
                 usersMapper.insert(user);
+
+            } else {
+                // 既存メールアドレスのゲスト情報を使用
+                // 予約時に入力された氏名で既存情報を上書きしない
             }
 
             userId = user.getId();
@@ -434,7 +441,6 @@ public class ReservationController {
         // ==================================================
         // 予約データ作成
         // ==================================================
-
         Reservations reservation = new Reservations();
 
         reservation.setStoreId(shopId);
@@ -443,7 +449,7 @@ public class ReservationController {
         reservation.setStatus("予約済み");
         reservation.setCreatedAt(LocalDateTime.now());
 
-        if (memberId != null) {
+        if (loginMember != null) {
 
             // 会員予約は member_id のみ設定
             reservation.setMemberId(memberId);
@@ -474,7 +480,7 @@ public class ReservationController {
         model.addAttribute("reservationId", reservation.getId());
 
         // 完了画面を会員・ゲストで振り分け
-        if (memberId != null) {
+        if (loginMember != null) {
             return "reservations/complete";
         }
 
@@ -485,7 +491,6 @@ public class ReservationController {
     // 予約詳細
     // GET /reservations/{reservationId}
     // ==================================================
-
     @GetMapping("/reservations/{reservationId}")
     public String showReservation(
             @PathVariable Integer reservationId,
@@ -535,6 +540,13 @@ public class ReservationController {
         model.addAttribute("memberId", reservation.getMemberId());
         model.addAttribute("userId", reservation.getUserId());
 
+        // 会員氏名をDBから取得
+        Members member = getLoginMember(principal);
+
+        if (member != null) {
+            model.addAttribute("memberName", member.getName());
+        }
+
         // ゲスト予約の詳細情報
         if (reservation.getUserId() != null) {
 
@@ -556,7 +568,6 @@ public class ReservationController {
     // 予約履歴
     // GET /reservations/history
     // ==================================================
-
     @GetMapping("/reservations/history")
     public String showHistory(
             Principal principal,

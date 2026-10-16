@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <title>管理者TOP | FUJICHAKU</title>
 
     <!-- 共通CSS -->
@@ -11,12 +12,11 @@
     <!-- 管理者TOP専用CSS -->
     <link rel="stylesheet" th:href="@{/css/adminTop.css}">
 </head>
+
 <body class="admin-top-page">
 
     <!-- 共通サイドバー -->
-    <header th:replace="~{admin/fragments/adminLayout :: sidebar}">
-		
-	</header>
+    <div th:replace="~{admin/fragments/adminLayout :: sidebar}"></div>
 
     <!-- メイン画面 -->
     <main class="admin-top-main">
@@ -25,7 +25,9 @@
         <header class="admin-top-header">
             <h1>管理者TOP</h1>
             <p>FUJICHAKU 管理システム</p>
-       
+        </header>
+
+        <!-- 管理者TOPのコンテンツをここに配置 -->
 
         <!-- フッター -->
         <footer class="admin-top-footer">
@@ -33,7 +35,9 @@
         </footer>
 
     </main>
-	<script th:src="@{/js/matrixRain.js}"></script>
-</body>
 
+    <!-- Matrix背景スクリプト -->
+    <script th:src="@{/js/matrixRain.js}"></script>
+
+</body>
 </html>

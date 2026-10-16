@@ -1,353 +1,864 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 【変更】確認画面と詳細画面でタイトルを切り替える -->
-    <title th:text="${viewOnly} ? '予約詳細 | FUJICHAKU TOWN' : '予約確認 | FUJICHAKU TOWN'">予約確認 | FUJICHAKU TOWN</title>
+
+    <title th:text="${viewOnly} ? '予約詳細 | FUJICHAKU TOWN' : '予約確認 | FUJICHAKU TOWN'">
+        予約確認 | FUJICHAKU TOWN
+    </title>
+
     <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
 
     <style>
         /* =========================================================
-           予約確認・予約詳細 reservation.html
-           ・ヘッダー／パンくず／「＜」戻るボタンを、ほかの画面とそろえた
-           ・確定前は「入力 → 確認 → 完了」の流れを表示
-           ・確認画面では、予約時間に合わせて背景の空が変わる
+           FUJICHAKU TOWN
+           予約確認・予約詳細
+           master側の空色・ブラウン・白いカードデザインを優先
            ========================================================= */
+
         :root {
-            --main:      #8b4a2b;   /* ボタン（ブラウン） */
+            --main: #8b4a2b;
             --main-dark: #6e3a21;
-            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
-            --sky-pale:  #eaf4fa;
-            --line:      #d9e3ea;
-            --text:      #2f3437;
-            --text-sub:  #6b7479;
+            --sky-deep: #3f82ad;
+            --sky-pale: #eaf4fa;
+            --line: #d9e3ea;
+            --text: #2f3437;
+            --text-sub: #6b7479;
+            --error: #b52d2d;
+
+            --sky-top: #9fcbe8;
+            --sky-mid: #cfe6f4;
+            --sky-bottom: #f3f7fa;
+
+            --card-shadow: 0 10px 30px rgba(31, 79, 112, 0.14);
         }
 
-        /* 空の色（時間帯でなめらかに変える） */
-        @property --sky-top    { syntax: "<color>"; inherits: true; initial-value: #9fcbe8; }
-        @property --sky-mid    { syntax: "<color>"; inherits: true; initial-value: #cfe6f4; }
-        @property --sky-bottom { syntax: "<color>"; inherits: true; initial-value: #f3f7fa; }
+        @property --sky-top {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #9fcbe8;
+        }
 
-        * { box-sizing: border-box; }
+        @property --sky-mid {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #cfe6f4;
+        }
+
+        @property --sky-bottom {
+            syntax: "<color>";
+            inherits: true;
+            initial-value: #f3f7fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            scroll-behavior: smooth;
+        }
 
         body {
-            margin: 0;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
-            display: flex; flex-direction: column;
-            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-            color: var(--text);
-            line-height: 1.7;
-            background: linear-gradient(var(--sky-top) 0, var(--sky-mid) 40%, var(--sky-bottom) 100%) fixed;
-            transition: --sky-top 1.2s ease, --sky-mid 1.2s ease, --sky-bottom 1.2s ease;
+            margin: 0;
             overflow-x: hidden;
-        }
-        a { color: var(--sky-deep); }
-        a:hover { color: var(--main); }
 
-        /* ゆっくり流れる雲 */
+            color: var(--text);
+            font-family:
+                "BIZ UDPGothic",
+                "Hiragino Kaku Gothic ProN",
+                "Yu Gothic",
+                "Meiryo",
+                sans-serif;
+            line-height: 1.7;
+
+            background: linear-gradient(
+                var(--sky-top) 0%,
+                var(--sky-mid) 40%,
+                var(--sky-bottom) 100%
+            ) fixed;
+
+            transition:
+                --sky-top 1.2s ease,
+                --sky-mid 1.2s ease,
+                --sky-bottom 1.2s ease;
+        }
+
+        a {
+            color: var(--sky-deep);
+        }
+
+        a:hover {
+            color: var(--main);
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* 空を流れる雲 */
+
         body::before {
-            content: "";
-            position: fixed; top: 16%; left: -260px; z-index: 0;
-            width: 200px; height: 54px; border-radius: 54px;
-            background: #fff; opacity: .8;
-            box-shadow: 36px -24px 0 6px #fff, 100px -12px 0 0 #fff;
+            position: fixed;
+            top: 16%;
+            left: -260px;
+            z-index: 0;
+
+            width: 200px;
+            height: 54px;
+
+            border-radius: 54px;
+            background: #fff;
+            opacity: 0.8;
+
+            box-shadow:
+                36px -24px 0 6px #fff,
+                100px -12px 0 0 #fff;
+
             animation: cloud-drift 70s linear infinite;
-            transition: opacity 1.2s ease;
             pointer-events: none;
-        }
-        @keyframes cloud-drift {
-            from { transform: translateX(0); }
-            to   { transform: translateX(calc(100vw + 520px)); }
-        }
-
-        /* 画面の一番下の砂丘 */
-        body::after {
             content: "";
-            position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
-            height: 110px;
-            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
-            transition: filter 1.2s ease;
-            pointer-events: none;
         }
 
-        /* ===== ヘッダー（トップ画面と同じ） ===== */
+        @keyframes cloud-drift {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(calc(100vw + 520px));
+            }
+        }
+
+        /* 画面下部の砂丘 */
+
+        body::after {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 0;
+
+            height: 110px;
+
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+
+            pointer-events: none;
+            content: "";
+            transition: filter 1.2s ease;
+        }
+
+        /* ヘッダー */
+
         .site-header {
-            position: sticky; top: 0; z-index: 50;
-            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+
+            min-height: 60px;
             padding: 0 clamp(16px, 4vw, 48px);
-            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+
             background: #fff;
             border-bottom: 1px solid var(--line);
         }
-        .logo { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
-        .logo img { display: block; }
-        .logo-text { font-weight: 700; font-size: 1.15rem; letter-spacing: .06em; line-height: 1; }
-        .logo-text span { margin-left: .35em; font-weight: 400; color: var(--sky-deep); letter-spacing: .14em; }
-        .header-nav a { color: var(--text); font-size: .9rem; text-decoration: none; }
-        .header-nav a:hover { color: var(--sky-deep); text-decoration: underline; }
 
-        /* ===== 本文 ===== */
-        .page {
-            position: relative; z-index: 1;
-            flex: 1;
-            width: 100%; max-width: 760px;
-            margin: 0 auto;
-            padding: 18px 16px 140px;          /* 下は砂丘のぶん空ける */
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            color: var(--text);
+            text-decoration: none;
         }
 
-        /* パンくずリスト */
-        .crumbs { margin: 0 0 16px; font-size: .8rem; color: var(--text-sub); transition: color 1.2s; }
-        .crumbs a { text-decoration: none; }
-        .crumbs a:hover { text-decoration: underline; }
-        .crumbs span { margin: 0 8px; }
+        .logo img {
+            display: block;
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
 
-        /* ===== 予約の流れ（① 入力 → ② 確認 → ③ 完了） ===== */
+        .logo-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            line-height: 1;
+        }
+
+        .logo-text span {
+            margin-left: 0.35em;
+            color: var(--sky-deep);
+            font-size: 0.8em;
+            font-weight: 400;
+            letter-spacing: 0.14em;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .header-nav a {
+            color: var(--text);
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .header-nav a:hover {
+            color: var(--sky-deep);
+            text-decoration: underline;
+        }
+
+        /* 本文 */
+
+        .page {
+            position: relative;
+            z-index: 1;
+
+            flex: 1;
+            width: 100%;
+            max-width: 760px;
+
+            margin: 0 auto;
+            padding: 18px 16px 140px;
+        }
+
+        /* パンくず */
+
+        .crumbs {
+            margin: 0 0 16px;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+        }
+
+        .crumbs a {
+            text-decoration: none;
+        }
+
+        .crumbs a:hover {
+            text-decoration: underline;
+        }
+
+        .crumbs span {
+            margin: 0 8px;
+        }
+
+        /* 予約ステップ */
+
         .steps {
             display: flex;
-            margin: 0 0 18px; padding: 0;
+            margin: 0 0 18px;
+            padding: 0;
             list-style: none;
             counter-reset: step;
         }
+
         .steps li {
-            flex: 1;
             position: relative;
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
-            font-size: .78rem; color: var(--text-sub);
-            counter-increment: step;
-            text-align: center;
-        }
-        .steps li::before {                  /* 番号の丸 */
-            content: counter(step);
-            position: relative; z-index: 1;
-            display: grid; place-items: center;
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #c5d4de;
+
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+
             color: var(--text-sub);
+            font-size: 0.78rem;
+            text-align: center;
+
+            counter-increment: step;
+        }
+
+        .steps li::before {
+            position: relative;
+            z-index: 1;
+
+            display: grid;
+            place-items: center;
+
+            width: 30px;
+            height: 30px;
+
+            border: 2px solid #c5d4de;
+            border-radius: 50%;
+
+            color: var(--text-sub);
+            background: #fff;
+
+            font-weight: 700;
+            content: counter(step);
+        }
+
+        .steps li + li::after {
+            position: absolute;
+            top: 15px;
+            right: 50%;
+
+            width: 100%;
+            height: 2px;
+
+            background: #c5d4de;
+            content: "";
+        }
+
+        .steps li.done::before {
+            border-color: var(--sky-deep);
+            color: #fff;
+            background: var(--sky-deep);
+            content: "✓";
+        }
+
+        .steps li.current {
+            color: var(--text);
             font-weight: 700;
         }
-        .steps li + li::after {              /* 丸と丸をつなぐ線 */
-            content: "";
-            position: absolute; top: 15px; right: 50%;
-            width: 100%; height: 2px;
-            background: #c5d4de;
-        }
-        .steps li.done::before    { background: var(--sky-deep); border-color: var(--sky-deep); color: #fff; content: "✓"; }
-        .steps li.current         { color: var(--text); font-weight: 700; }
-        .steps li.current::before { background: var(--main); border-color: var(--main); color: #fff; box-shadow: 0 0 0 4px rgba(139, 74, 43, .18); }
-        .steps li.current::after,
-        .steps li.done + li::after { background: var(--sky-deep); }
 
-        /* ===== 白いカード ===== */
+        .steps li.current::before {
+            border-color: var(--main);
+            color: #fff;
+            background: var(--main);
+            box-shadow: 0 0 0 4px rgba(139, 74, 43, 0.18);
+        }
+
+        .steps li.current::after,
+        .steps li.done + li::after {
+            background: var(--sky-deep);
+        }
+
+        /* メインカード */
+
         .card {
             padding: 26px 32px 30px;
-            background: #fff;
+
             border: 1px solid var(--line);
             border-top: 4px solid var(--sky-deep);
             border-radius: 6px;
-            box-shadow: 0 10px 30px rgba(31, 79, 112, .14);
-            animation: fade-up .6s ease-out both;
-        }
-        @keyframes fade-up {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: none; }
+
+            background: #fff;
+            box-shadow: var(--card-shadow);
+
+            animation: fade-up 0.6s ease-out both;
         }
 
-        /* 見出し＋「＜」戻るボタン（店舗詳細・会員情報画面と同じ形） */
+        @keyframes fade-up {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        /* ページタイトルと戻るボタン */
+
         .page-title-row {
-            display: flex; align-items: center; gap: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+
             padding-bottom: 12px;
             border-bottom: 2px solid var(--sky-deep);
         }
+
         .back-btn {
+            display: grid;
             flex: none;
-            width: 36px; height: 36px;
-            display: grid; place-items: center;
+            place-items: center;
+
+            width: 36px;
+            height: 36px;
+
             border-radius: 4px;
-            background: var(--sky-deep);
             color: #fff;
+            background: var(--sky-deep);
+
             font-size: 1rem;
             text-decoration: none;
-            transition: background .2s;
-        }
-        .back-btn:hover { background: var(--main); color: #fff; }
-        .page-title { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.6rem); letter-spacing: .08em; }
-        .page-description { margin: 14px 0 0; color: var(--text-sub); font-size: .9rem; }
 
-        /* 予約番号と予約状況（詳細のとき） */
+            transition: background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            color: #fff;
+            background: var(--main);
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: clamp(1.3rem, 3.5vw, 1.6rem);
+            letter-spacing: 0.08em;
+            overflow-wrap: anywhere;
+        }
+
+        .page-description {
+            margin: 14px 0 0;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+        }
+
+        /* 予約番号と予約状況 */
+
         .reserve-summary {
-            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+
             margin-top: 18px;
             padding: 14px 18px;
-            background: var(--sky-pale);
+
             border-radius: 6px;
-        }
-        .summary-label { display: block; font-size: .75rem; color: var(--sky-deep); font-weight: 700; }
-        .summary-number {
-            font-size: 1.6rem; font-weight: 700; color: var(--main);
-            font-variant-numeric: tabular-nums; line-height: 1.2;
-        }
-        .summary-number::before { content: "No."; margin-right: 4px; font-size: .55em; color: var(--text-sub); }
-        .status {
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 999px;
-            background: #fff;
-            color: var(--sky-deep);
-            border: 1px solid #bcd8ea;
-            font-size: .85rem; font-weight: 700;
+            background: var(--sky-pale);
         }
 
-        /* ===== 各ブロック ===== */
-        .section { margin-top: 22px; }
+        .summary-label {
+            display: block;
+            color: var(--sky-deep);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .summary-number {
+            color: var(--main);
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.2;
+        }
+
+        .summary-number::before {
+            margin-right: 4px;
+            color: var(--text-sub);
+            font-size: 0.55em;
+            content: "No.";
+        }
+
+        .status {
+            display: inline-block;
+
+            padding: 4px 14px;
+            border: 1px solid #bcd8ea;
+            border-radius: 999px;
+
+            color: var(--sky-deep);
+            background: #fff;
+
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* 情報セクション */
+
+        .section {
+            margin-top: 22px;
+        }
+
         .section-heading {
             margin: 0 0 8px;
             padding-left: 10px;
+
             border-left: 3px solid var(--sky-deep);
+
             font-size: 1rem;
+            font-weight: 700;
         }
+
         .info-grid {
             display: grid;
             grid-template-columns: 130px minmax(0, 1fr);
+
             margin: 0;
             border-top: 1px solid var(--line);
         }
+
         .info-grid dt,
         .info-grid dd {
+            min-width: 0;
             margin: 0;
-            padding: 12px 12px;
+            padding: 12px;
+
             border-bottom: 1px solid var(--line);
             overflow-wrap: anywhere;
+            word-break: break-word;
         }
-        .info-grid dt { background: var(--sky-pale); color: var(--sky-deep); font-size: .82rem; font-weight: 700; }
-        .info-grid dd { font-size: .95rem; }
+
+        .info-grid dt {
+            color: var(--sky-deep);
+            background: var(--sky-pale);
+
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .info-grid dd {
+            color: var(--text);
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+        }
+
         .info-grid dd.highlight {
             color: var(--main);
-            font-size: 1.15rem; font-weight: 700;
+            font-size: 1.15rem;
+            font-weight: 700;
             font-variant-numeric: tabular-nums;
         }
-        .store-link { color: var(--text); font-weight: 700; text-decoration: none; }
-        .store-link:hover { color: var(--sky-deep); text-decoration: underline; }
 
-        /* ===== 下のボタン（左：戻る系／右：進む系） ===== */
+        .store-link {
+            color: var(--text);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .store-link:hover {
+            color: var(--sky-deep);
+            text-decoration: underline;
+        }
+
+        /* 確認メッセージ */
+
+        .notice {
+            margin-top: 24px;
+            padding: 15px 17px;
+
+            border: 1px solid #d5e7f1;
+            border-radius: 4px;
+
+            color: var(--text);
+            background: #f5fbff;
+
+            font-size: 0.85rem;
+            line-height: 1.9;
+        }
+
+        .notice-title {
+            margin-bottom: 5px;
+            color: var(--sky-deep);
+            font-weight: 700;
+        }
+
+        /* エラー */
+
+        .error-message {
+            margin: 0 0 18px;
+            padding: 13px 16px;
+
+            border: 1px solid #e5b7b7;
+            border-radius: 5px;
+
+            color: var(--error);
+            background: #fff2f2;
+
+            font-size: 0.88rem;
+            line-height: 1.8;
+        }
+
+        /* ボタン */
+
         .actions {
-            display: flex; justify-content: center; gap: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
             margin-top: 30px;
         }
+
         .btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            flex: 1; max-width: 280px;
-            height: 52px; padding: 0 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            flex: 1;
+            max-width: 280px;
+            min-height: 52px;
+            padding: 10px 20px;
+
             border-radius: 3px;
-            font: inherit; font-size: 1rem; font-weight: 700;
+
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.5;
+            text-align: center;
             text-decoration: none;
+
             cursor: pointer;
-            transition: background .2s, color .2s, transform .2s, box-shadow .2s;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
         .btn-primary {
             border: 1px solid var(--main);
-            background: var(--main); color: #fff;
-            box-shadow: 0 6px 16px rgba(139, 74, 43, .25);
+            color: #fff;
+            background: var(--main);
+            box-shadow: 0 6px 16px rgba(139, 74, 43, 0.25);
         }
-        .btn-primary:hover { background: var(--main-dark); color: #fff; transform: translateY(-2px); }
+
+        .btn-primary:hover {
+            color: #fff;
+            background: var(--main-dark);
+        }
+
         .btn-outline {
             border: 1px solid var(--main);
-            background: #fff; color: var(--main);
-        }
-        .btn-outline:hover { background: #fbf4f0; color: var(--main); }
-
-        /* ===== フッター ===== */
-        .site-footer {
-            position: relative; z-index: 1;
-            padding: 16px;
+            color: var(--main);
             background: #fff;
+        }
+
+        .btn-outline:hover {
+            color: var(--main);
+            background: #fbf4f0;
+        }
+
+        .btn:focus-visible,
+        .back-btn:focus-visible,
+        a:focus-visible {
+            outline: 3px solid rgba(63, 130, 173, 0.4);
+            outline-offset: 3px;
+        }
+
+        /* フッター */
+
+        .site-footer {
+            position: relative;
+            z-index: 1;
+
+            padding: 16px;
+
             border-top: 1px solid var(--line);
+            color: var(--text-sub);
+            background: #fff;
+
+            font-size: 0.75rem;
             text-align: center;
-            font-size: .75rem; color: var(--text-sub);
         }
 
-        /* =========================================================
-           確認画面：予約時間に合わせて背景の空を変える（予約入力画面と同じ色）
-           ========================================================= */
-        body:has(input[name="time"]:is([value^="15:"], [value^="16:"])) {
-            --sky-top: #8fbadb; --sky-mid: #e6dcc0; --sky-bottom: #f8efdc;
-        }
-        body:has(input[name="time"]:is([value^="17:"], [value^="18:"])) {
-            --sky-top: #5b6fa8; --sky-mid: #e39a6e; --sky-bottom: #f6c88f;
-        }
-        body:has(input[name="time"]:is([value^="17:"], [value^="18:"]))::before { opacity: .45; }
-        body:has(input[name="time"]:is([value^="19:"], [value^="20:"], [value^="21:"])) {
-            --sky-top: #0c1430; --sky-mid: #1f2f5c; --sky-bottom: #3a4f7e;
-        }
-        body:has(input[name="time"]:is([value^="19:"], [value^="20:"], [value^="21:"]))::before { opacity: 0; }
-        body:has(input[name="time"]:is([value^="19:"], [value^="20:"], [value^="21:"]))::after  { filter: brightness(.45) saturate(.8); }
-        /* 夕方・夜は、背景の上の文字（パンくず・流れ）を白に */
-        body:has(input[name="time"]:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .crumbs,
-        body:has(input[name="time"]:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .crumbs a,
-        body:has(input[name="time"]:is([value^="17:"], [value^="18:"], [value^="19:"], [value^="20:"], [value^="21:"])) .steps li { color: #fff; }
+        /* 時間帯ごとの背景 */
 
-        /* ===== スマホ ===== */
+        body.daytime {
+            --sky-top: #9fcbe8;
+            --sky-mid: #cfe6f4;
+            --sky-bottom: #f3f7fa;
+        }
+
+        body.sunset {
+            --sky-top: #8fbadb;
+            --sky-mid: #e6dcc0;
+            --sky-bottom: #f8efdc;
+        }
+
+        body.evening {
+            --sky-top: #5b6fa8;
+            --sky-mid: #e39a6e;
+            --sky-bottom: #f6c88f;
+        }
+
+        body.night {
+            --sky-top: #0c1430;
+            --sky-mid: #1f2f5c;
+            --sky-bottom: #3a4f7e;
+        }
+
+        body.evening::before {
+            opacity: 0.45;
+        }
+
+        body.night::before {
+            opacity: 0;
+        }
+
+        body.night::after {
+            filter: brightness(0.45) saturate(0.8);
+        }
+
+        body.evening .crumbs,
+        body.evening .crumbs a,
+        body.evening .steps li,
+        body.night .crumbs,
+        body.night .crumbs a,
+        body.night .steps li {
+            color: #fff;
+        }
+
+        /* スマートフォン */
+
         @media (max-width: 600px) {
-            .site-header { height: 54px; }
-            .logo-text { font-size: .9rem; }
-            .logo img { width: 28px; height: 28px; }
-            .card { padding: 20px 16px 24px; }
-            .info-grid { grid-template-columns: 96px minmax(0, 1fr); }
-            .info-grid dt, .info-grid dd { padding: 10px 8px; }
-            .steps li { font-size: .7rem; }
-            .actions { flex-direction: column-reverse; }   /* スマホは「確定」を上に */
-            .btn { max-width: none; }
+            .site-header {
+                min-height: 54px;
+                padding-right: 14px;
+                padding-left: 14px;
+            }
+
+            .logo-text {
+                font-size: 0.9rem;
+            }
+
+            .logo img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .header-nav {
+                gap: 10px;
+            }
+
+            .header-nav a {
+                font-size: 0.8rem;
+            }
+
+            .page {
+                padding: 16px 12px 120px;
+            }
+
+            .card {
+                padding: 20px 16px 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 96px minmax(0, 1fr);
+            }
+
+            .info-grid dt,
+            .info-grid dd {
+                padding: 10px 8px;
+                font-size: 0.82rem;
+            }
+
+            .steps li {
+                font-size: 0.7rem;
+            }
+
+            .steps li::before {
+                width: 27px;
+                height: 27px;
+            }
+
+            .steps li + li::after {
+                top: 13px;
+            }
+
+            .actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                max-width: none;
+                width: 100%;
+            }
+
+            .reserve-summary {
+                align-items: flex-start;
+            }
         }
 
-        /* 「動きを減らす」設定のときはアニメーションを止める */
         @media (prefers-reduced-motion: reduce) {
-            body::before, .card { animation: none; }
-            body, body::before, body::after { transition: none; }
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation: none !important;
+                transition: none !important;
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="daytime">
 
-    <!-- ======================================================
-         ヘッダー（トップ画面・予約履歴と同じ白いヘッダー）
-         ====================================================== -->
+    <!-- ヘッダー -->
     <header class="site-header">
+
         <a class="logo" th:href="@{/shops}">
-            <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
-            <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+            <img th:src="@{/images/logo-mark.svg}"
+                 alt=""
+                 width="34"
+                 height="34"
+                 onerror="this.style.display='none'">
+
+            <span class="logo-text">
+                FUJICHAKU<span>TOWN</span>
+            </span>
         </a>
-        <!-- 会員だけ「予約履歴」へのリンク（memberId がある＝会員の予約） -->
-        <nav class="header-nav" th:if="${memberId != null}">
-            <a th:href="@{/reservations/history}">予約履歴</a>
+
+        <nav class="header-nav" aria-label="ヘッダーメニュー">
+            <a th:if="${memberId != null}"
+               th:href="@{/reservations/history}">
+                予約履歴
+            </a>
+
+            <a th:unless="${memberId != null}"
+               th:href="@{/shops}">
+                店舗一覧
+            </a>
         </nav>
+
     </header>
 
-    <main class="page">
+    <main class="page"
+          th:attr="data-reservation-time=${reservationTime != null ? reservationTime : time}">
 
-        <!-- ======================================================
-             パンくずリスト（今どこにいるか）
-             ====================================================== -->
-        <!-- 予約確認（確定前）：TOP ＞ 店舗名 ＞ ご予約内容の確認 -->
+        <!-- エラー表示 -->
+        <div class="error-message"
+             role="alert"
+             th:if="${error != null}"
+             th:text="${error}">
+            エラーメッセージ
+        </div>
+
+        <div class="error-message"
+             role="alert"
+             th:if="${errorMessage != null}"
+             th:text="${errorMessage}">
+            エラーメッセージ
+        </div>
+
+        <!-- パンくず：確認画面 -->
         <p class="crumbs" th:unless="${viewOnly}">
-            <a th:href="@{/shops}">TOP</a><span>＞</span>
-            <a th:href="@{/shops/{shopId}(shopId=${shopId})}" th:text="${store.name}">店舗名</a><span>＞</span>
+            <a th:href="@{/shops}">TOP</a>
+            <span>＞</span>
+            <a th:href="@{/shops/{shopId}(shopId=${shopId})}"
+               th:text="${store.name}">
+                店舗名
+            </a>
+            <span>＞</span>
             ご予約内容の確認
         </p>
-        <!-- 予約詳細（履歴から）：TOP ＞ 予約履歴 ＞ 予約詳細 -->
+
+        <!-- パンくず：詳細画面 -->
         <p class="crumbs" th:if="${viewOnly}">
-            <a th:href="@{/shops}">TOP</a><span>＞</span>
-            <a th:href="@{/reservations/history}">予約履歴</a><span>＞</span>
+            <a th:href="@{/shops}">TOP</a>
+            <span>＞</span>
+            <a th:href="@{/reservations/history}">予約履歴</a>
+            <span>＞</span>
             予約詳細
         </p>
 
-        <!-- ======================================================
-             予約の流れ（確定前だけ）：① 入力 → ② 確認 → ③ 完了
-             ====================================================== -->
-        <ol class="steps" th:unless="${viewOnly}" aria-label="予約の流れ">
+        <!-- 予約ステップ：確認画面のみ -->
+        <ol class="steps"
+            th:unless="${viewOnly}"
+            aria-label="予約の流れ">
             <li class="done">ご予約内容の入力</li>
             <li class="current">ご予約内容の確認</li>
             <li>予約完了</li>
@@ -355,118 +866,279 @@
 
         <div class="card">
 
-            <!-- 見出し（左の「＜」は、店舗詳細・会員情報画面と同じ戻るボタン） -->
+            <!-- タイトルと戻るボタン -->
             <div class="page-title-row">
-                <!-- 確定前：入力画面に戻る（ブラウザの「戻る」と同じなので入力内容が残る） -->
-                <a class="back-btn" th:unless="${viewOnly}"
+
+                <!-- 確認画面では入力画面に戻る -->
+                <a class="back-btn"
+                   th:unless="${viewOnly}"
                    th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
                    onclick="if (history.length > 1) { history.back(); return false; }"
-                   aria-label="入力画面に戻る">&lt;</a>
-                <!-- 詳細：予約履歴に戻る -->
-                <a class="back-btn" th:if="${viewOnly}" th:href="@{/reservations/history}"
-                   aria-label="予約履歴に戻る">&lt;</a>
+                   aria-label="入力画面に戻る">
+                    &lt;
+                </a>
 
-                <h1 class="page-title" th:text="${viewOnly} ? '予約詳細' : 'ご予約内容の確認'">ご予約内容の確認</h1>
+                <!-- 詳細画面では予約履歴に戻る -->
+                <a class="back-btn"
+                   th:if="${viewOnly}"
+                   th:href="@{/reservations/history}"
+                   aria-label="予約履歴に戻る">
+                    &lt;
+                </a>
+
+                <h1 class="page-title"
+                    th:text="${viewOnly} ? '予約詳細' : 'ご予約内容の確認'">
+                    ご予約内容の確認
+                </h1>
+
             </div>
 
             <p class="page-description" th:unless="${viewOnly}">
                 以下の内容でよろしければ、「予約を確定する」を押してください。
             </p>
 
-            <!-- 詳細のときだけ：予約番号と予約状況を一番上に大きく -->
+            <!-- 予約番号・ステータス：詳細画面のみ -->
             <div class="reserve-summary" th:if="${viewOnly}">
+
                 <div>
                     <span class="summary-label">予約番号</span>
-                    <span class="summary-number" th:text="${reservation.id}">11</span>
+
+                    <span class="summary-number"
+                          th:text="${reservation.id}">
+                        11
+                    </span>
                 </div>
-                <span class="status" th:text="${reservation.status}">予約確定</span>
+
+                <span class="status"
+                      th:text="${reservation.status}">
+                    予約済み
+                </span>
+
             </div>
 
-            <!-- 予約内容（いちばん大事なので一番上） -->
+            <!-- 予約内容 -->
             <section class="section">
                 <h2 class="section-heading">予約内容</h2>
+
                 <dl class="info-grid">
+
                     <dt>予約日</dt>
-                    <dd class="highlight" th:text="${reservationDate}">2026-12-05</dd>
+                    <dd class="highlight"
+                        th:text="${reservationDate != null ? reservationDate : date}">
+                        2026-12-05
+                    </dd>
+
                     <dt>予約時間</dt>
-                    <dd class="highlight" th:text="${reservationTime}">18:00</dd>
+                    <dd class="highlight"
+                        th:text="${reservationTime != null ? reservationTime : time}">
+                        18:00
+                    </dd>
+
                     <dt>利用人数</dt>
-                    <dd class="highlight"><span th:text="${number}">3</span> 名</dd>
+                    <dd class="highlight">
+                        <span th:text="${number != null ? number : (viewOnly ? reservation.number : '')}">
+                            3
+                        </span>
+                        名
+                    </dd>
+
                 </dl>
             </section>
 
             <!-- 店舗情報 -->
             <section class="section">
                 <h2 class="section-heading">店舗情報</h2>
+
                 <dl class="info-grid">
+
                     <dt>店舗名</dt>
                     <dd>
-                        <a class="store-link" th:href="@{/shops/{shopId}(shopId=${shopId})}"
-                           th:text="${store.name}">店舗名</a>
+                        <a class="store-link"
+                           th:href="@{/shops/{shopId}(shopId=${shopId})}"
+                           th:text="${store.name}">
+                            店舗名
+                        </a>
                     </dd>
-                    <dt>フロア</dt>
-                    <dd th:text="${store.address}">2階</dd>
+
+                    <dt>住所</dt>
+                    <dd th:text="${store.address != null ? store.address : '住所情報なし'}">
+                        店舗住所
+                    </dd>
+
                 </dl>
             </section>
 
-            <!-- お客様情報（非会員） -->
-            <section class="section" th:if="${userId != null}">
+            <!-- お客様情報：非会員・ゲスト -->
+            <section class="section"
+                     th:if="${userId != null or userName != null or userMail != null or mail != null}">
+
                 <h2 class="section-heading">お客様情報</h2>
+
                 <dl class="info-grid">
+
                     <dt>お名前</dt>
-                    <dd th:text="${userName}">山田 太郎</dd>
-                    <dt>メールアドレス</dt>
-                    <dd th:text="${userMail}">mail@example.com</dd>
+                    <dd th:text="${name != null ? name : (userName != null ? userName : memberName)}">
+                        山田 太郎
+                    </dd>
+
+                    <th:block th:if="${mail != null or userMail != null}">
+                        <dt>メールアドレス</dt>
+                        <dd th:text="${mail != null ? mail : userMail}">
+                            mail@example.com
+                        </dd>
+                    </th:block>
+
                 </dl>
             </section>
 
             <!-- 会員情報 -->
             <section class="section" th:if="${memberId != null}">
+
                 <h2 class="section-heading">会員情報</h2>
+
                 <dl class="info-grid">
                     <dt>会員ID</dt>
-                    <dd th:text="${memberId}">10008</dd>
+                    <dd th:text="${memberId}">
+                        10008
+                    </dd>
                 </dl>
+
             </section>
 
-            <!-- ======================================================
-                 下のボタン
-                 ====================================================== -->
-            <!-- 確定前：［入力内容を修正する］［予約を確定する］ -->
+            <!-- 確認画面の案内 -->
+            <div class="notice" th:unless="${viewOnly}">
+                <div class="notice-title">ご予約内容の最終確認</div>
+                予約日・予約時間・利用人数・店舗情報に間違いがないか、
+                もう一度ご確認ください。<br>
+                「予約を確定する」を押すと、予約手続きが実行されます。
+            </div>
+
+            <!-- =====================================================
+                 予約確定フォーム
+                 詳細画面では表示しない
+                 ===================================================== -->
             <th:block th:unless="${viewOnly}">
+
                 <form method="post"
                       th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}">
 
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <input type="hidden" name="date" th:value="${reservationDate}">
-                    <input type="hidden" name="time" th:value="${reservationTime}">
-                    <input type="hidden" name="number" th:value="${number}">
-                    <input type="hidden" name="memberId" th:if="${memberId != null}" th:value="${memberId}">
-                    <input type="hidden" name="userId" th:if="${userId != null}" th:value="${userId}">
-                    <input type="hidden" name="name" th:if="${userName != null}" th:value="${userName}">
-                    <input type="hidden" name="mail" th:if="${userMail != null}" th:value="${userMail}">
+                    <!-- CSRF -->
+                    <input type="hidden"
+                           th:if="${_csrf != null}"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}">
+
+                    <!-- 予約内容 -->
+                    <input type="hidden"
+                           name="date"
+                           th:value="${reservationDate != null ? reservationDate : date}">
+
+                    <input type="hidden"
+                           name="time"
+                           th:value="${reservationTime != null ? reservationTime : time}">
+
+                    <input type="hidden"
+                           name="number"
+                           th:value="${number}">
+
+                    <input type="hidden"
+                           name="shopId"
+                           th:value="${shopId}">
+
+                    <!-- 会員ID -->
+                    <input type="hidden"
+                           name="memberId"
+                           th:if="${memberId != null}"
+                           th:value="${memberId}">
+
+                    <!-- ゲスト・非会員ID -->
+                    <input type="hidden"
+                           name="userId"
+                           th:if="${userId != null}"
+                           th:value="${userId}">
+
+                    <!-- 氏名 -->
+                    <input type="hidden"
+                           name="name"
+                           th:value="${name != null ? name : (userName != null ? userName : memberName)}">
+
+                    <!-- メールアドレス -->
+                    <input type="hidden"
+                           name="mail"
+                           th:if="${mail != null or userMail != null}"
+                           th:value="${mail != null ? mail : userMail}">
 
                     <div class="actions">
+
                         <a class="btn btn-outline"
                            th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
                            onclick="if (history.length > 1) { history.back(); return false; }">
                             入力内容を修正する
                         </a>
-                        <button type="submit" class="btn btn-primary">予約を確定する</button>
+
+                        <button type="submit" class="btn btn-primary">
+                            予約を確定する
+                        </button>
+
                     </div>
+
                 </form>
+
             </th:block>
 
-            <!-- 詳細：［予約履歴に戻る］［この店舗のページへ］ -->
+            <!-- 予約詳細画面のボタン -->
             <div class="actions" th:if="${viewOnly}">
-                <a class="btn btn-outline" th:href="@{/reservations/history}">予約履歴に戻る</a>
-                <a class="btn btn-primary" th:href="@{/shops/{shopId}(shopId=${shopId})}">この店舗のページへ</a>
+
+                <a class="btn btn-outline"
+                   th:href="@{/reservations/history}">
+                    予約履歴に戻る
+                </a>
+
+                <a class="btn btn-primary"
+                   th:href="@{/shops/{shopId}(shopId=${shopId})}">
+                    この店舗のページへ
+                </a>
+
             </div>
 
         </div>
     </main>
 
-    <footer class="site-footer">&copy; FUJICHAKU TOWN</footer>
+    <footer class="site-footer">
+        &copy; FUJICHAKU TOWN
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const page = document.querySelector(".page");
+            const body = document.body;
+
+            if (!page || !body) {
+                return;
+            }
+
+            // 予約時間に応じて背景の時間帯を切り替える
+            const reservationTime = page.dataset.reservationTime || "";
+            const hour = Number(reservationTime.substring(0, 2));
+
+            body.classList.remove("daytime", "sunset", "evening", "night");
+
+            if (!Number.isFinite(hour) || reservationTime.length < 2) {
+                body.classList.add("daytime");
+                return;
+            }
+
+            if (hour >= 19) {
+                body.classList.add("night");
+            } else if (hour >= 17) {
+                body.classList.add("evening");
+            } else if (hour >= 15) {
+                body.classList.add("sunset");
+            } else {
+                body.classList.add("daytime");
+            }
+        });
+    </script>
 
 </body>
 </html>

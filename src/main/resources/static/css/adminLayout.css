@@ -1,6 +1,7 @@
+css
 /* =========================================
    FUJICHAKU MATRIX ADMIN TERMINAL
-   共通管理画面・サイドバー
+   共通管理画面レイアウト
    ========================================= */
 
 :root {
@@ -8,192 +9,143 @@
     --admin-green-soft: #00cc33;
     --admin-green-dim: #008f11;
     --admin-bg: #030705;
-    --admin-panel: rgba(5, 16, 9, 0.96);
+    --admin-panel: rgba(5, 16, 9, 0.94);
     --admin-text: #d7ffe0;
     --admin-muted: #7aa987;
     --admin-border: #174d27;
-    --admin-danger: #ff6666;
 }
-
-/* =========================================
-   ページ共通
-   ========================================= */
 
 * {
     box-sizing: border-box;
 }
 
+/* 基本設定 */
 body {
     margin: 0;
-    padding-left: 245px;
-    box-sizing: border-box;
-    background-color: var(--admin-bg);
-    color: var(--admin-text);
-    font-family: Consolas, "Yu Gothic UI", "Meiryo", monospace;
     min-height: 100vh;
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: Consolas, "Yu Gothic", monospace;
 }
 
 /* =========================================
-   サイドバー本体
+   SIDEBAR
    ========================================= */
 
 .admin-sidebar {
     position: fixed;
-    display: block;
     top: 0;
     left: 0;
-    width: 245px;
+    bottom: 0;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 260px;
     height: 100vh;
-    margin: 0;
-    padding: 0;
+    height: 100dvh;
+
     overflow-x: hidden;
     overflow-y: auto;
-    z-index: 10000;
 
-    background:
-        linear-gradient(
-            180deg,
-            rgba(0, 255, 65, 0.045),
-            transparent 30%
-        ),
-        rgba(2, 7, 4, 0.98);
-
-    border-right: 1px solid var(--admin-border);
-
-    box-shadow:
-        2px 0 18px rgba(0, 255, 65, 0.08),
-        inset -1px 0 0 rgba(0, 255, 65, 0.035);
-
+    background: rgba(0, 5, 2, 0.98);
     color: var(--admin-text);
+
+    border-right: 1px solid var(--admin-green-dim);
+    box-shadow: 5px 0 25px rgba(0, 255, 65, 0.06);
 }
 
-/* サイドバーのスクロールバー */
-
-.admin-sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-
-.admin-sidebar::-webkit-scrollbar-track {
-    background: #030705;
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb {
-    background: var(--admin-green-dim);
-    border-radius: 5px;
-}
-
-/* =========================================
-   ロゴ・システム情報
-   ========================================= */
-
-.admin-sidebar-brand {
-    padding: 25px 15px 19px;
+/* サイドバーヘッダー */
+.admin-sidebar-header {
+    padding: 28px 20px 24px;
     border-bottom: 1px solid var(--admin-border);
-    background: rgba(0, 255, 65, 0.025);
 }
 
+/* ロゴ */
 .admin-sidebar-logo {
+    display: inline-block;
     color: var(--admin-green);
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 900;
-    letter-spacing: 2px;
-
-    text-shadow:
-        0 0 5px rgba(0, 255, 65, 0.8),
-        0 0 15px rgba(0, 255, 65, 0.35);
-
-    overflow-wrap: anywhere;
+    letter-spacing: 3px;
+    text-decoration: none;
+    text-shadow: 0 0 12px rgba(0, 255, 65, 0.45);
 }
 
+.admin-sidebar-logo:hover {
+    color: #aaffb9;
+}
+
+/* サブタイトル */
 .admin-sidebar-subtitle {
     margin-top: 7px;
     color: var(--admin-muted);
     font-size: 10px;
-    letter-spacing: 1.4px;
+    letter-spacing: 2px;
 }
 
-.admin-sidebar-status {
+/* システムステータス */
+.admin-system-status {
     display: flex;
     align-items: center;
-    gap: 7px;
-    margin-top: 15px;
+    gap: 8px;
+
+    margin-top: 22px;
 
     color: var(--admin-green);
     font-size: 10px;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
 }
 
+/* ステータスランプ */
 .admin-status-dot {
+    flex-shrink: 0;
     width: 7px;
     height: 7px;
-    flex: 0 0 7px;
     border-radius: 50%;
-
     background: var(--admin-green);
     box-shadow: 0 0 9px var(--admin-green);
-
-    animation: adminPulse 1.8s infinite;
+    animation: adminPulse 1.5s infinite;
 }
 
 @keyframes adminPulse {
     0%, 100% {
         opacity: 1;
-        box-shadow: 0 0 9px var(--admin-green);
     }
 
     50% {
-        opacity: 0.45;
-        box-shadow: 0 0 3px var(--admin-green);
+        opacity: 0.35;
     }
 }
 
 /* =========================================
-   メニュー
+   NAVIGATION
    ========================================= */
 
 .admin-sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
 
-    width: 100%;
-    padding: 18px 11px 20px;
-    margin: 0;
-}
-
-.admin-menu-label {
-    margin: 4px 0 7px;
-    padding: 0 7px;
-
-    color: var(--admin-muted);
-    font-size: 10px;
-    letter-spacing: 2px;
+    padding: 24px 12px;
 }
 
 /* メニューリンク */
-
-.admin-sidebar .admin-menu-link {
+.admin-sidebar-nav > a {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
 
-    width: 100%;
-    min-height: 43px;
-    margin: 0;
-    padding: 10px 8px;
+    min-height: 45px;
+    padding: 12px 13px;
 
     color: var(--admin-text);
-    background: rgba(0, 255, 65, 0.025);
+    text-decoration: none;
+    font-size: 13px;
 
     border: 1px solid transparent;
-    border-radius: 3px;
-
-    font-family: inherit;
-    font-size: 12px;
-    line-height: 1.6;
-    text-decoration: none;
-
-    overflow-wrap: anywhere;
+    background: transparent;
 
     transition:
         color 0.2s ease,
@@ -202,229 +154,206 @@ body {
         box-shadow 0.2s ease;
 }
 
-/* メニュー番号 */
-
-.admin-menu-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    min-width: 27px;
-    min-height: 24px;
-    padding: 2px 3px;
-
-    color: var(--admin-green);
-
-    border: 1px solid var(--admin-border);
-    background: rgba(0, 255, 65, 0.04);
-
-    font-size: 10px;
+/* メニュー記号 */
+.admin-menu-marker {
+    flex-shrink: 0;
+    color: var(--admin-green-dim);
     font-weight: bold;
-    letter-spacing: 0.5px;
 }
 
-/* メニューホバー */
-
-.admin-sidebar .admin-menu-link:hover {
+/* ホバー */
+.admin-sidebar-nav > a:hover {
     color: var(--admin-green);
-    background: rgba(0, 255, 65, 0.09);
-    border-color: var(--admin-green-dim);
-
-    box-shadow:
-        0 0 10px rgba(0, 255, 65, 0.08),
-        inset 3px 0 0 var(--admin-green);
+    background: rgba(0, 255, 65, 0.07);
+    border-color: var(--admin-border);
+    box-shadow: inset 3px 0 0 var(--admin-green);
 }
 
-/* メニュー区切り */
-
-.admin-sidebar-divider {
-    height: 1px;
-    margin: 10px 2px;
-
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--admin-green-dim),
-        transparent
-    );
+.admin-sidebar-nav > a:hover .admin-menu-marker {
+    color: var(--admin-green);
 }
 
 /* =========================================
-   ログアウト
+   LOGOUT
    ========================================= */
 
-.admin-sidebar .admin-logout-form {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
+.admin-sidebar-logout-form {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--admin-border);
 }
 
-.admin-sidebar .admin-logout-button {
+.admin-sidebar-logout {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 9px;
+    gap: 10px;
 
     width: 100%;
-    min-height: 43px;
-    margin: 0;
-    padding: 9px 8px;
+    min-height: 44px;
+    padding: 11px 13px;
 
-    color: var(--admin-danger);
-    background: rgba(255, 60, 60, 0.035);
+    background: transparent;
+    color: #ff7777;
 
-    border: 1px solid rgba(255, 102, 102, 0.25);
-    border-radius: 3px;
+    border: 1px solid #763939;
+    border-radius: 0;
 
     font-family: inherit;
     font-size: 12px;
-
-    cursor: pointer;
     text-align: left;
 
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.admin-sidebar .admin-logout-button .admin-menu-icon {
-    color: var(--admin-danger);
-    border-color: rgba(255, 102, 102, 0.3);
+.admin-sidebar-logout .admin-menu-marker {
+    color: #ff7777;
 }
 
-.admin-sidebar .admin-logout-button:hover {
-    background: rgba(255, 60, 60, 0.12);
-    border-color: var(--admin-danger);
-
-    box-shadow: 0 0 10px rgba(255, 60, 60, 0.08);
+.admin-sidebar-logout:hover {
+    background: rgba(255, 70, 70, 0.08);
+    border-color: #ff6666;
+    box-shadow: 0 0 12px rgba(255, 70, 70, 0.08);
 }
 
 /* =========================================
-   サイドバー下部
+   SIDEBAR FOOTER
    ========================================= */
 
 .admin-sidebar-footer {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 9px;
 
-    margin: 8px 13px 20px;
-    padding: 13px 3px 0;
+    margin-top: auto;
+    padding: 20px;
 
-    color: var(--admin-muted);
-    font-size: 9px;
-    letter-spacing: 1px;
+    color: var(--admin-green-dim);
+    font-size: 10px;
+    letter-spacing: 1.5px;
 }
 
 .admin-footer-line {
+    display: block;
     width: 100%;
     height: 1px;
-    margin-bottom: 3px;
-
+    margin-bottom: 7px;
     background: var(--admin-border);
 }
 
 .admin-footer-version {
-    color: var(--admin-green-dim);
+    color: var(--admin-muted);
     font-size: 9px;
+    letter-spacing: 2px;
 }
 
 /* =========================================
-   メイン領域
+   COMMON CONTENT
+   サイドバーを使用する管理画面用
    ========================================= */
 
-/*
- * サイドバーの幅は body の padding-left で確保する。
- * 予約管理画面独自の max-width / padding は維持する。
- */
-
-body > main {
-    margin-left: 0;
-    min-width: 0;
-}
-
-/* 管理者TOPなど、通常のメイン領域 */
-
-body > main:not(.reservation-main) {
-    width: 100%;
+.admin-content {
+    min-height: 100vh;
+    margin-left: 260px;
+    background: var(--admin-bg);
+    color: var(--admin-text);
 }
 
 /* =========================================
-   レスポンシブ：タブレット
+   RESERVATION MANAGEMENT
+   既存予約管理画面との共存
    ========================================= */
 
-@media (max-width: 760px) {
-    body {
-        padding-left: 190px;
+body:has(.reservation-main) .page-header {
+    margin-left: 260px;
+}
+
+body:has(.reservation-main) main.reservation-main {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 900px) {
+    .admin-sidebar {
+        width: 220px;
     }
 
+    .admin-sidebar-header {
+        padding: 24px 16px;
+    }
+
+    .admin-sidebar-logo {
+        font-size: 21px;
+    }
+
+    .admin-content {
+        margin-left: 220px;
+    }
+
+    body:has(.reservation-main) .page-header {
+        margin-left: 220px;
+    }
+
+    body:has(.reservation-main) main.reservation-main {
+        margin-left: 220px;
+        width: calc(100% - 220px);
+    }
+}
+
+@media (max-width: 600px) {
     .admin-sidebar {
         width: 190px;
     }
 
-    .admin-sidebar-brand {
-        padding: 20px 11px 15px;
+    .admin-sidebar-header {
+        padding: 22px 14px;
     }
 
     .admin-sidebar-logo {
         font-size: 18px;
+        letter-spacing: 2px;
+    }
+
+    .admin-sidebar-subtitle {
+        font-size: 9px;
         letter-spacing: 1px;
     }
 
     .admin-sidebar-nav {
-        padding: 14px 8px 18px;
+        padding: 18px 8px;
     }
 
-    .admin-sidebar .admin-menu-link,
-    .admin-sidebar .admin-logout-button {
-        gap: 6px;
-        padding: 9px 5px;
+    .admin-sidebar-nav > a {
+        padding: 10px 8px;
+        font-size: 12px;
+    }
+
+    .admin-sidebar-logout {
+        padding: 10px 8px;
         font-size: 11px;
     }
 
-    .admin-menu-icon {
-        min-width: 24px;
+    .admin-sidebar-footer {
+        padding: 14px 10px;
         font-size: 9px;
     }
-}
 
-/* =========================================
-   レスポンシブ：スマートフォン
-   ========================================= */
-
-@media (max-width: 480px) {
-    body {
-        padding-left: 155px;
+    .admin-content {
+        margin-left: 190px;
     }
 
-    .admin-sidebar {
-        width: 155px;
+    body:has(.reservation-main) .page-header {
+        margin-left: 190px;
+        padding: 18px 12px;
     }
 
-    .admin-sidebar-logo {
-        font-size: 15px;
-    }
-
-    .admin-sidebar-subtitle,
-    .admin-sidebar-status {
-        font-size: 8px;
-    }
-
-    .admin-sidebar-nav {
-        padding: 12px 6px;
-    }
-
-    .admin-sidebar .admin-menu-link,
-    .admin-sidebar .admin-logout-button {
-        gap: 5px;
-        font-size: 10px;
-    }
-
-    .admin-menu-icon {
-        min-width: 21px;
-        min-height: 21px;
-        font-size: 8px;
+    body:has(.reservation-main) main.reservation-main {
+        margin-left: 190px;
+        width: calc(100% - 190px);
+        padding: 22px 10px 35px;
     }
 }
