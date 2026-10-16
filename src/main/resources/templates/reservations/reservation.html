@@ -475,29 +475,39 @@
                 </div>
             </header>
 
-            <section class="page-title-area">
-                <div class="page-code">SECURE TRANSACTION // 02</div>
+			<section class="page-title-area">
+			    <div class="page-code">SECURE TRANSACTION // 02</div>
 
-                <div class="page-title-frame">
-                    <h2 class="page-title">予約確認</h2>
-                </div>
+			    <div class="page-title-frame">
+			        <!-- 【変更】履歴から見るときは「予約詳細」 -->
+			        <h2 class="page-title" th:text="${viewOnly} ? '予約詳細' : '予約確認'">予約確認</h2>
+			    </div>
 
-                <p class="page-description">
-                    以下の予約内容をご確認ください。<br>
-                    内容に問題がなければ、予約確定ボタンを押してください。
-                </p>
-            </section>
+			    <p class="page-description" th:unless="${viewOnly}">
+			        以下の予約内容をご確認ください。<br>
+			        内容に問題がなければ、予約確定ボタンを押してください。
+			    </p>
+			    <!-- 【追加】履歴から見るときの説明 -->
+			    <p class="page-description" th:if="${viewOnly}">
+			        ご予約の内容です。
+			    </p>
+			</section>
 
-            <nav class="top-buttons" aria-label="ページメニュー">
-                <a class="top-button"
-                   th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}">
-                    ← 予約入力に戻る
-                </a>
+			<nav class="top-buttons" aria-label="ページメニュー">
+			    <!-- 確定前：予約入力に戻る -->
+			    <a class="top-button" th:unless="${viewOnly}"
+			       th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}">
+			        ← 予約入力に戻る
+			    </a>
+			    <!-- 【追加】履歴から見るとき：予約履歴に戻る -->
+			    <a class="top-button" th:if="${viewOnly}" th:href="@{/reservations/history}">
+			        ← 予約履歴に戻る
+			    </a>
 
-                <a class="top-button" th:href="@{/shops}">
-                    店舗一覧へ
-                </a>
-            </nav>
+			    <a class="top-button" th:href="@{/shops}">
+			        店舗一覧へ
+			    </a>
+			</nav>
 
             <!-- 店舗情報 -->
             <section class="section">
@@ -564,8 +574,19 @@
                     <div class="info-value highlight-value">
                         <span th:text="${number}"></span> 名
                     </div>
+					<!-- 【追加】履歴から見るときだけ：予約番号・予約状況 -->
+	               <th:block th:if="${viewOnly}">
+	                   <div class="info-label">予約番号</div>
+	                   <div class="info-value" th:text="${reservation.id}">11</div>
+	
+	                   <div class="info-label">予約状況</div>
+	                   <div class="info-value" th:text="${reservation.status}">予約確定</div>
+	               </th:block>
                 </div>
             </section>
+			
+			<!-- 【追加】確定前の画面だけに表示する（履歴から見るときは出さない） -->
+           <th:block th:unless="${viewOnly}">
 
             <div class="notice">
                 <div class="notice-title">! CONFIRMATION REQUIRED</div>
@@ -615,6 +636,14 @@
                     </a>
                 </div>
             </form>
+			</th:block>
+			
+			<!-- 【追加】履歴から見るときの戻るリンク -->
+	       <div class="action-area" th:if="${viewOnly}">
+	           <a class="back-link" th:href="@{/reservations/history}">
+	               ← 予約履歴に戻る
+	           </a>
+	       </div>
 
             <footer class="footer">
                 FUJICHAKU SYSTEM // RESERVATION MODULE<br>
