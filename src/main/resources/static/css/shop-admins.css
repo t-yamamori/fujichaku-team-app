@@ -349,3 +349,225 @@ body {
     min-width: 0;
     box-sizing: border-box;
 }
+
+
+/* ========================================
+   蛍光シアンブルーの配色設定
+   ======================================== */
+
+:root {
+    --neon-blue: #00eaff;
+    --neon-blue-glow: rgba(0, 234, 255, 0.65);
+    --neon-blue-dark: #00bcd4;
+}
+
+/* 表の上側：見出し文字と枠線 */
+.shop-admin-header-table th {
+    color: var(--neon-blue) !important;
+    border: 1px solid var(--neon-blue) !important;
+    text-shadow:
+        0 0 3px var(--neon-blue-glow),
+        0 0 8px var(--neon-blue-glow);
+}
+
+/* 表の見出し背景 */
+.shop-admin-header-table th {
+    background-color: #071923 !important;
+}
+
+/* 表のデータ部分：セルの枠線 */
+.shop-admin-data-table td,
+.shop-admin-new-table td {
+    border: 1px solid var(--neon-blue) !important;
+}
+
+/* 表のデータ部分：通常の文字 */
+.shop-admin-data-table td,
+.shop-admin-new-table td {
+    color: var(--neon-blue);
+}
+
+/* 新規登録行の入力文字は読みやすい色にする */
+.shop-admin-data-table input,
+.shop-admin-new-table input {
+    color: #e8fbff;
+    border: 1px solid var(--neon-blue);
+    outline-color: var(--neon-blue);
+    accent-color: var(--neon-blue);
+}
+
+/* 検索フォームの入力枠 */
+.shop-admin-search input {
+    border: 1px solid var(--neon-blue) !important;
+    outline-color: var(--neon-blue);
+    box-shadow: 0 0 3px var(--neon-blue-glow);
+}
+
+/* 検索フォームの項目名 */
+.shop-admin-search label {
+    color: var(--neon-blue) !important;
+    text-shadow: 0 0 4px var(--neon-blue-glow);
+}
+
+/* 検索ボタン */
+.shop-admin-search button {
+    color: var(--neon-blue) !important;
+    border: 1px solid var(--neon-blue) !important;
+    background-color: #071923;
+    box-shadow: 0 0 4px var(--neon-blue-glow);
+}
+
+/* 条件クリアリンク */
+.shop-admin-search a {
+    color: var(--neon-blue) !important;
+    text-decoration: none;
+    text-shadow: 0 0 4px var(--neon-blue-glow);
+}
+
+/* 条件クリア：マウスを乗せたとき */
+.shop-admin-search a:hover {
+    color: #ffffff !important;
+    text-shadow: 0 0 8px var(--neon-blue);
+    text-decoration: underline;
+}
+
+/* 検索ボタン：マウスを乗せたとき */
+.shop-admin-search button:hover {
+    background-color: #103341;
+    box-shadow: 0 0 8px var(--neon-blue);
+}
+
+/* 一括更新・削除ボタン */
+.table-actions button {
+    color: var(--neon-blue);
+    border: 1px solid var(--neon-blue);
+    background-color: #071923;
+}
+
+/* 一括操作ボタン：マウスを乗せたとき */
+.table-actions button:hover {
+    background-color: #103341;
+    box-shadow: 0 0 8px var(--neon-blue);
+}
+
+/* チェックボックス */
+.shop-admin-data-table input[type="checkbox"] {
+    accent-color: var(--neon-blue);
+}
+
+/* エラーメッセージは赤色を維持 */
+.shop-admin-page .error-message,
+.shop-admin-page .field-error {
+    color: #ff4545;
+}
+
+/* 更新完了メッセージは既存の配色を維持 */
+.shop-admin-page .success-message {
+    color: #216e39;
+}
+
+/* Matrix Rainを画面全体に表示 */
+#matrixRain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* オーバーレイは背景を暗くするだけにする */
+.screen-overlay {
+    pointer-events: none;
+}
+
+/* 管理画面の背景がMatrix Rainを隠さないようにする */
+.shop-admin-page {
+    position: relative;
+    z-index: 1;
+    background: transparent !important;
+}
+
+/* サイドバーは従来どおり前面に表示 */
+.shop-admin-page,
+.shop-admin-page * {
+    box-sizing: border-box;
+}
+
+/* ========================================
+   店舗管理者画面：Matrix背景の表示領域を確保
+   ======================================== */
+
+/* 表全体の外側は透明にし、右側の流れる文字を表示する */
+.shop-admin-page .shop-admin-table-frame {
+    background-color: transparent !important;
+}
+
+/* 表のデータ領域は表の幅の範囲内で暗色を維持 */
+.shop-admin-page .shop-admin-data-wrapper {
+    background-color: #030705 !important;
+}
+
+/* 表本体の背景は従来どおり暗色を維持 */
+.shop-admin-page .shop-admin-header-table,
+.shop-admin-page .shop-admin-data-table,
+.shop-admin-page .shop-admin-new-table {
+    background-color: #030705 !important;
+}
+
+
+/* 店舗管理者画面専用：サイドバーをシアンブルー化 */
+body.shop-admin-screen {
+    --admin-green: #00eaff;
+    --admin-green-soft: #00cfe8;
+    --admin-green-dim: #008fa3;
+    --admin-border: #155765;
+    --admin-muted: #65b9c5;
+}
+
+/* サイドバーの背景・境界線・発光 */
+body.shop-admin-screen .admin-sidebar {
+    border-right-color: #008fa3;
+    box-shadow:
+        2px 0 18px rgba(0, 234, 255, 0.12),
+        inset -1px 0 0 rgba(0, 234, 255, 0.08);
+}
+
+/* ロゴ・ステータス表示 */
+body.shop-admin-screen .admin-sidebar-logo,
+body.shop-admin-screen .admin-sidebar-status,
+body.shop-admin-screen .admin-menu-icon {
+    color: #00eaff;
+}
+
+/* メニューの境界線 */
+body.shop-admin-screen .admin-menu-icon {
+    border-color: #155765;
+    background: rgba(0, 234, 255, 0.04);
+}
+
+/* メニューのホバー */
+body.shop-admin-screen .admin-sidebar .admin-menu-link:hover {
+    color: #00eaff;
+    background: rgba(0, 234, 255, 0.09);
+    border-color: #008fa3;
+    box-shadow:
+        0 0 10px rgba(0, 234, 255, 0.12),
+        inset 3px 0 0 #00eaff;
+}
+
+/* メニュー区切り線 */
+body.shop-admin-screen .admin-sidebar-divider {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #008fa3,
+        transparent
+    );
+}
+
+/* サイドバーのスクロールバー */
+body.shop-admin-screen .admin-sidebar::-webkit-scrollbar-thumb {
+    background: #008fa3;
+}
