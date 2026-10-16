@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>予約管理 | FUJICHAKU SYSTEM</title>
+    <title>予約管理 | FUJICHAKU</title>
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
 
     <style>
         :root {
@@ -11,133 +12,110 @@
             --green-soft: #00cc33;
             --green-dim: #008f11;
             --bg: #030705;
-            --panel: rgba(5, 16, 9, 0.94);
-            --panel-light: rgba(8, 25, 13, 0.94);
-            --border: rgba(0, 255, 65, 0.30);
-            --text: #e1ffe8;
-            --muted: #81a88b;
-            --danger: #ff6868;
-            --success: #00ff9c;
+            --panel: rgba(5, 16, 9, .94);
+            --text: #d7ffe0;
+            --muted: #7aa987;
+            --border: #174d27;
+            --danger: #ff6666;
+            --success: #00ff88;
+            --change: #ffcc33;
         }
 
         * {
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
             margin: 0;
             min-height: 100vh;
-            color: var(--text);
             background: var(--bg);
-            font-family: "Consolas", "Yu Gothic", "Meiryo", monospace, sans-serif;
+            color: var(--text);
+            font-family: "Consolas", "Yu Gothic", monospace;
         }
 
-        /* MATRIX TERMINAL：背景のデジタルレイン */
         #matrixRain {
             position: fixed;
             inset: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
+            z-index: -1;
+            opacity: .30;
             pointer-events: none;
-            opacity: 0.34;
         }
 
-        .screen-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background:
-                linear-gradient(
-                    rgba(0, 0, 0, 0.12) 50%,
-                    rgba(0, 0, 0, 0.23) 50%
-                );
-            background-size: 100% 4px;
-        }
-
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background:
-                radial-gradient(
-                    ellipse at center,
-                    transparent 20%,
-                    rgba(0, 0, 0, 0.58) 100%
-                );
-        }
-
-        header,
-        main,
-        footer {
+        .page-header {
             position: relative;
-            z-index: 2;
-        }
-
-        /* HEADER */
-        header {
-            min-height: 88px;
-            padding: 18px 4%;
+            padding: 22px 5%;
+            border-bottom: 1px solid var(--green-dim);
+            background: rgba(0, 5, 2, .92);
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 20px;
             flex-wrap: wrap;
-            background: rgba(0, 5, 2, 0.93);
-            border-bottom: 1px solid var(--green-dim);
-            box-shadow: 0 0 24px rgba(0, 255, 65, 0.12);
+            box-shadow: 0 0 20px rgba(0, 255, 65, .08);
         }
 
         .brand {
             color: var(--green);
-            font-size: 27px;
+            font-size: 25px;
             font-weight: 900;
-            letter-spacing: 5px;
-            text-shadow: 0 0 12px rgba(0, 255, 65, 0.55);
+            letter-spacing: 4px;
+            text-shadow: 0 0 12px rgba(0, 255, 65, .45);
         }
 
         .brand-sub {
-            margin-top: 6px;
             color: var(--muted);
-            font-size: 10px;
+            font-size: 11px;
             letter-spacing: 3px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-            flex-wrap: wrap;
+            margin-top: 5px;
         }
 
         .header-label {
-            padding: 9px 13px;
             color: var(--green);
-            background: rgba(0, 255, 65, 0.06);
-            border: 1px solid var(--border);
-            font-size: 11px;
-            letter-spacing: 1.5px;
+            font-size: 12px;
+            letter-spacing: 2px;
+            border: 1px solid var(--green-dim);
+            padding: 10px 14px;
+            background: rgba(0, 255, 65, .04);
+        }
+
+        main.reservation-main {
+            position: relative;
+            width: 100%;
+            max-width: 1550px;
+            margin: 0 auto;
+            padding: 32px 22px 60px;
+        }
+
+        h1 {
+            color: var(--green);
+            font-size: 28px;
+            letter-spacing: 3px;
+            margin: 0 0 8px;
+            text-shadow: 0 0 12px rgba(0, 255, 65, .25);
+        }
+
+        .description {
+            color: var(--muted);
+            margin-bottom: 30px;
+            font-size: 13px;
+            line-height: 1.8;
         }
 
         .system-status {
-            color: var(--success);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--green);
             font-size: 11px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
         }
 
         .status-dot {
-            display: inline-block;
-            width: 7px;
-            height: 7px;
-            margin-right: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: var(--green);
             box-shadow: 0 0 10px var(--green);
@@ -146,151 +124,41 @@
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.35; }
+            50% { opacity: .35; }
         }
 
-        /* MAIN */
-        main {
-            width: min(1600px, 100%);
-            margin: 0 auto;
-            padding: 32px 24px 60px;
-        }
-
-        .top-navigation {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            margin: 0;
-            color: var(--green);
-            font-size: clamp(25px, 3vw, 35px);
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px rgba(0, 255, 65, 0.30);
-        }
-
-        .page-subtitle {
-            margin-top: 10px;
-            color: var(--muted);
-            font-size: 12px;
-            letter-spacing: 1.5px;
-            line-height: 1.8;
-        }
-
-        .title-row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 28px;
-        }
-
-        .terminal-tag {
-            padding: 8px 12px;
-            color: var(--green);
-            border: 1px solid var(--green-dim);
-            background: rgba(0, 255, 65, 0.05);
-            font-size: 10px;
-            letter-spacing: 1.5px;
-        }
-
-        /* COMMAND CENTER PANELS */
         .panel {
-            position: relative;
-            margin-bottom: 24px;
-            padding: 25px;
-            overflow: hidden;
             background: var(--panel);
             border: 1px solid var(--border);
-            box-shadow:
-                0 0 22px rgba(0, 255, 65, 0.045),
-                inset 0 0 28px rgba(0, 255, 65, 0.018);
-        }
-
-        .panel::before,
-        .panel::after {
-            content: "";
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            pointer-events: none;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, .04);
+            position: relative;
         }
 
         .panel::before {
-            top: 0;
-            left: 0;
-            border-top: 2px solid var(--green);
-            border-left: 2px solid var(--green);
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 45px;
+            height: 3px;
+            background: var(--green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, .4);
         }
 
-        .panel::after {
-            right: 0;
-            bottom: 0;
-            border-right: 2px solid var(--green);
-            border-bottom: 2px solid var(--green);
-        }
-
-        .panel-heading {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 23px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        h2 {
-            margin: 0;
+        .reservation-main h2 {
             color: var(--green);
             font-size: 16px;
             letter-spacing: 2px;
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .section-index {
-            color: var(--green-dim);
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        /* STATUS / SUMMARY */
-        .system-summary {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-            margin-bottom: 24px;
-        }
-
-        .summary-card {
-            min-height: 86px;
-            padding: 17px;
-            background: rgba(0, 15, 6, 0.91);
-            border: 1px solid var(--border);
-        }
-
-        .summary-label {
-            color: var(--muted);
-            font-size: 10px;
-            letter-spacing: 1.5px;
-        }
-
-        .summary-value {
-            margin-top: 10px;
-            color: var(--green);
-            font-size: 17px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        /* FORMS */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(150px, 1fr));
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
             gap: 16px;
         }
 
@@ -301,335 +169,308 @@
             min-width: 0;
         }
 
-        label {
+        .reservation-main label {
             color: var(--muted);
             font-size: 12px;
         }
 
-        input,
-        select {
+        .reservation-main input,
+        .reservation-main select {
             width: 100%;
             min-width: 0;
-            min-height: 42px;
-            padding: 10px 12px;
+            padding: 11px 12px;
             color: var(--text);
-            background: rgba(0, 5, 2, 0.96);
-            border: 1px solid rgba(0, 255, 65, 0.32);
-            border-radius: 2px;
+            background: #030805;
+            border: 1px solid #205b30;
+            border-radius: 0;
             outline: none;
             font-family: inherit;
-            font-size: 13px;
-            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        input:focus,
-        select:focus {
+        .reservation-main input:focus,
+        .reservation-main select:focus {
             border-color: var(--green);
-            box-shadow: 0 0 12px rgba(0, 255, 65, 0.16);
+            box-shadow: 0 0 12px rgba(0, 255, 65, .08);
         }
 
-        input::placeholder {
-            color: #52735a;
-        }
-
-        input[type="date"],
-        input[type="datetime-local"] {
+        .reservation-main input[type="datetime-local"],
+        .reservation-main input[type="date"] {
             color-scheme: dark;
         }
 
-        select option {
-            color: var(--text);
-            background: #061109;
-        }
-
-        /* BUTTONS */
-        button,
-        .link-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 41px;
-            padding: 10px 17px;
-            color: var(--green);
-            background: rgba(0, 255, 65, 0.055);
-            border: 1px solid var(--green-dim);
-            border-radius: 2px;
-            font-family: inherit;
-            font-size: 12px;
+        .reservation-main button,
+        .reservation-main .link-button {
+            border: 1px solid var(--green);
+            border-radius: 0;
+            padding: 11px 17px;
             font-weight: bold;
-            letter-spacing: 0.5px;
+            cursor: pointer;
             text-decoration: none;
             text-align: center;
-            cursor: pointer;
-            transition:
-                color 0.2s,
-                background 0.2s,
-                border-color 0.2s,
-                box-shadow 0.2s,
-                transform 0.2s;
+            display: inline-block;
+            transition: .2s;
+            font-family: inherit;
+            letter-spacing: 1px;
         }
 
-        button:hover,
-        .link-button:hover {
-            color: #001b06;
+        .reservation-main .primary {
             background: var(--green);
-            border-color: var(--green);
-            box-shadow: 0 0 18px rgba(0, 255, 65, 0.30);
-            transform: translateY(-1px);
+            color: #001b07;
         }
 
-        .primary {
-            color: #001b06;
-            background: var(--green);
-            border-color: var(--green);
+        .reservation-main .primary:hover {
+            background: #9dffb2;
+            box-shadow: 0 0 15px rgba(0, 255, 65, .25);
         }
 
-        .primary:hover {
-            color: #001b06;
-            background: #72ff91;
-        }
-
-        .secondary {
+        .reservation-main .secondary {
+            background: transparent;
             color: var(--green);
-            background: rgba(0, 10, 3, 0.85);
         }
 
-        .danger {
-            color: #ffaaaa;
-            background: rgba(70, 0, 0, 0.45);
-            border-color: #a43d3d;
+        .reservation-main .secondary:hover {
+            background: rgba(0, 255, 65, .08);
         }
 
-        .danger:hover {
-            color: #1b0000;
-            background: #ff7777;
-            border-color: #ff7777;
+        .reservation-main button:disabled {
+            opacity: .55;
+            cursor: wait;
         }
 
         .actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 19px;
+            margin-top: 18px;
         }
 
-        /* MESSAGES */
         .message {
+            padding: 13px 16px;
             margin-bottom: 18px;
-            padding: 14px 16px;
-            line-height: 1.8;
-            font-size: 13px;
-            background: rgba(0, 0, 0, 0.82);
+            line-height: 1.7;
+            background: rgba(0, 0, 0, .7);
         }
 
         .error {
             color: var(--danger);
-            border: 1px solid rgba(255, 104, 104, 0.55);
+            border: 1px solid #763939;
         }
 
         .success {
             color: var(--success);
-            border: 1px solid rgba(0, 255, 156, 0.45);
-        }
-
-        .hint {
-            margin-top: 13px;
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.9;
-        }
-
-        /* RESERVATION LIST */
-        .list-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            flex-wrap: wrap;
-            margin-bottom: 14px;
-        }
-
-        .count {
-            color: var(--green);
-            font-size: 12px;
-            letter-spacing: 1px;
+            border: 1px solid var(--green-dim);
         }
 
         .table-wrap {
             overflow-x: auto;
-            border: 1px solid rgba(0, 255, 65, 0.16);
         }
 
         table {
             width: 100%;
             min-width: 1150px;
             border-collapse: collapse;
-            background: rgba(0, 5, 2, 0.77);
         }
 
-        th,
-        td {
-            padding: 13px 11px;
-            border-bottom: 1px solid rgba(0, 255, 65, 0.15);
+        .reservation-main th,
+        .reservation-main td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #174026;
             text-align: left;
             vertical-align: middle;
         }
 
-        th {
+        .reservation-main th {
+            background: rgba(0, 255, 65, .07);
             color: var(--green);
-            background: rgba(0, 40, 12, 0.88);
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
+            font-size: 12px;
             white-space: nowrap;
         }
 
-        td {
-            color: #c9e8d0;
-            font-size: 12px;
+        .reservation-main td {
+            font-size: 13px;
         }
 
-        tbody tr {
-            transition: background 0.2s;
-        }
-
-        tbody tr:hover {
-            background: rgba(0, 255, 65, 0.055);
+        .reservation-main tbody tr:hover {
+            background: rgba(0, 255, 65, .035);
         }
 
         .id-cell {
             color: var(--green);
             font-weight: bold;
-            text-shadow: 0 0 8px rgba(0, 255, 65, 0.18);
+            white-space: nowrap;
         }
 
-        .inline-form {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            min-width: 330px;
+        /* 変更された行を目立たせる */
+        .reservation-main tbody tr.changed-row {
+            background: rgba(255, 204, 51, .10);
+            box-shadow: inset 4px 0 0 var(--change);
         }
 
-        .inline-form input {
-            min-width: 180px;
+        .reservation-main tbody tr.changed-row td {
+            border-top: 1px solid rgba(255, 204, 51, .35);
+            border-bottom: 1px solid rgba(255, 204, 51, .35);
         }
 
-        .inline-form .number-input {
-            width: 75px;
-            min-width: 75px;
+        .reservation-main tbody tr.changed-row td:first-child {
+            color: var(--change);
         }
 
-        .status-form {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .row-change-label {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 6px;
+            border: 1px solid var(--change);
+            color: var(--change);
+            background: rgba(255, 204, 51, .10);
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        .row-change-label[hidden] {
+            display: none;
+        }
+
+        .date-input {
             min-width: 210px;
         }
 
-        .status-form select {
-            min-width: 120px;
+        .number-input {
+            width: 80px;
+            min-width: 70px;
+        }
+
+        .status-select {
+            min-width: 135px;
+        }
+
+        .count {
+            color: var(--green);
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        /* 変更件数表示 */
+        .change-count-box {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            border: 1px solid var(--change);
+            background: rgba(255, 204, 51, .08);
+            color: var(--change);
+            box-shadow: 0 0 14px rgba(255, 204, 51, .06);
+        }
+
+        .change-count-box.visible {
+            display: flex;
+        }
+
+        .change-count-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .change-count-text {
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .change-count-number {
+            font-size: 22px;
+            font-weight: 900;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 12px;
+        }
+
+        .list-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .list-toolbar h2 {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .save-button {
+            white-space: nowrap;
+            min-width: 170px;
+        }
+
+        .ajax-message {
+            display: none;
+        }
+
+        .ajax-message.show {
+            display: block;
         }
 
         .empty {
-            padding: 38px 20px;
+            padding: 35px;
+            text-align: center;
             color: var(--muted);
-            text-align: center;
-            border: 1px dashed var(--border);
-            background: rgba(0, 0, 0, 0.5);
-            font-size: 13px;
         }
 
-        .footer {
-            position: relative;
-            z-index: 2;
-            padding: 18px;
-            color: #52735a;
-            text-align: center;
-            font-size: 10px;
-            letter-spacing: 3px;
-            border-top: 1px solid rgba(0, 255, 65, 0.15);
-            background: rgba(0, 4, 1, 0.88);
+        .back-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 25px;
         }
 
-        @media (max-width: 1050px) {
+        .footer-line {
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            color: var(--green-dim);
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 900px) {
             .form-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .system-summary {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 650px) {
-            header {
-                padding: 17px 18px;
-            }
-
-            .brand {
-                font-size: 23px;
-                letter-spacing: 3px;
-            }
-
-            .header-right {
-                justify-content: flex-start;
-            }
-
-            main {
-                padding: 23px 12px 40px;
+            main.reservation-main {
+                padding: 24px 12px 40px;
             }
 
             .panel {
-                padding: 18px 14px;
-            }
-
-            .form-grid,
-            .system-summary {
-                grid-template-columns: 1fr;
-            }
-
-            .title-row {
-                display: block;
-            }
-
-            .terminal-tag {
-                display: inline-block;
-                margin-top: 16px;
-            }
-
-            .top-navigation {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .top-navigation .link-button {
-                padding: 10px 8px;
-                font-size: 11px;
-            }
-
-            .actions button,
-            .actions .link-button {
-                flex: 1 1 auto;
-            }
-
-            h1 {
-                font-size: 24px;
-                letter-spacing: 2px;
-            }
-
-            .panel-heading {
-                align-items: flex-start;
+                padding: 17px;
             }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                scroll-behavior: auto !important;
-                animation: none !important;
-                transition: none !important;
+        @media (max-width: 520px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .page-header {
+                padding: 18px;
+            }
+
+            .list-toolbar {
+                align-items: stretch;
+            }
+
+            .save-button {
+                width: 100%;
             }
         }
     </style>
@@ -638,112 +479,70 @@
 <body>
 
 <canvas id="matrixRain" aria-hidden="true"></canvas>
-<div class="screen-overlay" aria-hidden="true"></div>
 
-<header>
+<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+
+<div class="page-header">
     <div>
         <div class="brand">FUJICHAKU</div>
-        <div class="brand-sub">CYBER COMMAND CENTER / RESERVATION SYSTEM</div>
+        <div class="brand-sub">RESERVATION MANAGEMENT SYSTEM</div>
     </div>
 
-    <div class="header-right">
-        <div class="system-status">
-            <span class="status-dot"></span>SYSTEM ONLINE
-        </div>
-
-        <div class="header-label" th:if="${mallAdmin}">
-            MALL ADMINISTRATOR
-        </div>
-
-        <div class="header-label" th:unless="${mallAdmin}">
-            SHOP ADMINISTRATOR
-            <span th:if="${currentStoreName != null}"
-                  th:text="' / ' + ${currentStoreName}"></span>
-        </div>
-    </div>
-</header>
-
-<main>
-
-    <!-- ナビゲーション -->
-    <nav class="top-navigation">
-        <a class="link-button secondary"
-           href="javascript:void(0)"
-           th:attr="data-fallback=${basePath}"
-           onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href = this.dataset.fallback; }">
-            ← 前の画面に戻る
-        </a>
-
-        <a class="link-button secondary"
-           th:href="${topPath}">
-            ⌂ トップ画面に戻る
-        </a>
-    </nav>
-
-    <!-- ページタイトル -->
-    <div class="title-row">
-        <div>
-            <h1>予約管理システム</h1>
-            <div class="page-subtitle">
-                RESERVATION DATABASE / ADMIN CONTROL PANEL<br>
-                予約情報の検索・新規登録・編集を行います。
-                <span th:if="${mallAdmin}">
-                    モール管理者は全店舗の予約を管理できます。
-                </span>
-                <span th:unless="${mallAdmin}">
-                    店舗管理者は担当店舗の予約を管理できます。
-                </span>
-            </div>
-        </div>
-
-        <div class="terminal-tag">ACCESS LEVEL : AUTHORIZED</div>
+    <div class="header-label" th:if="${mallAdmin}">
+        MALL ADMINISTRATOR
     </div>
 
-    <!-- システム情報 -->
-    <section class="system-summary">
-        <div class="summary-card">
-            <div class="summary-label">SYSTEM STATUS</div>
-            <div class="summary-value">ONLINE</div>
-        </div>
+    <div class="header-label" th:unless="${mallAdmin}">
+        SHOP ADMINISTRATOR
+        <span th:if="${currentStoreName != null}"
+              th:text="' / ' + ${currentStoreName}"></span>
+    </div>
+</div>
 
-        <div class="summary-card">
-            <div class="summary-label">ACCESS MODE</div>
-            <div class="summary-value"
-                 th:text="${mallAdmin ? 'GLOBAL ADMIN' : 'SHOP ADMIN'}">
-                ADMIN
-            </div>
-        </div>
+<main class="reservation-main">
 
-        <div class="summary-card">
-            <div class="summary-label">DATABASE</div>
-            <div class="summary-value">CONNECTED</div>
-        </div>
-    </section>
+    <div class="system-status">
+        <span class="status-dot"></span>
+        SYSTEM ONLINE
+    </div>
 
-    <!-- エラーメッセージ -->
+    <h1>予約管理</h1>
+
+    <div class="description">
+        予約情報の検索・新規登録・編集を行います。
+        <span th:if="${mallAdmin}">
+            モール管理者は全店舗の予約を管理できます。
+        </span>
+        <span th:unless="${mallAdmin}">
+            店舗管理者は担当店舗の予約のみ管理できます。
+        </span>
+    </div>
+
     <div class="message error"
          th:if="${errorMessage != null}"
          th:text="${errorMessage}">
     </div>
 
-    <!-- 成功メッセージ -->
     <div class="message success"
          th:if="${successMessage != null}"
          th:text="${successMessage}">
     </div>
 
+    <div id="ajaxMessage"
+         class="message ajax-message"
+         role="status"
+         aria-live="polite">
+    </div>
+
     <!-- 予約検索 -->
     <section class="panel">
-        <div class="panel-heading">
-            <h2>[ 01 ] RESERVATION SEARCH</h2>
-            <span class="section-index">QUERY / SEARCH</span>
-        </div>
+        <h2>RESERVATION SEARCH</h2>
 
         <form method="get" th:action="${basePath}">
             <div class="form-grid">
 
                 <div class="field">
-                    <label for="reservationId">予約ID / RESERVATION ID</label>
+                    <label for="reservationId">予約ID</label>
                     <input type="number"
                            id="reservationId"
                            name="reservationId"
@@ -753,7 +552,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="reservationDate">予約日 / DATE</label>
+                    <label for="reservationDate">予約日</label>
                     <input type="date"
                            id="reservationDate"
                            name="reservationDate"
@@ -763,36 +562,36 @@
             </div>
 
             <div class="actions">
-                <button class="primary" type="submit">
-                    ▶ 検索を実行
-                </button>
+                <button class="primary" type="submit">検索する</button>
 
                 <a class="link-button secondary"
                    th:href="${basePath}">
-                    ↻ 条件をクリア
+                    条件をクリア
                 </a>
             </div>
 
             <div class="hint">
-                ※ 予約ID・予約日、または両方を指定して検索できます。<br>
-                ※ 両方空欄の場合は、管理権限の範囲内にある予約を表示します。
+                予約IDだけ、予約日だけ、両方の組み合わせで検索できます。
+                両方空欄の場合は、管理権限の範囲内にある予約をすべて表示します。
             </div>
         </form>
     </section>
 
     <!-- 新規予約 -->
     <section class="panel">
-        <div class="panel-heading">
-            <h2>[ 02 ] ADD RESERVATION</h2>
-            <span class="section-index">CREATE / NEW RECORD</span>
-        </div>
+        <h2>ADD RESERVATION</h2>
 
         <form method="post" th:action="${basePath + '/add'}">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
 
             <div class="form-grid">
 
                 <div class="field" th:if="${mallAdmin}">
-                    <label for="storeId">店舗 / STORE</label>
+                    <label for="storeId">店舗</label>
                     <select id="storeId" name="storeId" required>
                         <option value="">店舗を選択してください</option>
                         <option th:each="store : ${stores}"
@@ -803,16 +602,16 @@
                 </div>
 
                 <div class="field">
-                    <label for="reservationDateTime">予約日時 / DATE & TIME</label>
+                    <label for="newReservationDateTime">予約日時</label>
                     <input type="datetime-local"
-                           id="reservationDateTime"
+                           id="newReservationDateTime"
                            name="reservationDateTime"
                            required>
                 </div>
 
                 <div class="field">
-                    <label for="number">予約人数 / GUESTS</label>
-                    <select id="number" name="number" required>
+                    <label for="newNumber">予約人数</label>
+                    <select id="newNumber" name="number" required>
                         <option th:each="n : ${#numbers.sequence(1, 10)}"
                                 th:value="${n}"
                                 th:text="${n} + '人'">
@@ -821,7 +620,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="memberId">会員ID / MEMBER ID</label>
+                    <label for="memberId">会員ID（任意）</label>
                     <input type="number"
                            id="memberId"
                            name="memberId"
@@ -830,7 +629,7 @@
                 </div>
 
                 <div class="field">
-                    <label for="userId">ゲストID / GUEST ID</label>
+                    <label for="userId">ゲストユーザーID（任意）</label>
                     <input type="number"
                            id="userId"
                            name="userId"
@@ -841,34 +640,55 @@
             </div>
 
             <div class="hint">
-                ※ 会員IDとゲストユーザーIDは同時に入力できません。<br>
-                ※ 両方空欄の場合は、顧客IDを紐づけずに登録します。<br>
-                ※ 新規予約のステータスは「予約済み」になります。
+                会員IDとゲストユーザーIDは同時に入力できません。
+                両方空欄の場合は、顧客IDを紐づけずに登録します。
+                新規予約のステータスは「予約済み」になります。
             </div>
 
             <div class="actions">
-                <button class="primary" type="submit">
-                    ＋ 予約データを登録
-                </button>
+                <button class="primary" type="submit">予約を追加</button>
             </div>
         </form>
     </section>
 
-    <!-- 予約一覧 -->
+    <!-- 予約一覧・一括編集 -->
     <section class="panel">
-        <div class="panel-heading">
-            <h2>[ 03 ] RESERVATION DATABASE</h2>
-            <span class="section-index">RECORDS / MANAGEMENT</span>
-        </div>
 
         <div class="list-toolbar">
-            <div class="count">
-                DATABASE RECORDS：
-                <span th:text="${#lists.size(reservations)}">0</span>
-                件
-            </div>
-            <div class="section-index">LIVE RESERVATION DATA</div>
+            <h2>RESERVATION LIST</h2>
+
+            <button class="primary save-button"
+                    id="saveAllButton"
+                    type="submit"
+                    form="bulkUpdateForm"
+                    th:if="${!#lists.isEmpty(reservations)}">
+                変更を一括保存
+            </button>
         </div>
+
+        <!-- 変更件数：変更がある場合のみ表示 -->
+        <div id="changeCountBox" class="change-count-box" aria-live="polite">
+            <span class="change-count-icon">!</span>
+            <span class="change-count-text">変更件数：</span>
+            <span id="changeCountNumber" class="change-count-number">0</span>
+            <span class="change-count-text">件</span>
+        </div>
+
+        <div class="count">
+            表示件数：
+            <span th:text="${#lists.size(reservations)}">0</span>
+            件
+        </div>
+
+        <form id="bulkUpdateForm"
+              method="post"
+              th:action="${basePath + '/bulk-update'}">
+
+            <input type="hidden"
+                   th:if="${_csrf != null}"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}">
+        </form>
 
         <div class="table-wrap"
              th:if="${!#lists.isEmpty(reservations)}">
@@ -880,7 +700,8 @@
                     <th>店舗</th>
                     <th>会員ID</th>
                     <th>ゲストID</th>
-                    <th>予約日時・人数の編集</th>
+                    <th>予約日時</th>
+                    <th>人数</th>
                     <th>ステータス</th>
                     <th>登録日時</th>
                 </tr>
@@ -889,9 +710,9 @@
                 <tbody>
                 <tr th:each="reservation : ${reservations}">
 
-                    <td class="id-cell"
-                        th:text="${reservation.id}">
-                        1
+                    <td class="id-cell">
+                        <span th:text="${reservation.id}">1</span>
+                        <span class="row-change-label" hidden>変更あり</span>
                     </td>
 
                     <td th:text="${storeNames[reservation.storeId] != null
@@ -901,75 +722,56 @@
                     </td>
 
                     <td th:text="${reservation.memberId != null
-                                  ? reservation.memberId : '—'}">
-                        —
-                    </td>
+                                  ? reservation.memberId : '—'}">—</td>
 
                     <td th:text="${reservation.userId != null
-                                  ? reservation.userId : '—'}">
-                        —
+                                  ? reservation.userId : '—'}">—</td>
+
+                    <td>
+                        <input type="hidden"
+                               form="bulkUpdateForm"
+                               name="reservationIds"
+                               th:value="${reservation.id}">
+
+                        <input class="date-input"
+                               type="datetime-local"
+                               form="bulkUpdateForm"
+                               name="reservationDateTimes"
+                               required
+                               th:value="${#temporals.format(
+                                   reservation.reservationDate,
+                                   'yyyy-MM-dd''T''HH:mm')}">
                     </td>
 
                     <td>
-                        <form class="inline-form"
-                              method="post"
-                              th:action="${basePath + '/edit'}">
-
-                            <input type="hidden"
-                                   name="reservationId"
-                                   th:value="${reservation.id}">
-
-                            <input type="datetime-local"
-                                   name="reservationDateTime"
-                                   required
-                                   th:value="${#temporals.format(
-                                       reservation.reservationDate,
-                                       'yyyy-MM-dd''T''HH:mm')}">
-
-                            <input class="number-input"
-                                   type="number"
-                                   name="number"
-                                   min="1"
-                                   max="10"
-                                   required
-                                   th:value="${reservation.number}">
-
-                            <button class="secondary" type="submit">
-                                更新
-                            </button>
-                        </form>
+                        <input class="number-input"
+                               type="number"
+                               form="bulkUpdateForm"
+                               name="numbers"
+                               min="1"
+                               max="10"
+                               required
+                               th:value="${reservation.number}">
                     </td>
 
                     <td>
-                        <form class="status-form"
-                              method="post"
-                              th:action="${basePath + '/status'}">
-
-                            <input type="hidden"
-                                   name="reservationId"
-                                   th:value="${reservation.id}">
-
-                            <select name="status" required>
-                                <option th:each="s : ${reservationStatuses}"
-                                        th:value="${s}"
-                                        th:text="${s}"
-                                        th:selected="${s == reservation.status}">
-                                </option>
-                            </select>
-
-                            <button class="secondary" type="submit">
-                                変更
-                            </button>
-                        </form>
+                        <select class="status-select"
+                                form="bulkUpdateForm"
+                                name="statuses"
+                                required>
+                            <option th:each="s : ${reservationStatuses}"
+                                    th:value="${s}"
+                                    th:text="${s}"
+                                    th:selected="${s == reservation.status}">
+                            </option>
+                        </select>
                     </td>
 
                     <td th:text="${reservation.createdAt != null
                                   ? #temporals.format(
                                       reservation.createdAt,
                                       'yyyy-MM-dd HH:mm')
-                                  : '—'}">
-                        —
-                    </td>
+                                  : '—'}">—</td>
 
                 </tr>
                 </tbody>
@@ -978,122 +780,478 @@
 
         <div class="empty"
              th:if="${#lists.isEmpty(reservations)}">
-            <div style="color: var(--green); margin-bottom: 10px;">
-                [ NO RECORD FOUND ]
-            </div>
-            該当する予約データはありません。
+            該当する予約はありません。
         </div>
+
+        <div class="hint"
+             th:if="${!#lists.isEmpty(reservations)}">
+            変更した行は黄色で表示されます。
+            変更件数は入力内容に応じて自動更新されます。
+            過去の日時も編集できます。
+        </div>
+
+        <div class="back-actions">
+            <a class="link-button secondary"
+               href="javascript:history.back()">
+                ← 前の画面に戻る
+            </a>
+
+            <a class="link-button secondary"
+               th:href="${topPath}">
+                トップ画面に戻る
+            </a>
+        </div>
+
     </section>
+
+    <div class="footer-line">
+        FUJICHAKU // RESERVATION MANAGEMENT // END OF LINE
+    </div>
 
 </main>
 
-<footer class="footer">
-    FUJICHAKU SYSTEM // CYBER COMMAND CENTER // END OF TRANSMISSION
-</footer>
-
 <script>
-    /* MATRIX TERMINAL：背景アニメーション */
-    (() => {
-        const canvas = document.getElementById("matrixRain");
-        const ctx = canvas.getContext("2d");
+/* ==============================
+   MATRIX DIGITAL RAIN
+============================== */
+(function () {
+    const canvas = document.getElementById("matrixRain");
+    if (!canvas) return;
 
-        if (!ctx) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const characters =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+        "予約完了不時着FUJICHAKURESERVATION" +
+        "SYSTEMDATABASENETWORKDIGITALCYBERMATRIX" +
+        "PROTOCOLENCRYPTDECRYPTTERMINALSERVER" +
+        "CLIENTADMINLOGINLOGOUTSUCCESSERROR" +
+        "WARNINGEXECUTECONNECTSECURITYFIREWALL" +
+        "ACCESSGRANTEDACCESSDENIEDLOADINGCOMPLETE";
+
+    const fontSize = 14;
+    let drops = [];
+
+    function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+
+        canvas.width = Math.floor(window.innerWidth * ratio);
+        canvas.height = Math.floor(window.innerHeight * ratio);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        const columns = Math.ceil(window.innerWidth / fontSize);
+
+        drops = Array.from(
+            { length: columns },
+            () => Math.random() * -100
+        );
+    }
+
+    function draw() {
+        ctx.fillStyle = "rgba(3, 7, 5, 0.10)";
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = characters.charAt(
+                Math.floor(Math.random() * characters.length)
+            );
+
+            ctx.fillStyle = Math.random() > 0.96
+                ? "#c4ffd0"
+                : "#00ff41";
+
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+            if (
+                drops[i] * fontSize > window.innerHeight &&
+                Math.random() > 0.975
+            ) {
+                drops[i] = 0;
+            }
+
+            drops[i] += 0.55;
+        }
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    window.setInterval(draw, 45);
+})();
+
+/* ==============================
+   会員IDとゲストIDの排他入力
+============================== */
+document.addEventListener("DOMContentLoaded", function () {
+    const memberId = document.getElementById("memberId");
+    const userId = document.getElementById("userId");
+
+    function validateCustomerIds() {
+        if (!memberId || !userId) return;
+
+        const bothEntered =
+            memberId.value.trim() !== "" &&
+            userId.value.trim() !== "";
+
+        const errorMessage = bothEntered
+            ? "会員IDとゲストユーザーIDは同時に指定できません。"
+            : "";
+
+        memberId.setCustomValidity(errorMessage);
+        userId.setCustomValidity(errorMessage);
+    }
+
+    if (memberId && userId) {
+        memberId.addEventListener("input", validateCustomerIds);
+        userId.addEventListener("input", validateCustomerIds);
+    }
+
+    /* ==============================
+       一括保存・変更行の検知
+    ============================== */
+    const form = document.getElementById("bulkUpdateForm");
+    const button = document.getElementById("saveAllButton");
+    const message = document.getElementById("ajaxMessage");
+    const countBox = document.getElementById("changeCountBox");
+    const countNumber = document.getElementById("changeCountNumber");
+
+    if (!form || !button || !message || !countBox || !countNumber) {
+        return;
+    }
+
+    const tableRows = Array.from(
+        document.querySelectorAll(".table-wrap tbody tr")
+    );
+
+    function getRowInputs(row) {
+        return {
+            id: row.querySelector('input[name="reservationIds"]'),
+            date: row.querySelector(
+                'input[name="reservationDateTimes"]'
+            ),
+            number: row.querySelector('input[name="numbers"]'),
+            status: row.querySelector('select[name="statuses"]'),
+            label: row.querySelector(".row-change-label")
+        };
+    }
+
+    // 初期値を保存
+    tableRows.forEach(function (row) {
+        const inputs = getRowInputs(row);
+
+        if (
+            !inputs.id ||
+            !inputs.date ||
+            !inputs.number ||
+            !inputs.status
+        ) {
             return;
         }
 
-        const characters =
-            "アイウエオカキクケコサシスセソタチツテト" +
-            "ナニヌネノハヒフヘホマミムメモヤユヨラリルレロ" +
-            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        row.dataset.originalDate = inputs.date.value;
+        row.dataset.originalNumber = inputs.number.value;
+        row.dataset.originalStatus = inputs.status.value;
+    });
 
-        const fontSize = 15;
-        let columns = 0;
-        let drops = [];
-        let animationId = null;
+    // 元の値と比較して、変更された行を取得
+    function getChangedRows() {
+        return tableRows.filter(function (row) {
+            const inputs = getRowInputs(row);
 
-        const reducedMotion =
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (
+                !inputs.id ||
+                !inputs.date ||
+                !inputs.number ||
+                !inputs.status
+            ) {
+                return false;
+            }
 
-        function resizeCanvas() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-            canvas.width = Math.floor(window.innerWidth * dpr);
-            canvas.height = Math.floor(window.innerHeight * dpr);
-            canvas.style.width = window.innerWidth + "px";
-            canvas.style.height = window.innerHeight + "px";
-
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-            columns = Math.ceil(window.innerWidth / fontSize);
-            drops = Array.from(
-                { length: columns },
-                () => Math.random() * -100
+            return (
+                inputs.date.value !== row.dataset.originalDate ||
+                inputs.number.value !== row.dataset.originalNumber ||
+                inputs.status.value !== row.dataset.originalStatus
             );
+        });
+    }
+
+    // 行の黄色表示・「変更あり」ラベルを更新
+    function updateRowHighlights(changedRows) {
+        const changedSet = new Set(changedRows);
+
+        tableRows.forEach(function (row) {
+            const inputs = getRowInputs(row);
+            const changed = changedSet.has(row);
+
+            row.classList.toggle("changed-row", changed);
+
+            if (inputs.label) {
+                inputs.label.hidden = !changed;
+            }
+        });
+    }
+
+    // 変更件数を更新
+    function updateChangeCount() {
+        const changedRows = getChangedRows();
+
+        updateRowHighlights(changedRows);
+
+        if (changedRows.length > 0) {
+            countNumber.textContent = String(changedRows.length);
+            countBox.classList.add("visible");
+        } else {
+            countNumber.textContent = "0";
+            countBox.classList.remove("visible");
         }
 
-        function drawMatrix() {
-            ctx.fillStyle = "rgba(0, 5, 2, 0.085)";
-            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        return changedRows;
+    }
 
-            ctx.font = fontSize + "px monospace";
+    // 保存成功後、現在の値を新しい基準値にする
+    function resetChangeTracking() {
+        tableRows.forEach(function (row) {
+            const inputs = getRowInputs(row);
 
-            for (let i = 0; i < drops.length; i++) {
-                const character =
-                    characters.charAt(
-                        Math.floor(Math.random() * characters.length)
-                    );
+            if (
+                !inputs.date ||
+                !inputs.number ||
+                !inputs.status
+            ) {
+                return;
+            }
 
-                const x = i * fontSize;
-                const y = drops[i] * fontSize;
+            row.dataset.originalDate = inputs.date.value;
+            row.dataset.originalNumber = inputs.number.value;
+            row.dataset.originalStatus = inputs.status.value;
 
-                ctx.fillStyle = Math.random() > 0.97
-                    ? "#d9ffe0"
-                    : "#00ff41";
+            row.classList.remove("changed-row");
 
-                ctx.fillText(character, x, y);
+            if (inputs.label) {
+                inputs.label.hidden = true;
+            }
+        });
 
-                if (
-                    y > window.innerHeight &&
-                    Math.random() > 0.975
-                ) {
-                    drops[i] = 0;
+        countNumber.textContent = "0";
+        countBox.classList.remove("visible");
+    }
+
+    function showMessage(text, type) {
+        message.className = "message ajax-message show " + type;
+        message.textContent = text;
+    }
+
+    // 日時・人数・ステータスの入力変更を監視
+    tableRows.forEach(function (row) {
+        const inputs = getRowInputs(row);
+
+        [inputs.date, inputs.number, inputs.status].forEach(
+            function (input) {
+                if (!input) return;
+
+                input.addEventListener("input", updateChangeCount);
+                input.addEventListener("change", updateChangeCount);
+            }
+        );
+    });
+
+    // 初期表示時にも件数を計算
+    updateChangeCount();
+
+    /* ==============================
+       一括保存
+       変更された予約だけ送信
+    ============================== */
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        if (button.disabled) return;
+
+        const changedRows = updateChangeCount();
+
+        if (changedRows.length === 0) {
+            showMessage("変更された予約はありません。", "error");
+            return;
+        }
+
+        // 変更された予約だけ入力チェック
+        for (const row of changedRows) {
+            const inputs = getRowInputs(row);
+
+            if (!inputs.date.value) {
+                showMessage("予約日時を入力してください。", "error");
+                inputs.date.focus();
+                return;
+            }
+
+            const number = Number(inputs.number.value);
+
+            if (
+                !Number.isInteger(number) ||
+                number < 1 ||
+                number > 10
+            ) {
+                showMessage(
+                    "予約人数は1～10人で入力してください。",
+                    "error"
+                );
+                inputs.number.focus();
+                return;
+            }
+
+            if (!inputs.status.value) {
+                showMessage(
+                    "ステータスを選択してください。",
+                    "error"
+                );
+                inputs.status.focus();
+                return;
+            }
+        }
+
+        button.disabled = true;
+        button.textContent = "保存中...";
+        message.className = "message ajax-message";
+
+        try {
+            // application/x-www-form-urlencoded形式で送信
+            const requestData = new URLSearchParams();
+
+            // CSRFトークンなどのhidden項目を引き継ぐ
+            form.querySelectorAll('input[type="hidden"]').forEach(
+                function (input) {
+                    requestData.append(input.name, input.value);
+                }
+            );
+
+            // 変更された行だけ送信
+            changedRows.forEach(function (row) {
+                const inputs = getRowInputs(row);
+
+                requestData.append(
+                    "reservationIds",
+                    inputs.id.value
+                );
+
+                requestData.append(
+                    "reservationDateTimes",
+                    inputs.date.value
+                );
+
+                requestData.append(
+                    "numbers",
+                    inputs.number.value
+                );
+
+                requestData.append(
+                    "statuses",
+                    inputs.status.value
+                );
+            });
+
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: requestData,
+                credentials: "same-origin",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json"
+                }
+            });
+
+            const contentType =
+                response.headers.get("content-type") || "";
+
+            if (!response.ok) {
+                let detail = "";
+
+                try {
+                    detail = await response.text();
+                } catch (ignored) {
+                    // 応答本文を取得できない場合は無視
                 }
 
-                drops[i] += 0.45 + Math.random() * 0.45;
-            }
+                console.error(
+                    "予約一括更新エラー:",
+                    response.status,
+                    detail
+                );
 
-            animationId = window.requestAnimationFrame(drawMatrix);
-        }
+                if (response.status === 413) {
+                    throw new Error(
+                        "HTTP 413：サーバーがリクエストを拒否しました。" +
+                        "変更対象を1件にしても発生する場合は、" +
+                        "サーバー側のリクエストサイズ制限を確認してください。"
+                    );
+                }
 
-        resizeCanvas();
+                if (response.status === 403) {
+                    throw new Error(
+                        "HTTP 403：操作が拒否されました。" +
+                        "ログイン状態とCSRF設定を確認してください。"
+                    );
+                }
 
-        if (!reducedMotion) {
-            drawMatrix();
-        }
-
-        window.addEventListener("resize", () => {
-            resizeCanvas();
-
-            if (reducedMotion) {
-                ctx.clearRect(
-                    0,
-                    0,
-                    window.innerWidth,
-                    window.innerHeight
+                throw new Error(
+                    "保存に失敗しました（HTTP " +
+                    response.status + "）。"
                 );
             }
-        });
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden && animationId !== null) {
-                window.cancelAnimationFrame(animationId);
-                animationId = null;
-            } else if (!document.hidden && !reducedMotion &&
-                       animationId === null) {
-                drawMatrix();
+            if (!contentType.includes("application/json")) {
+                throw new Error(
+                    "JSON形式の応答がありません。" +
+                    "リクエストURLとコントローラーを確認してください。"
+                );
             }
-        });
-    })();
+
+            const result = await response.json();
+
+            if (result.success === true) {
+                /*
+                 * 保存成功：
+                 * ・変更ありの黄色表示を消す
+                 * ・変更件数の表示を消す
+                 * ・現在の値を新しい基準値として記録
+                 */
+                resetChangeTracking();
+
+                showMessage(
+                    result.message || "変更しました。",
+                    "success"
+                );
+            } else {
+                /*
+                 * 保存失敗：
+                 * 変更行と件数を残して、再保存できるようにする
+                 */
+                showMessage(
+                    result.message || "変更できませんでした。",
+                    "error"
+                );
+            }
+
+        } catch (error) {
+            console.error("予約一括更新に失敗しました:", error);
+
+            // エラー時は変更表示を消さない
+            updateChangeCount();
+
+            showMessage(
+                error.message || "通信に失敗しました。",
+                "error"
+            );
+
+        } finally {
+            button.disabled = false;
+            button.textContent = "変更を一括保存";
+        }
+    });
+});
 </script>
 
 </body>

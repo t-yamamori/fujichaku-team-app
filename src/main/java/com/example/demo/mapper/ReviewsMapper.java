@@ -38,5 +38,8 @@ public interface ReviewsMapper {
 			@Param("id") Integer id,
 			@Param("storeId") Integer storeId
 	);
+	
+	// 【追加】口コミを1件取得（店舗管理者が削除するとき、書いた会員を調べてポイントを減らすため）
+		Reviews selectReviewById(Integer id);
 
 }

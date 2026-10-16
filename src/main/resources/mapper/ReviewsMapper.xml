@@ -48,7 +48,21 @@
            AND store_id  = #{storeId}
            AND member_id = #{memberId}
     </delete>
+    
+        <!-- 口コミ削除（店舗管理者用）
+         口コミID・店舗IDが一致したときだけ削除される（自店舗の口コミなら誰のものでも削除できる） -->
+    <delete id="deleteByIdAndStoreId">
+        DELETE FROM reviews
+         WHERE id       = #{id}
+           AND store_id = #{storeId}
+    </delete>
 
+    <!-- 口コミを1件取得（店舗管理者が削除するとき、書いた会員を調べてポイントを減らすため） -->
+    <select id="selectReviewById" resultType="com.example.demo.entity.Reviews">
+        SELECT <include refid="reviewColumns"/>
+          FROM reviews
+         WHERE id = #{id}
+    </select>
 </mapper>
 
 

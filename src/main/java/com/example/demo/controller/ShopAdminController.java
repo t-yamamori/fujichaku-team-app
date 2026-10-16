@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -267,34 +268,62 @@ public class ShopAdminController {
                     "存在する店舗IDを入力してください");
         }
 
-        // すべての入力チェックが終わってからエラー判定
+        // 入力チェックでエラーがあれば登録しない
         if (bindingResult.hasErrors()) {
-            List<ShopAdmin> filteredShopAdmins =
-                    filterShopAdmins(shopAdminService.findAll(), filters);
-
-            model.addAttribute("filters", filters);
-            model.addAttribute("shopAdmins", filteredShopAdmins);
-            model.addAttribute("updateForm",
-                    toUpdateForm(filteredShopAdmins));
-            model.addAttribute("updateErrors",
-                    new HashMap<Integer, Map<String, String>>());
-            model.addAttribute("createErrors",
-                    collectCreateErrors(bindingResult));
-
-            // パスワードは画面に再表示しない
-            shopAdmin.setPassword(null);
-
-            return "admin/shop-admins";
+            return showCreateErrors(
+                    shopAdmin, filters, bindingResult, model);
         }
 
-        // エラーがなければ登録
-        shopAdminService.create(shopAdmin);
+        // 登録処理
+        try {
+            shopAdminService.create(shopAdmin);
+        } catch (DuplicateKeyException e) {
+            /*
+             * DBの一意性制約によりメール重複が検出された場合。
+             * 同時登録などで事前チェックをすり抜けた場合も
+             * 入力画面のメール欄にエラーを表示する。
+             */
+            bindingResult.rejectValue(
+                    "mail",
+                    "duplicate.mail",
+                    "このメールアドレスは既に使用されています");
+
+            return showCreateErrors(
+                    shopAdmin, filters, bindingResult, model);
+        }
 
         redirectAttributes.addFlashAttribute(
                 "successMessage", "店舗管理者を登録しました。");
 
         addFilters(redirectAttributes, filters);
         return "redirect:/admin/shop-admins";
+    }
+
+    /**
+     * 新規登録エラー時の画面表示を共通化
+     */
+    private String showCreateErrors(
+            ShopAdmin shopAdmin,
+            ShopAdminSearchForm filters,
+            BindingResult bindingResult,
+            Model model) {
+
+        List<ShopAdmin> filteredShopAdmins =
+                filterShopAdmins(shopAdminService.findAll(), filters);
+
+        model.addAttribute("filters", filters);
+        model.addAttribute("shopAdmins", filteredShopAdmins);
+        model.addAttribute("updateForm",
+                toUpdateForm(filteredShopAdmins));
+        model.addAttribute("updateErrors",
+                new HashMap<Integer, Map<String, String>>());
+        model.addAttribute("createErrors",
+                collectCreateErrors(bindingResult));
+
+        // パスワードは画面に再表示しない
+        shopAdmin.setPassword(null);
+
+        return "admin/shop-admins";
     }
 
     /**

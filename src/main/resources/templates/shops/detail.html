@@ -87,14 +87,29 @@
             </div>
 
             <div>
-                <dl>
-                    <dt>フロア</dt>
-                    <dd th:text="${store.address}">1階</dd>
-                    <dt>電話番号</dt>
-                    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
-                    <dt>説明</dt>
-                    <dd th:text="${store.description}">説明</dd>
-                </dl>
+				<dl>
+				    <!-- 【戻す】店舗管理者のみ：店舗名・代表者 -->
+				    <th:block th:if="${isShopAdmin}">
+				        <dt>店舗名</dt>
+				        <dd th:text="${store.name}">店舗名</dd>
+				        <dt>代表者</dt>
+				        <dd th:text="${store.representative}">代表者</dd>
+				    </th:block>
+
+				    <dt>フロア</dt>
+				    <dd th:text="${store.address}">1階</dd>
+
+				    <!-- 【戻す】店舗管理者のみ：連絡先（メールアドレス） -->
+				    <th:block th:if="${isShopAdmin}">
+				        <dt>連絡先</dt>
+				        <dd th:text="${store.mail}">mail</dd>
+				    </th:block>
+
+				    <dt>電話番号</dt>
+				    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
+				    <dt>説明</dt>
+				    <dd th:text="${store.description}">説明</dd>
+				</dl>
 
                 <!-- ② 予約ボタン：予約できる店だけ／店舗管理者には出さない -->
                 <th:block th:if="${store.reservable}">
@@ -113,29 +128,77 @@
     </section>
 
     <!-- ②' 予約履歴（店舗管理者のみ：この店舗の予約を会員・非会員とも全件表示） -->
-    <section class="section" th:if="${isShopAdmin}">
-        <h2>これまでの予約履歴</h2>
+	<!-- 【変更】id="rsv" を追加（保存後にこの位置までスクロールさせるため） -->
+	   <section class="section" id="rsv" th:if="${isShopAdmin}">
+	       <h2>これまでの予約履歴</h2>
 
-        <table class="reservation-table" th:if="${!#lists.isEmpty(storeReservations)}">
-            <thead>
-                <tr>
-                    <th>予約日時</th>
-                    <th>予約者</th>
-                    <th>人数</th>
-                    <th>予約状況</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="sr : ${storeReservations}">
-                    <td th:text="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy/MM/dd(E) HH:mm')} : ''">2026/10/10 18:00</td>
-                    <td th:text="${sr.memberId != null}
-                                 ? '会員（会員ID：' + ${sr.memberId} + '）'
-                                 : '非会員（ユーザーID：' + ${sr.userId} + '）'">会員（会員ID：10001）</td>
-                    <td th:text="${sr.number != null} ? ${sr.number} + '名' : '-'">2名</td>
-                    <td th:text="${sr.status}">予約済み</td>
-                </tr>
-            </tbody>
-        </table>
+		   <!-- 予約編集の結果メッセージ（×で閉じられる） -->
+		   <div class="flash flash-success flash-closable" th:if="${rsvMessage}">
+		       <span th:text="${rsvMessage}">予約内容を変更しました。</span>
+		       <button type="button" class="flash-close" aria-label="閉じる"
+		               onclick="this.parentElement.remove()">×</button>
+		   </div>
+		   <div class="flash flash-error flash-closable" th:if="${rsvErrorMessage}">
+		       <span th:text="${rsvErrorMessage}">エラーメッセージ</span>
+		       <button type="button" class="flash-close" aria-label="閉じる"
+		               onclick="this.parentElement.remove()">×</button>
+		   </div>
+
+		<table class="reservation-table rsv-table" th:if="${!#lists.isEmpty(storeReservations)}">
+		    <thead>
+		        <tr>
+		            <th>予約日時</th>
+		            <th>予約者</th>
+		            <th>人数</th>
+		            <th>予約状況</th>
+		            <th>操作</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <!-- 1行ずつ別のフォーム（入力欄は form 属性で、右端のフォームとつながっている） -->
+		        <tr class="rsv-row" th:each="sr : ${storeReservations}">
+					<td class="rsv-datetime">
+					    <!-- 日付 -->
+					    <input type="date" name="reservationDay" class="rsv-field rsv-lockable" required readonly
+					           th:attr="form=${'rsv-' + sr.id}"
+					           th:value="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy-MM-dd')} : ''">
+					    <!-- 時刻：11:00〜21:30 の30分刻み（22 = 11:00、43 = 21:30） -->
+					    <select name="reservationTime" class="rsv-field rsv-lockable" required disabled
+					            th:attr="form=${'rsv-' + sr.id}"
+					            th:with="cur=${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'HH:mm')} : ''">
+					        <option th:each="i : ${#numbers.sequence(22, 43)}"
+					                th:with="t=${T(java.lang.String).format('%02d:%02d', i / 2, (i % 2) * 30)}"
+					                th:value="${t}" th:text="${t}" th:selected="${t == cur}">11:00</option>
+					    </select>
+					</td>
+		            <td th:text="${sr.memberId != null}
+		                         ? '会員（会員ID：' + ${sr.memberId} + '）'
+		                         : '非会員（ユーザーID：' + ${sr.userId} + '）'">会員（会員ID：10001）</td>
+		            <td class="rsv-num">
+						<input type="number" name="number" class="rsv-field rsv-lockable" min="1" max="30" required readonly
+						       th:attr="form=${'rsv-' + sr.id}" th:value="${sr.number}">名
+		            </td>
+		            <td>
+		                <select name="status" class="rsv-field" required disabled th:attr="form=${'rsv-' + sr.id}">
+		                    <option value="予約済み" th:selected="${sr.status == '予約済み'}">予約済み</option>
+		                    <option value="予約確定" th:selected="${sr.status == '予約確定'}">予約確定</option>
+		                    <option value="キャンセル" th:selected="${sr.status == 'キャンセル'}">キャンセル</option>
+		                </select>
+		            </td>
+		            <td class="rsv-actions">
+		                <!-- 送り先は ShopDashboardController（店舗管理者専用） -->
+		                <form th:id="${'rsv-' + sr.id}" method="post"
+		                      th:action="@{/shop-admin/{storeId}(storeId=${store.id})}">
+		                    <input type="hidden" name="action" value="updateReservation">
+		                    <input type="hidden" name="reservationId" th:value="${sr.id}">
+		                    <button type="button" class="btn btn-small btn-outline rsv-edit">編集</button>
+		                    <button type="submit" class="btn btn-small rsv-save" hidden>保存</button>
+		                    <button type="button" class="btn btn-small btn-secondary rsv-cancel" hidden>戻る</button>
+		                </form>
+		            </td>
+		        </tr>
+		    </tbody>
+		</table>
 
         <p class="note" th:if="${#lists.isEmpty(storeReservations)}">この店舗の予約はまだありません。</p>
     </section>
@@ -168,14 +231,14 @@
                 <span th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
 
                 <!-- 口コミ削除（会員：自分の口コミ／店舗管理者：自店舗のすべての口コミ） -->
-                <form class="delete-form" method="post"
-                      th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
-                      th:action="@{/shops/{shopId}(shopId=${store.id})}"
-                      onsubmit="return confirm('この口コミを削除しますか？');">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="reviewId" th:value="${r.id}">
-                    <button type="submit" class="btn btn-secondary btn-small">削除</button>
-                </form>
+				<form class="delete-form" method="post"
+				      th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
+				      th:action="${isShopAdmin} ? @{/shop-admin/{storeId}(storeId=${store.id})} : @{/shops/{shopId}(shopId=${store.id})}"
+				      onsubmit="return confirm('この口コミを削除しますか？');">
+				    <input type="hidden" name="action" value="delete">
+				    <input type="hidden" name="reviewId" th:value="${r.id}">
+				    <button type="submit" class="btn btn-secondary btn-small">削除</button>
+				</form>
             </div>
             <p class="comment" th:text="${r.comment}">コメント</p>
         </div>
@@ -250,6 +313,41 @@
     <p class="footer-note">※一部店舗により営業時間が異なります</p>
     <p>&copy; FUJICHAKU TOWN</p>
 </footer>
+
+<script>
+    // 予約履歴：「編集」で入力できるようにし、「取消」で元の内容に戻す
+    document.querySelectorAll('.rsv-row').forEach(function (row) {
+        var form   = row.querySelector('form');
+        var fields = row.querySelectorAll('.rsv-field');
+        var edit   = row.querySelector('.rsv-edit');
+        var save   = row.querySelector('.rsv-save');
+        var cancel = row.querySelector('.rsv-cancel');
+
+        function setEditing(on) {
+            fields.forEach(function (f) {
+                if (f.tagName === 'SELECT') { f.disabled = !on; } else { f.readOnly = !on; }
+            });
+            row.classList.toggle('is-editing', on);
+            edit.hidden = on;
+            save.hidden = !on;
+            cancel.hidden = !on;
+			lockIfCanceled();   // 【追加】
+        }
+		
+		// 予約状況が「キャンセル」のときは、日付・時刻・人数を変更できなくする
+		var statusSelect = row.querySelector('select[name="status"]');
+		function lockIfCanceled() {
+		    var canceled = statusSelect.value === 'キャンセル';
+		    row.querySelectorAll('.rsv-lockable').forEach(function (f) {
+		        f.classList.toggle('is-locked', canceled);
+		    });
+		}
+		statusSelect.addEventListener('change', lockIfCanceled);
+		
+        edit.addEventListener('click', function () { setEditing(true); fields[0].focus(); });
+        cancel.addEventListener('click', function () { form.reset(); setEditing(false); });
+    });
+</script>
 
 </body>
 </html>

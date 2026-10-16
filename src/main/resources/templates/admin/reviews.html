@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>レビュー管理</title>
+
+    <link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+    <link rel="stylesheet" th:href="@{/css/adminReviews.css}">
+</head>
+<body>
+    <canvas id="matrixRain" aria-hidden="true"></canvas>
+    <div class="screen-overlay" aria-hidden="true"></div>
+    <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+
+    <main class="review-page">
+        <h1>レビュー管理</h1>
+
+        <form class="review-search" method="get" th:action="@{/admin/reviews}">
+            <label>ID
+                <input type="text" name="id" th:value="${filters.id}">
+            </label>
+            <label>店舗ID
+                <input type="text" name="storeId" th:value="${filters.storeId}">
+            </label>
+            <label>店舗名
+                <input type="text" name="storeName" th:value="${filters.storeName}">
+            </label>
+            <label>会員ID
+                <input type="text" name="memberId" th:value="${filters.memberId}">
+            </label>
+            <label>会員名
+                <input type="text" name="memberName" th:value="${filters.memberName}">
+            </label>
+            <label>コメント
+                <input type="text" name="comment" th:value="${filters.comment}">
+            </label>
+            <label>評価
+                <select name="grade">
+                    <option value="">すべて</option>
+                    <option value="1" th:selected="${filters.grade == '1'}">1</option>
+                    <option value="2" th:selected="${filters.grade == '2'}">2</option>
+                    <option value="3" th:selected="${filters.grade == '3'}">3</option>
+                    <option value="4" th:selected="${filters.grade == '4'}">4</option>
+                    <option value="5" th:selected="${filters.grade == '5'}">5</option>
+                </select>
+            </label>
+            <label>投稿日（日時）
+                <input type="text" name="createdAt" placeholder="例: 2026-10-13"
+                       th:value="${filters.createdAt}">
+            </label>
+            <div class="search-actions">
+                <button type="submit">検索</button>
+                <a th:href="@{/admin/reviews}">条件クリア</a>
+            </div>
+        </form>
+
+        <p class="success-message" th:if="${successMessage != null}"
+           th:text="${successMessage}"></p>
+
+        <form id="deleteForm" method="post" th:action="@{/admin/reviews/delete}">
+            <input type="hidden" name="filterId" th:value="${filters.id}">
+            <input type="hidden" name="filterStoreId" th:value="${filters.storeId}">
+            <input type="hidden" name="filterStoreName" th:value="${filters.storeName}">
+            <input type="hidden" name="filterMemberId" th:value="${filters.memberId}">
+            <input type="hidden" name="filterMemberName" th:value="${filters.memberName}">
+            <input type="hidden" name="filterComment" th:value="${filters.comment}">
+            <input type="hidden" name="filterGrade" th:value="${filters.grade}">
+            <input type="hidden" name="filterCreatedAt" th:value="${filters.createdAt}">
+        </form>
+
+        <div class="review-table-actions">
+            <button type="submit" form="deleteForm"
+                    onclick="return confirm('選択したレビューを論理削除します。よろしいですか？');">
+                チェックしたレビューを削除
+            </button>
+            <button type="submit" form="bulkUpdateForm">一括更新</button>
+        </div>
+
+        <div class="review-table-frame">
+            <form id="bulkUpdateForm" method="post" th:action="@{/admin/reviews/update}">
+                <input type="hidden" name="filterId" th:value="${filters.id}">
+                <input type="hidden" name="filterStoreId" th:value="${filters.storeId}">
+                <input type="hidden" name="filterStoreName" th:value="${filters.storeName}">
+                <input type="hidden" name="filterMemberId" th:value="${filters.memberId}">
+                <input type="hidden" name="filterMemberName" th:value="${filters.memberName}">
+                <input type="hidden" name="filterComment" th:value="${filters.comment}">
+                <input type="hidden" name="filterGrade" th:value="${filters.grade}">
+                <input type="hidden" name="filterCreatedAt" th:value="${filters.createdAt}">
+
+                <table class="review-table">
+                    <colgroup>
+                        <col class="col-delete">
+                        <col class="col-id">
+                        <col class="col-store-id">
+                        <col class="col-store-name">
+                        <col class="col-member-id">
+                        <col class="col-member-name">
+                        <col class="col-comment">
+                        <col class="col-grade">
+                        <col class="col-created">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>削除</th>
+                            <th>ID</th>
+                            <th>店舗ID（編集可）</th>
+                            <th>店舗名</th>
+                            <th>会員ID（編集可）</th>
+                            <th>会員名</th>
+                            <th>コメント（編集可）</th>
+                            <th>評価（1～5）</th>
+                            <th>投稿日</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(reviews)}">
+                            <td colspan="9">該当するレビューはありません。</td>
+                        </tr>
+
+                        <tr th:each="review, stat : ${reviews}">
+                            <td>
+                                <input type="checkbox" name="deleteIds"
+                                       th:value="${review.id}" form="deleteForm">
+                            </td>
+                            <td>
+                                <span th:text="${review.id}"></span>
+                                <input type="hidden"
+                                       th:name="|reviews[${stat.index}].id|"
+                                       th:value="${review.id}">
+                            </td>
+
+                            <td>
+                                <input class="lookup-id store-id-input"
+                                       type="number" min="1" required
+                                       th:name="|reviews[${stat.index}].storeId|"
+                                       th:value="${review.storeId}"
+                                       th:attr="data-target=|store-name-${stat.index}|">
+                                <small class="lookup-message"
+                                       th:id="|store-message-${stat.index}|"></small>
+                            </td>
+                            <td>
+                                <span class="lookup-name"
+                                      th:id="|store-name-${stat.index}|"
+                                      th:text="${review.storeName}"></span>
+                            </td>
+
+                            <td>
+                                <input class="lookup-id member-id-input"
+                                       type="number" min="1" required
+                                       th:name="|reviews[${stat.index}].memberId|"
+                                       th:value="${review.memberId}"
+                                       th:attr="data-target=|member-name-${stat.index}|">
+                                <small class="lookup-message"
+                                       th:id="|member-message-${stat.index}|"></small>
+                            </td>
+                            <td>
+                                <span class="lookup-name"
+                                      th:id="|member-name-${stat.index}|"
+                                      th:text="${review.memberName}"></span>
+                            </td>
+
+                            <td>
+                                <textarea rows="2" maxlength="2000" required
+                                          th:name="|reviews[${stat.index}].comment|"
+                                          th:text="${review.comment}"></textarea>
+                            </td>
+                            <td>
+                                <select required
+                                        th:name="|reviews[${stat.index}].grade|">
+                                    <option value="1" th:selected="${review.grade == 1}">1</option>
+                                    <option value="2" th:selected="${review.grade == 2}">2</option>
+                                    <option value="3" th:selected="${review.grade == 3}">3</option>
+                                    <option value="4" th:selected="${review.grade == 4}">4</option>
+                                    <option value="5" th:selected="${review.grade == 5}">5</option>
+                                </select>
+                            </td>
+                            <td class="created-at"
+                                th:text="${review.createdAt == null ? '' : #temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+
+            <section class="review-create">
+                <h2>新規レビュー登録</h2>
+
+                <form method="post"
+                      th:action="@{/admin/reviews/create}"
+                      th:object="${newReview}">
+
+                    <input type="hidden" name="filterId" th:value="${filters.id}">
+                    <input type="hidden" name="filterStoreId" th:value="${filters.storeId}">
+                    <input type="hidden" name="filterStoreName" th:value="${filters.storeName}">
+                    <input type="hidden" name="filterMemberId" th:value="${filters.memberId}">
+                    <input type="hidden" name="filterMemberName" th:value="${filters.memberName}">
+                    <input type="hidden" name="filterComment" th:value="${filters.comment}">
+                    <input type="hidden" name="filterGrade" th:value="${filters.grade}">
+                    <input type="hidden" name="filterCreatedAt" th:value="${filters.createdAt}">
+
+                    <label>
+                        店舗ID
+                        <input class="lookup-id" type="number" min="1" required
+                               th:field="*{storeId}"
+                               data-target="new-store-name"
+                               data-message="new-store-message">
+                    </label>
+                    <label class="create-name-label">
+                        店舗名
+                        <span id="new-store-name" class="lookup-name">未入力</span>
+                        <small id="new-store-message" class="lookup-message"></small>
+                    </label>
+
+                    <label>
+                        会員ID
+                        <input class="lookup-id" type="number" min="1" required
+                               th:field="*{memberId}"
+                               data-target="new-member-name"
+                               data-message="new-member-message">
+                    </label>
+                    <label class="create-name-label">
+                        会員名
+                        <span id="new-member-name" class="lookup-name">未入力</span>
+                        <small id="new-member-message" class="lookup-message"></small>
+                    </label>
+
+                    <label>
+                        コメント
+                        <textarea rows="2" maxlength="2000" required
+                                  th:field="*{comment}"></textarea>
+                    </label>
+
+                    <label>
+                        評価
+                        <select required th:field="*{grade}">
+                            <option value="">選択</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </label>
+
+                    <button type="submit">新規登録</button>
+                </form>
+
+                <p class="help-text">
+                    店舗ID・会員IDを入力すると名前が表示されます。
+                    投稿日は登録時に自動設定されます。
+                </p>
+            </section>
+        </div>
+    </main>
+
+<!--    <script th:src="@{/js/matrixRain.js}"></script>-->
+    <script th:src="@{/js/adminReviews.js}"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.mapper.AdminReviewMapper">
+
+    <resultMap id="AdminReviewResultMap"
+               type="com.example.demo.entity.AdminReview">
+        <id property="id" column="id"/>
+        <result property="storeId" column="store_id"/>
+        <result property="storeName" column="store_name"/>
+        <result property="memberId" column="member_id"/>
+        <result property="memberName" column="member_name"/>
+        <result property="comment" column="comment"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="grade" column="grade"/>
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <select id="findAllActive" resultMap="AdminReviewResultMap">
+        SELECT
+            r.id,
+            r.store_id,
+            s.name AS store_name,
+            r.member_id,
+            m.name AS member_name,
+            r.comment,
+            r.created_at,
+            r.grade,
+            r.is_deleted
+        FROM reviews r
+        LEFT JOIN stores s ON s.id = r.store_id
+        LEFT JOIN members m ON m.id = r.member_id
+        WHERE r.is_deleted = FALSE
+        ORDER BY r.id DESC
+    </select>
+
+    <update id="update">
+        UPDATE reviews
+        SET store_id = #{review.storeId},
+            member_id = #{review.memberId},
+            comment = #{review.comment},
+            grade = #{review.grade}
+        WHERE id = #{review.id}
+          AND is_deleted = FALSE
+    </update>
+
+    <update id="deleteByIds">
+        UPDATE reviews
+        SET is_deleted = TRUE
+        WHERE is_deleted = FALSE
+          AND id IN
+        <foreach collection="ids" item="id"
+                 open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <insert id="create">
+        INSERT INTO reviews (
+            store_id,
+            member_id,
+            comment,
+            created_at,
+            grade,
+            is_deleted
+        )
+        VALUES (
+            #{review.storeId},
+            #{review.memberId},
+            #{review.comment},
+            CURRENT_TIMESTAMP,
+            #{review.grade},
+            FALSE
+        )
+    </insert>
+
+    <select id="existsActiveStore" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM stores
+            WHERE id = #{storeId}
+              AND is_deleted = FALSE
+        )
+    </select>
+
+    <select id="existsActiveMember" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM members
+            WHERE id = #{memberId}
+              AND is_deleted = FALSE
+        )
+    </select>
+
+    <select id="findActiveStoreName" resultType="string">
+        SELECT name
+        FROM stores
+        WHERE id = #{storeId}
+          AND is_deleted = FALSE
+    </select>
+
+    <select id="findActiveMemberName" resultType="string">
+        SELECT name
+        FROM members
+        WHERE id = #{memberId}
+          AND is_deleted = FALSE
+    </select>
+
+</mapper>

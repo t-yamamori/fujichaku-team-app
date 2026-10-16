@@ -1,21 +1,29 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-    <!-- 管理者画面共通のサイドメニュー -->
+    <!-- 管理者画面共通サイドバー -->
     <header th:fragment="sidebar" class="admin-sidebar">
         <nav>
             <a th:href="@{/admin/index}">管理者TOP</a>
             <a th:href="@{/admin/tenants}">店舗管理</a>
             <a th:href="@{/admin/shop-admins}">店舗管理者管理</a>
             <a th:href="@{/admin/members}">会員管理</a>
-            <a th:href="@{/reviews/reviews}">口コミ管理</a>
+            <a th:href="@{/admin/reviews}">口コミ管理</a>
             <a th:href="@{/admin/reservations}">予約管理</a>
 
             <form th:action="@{/adminLogout}" method="post">
                 <button type="submit">ログアウト</button>
             </form>
+
         </nav>
+
+        <div class="admin-sidebar-footer">
+            <span class="admin-footer-line"></span>
+            <span>FUJICHAKU SYSTEM</span>
+            <span class="admin-footer-version">MATRIX TERMINAL</span>
+        </div>
+
     </header>
 
 </body>

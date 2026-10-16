@@ -705,9 +705,16 @@
             <a th:href="@{/shops}" class="nav-link">
                 &lt; 店舗一覧へ戻る
             </a>
-            <a th:href="@{/reservations/history}" class="nav-link">
-                予約履歴を確認
-            </a>
+
+            <!-- 会員は予約履歴、非会員は会員登録へ -->
+
+			<!-- 会員は予約履歴、非会員は会員登録へ -->
+			<a
+			    th:href="${isMember} ? @{/reservations/history} : @{/register/register}"
+			    class="nav-link"
+			>
+			    予約履歴を確認
+			</a>
         </nav>
 
         <!-- エラーメッセージ -->
@@ -749,20 +756,26 @@
 
                     <div class="store-info">
                         <p class="store-info-label">代表者</p>
-                        <p class="store-info-value"
-                           th:text="${store.representative != null ? store.representative : '未登録'}">
+                        <p
+                            class="store-info-value"
+                            th:text="${store.representative != null ? store.representative : '未登録'}"
+                        >
                             代表者
                         </p>
 
                         <p class="store-info-label">住所</p>
-                        <p class="store-info-value"
-                           th:text="${store.address != null ? store.address : '未登録'}">
+                        <p
+                            class="store-info-value"
+                            th:text="${store.address != null ? store.address : '未登録'}"
+                        >
                             住所
                         </p>
 
                         <p class="store-info-label">メール</p>
-                        <p class="store-info-value"
-                           th:text="${store.mail != null ? store.mail : '未登録'}">
+                        <p
+                            class="store-info-value"
+                            th:text="${store.mail != null ? store.mail : '未登録'}"
+                        >
                             メールアドレス
                         </p>
                     </div>
@@ -797,6 +810,56 @@
                 >
 
                 <div class="form-grid">
+
+                    <!-- 非会員のみ名前入力欄を表示 -->
+                    <div
+                        class="form-group full-width"
+                        th:unless="${isMember}"
+                    >
+                        <label class="form-label" for="name">
+                            お名前
+                            <span class="required">必須</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            class="form-control"
+                            placeholder="お名前を入力してください"
+                            autocomplete="name"
+                            required
+                        >
+
+                        <p class="form-help">
+                            ご予約される方のお名前を入力してください。
+                        </p>
+                    </div>
+
+                    <!-- 非会員のみメールアドレス入力欄を表示 -->
+                    <div
+                        class="form-group full-width"
+                        th:unless="${isMember}"
+                    >
+                        <label class="form-label" for="mail">
+                            メールアドレス
+                            <span class="required">必須</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="mail"
+                            name="mail"
+                            class="form-control"
+                            placeholder="メールアドレスを入力してください"
+                            autocomplete="email"
+                            required
+                        >
+
+                        <p class="form-help">
+                            予約情報の確認に使用します。
+                        </p>
+                    </div>
 
                     <!-- 予約日 -->
                     <div class="form-group">
@@ -939,32 +1002,33 @@
                 return;
             }
 
-			const characters =
-						    "テストしたくない" +
-						    "テストめんどくさい" + "テストいやだ" +
-						    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
-						    "reservation" + "reserve" + "FUJICHAKU" +
-						    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
-						    "完了" + "予約完了" + "不時着" + "不時着しました" +
-						    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
-						    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
-						    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
-						    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
-						    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
-						    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
-						    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
-						    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
-						    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
-						    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
-						    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
-						    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
-						    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
-						    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
-						    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
-						    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
-						    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
-						    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
-						    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
+            const characters =
+                "テストしたくない" +
+                "テストめんどくさい" +
+                "テストいやだ" +
+                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+                "reservation" + "reserve" + "FUJICHAKU" +
+                "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+                "完了" + "予約完了" + "不時着" + "不時着しました" +
+                "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+                "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+                "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+                "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+                "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+                "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+                "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+                "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+                "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+                "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+                "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+                "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+                "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+                "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+                "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+                "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+                "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+                "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+                "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION";
 
             const fontSize = 14;
             let columns = 0;
@@ -1012,10 +1076,7 @@
 
                     ctx.fillText(character, x, y);
 
-                    if (
-                        y > height &&
-                        Math.random() > 0.975
-                    ) {
+                    if (y > height && Math.random() > 0.975) {
                         drops[i] = 0;
                     } else {
                         drops[i]++;
