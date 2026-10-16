@@ -1,170 +1,439 @@
-/* レビュー管理画面 */
-.review-page {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 0 4px 8px;
-    color: #e8d8ff;
+
+/* ==========================================================
+   FUJICHAKU REVIEW ADMIN
+   レビュー管理画面専用CSS・完全版
+   テーマ：ブラック × パープル
+   ========================================================== */
+
+/* ----------------------------------------------------------
+   1. 基本設定
+   ---------------------------------------------------------- */
+
+:root {
+    --review-bg: #08040d;
+    --review-panel: rgba(12, 7, 19, 0.96);
+    --review-panel-light: #180d24;
+    --review-purple: #a765dc;
+    --review-purple-light: #d8b2ff;
+    --review-border: #714398;
+    --review-text: #f1e7ff;
+    --review-muted: #c5afd9;
+    --review-input-bg: #10091a;
+    --review-hover: rgba(110, 54, 150, 0.3);
+    --review-danger: #ff8eaa;
+    --review-success: #a5ffd0;
 }
 
+html {
+    min-height: 100%;
+}
+
+body {
+    font-family: "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* レビュー画面内のフォントを統一 */
+.review-page,
 .review-page *,
 .review-page *::before,
 .review-page *::after {
     box-sizing: border-box;
+    font-family: "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
+}
+
+/* ----------------------------------------------------------
+   2. 背景演出
+   ---------------------------------------------------------- */
+
+#matrixRain,
+.screen-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#matrixRain {
+    z-index: 0;
+}
+
+.screen-overlay {
+    z-index: 0;
+}
+
+/* ----------------------------------------------------------
+   3. メインコンテンツ
+   ---------------------------------------------------------- */
+
+.review-page {
+    position: relative;
+    z-index: 1;
+
+    width: auto;
+    min-width: 0;
+    max-width: none;
+
+    margin: 0;
+    padding: 24px;
+
+    color: var(--review-text);
+    background: transparent;
+
+    overflow: visible;
 }
 
 /* 見出し */
 .review-page h1 {
-    margin: 0 0 16px;
-    color: #e8d8ff;
+    margin: 0 0 20px;
+    padding: 0;
+
+    color: var(--review-text);
+
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.5;
 }
 
-/* 検索フォーム */
+.review-page h2 {
+    margin: 0 0 14px;
+
+    color: var(--review-text);
+
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+/* ----------------------------------------------------------
+   4. リンク・ボタン
+   ---------------------------------------------------------- */
+
+.review-page a {
+    color: var(--review-purple-light);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.review-page a:hover {
+    color: #ffffff;
+}
+
+.review-page button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 36px;
+    padding: 7px 14px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 4px;
+
+    background: #281439;
+    color: var(--review-text);
+
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.review-page button:hover {
+    background: #482264;
+    border-color: var(--review-purple-light);
+}
+
+.review-page button:active {
+    background: #35174c;
+}
+
+.review-page button:focus-visible,
+.review-page a:focus-visible {
+    outline: 2px solid var(--review-purple-light);
+    outline-offset: 3px;
+}
+
+/* ----------------------------------------------------------
+   5. 共通入力部品
+   ---------------------------------------------------------- */
+
+.review-page input,
+.review-page select,
+.review-page textarea,
+.review-page button {
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* テキスト・数値入力 */
+.review-page input:not([type="checkbox"]):not([type="hidden"]),
+.review-page select {
+    min-height: 36px;
+    padding: 6px 10px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 4px;
+
+    background: var(--review-input-bg);
+    color: var(--review-text);
+}
+
+/* コメント入力 */
+.review-page textarea {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 4px;
+
+    background: var(--review-input-bg);
+    color: var(--review-text);
+
+    font-size: 13px;
+    line-height: 1.6;
+
+    resize: vertical;
+}
+
+/* 入力欄のフォーカス */
+.review-page input:focus,
+.review-page select:focus,
+.review-page textarea:focus {
+    outline: 2px solid var(--review-purple-light);
+    outline-offset: 1px;
+    border-color: var(--review-purple-light);
+}
+
+/* プレースホルダー */
+.review-page input::placeholder,
+.review-page textarea::placeholder {
+    color: var(--review-muted);
+    opacity: 1;
+}
+
+/* セレクトボックスの選択肢 */
+.review-page select option {
+    background: var(--review-input-bg);
+    color: var(--review-text);
+}
+
+/* チェックボックス */
+.review-page input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: #bd83f3;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+/* ----------------------------------------------------------
+   6. 検索フォーム
+   ---------------------------------------------------------- */
+
 .review-search {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: flex-end;
-    gap: 8px;
+    gap: 12px;
+
     width: 100%;
-    margin: 0 0 4px;
-    padding: 10px;
-    border: 1px solid #7840a8;
-    background: rgba(0, 0, 0, 0.86);
-    color: #e8d8ff;
-    overflow-x: auto;
+    margin: 0 0 12px;
+    padding: 14px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 5px;
+
+    background: var(--review-panel);
+    color: var(--review-text);
 }
 
 .review-search label,
 .review-create label {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
+
+    min-width: 0;
+
+    color: var(--review-purple-light);
+
     font-size: 13px;
-    color: #d8a6ff;
-    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1.5;
 }
 
+/* 検索欄の幅 */
 .review-search input,
 .review-search select {
-    width: 136px;
-    min-width: 100px;
-    height: 30px;
-    padding: 4px 6px;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
+    width: 150px;
+    min-width: 0;
+    max-width: 100%;
 }
 
+/* コメント検索 */
 .review-search label:nth-child(6) input {
-    width: 230px;
+    width: 210px;
 }
 
+/* 評価検索 */
 .review-search label:nth-child(7) select {
-    width: 110px;
-    min-width: 110px;
+    width: 100px;
 }
 
+/* 投稿日検索 */
 .review-search label:nth-child(8) input {
-    width: 136px;
+    width: 160px;
 }
 
+/* 検索ボタン群 */
 .search-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-    white-space: nowrap;
 }
 
-/* ボタン・リンク */
-.review-page button {
-    min-height: 30px;
-    padding: 4px 12px;
-    cursor: pointer;
-}
+/* ----------------------------------------------------------
+   7. 成功メッセージ
+   ---------------------------------------------------------- */
 
-.review-page a {
-    color: #d8a6ff;
-}
-
-.review-page button:focus-visible,
-.review-page input:focus-visible,
-.review-page select:focus-visible,
-.review-page textarea:focus-visible {
-    outline: 1px solid #d8a6ff;
-    outline-offset: 1px;
-}
-
-/* 処理結果メッセージ */
 .review-page .success-message {
+    margin: 10px 0;
+    padding: 10px 12px;
+
+    border: 1px solid #397b60;
+    border-radius: 4px;
+
+    background: rgba(8, 35, 25, 0.92);
+    color: var(--review-success);
+
+    font-size: 14px;
+    line-height: 1.6;
+
     white-space: pre-line;
-    margin: 6px 0;
-    padding: 8px;
-    border: 1px solid #7840a8;
-    background: rgba(0, 0, 0, 0.86);
-    color: #d8a6ff;
 }
 
-/* 削除・一括更新ボタン */
+/* ----------------------------------------------------------
+   8. 削除・一括更新ボタン
+   ---------------------------------------------------------- */
+
 .review-table-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+
     width: 100%;
-    margin: 4px 0;
+    margin: 10px 0;
 }
 
-/* 表と新規登録欄を一体化する外枠 */
+.review-table-actions button {
+    min-height: 38px;
+}
+
+/* ----------------------------------------------------------
+   9. 表と新規登録欄の外枠
+   ---------------------------------------------------------- */
+
 .review-table-frame {
+    display: block;
+
     width: 100%;
     max-width: 100%;
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid var(--review-border);
+    border-radius: 5px;
+
+    background: var(--review-panel);
+
     overflow-x: auto;
-    overflow-y: hidden;
-    border: 1px solid #7840a8;
-    background: rgba(0, 0, 0, 0.86);
+    overflow-y: visible;
+
+    -webkit-overflow-scrolling: touch;
 }
 
-/* 一覧表 */
+/* ----------------------------------------------------------
+   10. レビュー一覧テーブル
+   ---------------------------------------------------------- */
+
 .review-table {
     width: 100%;
     min-width: 1300px;
+
     table-layout: fixed;
     border-collapse: collapse;
-    color: #e8d8ff;
+
     background: transparent;
+    color: var(--review-text);
+
     font-size: 13px;
+    line-height: 1.6;
 }
 
 .review-table th,
 .review-table td {
-    border: 1px solid #4b2868;
-    padding: 5px;
+    padding: 8px 6px;
+
+    border: 1px solid #4b3061;
+
     vertical-align: middle;
     overflow-wrap: anywhere;
+
+    font-family: inherit;
+    font-size: 13px;
 }
 
+/* ヘッダー */
 .review-table thead th {
-    background: #180b24;
-    color: #d8a6ff;
+    padding: 10px 6px;
+
+    background: #21112f;
+    color: var(--review-purple-light);
+
+    font-weight: 700;
     text-align: center;
     white-space: nowrap;
 }
 
+/* 行背景 */
 .review-table tbody tr {
-    background: rgba(0, 0, 0, 0.88);
+    background: rgba(9, 5, 14, 0.96);
 }
 
 .review-table tbody tr:nth-child(even) {
-    background: rgba(28, 10, 43, 0.92);
+    background: rgba(29, 15, 42, 0.96);
 }
 
 .review-table tbody tr:hover {
-    background: rgba(66, 28, 92, 0.8);
+    background: var(--review-hover);
 }
 
+/* 空データ行 */
+.review-table tbody tr td[colspan] {
+    padding: 24px 12px;
+    text-align: center;
+    color: var(--review-muted);
+}
+
+/* IDや評価の中央揃え */
 .review-table td:nth-child(1),
 .review-table td:nth-child(2),
 .review-table td:nth-child(3),
@@ -173,37 +442,53 @@
     text-align: center;
 }
 
-.review-table input[type="checkbox"] {
-    accent-color: #b56cff;
-}
+/* ----------------------------------------------------------
+   11. テーブル内の入力欄
+   ---------------------------------------------------------- */
 
-/* コメント・評価欄 */
-.review-table textarea,
+.review-table input:not([type="checkbox"]):not([type="hidden"]),
 .review-table select {
     display: block;
+
     width: 100%;
     min-width: 0;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
+    min-height: 34px;
+
+    padding: 5px 7px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 3px;
+
+    background: var(--review-input-bg);
+    color: var(--review-text);
+
+    font-size: 13px;
+    line-height: 1.5;
 }
 
+/* コメント欄 */
 .review-table textarea {
-    min-height: 40px;
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+
+    padding: 7px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 3px;
+
+    background: var(--review-input-bg);
+    color: var(--review-text);
+
+    font-size: 13px;
+    line-height: 1.6;
+
     resize: vertical;
 }
 
-.review-table select {
-    min-width: 50px;
-}
-
-.created-at {
-    white-space: nowrap;
-    overflow-wrap: normal !important;
-    font-size: 12px;
-}
-
-/* ID入力欄が名前欄にはみ出さないようにする */
+/* 店舗ID・会員ID */
 .review-table td:nth-child(3),
 .review-table td:nth-child(5) {
     overflow: hidden;
@@ -212,108 +497,126 @@
 .review-table td:nth-child(3) .lookup-id,
 .review-table td:nth-child(5) .lookup-id {
     display: block;
-    width: 62px;
+
+    width: 68px;
     min-width: 0;
     max-width: 100%;
-    height: 28px;
+    min-height: 34px;
+
     margin: 0 auto;
-    padding: 3px;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
-    font-size: 12px;
+    padding: 5px;
+
+    text-align: center;
+    font-size: 13px;
 }
 
+/* 店舗名・会員名 */
 .review-table td:nth-child(4) .lookup-name,
 .review-table td:nth-child(6) .lookup-name {
     display: block;
+
     width: 100%;
     min-width: 0;
+
+    color: var(--review-text);
+
     overflow-wrap: anywhere;
-    color: #e8d8ff;
 }
 
-/* エラーメッセージ */
-.lookup-message {
-    display: block;
-    margin-top: 3px;
-    color: #d8a6ff;
-    font-size: 11px;
+/* 日時 */
+.review-table .created-at {
+    font-size: 12px;
     white-space: normal;
     overflow-wrap: anywhere;
 }
 
-/* 列幅：一覧表と新規登録で共通 */
-.col-delete {
+/* ID照会メッセージ */
+.review-page .lookup-message {
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--review-purple-light);
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------
+   12. テーブル列幅
+   ---------------------------------------------------------- */
+
+.review-table .col-delete {
     width: 52px;
 }
 
-.col-id {
+.review-table .col-id {
     width: 66px;
 }
 
-.col-store-id {
+.review-table .col-store-id {
     width: 82px;
 }
 
-.col-store-name {
+.review-table .col-store-name {
     width: 160px;
 }
 
-.col-member-id {
+.review-table .col-member-id {
     width: 82px;
 }
 
-.col-member-name {
+.review-table .col-member-name {
     width: 130px;
 }
 
-.col-comment {
+.review-table .col-comment {
     width: 450px;
 }
 
-.col-grade {
+.review-table .col-grade {
     width: 92px;
 }
 
-.col-created {
+.review-table .col-created {
     width: 160px;
 }
 
-/*
- * 列幅合計：
- * 52 + 66 + 82 + 160 + 82 + 130 + 450 + 92 + 160
- * = 1274px
- *
- * 表と新規登録欄の横幅を一致させるため、
- * どちらも最小幅1300pxに統一する。
- */
+/* ----------------------------------------------------------
+   13. 新規レビュー登録
+   ---------------------------------------------------------- */
 
-/* 新規登録欄 */
 .review-create {
     width: 100%;
-    min-width: 1300px;
+    min-width: 0;
+
     margin: 0;
-    padding: 10px 0 12px;
+    padding: 18px 14px;
+
     border: 0;
-    border-top: 1px solid #4b2868;
-    background: rgba(0, 0, 0, 0.88);
-    color: #e8d8ff;
+    border-top: 1px solid var(--review-border);
+
+    background: var(--review-panel);
+    color: var(--review-text);
 }
 
 .review-create h2 {
-    margin: 0 0 12px;
-    padding: 0 12px;
-    color: #e8d8ff;
-    font-size: 18px;
+    margin: 0 0 16px;
+    padding: 0;
+
+    color: var(--review-purple-light);
+
+    font-size: 20px;
+    font-weight: 700;
 }
 
-/*
- * 新規登録の入力項目を表の列位置に合わせる。
- * hidden inputは表示されないため、列配置には影響しない。
- */
+/* 登録フォーム */
 .review-create form {
     display: grid;
+
     grid-template-columns:
         52px
         66px
@@ -324,68 +627,73 @@
         450px
         92px
         160px;
+
     align-items: end;
     column-gap: 0;
-    row-gap: 8px;
-    width: 1274px;
+    row-gap: 10px;
+
+    width: max-content;
     min-width: 1274px;
+
     margin: 0;
 }
 
-/* 店舗ID：一覧表の店舗ID列 */
+/* 店舗ID */
 .review-create form label:nth-of-type(1) {
     grid-column: 3;
     grid-row: 1;
 }
 
-/* 店舗名：一覧表の店舗名列 */
+/* 店舗名 */
 .review-create form label:nth-of-type(2) {
     grid-column: 4;
     grid-row: 1;
 }
 
-/* 会員ID：一覧表の会員ID列 */
+/* 会員ID */
 .review-create form label:nth-of-type(3) {
     grid-column: 5;
     grid-row: 1;
 }
 
-/* 会員名：一覧表の会員名列 */
+/* 会員名 */
 .review-create form label:nth-of-type(4) {
     grid-column: 6;
     grid-row: 1;
 }
 
-/* コメント：一覧表のコメント列 */
+/* コメント */
 .review-create form label:nth-of-type(5) {
     grid-column: 7;
     grid-row: 1;
 }
 
-/* 評価：一覧表の評価列 */
+/* 評価 */
 .review-create form label:nth-of-type(6) {
     grid-column: 8;
     grid-row: 1;
 }
 
-/* 登録ボタン：投稿日列 */
+/* 登録ボタン */
 .review-create form button {
     grid-column: 9;
     grid-row: 1;
+
     justify-self: start;
     align-self: end;
+
     margin: 0 0 0 6px;
 }
 
-/* 新規登録のID欄 */
+/* 新規登録ID */
 .review-create form label:nth-of-type(1) input,
 .review-create form label:nth-of-type(3) input {
-    width: 62px;
+    width: 68px;
     min-width: 0;
     max-width: 100%;
 }
 
-/* 新規登録の店舗名・会員名表示欄 */
+/* 店舗名・会員名 */
 .review-create .create-name-label {
     min-width: 0;
     white-space: normal;
@@ -393,57 +701,468 @@
 
 .review-create .lookup-name {
     display: block;
+
     width: 100%;
     min-width: 0;
-    min-height: 30px;
-    padding: 6px;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
+    min-height: 36px;
+
+    padding: 7px;
+
+    border: 1px solid var(--review-border);
+    border-radius: 3px;
+
+    background: var(--review-input-bg);
+    color: var(--review-text);
+
+    font-size: 13px;
+    line-height: 1.5;
+
     white-space: normal;
     overflow-wrap: anywhere;
 }
 
-/* 新規登録のコメント・評価 */
+/* 新規登録コメント */
 .review-create form label:nth-of-type(5) textarea {
-    display: block;
     width: 100%;
     min-width: 0;
-    min-height: 40px;
-    padding: 4px 6px;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
-    resize: vertical;
+    min-height: 48px;
 }
 
+/* 新規登録評価 */
 .review-create form label:nth-of-type(6) select {
     width: 100%;
     min-width: 0;
-    height: 30px;
-    padding: 4px;
-    color: #e8d8ff;
-    background: #08040d;
-    border: 1px solid #7840a8;
 }
 
+/* 説明 */
 .review-create .help-text {
-    margin: 8px 12px 0;
-    font-size: 12px;
-    color: #aa8ac2;
+    margin: 14px 0 0;
+
+    color: var(--review-muted);
+
+    font-size: 13px;
+    line-height: 1.7;
 }
 
-/* 狭い画面でも列幅を維持して横スクロール */
-@media (max-width: 700px) {
+/* ----------------------------------------------------------
+   14. サイドバー文字の視認性
+   ---------------------------------------------------------- */
+
+/*
+ * サイドバーは adminLayout.css の既存レイアウトを利用する。
+ * ここでは配置・幅・positionを強制変更せず、文字だけを調整する。
+ */
+
+header a,
+aside a,
+nav a,
+.admin-sidebar a,
+.sidebar a {
+    color: #eee1ff;
+    font-family: "Yu Gothic UI", "Meiryo", "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.7;
+    text-decoration: none;
+}
+
+header a:hover,
+aside a:hover,
+nav a:hover,
+.admin-sidebar a:hover,
+.sidebar a:hover {
+    color: #ffffff;
+}
+
+header a:focus-visible,
+aside a:focus-visible,
+nav a:focus-visible,
+.admin-sidebar a:focus-visible,
+.sidebar a:focus-visible {
+    outline: 2px solid var(--review-purple-light);
+    outline-offset: 3px;
+}
+
+/* ----------------------------------------------------------
+   15. レスポンシブ対応
+   ---------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+    .review-page {
+        padding: 18px;
+    }
+
     .review-search {
         flex-wrap: wrap;
     }
 
-    .review-table {
-        min-width: 1300px;
+    .review-create {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 700px) {
+    .review-page {
+        padding: 12px;
+    }
+
+    .review-page h1 {
+        font-size: 22px;
+    }
+
+    .review-page h2 {
+        font-size: 18px;
+    }
+
+    .review-search {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .review-search label {
+        width: 100%;
+    }
+
+    .review-search input,
+    .review-search select,
+    .review-search label:nth-child(6) input,
+    .review-search label:nth-child(7) select,
+    .review-search label:nth-child(8) input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .search-actions {
+        width: 100%;
+    }
+
+    .review-table-actions {
+        justify-content: flex-start;
+    }
+
+    .review-table-frame {
+        max-width: 100%;
     }
 
     .review-create {
-        min-width: 1300px;
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+    .review-create form {
+        min-width: 1274px;
+    }
+}
+
+/* ----------------------------------------------------------
+   16. 動きを減らす設定
+   ---------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    .review-page button {
+        transition: none;
+    }
+}
+
+/* ==========================================================
+   サイドバーとの重なりを強制的に解消する最終調整
+   ========================================================== */
+
+/* このページではメイン領域をサイドバーの右側に配置 */
+body:has(.review-page) > .review-page {
+    position: relative !important;
+    z-index: 1;
+
+    display: block !important;
+
+    margin-left: 260px !important;
+    width: calc(100% - 260px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    padding: 24px !important;
+
+    box-sizing: border-box !important;
+}
+
+/* サイドバーが固定配置でも左側に収める */
+body:has(.review-page) > header,
+body:has(.review-page) > aside,
+body:has(.review-page) > nav,
+body:has(.review-page) > .admin-sidebar,
+body:has(.review-page) > .sidebar {
+    position: fixed !important;
+
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+
+    width: 250px !important;
+    min-width: 250px !important;
+    max-width: 250px !important;
+
+    height: 100vh !important;
+    margin: 0 !important;
+
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    z-index: 100 !important;
+}
+
+/* 背景をコンテンツの後ろに固定 */
+body:has(.review-page) > #matrixRain,
+body:has(.review-page) > .screen-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 狭い画面 */
+@media (max-width: 700px) {
+    body:has(.review-page) > .review-page {
+        margin-left: 200px !important;
+        width: calc(100% - 200px) !important;
+        padding: 12px !important;
+    }
+
+    body:has(.review-page) > header,
+    body:has(.review-page) > aside,
+    body:has(.review-page) > nav,
+    body:has(.review-page) > .admin-sidebar,
+    body:has(.review-page) > .sidebar {
+        width: 190px !important;
+        min-width: 190px !important;
+        max-width: 190px !important;
+    }
+}
+
+/* ==========================================================
+   新規レビュー登録欄：位置・幅・高さの統一
+   ========================================================== */
+
+/* 新規登録欄 */
+.review-create {
+    width: 100%;
+    min-width: 0;
+    padding: 18px 14px;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+/* 見出し */
+.review-create h2 {
+    margin: 0 0 18px;
+    padding: 0;
+    line-height: 1.5;
+}
+
+/*
+ * 6項目を同じグリッドで管理。
+ * ID入力欄・名前表示欄・コメント欄・評価欄・登録ボタンを
+ * それぞれ独立した列に配置する。
+ */
+.review-create form {
+    display: grid;
+
+    grid-template-columns:
+        140px
+        180px
+        140px
+        180px
+        minmax(260px, 1fr)
+        110px
+        120px;
+
+    align-items: stretch;
+    gap: 12px;
+
+    width: 100%;
+    min-width: 1100px;
+    margin: 0;
+}
+
+/* 全項目を同じ上端・同じ幅基準にする */
+.review-create form > label {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-self: stretch;
+
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+
+    gap: 7px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+
+    white-space: normal;
+}
+
+/* HTML内のラベル順にグリッド配置 */
+.review-create form > label:nth-of-type(1) {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.review-create form > label:nth-of-type(2) {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.review-create form > label:nth-of-type(3) {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+.review-create form > label:nth-of-type(4) {
+    grid-column: 4;
+    grid-row: 1;
+}
+
+.review-create form > label:nth-of-type(5) {
+    grid-column: 5;
+    grid-row: 1;
+}
+
+.review-create form > label:nth-of-type(6) {
+    grid-column: 6;
+    grid-row: 1;
+}
+
+/* 入力欄の共通サイズ */
+.review-create form > label > input,
+.review-create form > label > select,
+.review-create form > label > textarea {
+    display: block;
+
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 40px;
+
+    margin: 0;
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #714398;
+    border-radius: 4px;
+
+    background: #10091a;
+    color: #f1e7ff;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* 店舗ID・会員IDも列幅いっぱいにそろえる */
+.review-create form > label:nth-of-type(1) > input,
+.review-create form > label:nth-of-type(3) > input {
+    width: 100%;
+}
+
+/* 名前表示欄 */
+.review-create .create-name-label {
+    min-width: 0;
+    white-space: normal;
+}
+
+.review-create .lookup-name {
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+
+    margin: 0;
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #714398;
+    border-radius: 4px;
+
+    background: #10091a;
+    color: #f1e7ff;
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+/* ID検索メッセージ */
+.review-create .lookup-message {
+    display: block;
+    min-height: 0;
+    margin: 0;
+
+    color: #d8b2ff;
+    font-size: 12px;
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
+}
+
+/* コメント欄 */
+.review-create form > label:nth-of-type(5) > textarea {
+    min-height: 40px;
+    height: 40px;
+    resize: vertical;
+}
+
+/* 評価欄 */
+.review-create form > label:nth-of-type(6) > select {
+    height: 40px;
+}
+
+/* 登録ボタンを独立した列に配置 */
+.review-create form > button {
+    grid-column: 7;
+    grid-row: 1;
+
+    align-self: end;
+    justify-self: stretch;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+
+    margin: 0;
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    white-space: nowrap;
+}
+
+/* 説明文 */
+.review-create .help-text {
+    margin: 14px 0 0;
+    color: #c5afd9;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* 狭い画面では横スクロールを使用 */
+@media (max-width: 1100px) {
+    .review-create {
+        overflow-x: auto;
+    }
+
+    .review-create form {
+        width: 1100px;
+        min-width: 1100px;
     }
 }
