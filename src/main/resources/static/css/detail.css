@@ -299,3 +299,36 @@ body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color
     .back-btn { width: 32px; height: 32px; }
 }
 
+/* ===== 予約履歴の編集（店舗管理者） ===== */
+.rsv-field {
+    width: 100%; padding: 4px 6px;
+    font: inherit; font-size: .9rem; color: var(--text);
+    background: transparent; border: 1px solid transparent; border-radius: 3px;
+    pointer-events: none;            /* 編集前はさわれない */
+}
+.rsv-field:disabled { opacity: 1; color: var(--text); appearance: none; }
+.rsv-num .rsv-field { width: 4em; margin-right: 4px; }
+.rsv-row.is-editing { background: var(--sky-pale); }
+.rsv-row.is-editing .rsv-field {     /* 編集中は枠を出す */
+    background: #fff; border-color: var(--sky-deep);
+    pointer-events: auto; appearance: auto;
+}
+.rsv-actions { white-space: nowrap; width: 1%; }
+.rsv-actions form { display: flex; gap: 6px; margin: 0; }
+.rsv-actions [hidden] { display: none; }   /* .btn の display より優先して隠す */
+
+/* 予約履歴へスクロールしたとき、上の固定ヘッダーに隠れないようにする */
+#rsv { scroll-margin-top: 80px; }
+
+/* ===== ×で閉じられるメッセージ ===== */
+.flash-closable {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.flash-close {
+    flex: none;
+    border: none; background: none; cursor: pointer;
+    color: inherit; font-size: 1.1rem; line-height: 1;
+    padding: 2px 6px; border-radius: 3px;
+}
+.flash-close:hover { background: rgba(0, 0, 0, .06); }
+
