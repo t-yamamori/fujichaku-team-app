@@ -7,16 +7,9 @@
     <title>ご予約 | FUJICHAKU</title>
 
     <style>
-        /* =========================================
-           FUJICHAKU RESERVATION
-           砂漠の空・白いカード・ブラウンデザイン
-           ========================================= */
-
         :root {
             --main: #a66a3f;
             --main-dark: #754326;
-            --sky-deep: #7ebbd0;
-            --sky-pale: #e8f7fb;
             --line: #e5d8cc;
             --text: #49382d;
             --text-sub: #806e60;
@@ -39,6 +32,7 @@
             isolation: isolate;
             min-height: 100vh;
             margin: 0;
+            overflow-x: hidden;
             color: var(--text);
             background: linear-gradient(
                 180deg,
@@ -49,10 +43,8 @@
             );
             font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN",
                          Meiryo, sans-serif;
-            overflow-x: hidden;
         }
 
-        /* 空の背景 */
         body::before {
             position: fixed;
             z-index: -3;
@@ -73,7 +65,6 @@
                 );
         }
 
-        /* 砂丘 */
         body::after {
             position: fixed;
             z-index: -2;
@@ -94,7 +85,6 @@
             opacity: 0.88;
         }
 
-        /* 雲 */
         .cloud {
             position: fixed;
             z-index: -1;
@@ -142,15 +132,10 @@
         }
 
         @keyframes cloudFloat {
-            from {
-                translate: 0 0;
-            }
-            to {
-                translate: calc(100vw + 500px) 0;
-            }
+            from { translate: 0 0; }
+            to { translate: calc(100vw + 500px) 0; }
         }
 
-        /* ヘッダー */
         .site-header {
             position: relative;
             z-index: 5;
@@ -195,7 +180,6 @@
             letter-spacing: 1px;
         }
 
-        /* メイン */
         .page-container {
             position: relative;
             z-index: 1;
@@ -235,7 +219,6 @@
             line-height: 1.8;
         }
 
-        /* カード */
         .content-card {
             min-width: 0;
             margin-bottom: 24px;
@@ -258,7 +241,6 @@
         }
 
         .section-title::before {
-            display: inline-block;
             flex: 0 0 5px;
             width: 5px;
             height: 25px;
@@ -267,7 +249,6 @@
             content: "";
         }
 
-        /* 店舗情報 */
         .store-layout {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
@@ -275,18 +256,15 @@
             min-width: 0;
         }
 
-        /* 画像全体を表示し、元の縦横比を維持 */
         .store-image {
             display: block;
             width: 100%;
             height: auto;
             max-width: 100%;
-            max-height: none;
             object-fit: contain;
-            object-position: center center;
+            object-position: center;
             border-radius: 14px;
             background: #f2e7da;
-            box-sizing: border-box;
         }
 
         .store-name {
@@ -332,7 +310,6 @@
             white-space: pre-wrap;
         }
 
-        /* エラー表示 */
         .error-message {
             margin: 0 0 22px;
             padding: 15px 18px;
@@ -344,7 +321,6 @@
             line-height: 1.7;
         }
 
-        /* フォーム */
         .reservation-form {
             display: grid;
             gap: 25px;
@@ -386,17 +362,6 @@
             vertical-align: 2px;
         }
 
-        .optional-label {
-            display: inline-block;
-            margin-left: 7px;
-            padding: 3px 7px;
-            border-radius: 5px;
-            color: #66574b;
-            background: #eee5dc;
-            font-size: 10px;
-            vertical-align: 2px;
-        }
-
         .form-control {
             display: block;
             width: 100%;
@@ -432,12 +397,10 @@
             line-height: 1.7;
         }
 
-        /* 人数 */
         .number-control {
             max-width: 240px;
         }
 
-        /* 時間 */
         .time-section {
             padding-top: 22px;
             border-top: 1px solid #eee3d9;
@@ -499,7 +462,6 @@
             outline-offset: 3px;
         }
 
-        /* 会員名 */
         .member-name {
             display: flex;
             align-items: center;
@@ -514,7 +476,6 @@
             overflow-wrap: anywhere;
         }
 
-        /* ボタン */
         .form-actions {
             display: flex;
             flex-wrap: wrap;
@@ -554,6 +515,7 @@
         }
 
         .button-primary:hover {
+            color: #fff;
             background: var(--main-dark);
             box-shadow: 0 8px 20px rgba(117, 67, 38, 0.24);
         }
@@ -565,6 +527,7 @@
         }
 
         .button-secondary:hover {
+            color: var(--main-dark);
             background: #f8eee5;
         }
 
@@ -595,7 +558,6 @@
             text-decoration: underline;
         }
 
-        /* フッター */
         .site-footer {
             position: relative;
             z-index: 1;
@@ -607,7 +569,6 @@
             letter-spacing: 1px;
         }
 
-        /* スマートフォン対応 */
         @media (max-width: 680px) {
             .header-inner {
                 width: calc(100% - 28px);
@@ -684,82 +645,6 @@
                 transition-duration: 0.01ms !important;
             }
         }
-		/* =========================================
-		   FUJICHAKU MATRIX
-		   予約管理・文字色の強調
-		   ※配置・サイズ・余白は変更しない
-		   ========================================= */
-
-		/* ページ見出し */
-		h1,
-		h2,
-		h3 {
-		    color: #00ff41;
-		    font-weight: 800;
-		    text-shadow: 0 0 7px rgba(0, 255, 65, 0.45);
-		}
-
-		/* テーブルの列名 */
-		table thead th {
-		    color: #00ff41;
-		    font-weight: 800;
-		    text-shadow: 0 0 5px rgba(0, 255, 65, 0.35);
-		    border-color: #008f11;
-		}
-
-		/* 予約情報 */
-		table tbody td {
-		    color: #d7ffe0;
-		    border-color: rgba(0, 255, 65, 0.3);
-		}
-
-		/* ID・重要な数値 */
-		table tbody td strong,
-		table tbody td b {
-		    color: #39ff88;
-		    font-weight: 800;
-		}
-
-		/* 入力欄 */
-		input,
-		select,
-		textarea {
-		    color: #d7ffe0;
-		    caret-color: #00ff41;
-		    border-color: rgba(0, 255, 65, 0.55);
-		}
-
-		/* ボタン文字 */
-		button,
-		input[type="button"],
-		input[type="submit"] {
-		    font-weight: 700;
-		    text-shadow: 0 0 4px rgba(0, 255, 65, 0.25);
-		}
-
-		/* ホバー時の文字 */
-		button:hover,
-		input[type="button"]:hover,
-		input[type="submit"]:hover {
-		    color: #ffffff;
-		    text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
-		}
-
-		/* 成功メッセージ */
-		.success,
-		.success-message,
-		.alert-success {
-		    color: #39ff88;
-		    font-weight: 700;
-		}
-
-		/* エラーメッセージ */
-		.error,
-		.error-message,
-		.alert-danger {
-		    color: #ff6b6b;
-		    font-weight: 700;
-		}
     </style>
 </head>
 
@@ -768,7 +653,6 @@
     <div class="cloud cloud-one" aria-hidden="true"></div>
     <div class="cloud cloud-two" aria-hidden="true"></div>
 
-    <!-- ヘッダー -->
     <header class="site-header">
         <div class="header-inner">
             <a class="brand"
@@ -785,7 +669,6 @@
 
     <main class="page-container">
 
-        <!-- ページタイトル -->
         <div class="page-heading">
             <h1 class="page-title">RESERVATION FORM</h1>
             <p class="page-subtitle">
@@ -793,7 +676,6 @@
             </p>
         </div>
 
-        <!-- エラーメッセージ -->
         <div class="error-message"
              role="alert"
              th:if="${error != null}"
@@ -808,13 +690,11 @@
             エラーメッセージ
         </div>
 
-        <!-- 店舗情報 -->
         <section class="content-card" aria-labelledby="store-heading">
             <h2 id="store-heading" class="section-title">店舗情報</h2>
 
             <div class="store-layout">
 
-                <!-- 店舗画像 -->
                 <img class="store-image"
                      th:if="${store.pictureUrl != null and !#strings.isEmpty(store.pictureUrl)}"
                      th:src="${store.pictureUrl}"
@@ -852,16 +732,16 @@
             </div>
         </section>
 
-        <!-- 予約フォーム -->
         <section class="content-card" aria-labelledby="reservation-heading">
 
-            <h2 id="reservation-heading" class="section-title">ご予約内容</h2>
+            <h2 id="reservation-heading" class="section-title">
+                ご予約内容
+            </h2>
 
             <form class="reservation-form"
                   method="post"
                   th:action="@{/shops/{shopId}/reservations/confirm(shopId=${store.id})}">
 
-                <!-- CSRF対策 -->
                 <input type="hidden"
                        th:if="${_csrf != null}"
                        th:name="${_csrf.parameterName}"
@@ -887,7 +767,7 @@
                                th:value="${memberName}">
                     </div>
 
-                    <!-- ゲスト名 -->
+                    <!-- ゲスト氏名 -->
                     <div class="form-group full-width" th:unless="${isMember}">
                         <label for="guestName" class="form-label">
                             ご予約者名
@@ -898,34 +778,36 @@
                                id="guestName"
                                name="name"
                                class="form-control"
+                               th:value="${name}"
                                placeholder="例：山田 太郎"
                                maxlength="100"
                                autocomplete="name"
                                required>
                     </div>
 
-                    <!-- ゲストメールアドレス -->
+                    <!-- ゲストメール：Controllerのmailと名前を一致させる -->
                     <div class="form-group full-width" th:unless="${isMember}">
                         <label for="guestEmail" class="form-label">
                             メールアドレス
                             <span class="required-label">必須</span>
                         </label>
 
-						<input type="email"
-						       id="guestEmail"
-						       name="mail"
-						       class="form-control"
-						       placeholder="例：example@example.com"
-						       maxlength="254"
-						       autocomplete="email"
-						       required>
+                        <input type="email"
+                               id="guestEmail"
+                               name="mail"
+                               class="form-control"
+                               th:value="${mail}"
+                               placeholder="例：example@example.com"
+                               maxlength="254"
+                               autocomplete="email"
+                               required>
 
                         <p class="form-help">
                             ご予約に関する連絡に使用するメールアドレスを入力してください。
                         </p>
                     </div>
 
-                    <!-- 予約日：コントローラーの要求名に合わせて date に設定 -->
+                    <!-- 予約日 -->
                     <div class="form-group">
                         <label for="reservationDate" class="form-label">
                             ご予約日
@@ -936,6 +818,7 @@
                                id="reservationDate"
                                name="date"
                                class="form-control"
+                               th:value="${date}"
                                required>
 
                         <p class="form-help">
@@ -954,11 +837,13 @@
                                 name="number"
                                 class="form-control number-control"
                                 required>
+
                             <option value="">人数を選択</option>
 
                             <option th:each="i : ${#numbers.sequence(1, 10)}"
                                     th:value="${i}"
-                                    th:text="${i + '名'}">
+                                    th:text="${i + '名'}"
+                                    th:selected="${number != null and number == i}">
                                 1名
                             </option>
                         </select>
@@ -985,6 +870,7 @@
                                 <input type="radio"
                                        name="time"
                                        th:value="${t}"
+                                       th:checked="${time != null and time == t}"
                                        required>
 
                                 <span th:text="${t}">11:00</span>
@@ -995,7 +881,6 @@
 
                 </div>
 
-                <!-- 送信ボタン -->
                 <div class="form-actions">
                     <button type="submit" class="button button-primary">
                         予約内容を確認する
@@ -1009,7 +894,6 @@
 
             </form>
 
-            <!-- 会員・ゲスト別ナビゲーション -->
             <nav class="navigation-links" aria-label="関連ページ">
 
                 <a th:if="${isMember}"
@@ -1040,7 +924,6 @@
                 return;
             }
 
-            // ローカル日付を YYYY-MM-DD 形式で取得
             function getLocalDateString() {
                 const now = new Date();
                 const year = now.getFullYear();
@@ -1050,7 +933,6 @@
                 return year + "-" + month + "-" + day;
             }
 
-            // 過去の日付を選択できないようにする
             function validateDate() {
                 const today = getLocalDateString();
 

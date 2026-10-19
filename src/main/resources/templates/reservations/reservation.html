@@ -16,7 +16,7 @@
         /* =========================================================
            FUJICHAKU TOWN
            予約確認・予約詳細
-           master側の空色・ブラウン・白いカードデザインを優先
+           空色・ブラウン・白いカードデザイン
            ========================================================= */
 
         :root {
@@ -69,7 +69,6 @@
             min-height: 100vh;
             margin: 0;
             overflow-x: hidden;
-
             color: var(--text);
             font-family:
                 "BIZ UDPGothic",
@@ -78,13 +77,11 @@
                 "Meiryo",
                 sans-serif;
             line-height: 1.7;
-
             background: linear-gradient(
                 var(--sky-top) 0%,
                 var(--sky-mid) 40%,
                 var(--sky-bottom) 100%
             ) fixed;
-
             transition:
                 --sky-top 1.2s ease,
                 --sky-mid 1.2s ease,
@@ -111,18 +108,14 @@
             top: 16%;
             left: -260px;
             z-index: 0;
-
             width: 200px;
             height: 54px;
-
             border-radius: 54px;
             background: #fff;
             opacity: 0.8;
-
             box-shadow:
                 36px -24px 0 6px #fff,
                 100px -12px 0 0 #fff;
-
             animation: cloud-drift 70s linear infinite;
             pointer-events: none;
             content: "";
@@ -146,11 +139,8 @@
             bottom: 0;
             left: 0;
             z-index: 0;
-
             height: 110px;
-
             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
-
             pointer-events: none;
             content: "";
             transition: filter 1.2s ease;
@@ -162,15 +152,12 @@
             position: sticky;
             top: 0;
             z-index: 50;
-
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-
             min-height: 60px;
             padding: 0 clamp(16px, 4vw, 48px);
-
             background: #fff;
             border-bottom: 1px solid var(--line);
         }
@@ -179,7 +166,6 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-
             color: var(--text);
             text-decoration: none;
         }
@@ -228,11 +214,9 @@
         .page {
             position: relative;
             z-index: 1;
-
             flex: 1;
             width: 100%;
             max-width: 760px;
-
             margin: 0 auto;
             padding: 18px 16px 140px;
         }
@@ -269,36 +253,28 @@
 
         .steps li {
             position: relative;
-
             display: flex;
             flex: 1;
             flex-direction: column;
             align-items: center;
             gap: 6px;
-
             color: var(--text-sub);
             font-size: 0.78rem;
             text-align: center;
-
             counter-increment: step;
         }
 
         .steps li::before {
             position: relative;
             z-index: 1;
-
             display: grid;
             place-items: center;
-
             width: 30px;
             height: 30px;
-
             border: 2px solid #c5d4de;
             border-radius: 50%;
-
             color: var(--text-sub);
             background: #fff;
-
             font-weight: 700;
             content: counter(step);
         }
@@ -307,10 +283,8 @@
             position: absolute;
             top: 15px;
             right: 50%;
-
             width: 100%;
             height: 2px;
-
             background: #c5d4de;
             content: "";
         }
@@ -343,14 +317,11 @@
 
         .card {
             padding: 26px 32px 30px;
-
             border: 1px solid var(--line);
             border-top: 4px solid var(--sky-deep);
             border-radius: 6px;
-
             background: #fff;
             box-shadow: var(--card-shadow);
-
             animation: fade-up 0.6s ease-out both;
         }
 
@@ -372,7 +343,6 @@
             display: flex;
             align-items: center;
             gap: 14px;
-
             padding-bottom: 12px;
             border-bottom: 2px solid var(--sky-deep);
         }
@@ -381,17 +351,13 @@
             display: grid;
             flex: none;
             place-items: center;
-
             width: 36px;
             height: 36px;
-
             border-radius: 4px;
             color: #fff;
             background: var(--sky-deep);
-
             font-size: 1rem;
             text-decoration: none;
-
             transition: background 0.2s ease;
         }
 
@@ -420,10 +386,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-
             margin-top: 18px;
             padding: 14px 18px;
-
             border-radius: 6px;
             background: var(--sky-pale);
         }
@@ -452,14 +416,11 @@
 
         .status {
             display: inline-block;
-
             padding: 4px 14px;
             border: 1px solid #bcd8ea;
             border-radius: 999px;
-
             color: var(--sky-deep);
             background: #fff;
-
             font-size: 0.85rem;
             font-weight: 700;
         }
@@ -473,9 +434,7 @@
         .section-heading {
             margin: 0 0 8px;
             padding-left: 10px;
-
             border-left: 3px solid var(--sky-deep);
-
             font-size: 1rem;
             font-weight: 700;
         }
@@ -483,7 +442,6 @@
         .info-grid {
             display: grid;
             grid-template-columns: 130px minmax(0, 1fr);
-
             margin: 0;
             border-top: 1px solid var(--line);
         }
@@ -493,7 +451,6 @@
             min-width: 0;
             margin: 0;
             padding: 12px;
-
             border-bottom: 1px solid var(--line);
             overflow-wrap: anywhere;
             word-break: break-word;
@@ -502,7 +459,6 @@
         .info-grid dt {
             color: var(--sky-deep);
             background: var(--sky-pale);
-
             font-size: 0.82rem;
             font-weight: 700;
         }
@@ -518,6 +474,25 @@
             font-size: 1.15rem;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
+        }
+
+        /* 人数と「名」を同じ行に固定 */
+        .reservation-number {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: baseline;
+            flex-wrap: nowrap;
+            gap: 0;
+            white-space: nowrap;
+            writing-mode: horizontal-tb;
+            vertical-align: baseline;
+        }
+
+        .reservation-number-value,
+        .reservation-number-unit {
+            display: inline;
+            white-space: nowrap;
+            writing-mode: horizontal-tb;
         }
 
         .store-link {
@@ -536,13 +511,10 @@
         .notice {
             margin-top: 24px;
             padding: 15px 17px;
-
             border: 1px solid #d5e7f1;
             border-radius: 4px;
-
             color: var(--text);
             background: #f5fbff;
-
             font-size: 0.85rem;
             line-height: 1.9;
         }
@@ -558,13 +530,10 @@
         .error-message {
             margin: 0 0 18px;
             padding: 13px 16px;
-
             border: 1px solid #e5b7b7;
             border-radius: 5px;
-
             color: var(--error);
             background: #fff2f2;
-
             font-size: 0.88rem;
             line-height: 1.8;
         }
@@ -582,22 +551,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-
             flex: 1;
             max-width: 280px;
             min-height: 52px;
             padding: 10px 20px;
-
             border-radius: 3px;
-
             font-size: 0.95rem;
             font-weight: 700;
             line-height: 1.5;
             text-align: center;
             text-decoration: none;
-
             cursor: pointer;
-
             transition:
                 background 0.2s ease,
                 color 0.2s ease,
@@ -644,13 +608,10 @@
         .site-footer {
             position: relative;
             z-index: 1;
-
             padding: 16px;
-
             border-top: 1px solid var(--line);
             color: var(--text-sub);
             background: #fff;
-
             font-size: 0.75rem;
             text-align: center;
         }
@@ -789,7 +750,6 @@
 
     <!-- ヘッダー -->
     <header class="site-header">
-
         <a class="logo" th:href="@{/shops}">
             <img th:src="@{/images/logo-mark.svg}"
                  alt=""
@@ -813,7 +773,6 @@
                 店舗一覧
             </a>
         </nav>
-
     </header>
 
     <main class="page"
@@ -869,7 +828,6 @@
             <!-- タイトルと戻るボタン -->
             <div class="page-title-row">
 
-                <!-- 確認画面では入力画面に戻る -->
                 <a class="back-btn"
                    th:unless="${viewOnly}"
                    th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
@@ -878,7 +836,6 @@
                     &lt;
                 </a>
 
-                <!-- 詳細画面では予約履歴に戻る -->
                 <a class="back-btn"
                    th:if="${viewOnly}"
                    th:href="@{/reservations/history}"
@@ -890,7 +847,6 @@
                     th:text="${viewOnly} ? '予約詳細' : 'ご予約内容の確認'">
                     ご予約内容の確認
                 </h1>
-
             </div>
 
             <p class="page-description" th:unless="${viewOnly}">
@@ -899,21 +855,16 @@
 
             <!-- 予約番号・ステータス：詳細画面のみ -->
             <div class="reserve-summary" th:if="${viewOnly}">
-
                 <div>
                     <span class="summary-label">予約番号</span>
-
-                    <span class="summary-number"
-                          th:text="${reservation.id}">
+                    <span class="summary-number" th:text="${reservation.id}">
                         11
                     </span>
                 </div>
 
-                <span class="status"
-                      th:text="${reservation.status}">
+                <span class="status" th:text="${reservation.status}">
                     予約済み
                 </span>
-
             </div>
 
             <!-- 予約内容 -->
@@ -921,7 +872,6 @@
                 <h2 class="section-heading">予約内容</h2>
 
                 <dl class="info-grid">
-
                     <dt>予約日</dt>
                     <dd class="highlight"
                         th:text="${reservationDate != null ? reservationDate : date}">
@@ -936,12 +886,13 @@
 
                     <dt>利用人数</dt>
                     <dd class="highlight">
-                        <span th:text="${number != null ? number : (viewOnly ? reservation.number : '')}">
-                            3
+                        <span class="reservation-number">
+                            <span class="reservation-number-value"
+                                  th:text="${number != null ? number : (viewOnly ? reservation.number : '')}">
+                                3
+                            </span><span class="reservation-number-unit">名</span>
                         </span>
-                        名
                     </dd>
-
                 </dl>
             </section>
 
@@ -950,7 +901,6 @@
                 <h2 class="section-heading">店舗情報</h2>
 
                 <dl class="info-grid">
-
                     <dt>店舗名</dt>
                     <dd>
                         <a class="store-link"
@@ -964,18 +914,16 @@
                     <dd th:text="${store.address != null ? store.address : '住所情報なし'}">
                         店舗住所
                     </dd>
-
                 </dl>
             </section>
 
-            <!-- お客様情報：非会員・ゲスト -->
+            <!-- ゲスト・非会員情報 -->
             <section class="section"
-                     th:if="${userId != null or userName != null or userMail != null or mail != null}">
+                     th:if="${userId != null or userName != null or userMail != null or name != null or mail != null}">
 
                 <h2 class="section-heading">お客様情報</h2>
 
                 <dl class="info-grid">
-
                     <dt>お名前</dt>
                     <dd th:text="${name != null ? name : (userName != null ? userName : memberName)}">
                         山田 太郎
@@ -987,13 +935,11 @@
                             mail@example.com
                         </dd>
                     </th:block>
-
                 </dl>
             </section>
 
             <!-- 会員情報 -->
             <section class="section" th:if="${memberId != null}">
-
                 <h2 class="section-heading">会員情報</h2>
 
                 <dl class="info-grid">
@@ -1002,7 +948,6 @@
                         10008
                     </dd>
                 </dl>
-
             </section>
 
             <!-- 確認画面の案内 -->
@@ -1013,12 +958,8 @@
                 「予約を確定する」を押すと、予約手続きが実行されます。
             </div>
 
-            <!-- =====================================================
-                 予約確定フォーム
-                 詳細画面では表示しない
-                 ===================================================== -->
+            <!-- 予約確定フォーム -->
             <th:block th:unless="${viewOnly}">
-
                 <form method="post"
                       th:action="@{/shops/{shopId}/reservations(shopId=${shopId})}">
 
@@ -1041,35 +982,18 @@
                            name="number"
                            th:value="${number}">
 
-                    <input type="hidden"
-                           name="shopId"
-                           th:value="${shopId}">
-
-                    <!-- 会員ID -->
-                    <input type="hidden"
-                           name="memberId"
-                           th:if="${memberId != null}"
-                           th:value="${memberId}">
-
-                    <!-- ゲスト・非会員ID -->
-                    <input type="hidden"
-                           name="userId"
-                           th:if="${userId != null}"
-                           th:value="${userId}">
-
-                    <!-- 氏名 -->
+                    <!-- 氏名：確認画面に表示している値を引き継ぐ -->
                     <input type="hidden"
                            name="name"
                            th:value="${name != null ? name : (userName != null ? userName : memberName)}">
 
-                    <!-- メールアドレス -->
+                    <!-- メールアドレス：ゲストのみ -->
                     <input type="hidden"
                            name="mail"
                            th:if="${mail != null or userMail != null}"
                            th:value="${mail != null ? mail : userMail}">
 
                     <div class="actions">
-
                         <a class="btn btn-outline"
                            th:href="@{/shops/{shopId}/reservations/new(shopId=${shopId})}"
                            onclick="if (history.length > 1) { history.back(); return false; }">
@@ -1079,16 +1003,12 @@
                         <button type="submit" class="btn btn-primary">
                             予約を確定する
                         </button>
-
                     </div>
-
                 </form>
-
             </th:block>
 
             <!-- 予約詳細画面のボタン -->
             <div class="actions" th:if="${viewOnly}">
-
                 <a class="btn btn-outline"
                    th:href="@{/reservations/history}">
                     予約履歴に戻る
@@ -1098,7 +1018,6 @@
                    th:href="@{/shops/{shopId}(shopId=${shopId})}">
                     この店舗のページへ
                 </a>
-
             </div>
 
         </div>
