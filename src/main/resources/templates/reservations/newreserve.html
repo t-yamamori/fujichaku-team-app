@@ -40,24 +40,19 @@
             min-height: 100vh;
             margin: 0;
             color: var(--text);
-            background:
-                linear-gradient(
-                    180deg,
-                    #9bd4e7 0%,
-                    #d8f0f5 38%,
-                    #fff4df 75%,
-                    #edc99a 100%
-                );
-            font-family:
-                "Yu Gothic",
-                "Hiragino Kaku Gothic ProN",
-                Meiryo,
-                sans-serif;
+            background: linear-gradient(
+                180deg,
+                #9bd4e7 0%,
+                #d8f0f5 38%,
+                #fff4df 75%,
+                #edc99a 100%
+            );
+            font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN",
+                         Meiryo, sans-serif;
             overflow-x: hidden;
         }
 
         /* 空の背景 */
-
         body::before {
             position: fixed;
             z-index: -3;
@@ -79,7 +74,6 @@
         }
 
         /* 砂丘 */
-
         body::after {
             position: fixed;
             z-index: -2;
@@ -90,19 +84,17 @@
             content: "";
             pointer-events: none;
             border-radius: 50% 50% 0 0;
-            background:
-                radial-gradient(
-                    ellipse at 30% 15%,
-                    #f6dfb6 0,
-                    #e8bd83 45%,
-                    #d4a16a 100%
-                );
+            background: radial-gradient(
+                ellipse at 30% 15%,
+                #f6dfb6 0,
+                #e8bd83 45%,
+                #d4a16a 100%
+            );
             transform: rotate(-2deg);
             opacity: 0.88;
         }
 
         /* 雲 */
-
         .cloud {
             position: fixed;
             z-index: -1;
@@ -153,14 +145,12 @@
             from {
                 translate: 0 0;
             }
-
             to {
                 translate: calc(100vw + 500px) 0;
             }
         }
 
         /* ヘッダー */
-
         .site-header {
             position: relative;
             z-index: 5;
@@ -206,7 +196,6 @@
         }
 
         /* メイン */
-
         .page-container {
             position: relative;
             z-index: 1;
@@ -246,9 +235,9 @@
             line-height: 1.8;
         }
 
-        /* カード共通 */
-
+        /* カード */
         .content-card {
+            min-width: 0;
             margin-bottom: 24px;
             padding: 28px;
             border: 1px solid rgba(166, 106, 63, 0.15);
@@ -270,6 +259,7 @@
 
         .section-title::before {
             display: inline-block;
+            flex: 0 0 5px;
             width: 5px;
             height: 25px;
             border-radius: 5px;
@@ -278,20 +268,25 @@
         }
 
         /* 店舗情報 */
-
         .store-layout {
             display: grid;
             grid-template-columns: minmax(0, 1fr);
             gap: 22px;
+            min-width: 0;
         }
 
+        /* 画像全体を表示し、元の縦横比を維持 */
         .store-image {
             display: block;
             width: 100%;
-            max-height: 300px;
-            object-fit: cover;
+            height: auto;
+            max-width: 100%;
+            max-height: none;
+            object-fit: contain;
+            object-position: center center;
             border-radius: 14px;
             background: #f2e7da;
+            box-sizing: border-box;
         }
 
         .store-name {
@@ -328,6 +323,7 @@
         }
 
         .store-detail-row dd {
+            min-width: 0;
             margin: 0;
             color: var(--text);
             font-size: 14px;
@@ -336,8 +332,7 @@
             white-space: pre-wrap;
         }
 
-        /* エラーメッセージ */
-
+        /* エラー表示 */
         .error-message {
             margin: 0 0 22px;
             padding: 15px 18px;
@@ -350,16 +345,17 @@
         }
 
         /* フォーム */
-
         .reservation-form {
             display: grid;
             gap: 25px;
+            min-width: 0;
         }
 
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 22px;
+            min-width: 0;
         }
 
         .form-group {
@@ -404,6 +400,7 @@
         .form-control {
             display: block;
             width: 100%;
+            min-width: 0;
             min-height: 48px;
             padding: 12px 14px;
             border: 1px solid #d9c9ba;
@@ -413,9 +410,8 @@
             background: #fff;
             font: inherit;
             font-size: 14px;
-            transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
+            transition: border-color 0.2s ease,
+                        box-shadow 0.2s ease;
         }
 
         .form-control:focus {
@@ -436,14 +432,12 @@
             line-height: 1.7;
         }
 
-        /* 人数選択 */
-
+        /* 人数 */
         .number-control {
             max-width: 240px;
         }
 
-        /* 時間選択 */
-
+        /* 時間 */
         .time-section {
             padding-top: 22px;
             border-top: 1px solid #eee3d9;
@@ -482,11 +476,10 @@
             background: #fff;
             font-size: 13px;
             font-weight: 700;
-            transition:
-                color 0.2s ease,
-                background 0.2s ease,
-                border-color 0.2s ease,
-                transform 0.2s ease;
+            transition: color 0.2s ease,
+                        background 0.2s ease,
+                        border-color 0.2s ease,
+                        transform 0.2s ease;
         }
 
         .time-option:hover span {
@@ -507,7 +500,6 @@
         }
 
         /* 会員名 */
-
         .member-name {
             display: flex;
             align-items: center;
@@ -523,7 +515,6 @@
         }
 
         /* ボタン */
-
         .form-actions {
             display: flex;
             flex-wrap: wrap;
@@ -547,10 +538,9 @@
             font-weight: 800;
             line-height: 1.5;
             cursor: pointer;
-            transition:
-                transform 0.2s ease,
-                background 0.2s ease,
-                box-shadow 0.2s ease;
+            transition: transform 0.2s ease,
+                        background 0.2s ease,
+                        box-shadow 0.2s ease;
         }
 
         .button:hover {
@@ -606,7 +596,6 @@
         }
 
         /* フッター */
-
         .site-footer {
             position: relative;
             z-index: 1;
@@ -618,8 +607,7 @@
             letter-spacing: 1px;
         }
 
-        /* レスポンシブ */
-
+        /* スマートフォン対応 */
         @media (max-width: 680px) {
             .header-inner {
                 width: calc(100% - 28px);
@@ -696,6 +684,82 @@
                 transition-duration: 0.01ms !important;
             }
         }
+		/* =========================================
+		   FUJICHAKU MATRIX
+		   予約管理・文字色の強調
+		   ※配置・サイズ・余白は変更しない
+		   ========================================= */
+
+		/* ページ見出し */
+		h1,
+		h2,
+		h3 {
+		    color: #00ff41;
+		    font-weight: 800;
+		    text-shadow: 0 0 7px rgba(0, 255, 65, 0.45);
+		}
+
+		/* テーブルの列名 */
+		table thead th {
+		    color: #00ff41;
+		    font-weight: 800;
+		    text-shadow: 0 0 5px rgba(0, 255, 65, 0.35);
+		    border-color: #008f11;
+		}
+
+		/* 予約情報 */
+		table tbody td {
+		    color: #d7ffe0;
+		    border-color: rgba(0, 255, 65, 0.3);
+		}
+
+		/* ID・重要な数値 */
+		table tbody td strong,
+		table tbody td b {
+		    color: #39ff88;
+		    font-weight: 800;
+		}
+
+		/* 入力欄 */
+		input,
+		select,
+		textarea {
+		    color: #d7ffe0;
+		    caret-color: #00ff41;
+		    border-color: rgba(0, 255, 65, 0.55);
+		}
+
+		/* ボタン文字 */
+		button,
+		input[type="button"],
+		input[type="submit"] {
+		    font-weight: 700;
+		    text-shadow: 0 0 4px rgba(0, 255, 65, 0.25);
+		}
+
+		/* ホバー時の文字 */
+		button:hover,
+		input[type="button"]:hover,
+		input[type="submit"]:hover {
+		    color: #ffffff;
+		    text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+		}
+
+		/* 成功メッセージ */
+		.success,
+		.success-message,
+		.alert-success {
+		    color: #39ff88;
+		    font-weight: 700;
+		}
+
+		/* エラーメッセージ */
+		.error,
+		.error-message,
+		.alert-danger {
+		    color: #ff6b6b;
+		    font-weight: 700;
+		}
     </style>
 </head>
 
@@ -707,7 +771,9 @@
     <!-- ヘッダー -->
     <header class="site-header">
         <div class="header-inner">
-            <a class="brand" th:href="@{/shops}" aria-label="FUJICHAKU 店舗一覧">
+            <a class="brand"
+               th:href="@{/shops}"
+               aria-label="FUJICHAKU 店舗一覧">
                 FUJICHAKU
             </a>
 
@@ -748,10 +814,12 @@
 
             <div class="store-layout">
 
+                <!-- 店舗画像 -->
                 <img class="store-image"
                      th:if="${store.pictureUrl != null and !#strings.isEmpty(store.pictureUrl)}"
                      th:src="${store.pictureUrl}"
                      th:alt="${store.name}"
+                     loading="eager"
                      onerror="this.style.display='none'">
 
                 <div>
@@ -857,7 +925,7 @@
                         </p>
                     </div>
 
-                    <!-- 予約日 -->
+                    <!-- 予約日：コントローラーの要求名に合わせて date に設定 -->
                     <div class="form-group">
                         <label for="reservationDate" class="form-label">
                             ご予約日
@@ -866,7 +934,7 @@
 
                         <input type="date"
                                id="reservationDate"
-                               name="reservationDate"
+                               name="date"
                                class="form-control"
                                required>
 
@@ -887,6 +955,7 @@
                                 class="form-control number-control"
                                 required>
                             <option value="">人数を選択</option>
+
                             <option th:each="i : ${#numbers.sequence(1, 10)}"
                                     th:value="${i}"
                                     th:text="${i + '名'}">
@@ -902,7 +971,8 @@
                             <span class="required-label">必須</span>
                         </label>
 
-                        <p class="form-help" style="margin-top: -2px; margin-bottom: 15px;">
+                        <p class="form-help"
+                           style="margin-top: -2px; margin-bottom: 15px;">
                             ご希望の時間を1つ選択してください。
                         </p>
 
@@ -918,7 +988,6 @@
                                        required>
 
                                 <span th:text="${t}">11:00</span>
-
                             </label>
 
                         </div>
@@ -982,27 +1051,24 @@
             }
 
             // 過去の日付を選択できないようにする
-            const today = getLocalDateString();
-            dateInput.min = today;
+            function validateDate() {
+                const today = getLocalDateString();
 
-            // 既に過去の日付が入っている場合はクリア
-            if (dateInput.value && dateInput.value < today) {
-                dateInput.value = "";
-            }
+                dateInput.min = today;
 
-            dateInput.addEventListener("change", function () {
-                if (dateInput.value && dateInput.value < getLocalDateString()) {
+                if (dateInput.value && dateInput.value < today) {
                     dateInput.setCustomValidity(
                         "過去の日付は選択できません。"
                     );
                 } else {
                     dateInput.setCustomValidity("");
                 }
-            });
+            }
 
-            dateInput.addEventListener("input", function () {
-                dateInput.setCustomValidity("");
-            });
+            validateDate();
+
+            dateInput.addEventListener("change", validateDate);
+            dateInput.addEventListener("input", validateDate);
         });
     </script>
 

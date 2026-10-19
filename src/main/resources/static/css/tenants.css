@@ -1,643 +1,1275 @@
-
 /* =========================================
+
    FUJICHAKU MATRIX TERMINAL
+
    テナント管理画面 CSS 完全版
+
    ページ幅対応・11列幅統一・右側余白解消
+
    ========================================= */
 
 /* =========================================
+
    1. ページ全体
+
    ========================================= */
 
 html {
+
     min-height: 100%;
+
     background: #030705;
+
 }
 
 body {
+
     position: relative;
+
     isolation: isolate;
+
     min-height: 100vh;
+
     margin: 0;
+
     color: #d7ffe0;
+
     background: #030705;
+
     box-sizing: border-box;
+
 }
 
 *,
+
 *::before,
+
 *::after {
+
     box-sizing: border-box;
+
 }
 
 /* Matrix背景 */
+
 #matrixRain {
+
     position: fixed;
+
     inset: 0;
+
     width: 100%;
+
     height: 100%;
+
+    opacity: 0.58;
+
+    filter: brightness(1.4) contrast(1.15) saturate(1.35) drop-shadow(0 0 2px rgba(0, 255, 65, 0.45));
+
     pointer-events: none;
+
     z-index: -2;
+
 }
 
 .screen-overlay {
+
     position: fixed;
+
     inset: 0;
+
     pointer-events: none;
+
     z-index: -1;
+
     background: linear-gradient(
+
         rgba(0, 255, 65, 0.025) 1px,
+
         transparent 1px
+
     );
+
     background-size: 100% 4px;
+
 }
 
 /* =========================================
+
    2. サイドバー
+
    ========================================= */
 
 .admin-sidebar {
+
     position: fixed;
+
     top: 0;
+
     left: 0;
+
     width: 260px;
+
     height: 100vh;
+
     margin: 0;
+
     overflow-x: hidden;
+
     overflow-y: auto;
+
     z-index: 1000;
+
 }
 
 body > header {
+
     position: relative;
+
     z-index: 1000;
+
 }
 
 /* =========================================
+
    3. メインコンテンツ
+
    ========================================= */
 
 body > main {
+
     display: block;
+
     position: relative;
+
     z-index: 1;
+
     width: calc(100% - 260px);
+
     max-width: none;
+
     min-width: 0;
+
     margin: 0 0 0 260px;
+
     padding: 24px;
+
     box-sizing: border-box;
+
 }
 
 main h1 {
+
     margin: 0 0 20px;
+
     padding: 0 0 12px;
+
     color: #00ff41;
+
     font-size: 1.8rem;
+
     font-weight: 700;
+
     border-bottom: 1px solid rgba(0, 255, 65, 0.45);
+
     text-shadow: 0 0 10px rgba(0, 255, 65, 0.25);
+
 }
 
 .tenant-page {
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     box-sizing: border-box;
+
 }
 
 /* =========================================
+
    4. 検索フォーム
+
    ========================================= */
 
 .tenant-search {
+
     display: flex;
+
     align-items: flex-end;
+
     gap: 8px;
+
     width: 100%;
+
     min-width: 0;
+
     margin: 0 0 15px;
+
     padding: 10px;
+
     background: rgba(5, 16, 9, 0.94);
+
     border: 1px solid rgba(0, 255, 65, 0.35);
+
     border-radius: 5px;
+
     box-sizing: border-box;
+
 }
 
 .search-field {
+
     display: flex;
+
     flex-direction: column;
+
     gap: 4px;
+
     flex: 1 1 0;
+
     min-width: 0;
+
 }
 
 .search-field label {
+
     color: #9bffae;
+
     font-size: 0.9em;
+
     font-weight: bold;
+
     white-space: nowrap;
+
 }
 
 .search-field input {
+
     display: block;
+
     width: 100%;
+
     min-width: 0;
+
     height: 32px;
+
     padding: 5px;
+
     color: #d7ffe0;
+
     background: #06130a;
+
     border: 1px solid #267b39;
+
     border-radius: 3px;
+
     box-sizing: border-box;
+
 }
 
 .search-field input:focus,
+
 .tenant-table input:focus,
+
 .tenant-data-table input:focus,
+
 .tenant-new-table input:focus,
+
 .tenant-data-table textarea:focus,
+
 .tenant-new-table textarea:focus {
+
     outline: 1px solid #00ff41;
+
     border-color: #00ff41;
+
     box-shadow: 0 0 6px rgba(0, 255, 65, 0.2);
+
 }
 
 .search-field-id {
+
     flex: 0 0 45px;
+
 }
 
 .search-buttons {
+
     display: flex;
+
     align-items: center;
+
     gap: 8px;
+
     flex: 0 0 auto;
+
     white-space: nowrap;
+
     padding-bottom: 0;
+
 }
 
 .search-buttons button {
+
     height: 32px;
+
     padding: 0 12px;
+
     cursor: pointer;
+
     box-sizing: border-box;
+
 }
 
 .search-buttons a {
+
     padding: 7px 0;
+
     font-size: 0.9em;
+
     white-space: nowrap;
+
 }
 
 /* =========================================
+
    5. ボタン
+
    ========================================= */
 
 .tenant-search button,
+
 .table-actions button,
+
 .tenant-new-table button {
+
     color: #d7ffe0;
+
     background: #092512;
+
     border: 1px solid #00cc33;
+
     border-radius: 3px;
+
     transition: background 0.2s ease, box-shadow 0.2s ease;
+
 }
 
 .tenant-search button:hover,
+
 .table-actions button:hover,
+
 .tenant-new-table button:hover {
+
     background: #10401d;
+
     box-shadow: 0 0 8px rgba(0, 255, 65, 0.25);
+
 }
 
 .table-actions {
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
+
     gap: 12px;
+
     width: 100%;
+
     margin: 0 0 8px;
+
     box-sizing: border-box;
+
 }
 
 .table-actions button {
+
     min-height: 32px;
+
     padding: 7px 16px;
+
     cursor: pointer;
+
     box-sizing: border-box;
+
 }
 
 /* =========================================
+
    6. 更新完了メッセージ
+
    ========================================= */
 
 .success-message {
+
     margin: 0 0 12px;
+
     padding: 8px 12px;
+
     color: #9bffae;
+
     background: rgba(0, 60, 20, 0.7);
+
     border: 1px solid #00cc33;
+
     border-radius: 4px;
+
     font-size: 0.9em;
+
     white-space: pre-line;
+
     box-sizing: border-box;
+
 }
 
 /* =========================================
+
    7. テーブル全体
+
    ページの表示幅からはみ出さないようにする
+
    ========================================= */
 
 .tenant-table-frame {
+
     display: block;
+
     width: 100%;
+
     max-width: 100%;
+
     min-width: 0;
+
     margin: 0;
+
     padding: 0;
+
     overflow-x: hidden;
+
     overflow-y: hidden;
+
     box-sizing: border-box;
+
     border: 1px solid rgba(0, 255, 65, 0.35);
+
     border-radius: 4px;
+
     background: rgba(3, 7, 5, 0.96);
+
 }
 
 /* =========================================
+
    8. 全テーブル共通
+
    1370px固定を廃止してページ幅に追従
+
    ========================================= */
 
 .tenant-table,
+
 .tenant-header-table,
+
 .tenant-data-table,
+
 .tenant-new-table {
+
     display: table;
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     table-layout: fixed;
+
     border-collapse: separate;
+
     border-spacing: 0;
+
     margin: 0;
+
     padding: 0;
+
     color: #d7ffe0;
+
     background: rgba(3, 7, 5, 0.96);
+
     box-sizing: border-box;
+
 }
 
 /* =========================================
+
    9. 11列の幅
+
    全テーブルで同じ割合を使用
+
    合計100%
+
    ========================================= */
 
 /* 削除：55 / 1370 */
+
 .tenant-table .col-delete,
+
 .tenant-header-table .col-delete,
+
 .tenant-data-table .col-delete,
+
 .tenant-new-table .col-delete {
+
     width: 4.0146%;
+
 }
 
 /* ID：45 / 1370 */
+
 .tenant-table .col-id,
+
 .tenant-header-table .col-id,
+
 .tenant-data-table .col-id,
+
 .tenant-new-table .col-id {
+
     width: 3.2847%;
+
 }
 
 /* 名前：110 / 1370 */
+
 .tenant-table .col-name,
+
 .tenant-header-table .col-name,
+
 .tenant-data-table .col-name,
+
 .tenant-new-table .col-name {
+
     width: 8.0292%;
+
 }
 
 /* ふりがな：120 / 1370 */
+
 .tenant-table .col-name-kana,
+
 .tenant-header-table .col-name-kana,
+
 .tenant-data-table .col-name-kana,
+
 .tenant-new-table .col-name-kana {
+
     width: 8.7591%;
+
 }
 
 /* メール：150 / 1370 */
+
 .tenant-table .col-mail,
+
 .tenant-header-table .col-mail,
+
 .tenant-data-table .col-mail,
+
 .tenant-new-table .col-mail {
+
     width: 10.9489%;
+
 }
 
 /* 電話番号：110 / 1370 */
+
 .tenant-table .col-phone,
+
 .tenant-header-table .col-phone,
+
 .tenant-data-table .col-phone,
+
 .tenant-new-table .col-phone {
+
     width: 8.0292%;
+
 }
 
 /* 代表者：100 / 1370 */
+
 .tenant-table .col-representative,
+
 .tenant-header-table .col-representative,
+
 .tenant-data-table .col-representative,
+
 .tenant-new-table .col-representative {
+
     width: 7.2993%;
+
 }
 
 /* 住所：140 / 1370 */
+
 .tenant-table .col-address,
+
 .tenant-header-table .col-address,
+
 .tenant-data-table .col-address,
+
 .tenant-new-table .col-address {
+
     width: 10.2190%;
+
 }
 
 /* 説明：140 / 1370 */
+
 .tenant-table .col-description,
+
 .tenant-header-table .col-description,
+
 .tenant-data-table .col-description,
+
 .tenant-new-table .col-description {
+
     width: 10.2190%;
+
 }
 
 /* 画像URL：200 / 1370 */
+
 .tenant-table .col-picture,
+
 .tenant-header-table .col-picture,
+
 .tenant-data-table .col-picture,
+
 .tenant-new-table .col-picture {
+
     width: 14.5985%;
+
 }
 
 /* 操作：200 / 1370 */
+
 .tenant-table .col-operation,
+
 .tenant-header-table .col-operation,
+
 .tenant-data-table .col-operation,
+
 .tenant-new-table .col-operation {
+
     width: 14.5985%;
+
 }
 
 /* =========================================
+
    10. セル共通
+
    ========================================= */
 
 .tenant-table th,
+
 .tenant-table td,
+
 .tenant-header-table th,
+
 .tenant-header-table td,
+
 .tenant-data-table th,
+
 .tenant-data-table td,
+
 .tenant-new-table th,
+
 .tenant-new-table td {
+
     padding: 5px;
+
     border-right: 1px solid rgba(0, 255, 65, 0.22);
+
     border-bottom: 1px solid rgba(0, 255, 65, 0.22);
+
     vertical-align: top;
+
     overflow-wrap: anywhere;
+
     word-break: break-word;
+
     box-sizing: border-box;
+
 }
 
 /* 最初の列の左枠線 */
+
 .tenant-table th:first-child,
+
 .tenant-table td:first-child,
+
 .tenant-header-table th:first-child,
+
 .tenant-header-table td:first-child,
+
 .tenant-data-table th:first-child,
+
 .tenant-data-table td:first-child,
+
 .tenant-new-table th:first-child,
+
 .tenant-new-table td:first-child {
+
     border-left: 1px solid rgba(0, 255, 65, 0.22);
+
 }
 
 /* =========================================
+
    11. 固定ヘッダー
+
    ========================================= */
 
 .tenant-header-table {
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     border-top: 1px solid rgba(0, 255, 65, 0.4);
+
 }
 
 .tenant-header-table thead th {
+
     color: #00ff41;
+
     background: #071b0d;
+
     white-space: nowrap;
+
     text-align: left;
+
     font-weight: bold;
+
 }
 
 /* =========================================
+
    12. 既存データの縦スクロール領域
+
    ========================================= */
 
 .tenant-table-data-wrapper {
+
     display: block;
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     max-height: calc(100vh - 320px);
+
     margin: 0;
+
     padding: 0;
+
     overflow-y: auto;
+
     overflow-x: hidden;
+
     box-sizing: border-box;
+
     scrollbar-width: thin;
+
     scrollbar-color: #008f11 #030705;
+
 }
 
 /* Chrome / Edge */
+
 .tenant-table-data-wrapper::-webkit-scrollbar {
+
     width: 8px;
+
 }
 
 .tenant-table-data-wrapper::-webkit-scrollbar-track {
+
     background: #030705;
+
 }
 
 .tenant-table-data-wrapper::-webkit-scrollbar-thumb {
+
     background: #008f11;
+
     border-radius: 4px;
+
 }
 
 /* 既存データテーブル */
+
 .tenant-data-table {
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     table-layout: fixed;
+
     border-top: 0;
+
     margin: 0;
+
 }
 
 /* =========================================
+
    13. 操作列
+
    右側に固定幅の余白を追加しない
+
    ========================================= */
 
 .tenant-header-table th:last-child,
+
 .tenant-data-table th:last-child,
+
 .tenant-data-table td:last-child,
+
 .tenant-new-table th:last-child,
+
 .tenant-new-table td:last-child {
+
     padding-right: 5px;
+
 }
 
 /* =========================================
+
    14. 新規登録行
+
    ========================================= */
 
 .tenant-new-table {
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     table-layout: fixed;
+
     border-top: 0;
+
     margin: 0;
+
 }
 
 .tenant-new-table tbody tr {
+
     background: rgba(0, 45, 15, 0.65);
+
 }
 
 /* =========================================
+
    15. 入力欄
+
    ========================================= */
 
 .tenant-table input[type="text"],
+
 .tenant-table input[type="email"],
+
 .tenant-table input[type="password"],
+
 .tenant-table input[type="tel"],
+
 .tenant-table textarea,
+
 .tenant-data-table input[type="text"],
+
 .tenant-data-table input[type="email"],
+
 .tenant-data-table input[type="password"],
+
 .tenant-data-table input[type="tel"],
+
 .tenant-data-table textarea,
+
 .tenant-new-table input[type="text"],
+
 .tenant-new-table input[type="email"],
+
 .tenant-new-table input[type="password"],
+
 .tenant-new-table input[type="tel"],
+
 .tenant-new-table textarea {
+
     display: block;
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     padding: 5px;
+
     color: #d7ffe0;
+
     background: #06130a;
+
     border: 1px solid #267b39;
+
     border-radius: 3px;
+
     box-sizing: border-box;
+
 }
 
 .tenant-table input[type="checkbox"],
+
 .tenant-data-table input[type="checkbox"],
+
 .tenant-new-table input[type="checkbox"] {
+
     accent-color: #00ff41;
+
     cursor: pointer;
+
 }
 
 .tenant-table .new-password-input,
+
 .tenant-data-table .new-password-input,
+
 .tenant-new-table .new-password-input {
+
     width: 100%;
+
     min-width: 0;
+
     max-width: 100%;
+
     box-sizing: border-box;
+
 }
 
 /* 新規登録ボタン */
+
 .tenant-new-table td:last-child button {
+
     margin-top: 5px;
+
     max-width: 100%;
+
     box-sizing: border-box;
+
     cursor: pointer;
+
 }
 
 /* =========================================
+
    16. エラーメッセージ
+
    ========================================= */
 
 .error-message,
+
 .field-error {
+
     display: block;
+
     margin-top: 4px;
+
     color: #ff7777;
+
     font-size: 0.85em;
+
     overflow-wrap: anywhere;
+
 }
 
 /* =========================================
+
    17. 更新ボタン領域
+
    ========================================= */
 
 .update-button-area {
+
     display: flex;
+
     justify-content: flex-end;
+
     width: 100%;
+
     box-sizing: border-box;
+
 }
 
 .update-button-area button {
+
     margin-left: auto;
+
 }
 
 /* =========================================
+
    18. レスポンシブ対応
+
    ========================================= */
 
 @media (max-width: 1100px) {
+
     .tenant-search {
+
         overflow-x: auto;
+
     }
 
     .search-field {
+
         flex: 0 0 110px;
+
     }
 
     .search-field-id {
+
         flex: 0 0 45px;
+
     }
 
     .tenant-table-data-wrapper {
+
         max-height: calc(100vh - 320px);
+
     }
 
     .tenant-header-table thead th {
+
         white-space: normal;
+
     }
+
 }
 
 @media (max-width: 768px) {
+
     .admin-sidebar {
+
         width: 210px;
+
     }
 
     body > main {
+
         width: calc(100% - 210px);
+
         margin-left: 210px;
+
         padding: 12px;
+
     }
 
     main h1 {
+
         font-size: 1.4rem;
+
     }
 
     .tenant-table th,
+
     .tenant-table td,
+
     .tenant-header-table th,
+
     .tenant-header-table td,
+
     .tenant-data-table th,
+
     .tenant-data-table td,
+
     .tenant-new-table th,
+
     .tenant-new-table td {
+
         padding: 3px;
+
         font-size: 0.8rem;
+
     }
+
+}
+
+/* =========================================
+
+   FUJICHAKU MATRIX
+
+   文字・色の強調設定
+
+   ※配置・サイズ・余白は変更しない
+
+   ========================================= */
+
+/* ページ見出し */
+
+h1,
+
+h2,
+
+h3 {
+
+    color: #00ff41;
+
+    font-weight: 800;
+
+    text-shadow: 0 0 7px rgba(0, 255, 65, 0.45);
+
+}
+
+/* テーブルの見出し */
+
+table thead th {
+
+    color: #00ff41;
+
+    font-weight: 800;
+
+    text-shadow: 0 0 5px rgba(0, 255, 65, 0.35);
+
+    border-color: #008f11;
+
+}
+
+/* テーブル内の通常文字 */
+
+table tbody td {
+
+    color: #d7ffe0;
+
+    border-color: rgba(0, 255, 65, 0.3);
+
+}
+
+/* ID・数値などの文字 */
+
+table tbody td strong,
+
+table tbody td b {
+
+    color: #39ff88;
+
+    font-weight: 800;
+
+}
+
+/* 入力欄の文字 */
+
+input,
+
+select,
+
+textarea {
+
+    color: #d7ffe0;
+
+    caret-color: #00ff41;
+
+}
+
+/* 入力欄の枠線色だけ強調 */
+
+input,
+
+select,
+
+textarea {
+
+    border-color: rgba(0, 255, 65, 0.55);
+
+}
+
+/* ボタンの文字 */
+
+button,
+
+input[type="button"],
+
+input[type="submit"],
+
+a.button {
+
+    font-weight: 700;
+
+    text-shadow: 0 0 4px rgba(0, 255, 65, 0.25);
+
+}
+
+/* リンク */
+
+a {
+
+    text-decoration-color: rgba(0, 255, 65, 0.65);
+
+}
+
+/* マウスを乗せたときの文字色 */
+
+button:hover,
+
+input[type="button"]:hover,
+
+input[type="submit"]:hover {
+
+    color: #ffffff;
+
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
+
+}
+
+/* 表示メッセージ */
+
+.success,
+
+.success-message,
+
+.alert-success {
+
+    color: #39ff88;
+
+    font-weight: 700;
+
+}
+
+/* エラーメッセージ */
+
+.error,
+
+.error-message,
+
+.alert-danger {
+
+    color: #ff6b6b;
+
+    font-weight: 700;
+
 }
