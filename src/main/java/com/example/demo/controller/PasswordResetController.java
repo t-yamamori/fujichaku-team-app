@@ -1,4 +1,3 @@
-
 package com.example.demo.controller;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,32 +37,16 @@ public class PasswordResetController {
             BindingResult result,
             HttpSession session,
             Model model) {
-    	
 
-        // 名前の入力形式をチェック
+        // 【変更】名前の空白（半角スペース・全角スペース）をすべて取りのぞく
+        //   「堺 雅人」「堺　雅人」「堺雅人」→ どれも「堺雅人」にして、DBの名前と比べる
         String name = form.getName();
+        if (name != null) {
+            name = name.replaceAll("[\\s\\u3000]", "");
+        }
 
         // 名前が空欄でない場合だけチェックする
         if (name != null && !name.isBlank()) {
-
-
-            // 姓と名の間に全角または半角スペースがあるか確認
-            int fullWidthSpaceIndex = name.indexOf('　');
-            int halfWidthSpaceIndex = name.indexOf(' ');
-
-            boolean hasValidSpace =
-                    (fullWidthSpaceIndex > 0
-                            && fullWidthSpaceIndex < name.length() - 1)
-                    || (halfWidthSpaceIndex > 0
-                            && halfWidthSpaceIndex < name.length() - 1);
-
-            if (!hasValidSpace) {
-                result.rejectValue(
-                        "name",
-                        "name.space",
-                        "姓と名の間に空白をいれてください");
-            }
-
 
             // 半角の中点・ハイフンが含まれているか確認
             if (name.contains("･") || name.contains("-")) {
@@ -74,15 +57,14 @@ public class PasswordResetController {
             }
         }
 
-
         // 未入力などの入力エラーを確認
         if (result.hasErrors()) {
             return "password/verify";
         }
 
-        // 名前と生年月日で会員を検索
+        // 名前と生年月日で会員を検索（空白を消した name を渡す）
         Members member = passwordResetService.verifyMember(
-                form.getName(),
+                name,
                 form.getBirthDate());
 
         // 会員が見つからない場合
@@ -99,50 +81,47 @@ public class PasswordResetController {
         // パスワード再設定画面へ
         return "password/reset";
     }
-        
-     // パスワード再設定を実行
-        @PostMapping("/password/reset")
-        public String resetPassword(
-                @RequestParam("password") String password,
-                @RequestParam("confirmPassword") String confirmPassword,
-                HttpSession session,
-                Model model) {
 
-            // 本人確認済みの会員IDを取得
-            Integer memberId =
-                    (Integer) session.getAttribute("passwordResetMemberId");
+    // パスワード再設定を実行（元のまま）
+    @PostMapping("/password/reset")
+    public String resetPassword(
+            @RequestParam("password") String password,
+            @RequestParam("confirmPassword") String confirmPassword,
+            HttpSession session,
+            Model model) {
 
-            // 本人確認をしていない場合は本人確認画面へ戻す
-            if (memberId == null) {
-                return "redirect:/password/reset/verify";
-            }
+        // 本人確認済みの会員IDを取得
+        Integer memberId =
+                (Integer) session.getAttribute("passwordResetMemberId");
 
-            // パスワードが一致しない場合
-            if (!password.equals(confirmPassword)) {
-                model.addAttribute(
-                        "errorMessage",
-                        "パスワードが一致しません。もう一度入力してください。");
-                return "password/reset";
-            }
-            
+        // 本人確認をしていない場合は本人確認画面へ戻す
+        if (memberId == null) {
+            return "redirect:/password/reset/verify";
+        }
 
-            // パスワードが8文字未満の場合
-            if (password.length() < 8) {
-                model.addAttribute(
-                        "errorMessage",
-                        "パスワードは8文字以上で入力してください。");
-                return "password/reset";
-            }
+        // パスワードが一致しない場合
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードが一致しません。もう一度入力してください。");
+            return "password/reset";
+        }
 
+        // パスワードが8文字未満の場合
+        if (password.length() < 8) {
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードは8文字以上で入力してください。");
+            return "password/reset";
+        }
 
-            // パスワードを更新
-            passwordResetService.resetPassword(memberId, password);
+        // パスワードを更新
+        passwordResetService.resetPassword(memberId, password);
 
-            // 本人確認情報をセッションから削除
-            session.removeAttribute("passwordResetMemberId");
+        // 本人確認情報をセッションから削除
+        session.removeAttribute("passwordResetMemberId");
 
-            // 完了画面へ
-            return "password/complete";
-        
+        // 完了画面へ
+        return "password/complete";
     }
 }
