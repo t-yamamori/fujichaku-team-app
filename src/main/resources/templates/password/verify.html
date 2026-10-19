@@ -1,56 +1,326 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>パスワード再設定・本人確認</title>
+    <title>パスワード再設定・本人確認 | FUJICHAKU TOWN</title>
+
+    <style>
+        /* =========================================================
+           パスワード再設定・本人確認
+           トップ画面と同じ「砂漠の空」デザイン（<style> の中身をまるごと差し替え）
+           ========================================================= */
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css");
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css");
+
+        :root {
+            --main:      #8b4a2b;   /* ボタン（ブラウン） */
+            --main-dark: #6e3a21;
+            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
+            --sky-pale:  #eaf4fa;
+            --line:      #d9e3ea;
+            --text:      #2f3437;
+            --text-sub:  #6b7479;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+            color: var(--text);
+            line-height: 1.7;
+            background: linear-gradient(#9fcbe8 0, #cfe6f4 45%, #f3f7fa 100%) fixed;
+            overflow-x: hidden;
+        }
+
+        /* ゆっくり流れる雲（2つ） */
+        body::before {
+            content: "";
+            position: fixed; top: 18%; left: -260px; z-index: 0;
+            width: 220px; height: 60px; border-radius: 60px;
+            background: #fff; opacity: .85;
+            box-shadow:
+                40px -26px 0 6px #fff,
+                110px -14px 0 0 #fff,
+                520px 70px 0 -8px rgba(255,255,255,.75),
+                580px 52px 0 -4px rgba(255,255,255,.75);
+            animation: cloud-drift 60s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes cloud-drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(calc(100vw + 900px)); }
+        }
+
+        /* 画面の一番下の砂丘 */
+        body::after {
+            content: "";
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
+            height: 120px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+            pointer-events: none;
+        }
+
+        /* ===== ヘッダー（トップ画面と同じ白いヘッダー） ===== */
+        .header {
+            position: sticky; top: 0; z-index: 50;
+            height: 64px;
+            padding: 0 clamp(16px, 4vw, 48px);
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff;
+            border-bottom: 1px solid var(--line);
+        }
+
+        /* ロゴ（トップ画面と同じ） */
+        .logo {
+            display: inline-flex; align-items: center; gap: 10px;
+            color: var(--text); text-decoration: none;
+        }
+        .logo img { display: block; }
+        .logo-text { font-size: 1.15rem; font-weight: 700; letter-spacing: .06em; line-height: 1; }
+        .logo-text span { margin-left: .35em; font-weight: 400; color: var(--sky-deep); letter-spacing: .14em; }
+
+        /* 右上の「ログイン」：トップ画面と同じブラウンのボタン */
+        .login-link {
+            display: inline-flex; align-items: center;
+            height: 38px; padding: 0 20px;
+            border-radius: 3px;
+            background: var(--main); color: #fff;
+            font-size: .9rem; font-weight: 700;
+            text-decoration: none;
+            transition: background .2s;
+        }
+        .login-link:hover { background: var(--main-dark); }
+
+        /* ===== メイン ===== */
+        .container {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 520px;
+            margin: 0 auto;
+            padding: 40px 16px 160px;          /* 下は砂丘のぶん空ける */
+        }
+
+        /* ===== 見出し ===== */
+        .page-title { margin-bottom: 18px; text-align: center; }
+        .page-title .sub {
+            margin: 0 0 6px;
+            color: var(--sky-deep);
+            font-size: .75rem; font-weight: 700;
+            letter-spacing: .3em;
+        }
+        .page-title h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 4vw, 1.9rem);
+            letter-spacing: .08em;
+        }
+
+        /* ===== 手順（① 本人確認 → ② 新しいパスワード） ===== */
+        .steps {
+            display: flex;
+            margin: 0 0 18px; padding: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+        .steps li {
+            flex: 1; position: relative;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            font-size: .78rem; color: var(--text-sub);
+            counter-increment: step; text-align: center;
+        }
+        .steps li::before {
+            content: counter(step);
+            position: relative; z-index: 1;
+            display: grid; place-items: center;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #fff; border: 2px solid #c5d4de;
+            color: var(--text-sub); font-weight: 700;
+        }
+        .steps li + li::after {
+            content: ""; position: absolute; top: 15px; right: 50%;
+            width: 100%; height: 2px; background: #c5d4de;
+        }
+        .steps li.current { color: var(--text); font-weight: 700; }
+        .steps li.current::before {
+            background: var(--main); border-color: var(--main); color: #fff;
+            box-shadow: 0 0 0 4px rgba(139, 74, 43, .18);
+        }
+
+        /* ===== 白いカード ===== */
+        .card {
+            padding: 28px 32px 30px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--sky-deep);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(31, 79, 112, .14);
+            animation: card-in .6s ease-out both;
+        }
+        @keyframes card-in {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            padding-left: 10px;
+            border-left: 3px solid var(--sky-deep);
+            font-size: 1rem;
+        }
+        .lead { margin: 0 0 20px; color: var(--text-sub); font-size: .9rem; }
+
+        /* ===== エラー ===== */
+        .alert {
+            margin: 0 0 18px;
+            padding: 10px 14px;
+            background: #fdecea;
+            border: 1px solid #f5c9c3;
+            border-radius: 4px;
+            color: #a5281b;
+            font-size: .88rem;
+        }
+        .alert::before, .error::before { content: "⚠ "; }
+        .error { margin: 6px 0 0; color: #c0392b; font-size: .82rem; }
+
+        /* ===== 入力項目 ===== */
+        .field { margin-bottom: 18px; }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: .9rem; font-weight: 700;
+        }
+        .field input {
+            width: 100%; height: 48px;
+            padding: 0 14px;
+            border: 1px solid #c5d4de;
+            border-radius: 3px;
+            background: #fff; color: var(--text);
+            font: inherit; font-size: 1rem;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .field input::placeholder { color: #a3adb3; }
+        .field input:focus {
+            border-color: var(--sky-deep);
+            box-shadow: 0 0 0 3px rgba(63, 130, 173, .18);
+        }
+        .field:has(.error) input { border-color: #e2a59e; }   /* エラーの欄は赤いふち */
+
+        /* ===== ボタン ===== */
+        .submit-button {
+            width: 100%; height: 54px;
+            margin-top: 8px;
+            border: 1px solid var(--main);
+            border-radius: 3px;
+            background: var(--main); color: #fff;
+            font: inherit; font-size: 1rem; font-weight: 700;
+            letter-spacing: .08em;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(139, 74, 43, .25);
+            transition: background .2s, transform .2s;
+        }
+        .submit-button:hover { background: var(--main-dark); transform: translateY(-2px); }
+
+        .sub-links {
+            margin: 22px 0 0; padding-top: 18px;
+            border-top: 1px solid var(--line);
+            text-align: center; font-size: .88rem;
+        }
+        .sub-links a { color: var(--sky-deep); text-decoration: none; }
+        .sub-links a:hover { color: var(--main); text-decoration: underline; }
+
+        /* ===== スマホ ===== */
+        @media (max-width: 600px) {
+            .header { height: 56px; }
+            .logo-text { font-size: .9rem; }
+            .logo img { width: 28px; height: 28px; }
+            .login-link { height: 34px; padding: 0 14px; font-size: .8rem; }
+            .container { padding-top: 28px; }
+            .card { padding: 22px 16px 24px; }
+        }
+
+        /* 「動きを減らす」設定のときはアニメーションを止める */
+        @media (prefers-reduced-motion: reduce) {
+            body::before, .card { animation: none; }
+        }
+    </style>
 </head>
 <body>
 
-    <h1>パスワード再設定</h1>
+    <!-- ヘッダー（会員登録画面と同じ） -->
+    <header class="header">
+        <a class="logo" th:href="@{/shops}">
+            <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
+            <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+        </a>
+        <a th:href="@{/login}" class="login-link">ログイン</a>
+    </header>
 
-    <h2>本人確認</h2>
+    <main class="container">
 
-    <p>登録した名前と生年月日を入力してください。</p>
-
-    <!-- 本人確認に失敗した場合のエラーメッセージ -->
-    <p th:if="${errorMessage}"
-       th:text="${errorMessage}"
-       style="color: red;">
-    </p>
-
-    <!-- 入力フォーム -->
-    <form th:action="@{/password/reset/verify}"
-          th:object="${form}"
-          method="post">
-
-        <div>
-            <label for="name">名前</label>
-            <input type="text"
-                   id="name"
-                   th:field="*{name}">
-
-            <p th:if="${#fields.hasErrors('name')}"
-               th:errors="*{name}"
-               style="color: red;">
-            </p>
+        <!-- 見出し -->
+        <div class="page-title">
+            <p class="sub">PASSWORD RESET</p>
+            <h1>パスワード再設定</h1>
         </div>
 
-        <div>
-            <label for="birthDate">生年月日</label>
-            <input type="date"
-                   id="birthDate"
-                   th:field="*{birthDate}">
+        <!-- 手順：今は ① 本人確認 -->
+        <ol class="steps" aria-label="パスワード再設定の流れ">
+            <li class="current">本人確認</li>
+            <li>新しいパスワードの設定</li>
+        </ol>
 
-            <p th:if="${#fields.hasErrors('birthDate')}"
-               th:errors="*{birthDate}"
-               style="color: red;">
+        <div class="card">
+
+            <h2>本人確認</h2>
+            <p class="lead">ご登録の名前と生年月日を入力してください。</p>
+
+            <!-- 本人確認に失敗した場合のエラーメッセージ -->
+            <p class="alert" th:if="${errorMessage}" th:text="${errorMessage}">
+                名前または生年月日が正しくありません。
             </p>
+
+            <!-- 入力フォーム（送信先・項目名は今までと同じ） -->
+            <form th:action="@{/password/reset/verify}"
+                  th:object="${form}"
+                  method="post">
+
+                <div class="field">
+                    <label for="name">名前</label>
+                    <input type="text"
+                           id="name"
+                           th:field="*{name}"
+                           placeholder="ご登録の名前を入力してください"
+                           autocomplete="name">
+                    <p class="error"
+                       th:if="${#fields.hasErrors('name')}"
+                       th:errors="*{name}">
+                    </p>
+                </div>
+
+                <div class="field">
+                    <label for="birthDate">生年月日</label>
+                    <input type="date"
+                           id="birthDate"
+                           th:field="*{birthDate}">
+                    <p class="error"
+                       th:if="${#fields.hasErrors('birthDate')}"
+                       th:errors="*{birthDate}">
+                    </p>
+                </div>
+
+                <button type="submit" class="submit-button">本人確認する</button>
+
+            </form>
+
+            <p class="sub-links">
+                <a th:href="@{/login}">ログイン画面に戻る</a>
+            </p>
+
         </div>
 
-        <button type="submit">本人確認</button>
-
-    </form>
+    </main>
 
 </body>
 </html>
