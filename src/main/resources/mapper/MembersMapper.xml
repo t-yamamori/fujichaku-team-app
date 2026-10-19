@@ -69,20 +69,21 @@
     </insert>
 
 
-    <!-- 会員情報更新 -->
-    <update id="update">
-            UPDATE members
+   <!-- 会員情報更新 -->
+<update id="update">
+    UPDATE members
     <set>
         name       = #{name},
         birth_date = #{birthDate},
         mail       = #{mail},
+        point      = #{point},
         <if test="password != null and password != ''">
             password = #{password},
         </if>
     </set>
-     WHERE id = #{id}
-       AND is_deleted IS NOT TRUE
-    </update>
+    WHERE id = #{id}
+      AND is_deleted IS NOT TRUE
+</update>
     
     
     <!-- パスワード更新 -->

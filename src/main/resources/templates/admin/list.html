@@ -70,6 +70,22 @@
                     会員一覧
                     <span>MEMBER LIST</span>
                 </h2>
+				
+				
+				<p th:if="${param.updated != null}"
+				   style="color: orange; font-weight: bold;">
+				    会員情報を更新しました。
+				</p>
+				
+				<p th:if="${param.created != null}"
+				   style="color: aqua; font-weight: bold;">
+				    会員を登録しました。
+				</p>
+				
+				<p th:if="${param.deleted != null}"
+				   style="color: deeppink; font-weight: bold;">
+				    会員を削除しました。
+				</p>
 
 
                 <!-- テーブル -->
@@ -100,7 +116,9 @@
 						        th:attr="data-id=${member.id},
 						                 data-name=${member.name},
 						                 data-birth-date=${member.birthDate},
-						                 data-mail=${member.mail}">
+										 data-mail=${member.mail},
+										 data-point=${member.point}"
+										 >
 
 						        <td>
 						            <input type="checkbox"
@@ -161,8 +179,15 @@
 			    <div class="modal-content">
 			        <h2>会員情報の更新</h2>
 
-			        <form action="/admin/members/update" method="post">
-			            <input type="hidden" id="editId" name="id">
+					<form th:action="@{/admin/members/update}" method="post">
+
+					    <!-- CSRFトークン -->
+					    <input type="hidden"
+					           th:name="${_csrf.parameterName}"
+					           th:value="${_csrf.token}">
+
+					    <!-- 更新する会員ID -->
+					    <input type="hidden" id="editId" name="id">
 
 			            <p>氏名</p>
 			            <input type="text" id="editName" name="name"
@@ -175,6 +200,14 @@
 			            <p>メールアドレス</p>
 			            <input type="email" id="editMail" name="mail"
 			                   required>
+							   
+						<p>ポイント</p>
+						<input type="number"
+							          id="editPoint"
+							          name="point"
+							          min="0"
+							          step="1"
+							          required>	   
 
 			            <div class="modal-button-area">
 			                <button type="submit" class="save-button">
@@ -197,7 +230,13 @@
 			        <p id="deleteMemberName"></p>
 
 			        <form action="/admin/members/delete" method="post">
-			            <input type="hidden" id="deleteId" name="id">
+						<!-- CSRFトークン -->
+						   <input type="hidden"
+						          th:name="${_csrf.parameterName}"
+						          th:value="${_csrf.token}">
+
+						   <!-- 削除する会員ID -->
+						   <input type="hidden" id="deleteId" name="id">
 
 			            <div class="delete-modal-buttons">
 			                <button type="submit"
@@ -220,6 +259,11 @@
 			        <h2>新規会員登録</h2>
 
 			        <form action="/admin/members/create" method="post">
+						<!-- CSRFトークン -->
+						    <input type="hidden"
+						           th:name="${_csrf.parameterName}"
+						           th:value="${_csrf.token}">
+						
 			            <p>氏名</p>
 			            <input type="text" name="name" required>
 
@@ -276,6 +320,8 @@
 	            row.dataset.birthDate;
 	        document.getElementById("editMail").value =
 	            row.dataset.mail;
+			document.getElementById("editPoint").value =
+				row.dataset.point;
 
 	        document.getElementById("editModal").style.display =
 	            "block";

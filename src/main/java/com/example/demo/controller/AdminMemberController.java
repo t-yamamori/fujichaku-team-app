@@ -62,11 +62,13 @@ public class AdminMemberController {
 	            @RequestParam("name") String name,
 	            @RequestParam("birthDate")
 	            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
-	            @RequestParam("mail") String mail) {
+	            @RequestParam("mail") String mail,
+	            @RequestParam("point") Integer point) {
 
-	        adminMemberService.update(id, name, birthDate, mail);
+	                adminMemberService.update(
+	                        id, name, birthDate, mail, point);
 
-	        return "redirect:/admin/members";   // 更新後は一覧を開き直す
+	        return "redirect:/admin/members?updated=true";   // 更新後は一覧を開き直す
 	    }
 	    
 	    // 会員の削除（論理削除）
@@ -75,7 +77,7 @@ public class AdminMemberController {
 
 	        adminMemberService.delete(id);
 
-	        return "redirect:/admin/members";
+	        return "redirect:/admin/members?deleted=true";
 	    }
 	    
 	 // 管理者による新規会員登録
@@ -93,7 +95,7 @@ public class AdminMemberController {
 
 	        registerService.register(form);
 
-	        return "redirect:/admin/members";
+	        return "redirect:/admin/members?created=true";
 	    }
 	
 

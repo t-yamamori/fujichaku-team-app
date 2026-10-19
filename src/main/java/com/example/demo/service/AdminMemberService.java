@@ -26,19 +26,28 @@ public class AdminMemberService {
 		}
 	
 	
-	public void update(Integer id, String name, LocalDate birthDate, String mail) {
+	public void update(
+	        Integer id,
+	        String name,
+	        LocalDate birthDate,
+	        String mail,
+	        Integer point) {
 
-	    // 存在しない(または削除済みの)会員は更新しない
+	    // 存在しない（または削除済みの）会員は更新しない
 	    if (!membersMapper.existsById(id)) {
-	        throw new IllegalArgumentException("会員が見つかりません: " + id);
+	        throw new IllegalArgumentException(
+	                "会員が見つかりません: " + id);
 	    }
 
+	    // 更新する会員情報を設定
 	    Members member = new Members();
 	    member.setId(id);
 	    member.setName(name);
 	    member.setBirthDate(birthDate);
 	    member.setMail(mail);
+	    member.setPoint(point);
 
+	    // データベースを更新
 	    membersMapper.update(member);
 	}
 	
