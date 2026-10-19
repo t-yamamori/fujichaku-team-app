@@ -58,6 +58,10 @@
             <div class="page-subtitle">
                 MEMBER MANAGEMENT
             </div>
+			
+			<div class="error-message"
+			     th:if="${errorMessage != null}"
+			     th:text="${errorMessage}"></div>
 
 
             <!-- =========================
@@ -175,9 +179,21 @@
             </div>
 			
 			<!-- 編集モーダル -->
-			<div id="editModal" class="modal">
+			<div id="editModal" class="modal"
+			th:attr="data-open=${editErrors != null},
+			              data-id=${editId},
+			              data-name=${editName},
+			              data-birth-date=${editBirthDate},
+			              data-mail=${editMail},
+			              data-point=${editPoint}">
+			
 			    <div class="modal-content">
 			        <h2>会員情報の更新</h2>
+					
+					<!-- エラー文の表示 -->
+					       <div class="error-message" th:if="${editErrors != null}">
+					           <div th:each="e : ${editErrors}" th:text="${e}"></div>
+					       </div>
 
 					<form th:action="@{/admin/members/update}" method="post">
 
@@ -254,9 +270,15 @@
 			</div>
 
 			<!-- 新規登録モーダル -->
-			<div id="createModal" class="modal">
+			<div id="createModal" class="modal"
+			     th:attr="data-open=${createErrors != null}">
 			    <div class="modal-content">
 			        <h2>新規会員登録</h2>
+					
+					<!-- エラー文の表示 -->
+					<div class="error-message" th:if="${createErrors != null}">
+					    <div th:each="e : ${createErrors}" th:text="${e}"></div>
+					</div>
 
 			        <form action="/admin/members/create" method="post">
 						<!-- CSRFトークン -->
@@ -265,16 +287,20 @@
 						           th:value="${_csrf.token}">
 						
 			            <p>氏名</p>
-			            <input type="text" name="name" required>
+						<input type="text" name="name" required
+						                   th:value="${createName}">                
 
-			            <p>生年月日</p>
-			            <input type="date" name="birthDate" required>
+						            <p>生年月日</p>
+						            <input type="date" name="birthDate" required
+						                   th:value="${createBirthDate}">            
 
-			            <p>メールアドレス</p>
-			            <input type="email" name="mail" required>
+						            <p>メールアドレス</p>
+						            <input type="email" name="mail" required
+						                   th:value="${createMail}">                 
 
-			            <p>パスワード</p>
-			            <input type="password" name="password" required>
+						            <p>パスワード(8文字以上)</p>                   
+						            <input type="password" name="password" required
+						                   minlength="8">                           
 
 			            <div class="modal-button-area">
 			                <button type="submit" class="save-button">
@@ -351,6 +377,26 @@
 	    function closeModal(id) {
 	        document.getElementById(id).style.display = "none";
 	    }
+		
+		// エラーがあるとき、新規登録モーダルを開いたままにする
+		document.addEventListener("DOMContentLoaded", function () {
+		    const modal = document.getElementById("createModal");
+		    if (modal && modal.dataset.open === "true") {
+		        openCreateModal();
+		    }
+			
+			// 更新モーダル(今回足す)
+				        const editModal = document.getElementById("editModal");
+				        if (editModal && editModal.dataset.open === "true") {
+				            document.getElementById("editId").value = editModal.dataset.id;
+				            document.getElementById("editName").value = editModal.dataset.name;
+				            document.getElementById("editBirthDate").value = editModal.dataset.birthDate;
+				            document.getElementById("editMail").value = editModal.dataset.mail;
+				            document.getElementById("editPoint").value = editModal.dataset.point;
+				            editModal.style.display = "block";
+				        }
+		});
+		
 	</script>
 
 </body>

@@ -21,6 +21,10 @@ public interface MembersMapper {
     
     // メールアドレスが登録済みか確認
     boolean existsByMail(@Param("mail") String mail);
+    
+    // 自分以外の会員が、同じメールアドレスを使っているか(削除済みも含む)
+    boolean existsByMailExceptId(@Param("mail") String mail,
+                                 @Param("id") int id);
 
     // 新規登録　RegisterFormから
 	void insert(Members member);

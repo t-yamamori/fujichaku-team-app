@@ -60,6 +60,11 @@ public class AdminMemberService {
 
 	    membersMapper.delete(id);
 	}
+	
+	// 自分以外の会員が、同じメールアドレスを使っているか(削除済みも含む)
+	public boolean existsByMailExceptId(String mail, Integer id) {
+		return membersMapper.existsByMailExceptId(mail, id);
+	}
 
 	}
 
