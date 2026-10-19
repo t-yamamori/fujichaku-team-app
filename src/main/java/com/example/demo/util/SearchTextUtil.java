@@ -41,6 +41,21 @@ public class SearchTextUtil {
 	}
 
 	/**
+	 * 【追加】全角・半角だけを揃える（stores.name との比較用）
+	 *   NFKC 正規化 : 全角ｓ → 半角s、全角１２３ → 半角123、半角ｶﾌｪ → 全角カフェ
+	 *
+	 * normalize() と違い、カタカナ → ひらがな変換はしない。
+	 * （stores.name は「カフェ」などカタカナのまま登録されているため）
+	 * 大文字小文字は SQL 側の ilike で吸収する。
+	 */
+	public static String normalizeWidth(String s) {
+		if (s == null) {
+			return null;
+		}
+		return Normalizer.normalize(s.trim(), Normalizer.Form.NFKC);
+	}
+
+	/**
 	 * LIKE の特殊文字（\ % _）をエスケープする
 	 * （「100%」などで検索したときに全件ヒットしてしまうのを防ぐ）
 	 * SQL側では escape '\' を指定して使う

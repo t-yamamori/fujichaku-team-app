@@ -142,7 +142,7 @@ public class ShopController {
 	//検索した店舗を表示  GET /shops/search?name=xxx
 	//検索キーワード(name)が付いているときだけこちらが呼ばれる
 	//【変更】ひらがな・カタカナ・漢字・英字のどれで入力しても検索できるようにした
-	//  例：「かふぇ」「カフェ」「ｶﾌｪ」「CAFE」→ Cafe Aozora（name_kana = かふぇあおぞら）
+	//  例：「かふぇ」「カフェ」「ｶﾌｪ」「CAFE」「ＣＡＦＥ」→ Cafe Aozora（name_kana = かふぇあおぞら）
 	//      「珈琲」「こーひー」→ 珈琲館、コーヒー工房
 	@GetMapping(value = "/search", params = "name")
 	public String showSearchResults(@RequestParam("name") String name, Model model) {
@@ -154,8 +154,8 @@ public class ShopController {
 			return "shops/search";
 		}
 
-		// ① 入力そのまま        → stores.name（漢字・英字）と比較
-		String keyword = SearchTextUtil.escapeLike(name.trim());
+		// ① 全角・半角を揃えたもの → stores.name（漢字・英字）と比較（ｓ → s、ＣＡＦＥ → CAFE）
+		String keyword = SearchTextUtil.escapeLike(SearchTextUtil.normalizeWidth(name));
 		// ② ひらがなに揃えたもの → stores.name_kana と比較（カフェ → かふぇ）
 		String kana = SearchTextUtil.escapeLike(SearchTextUtil.normalize(name));
 		// ③ 漢字を読みに変換     → stores.name_kana と比較（珈琲 → こーひー）
