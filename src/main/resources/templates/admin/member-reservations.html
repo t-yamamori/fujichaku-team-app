@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会員の予約履歴 | FUJICHAKU</title>
+    <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
+
+    <style>
+        :root {
+            --green: #00ff41;
+            --green-dim: #008f11;
+            --bg: #030705;
+            --panel: rgba(5, 16, 9, .94);
+            --text: #d7ffe0;
+            --muted: #7aa987;
+            --border: #174d27;
+            --danger: #ff6666;
+            --success: #00ff88;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Consolas", "Yu Gothic", monospace;
+        }
+		
+		
+		/* サイドバー（幅133px）を避けるためのマージン設定 */
+		        .page-header,
+		        main.reservation-main {
+		            margin-left: 133px;
+		        }
+
+		        /* 画面幅が狭い場合のレス対応（スマホなど） */
+		        @media (max-width: 900px) {
+		            .page-header,
+		            main.reservation-main {
+		                margin-left: 0;
+		            }
+		        }
+				
+				
+				/* 強制的にサイドバーの幅（133px）分だけ右側にずらす */
+				        .page-header,
+				        main.reservation-main {
+				            margin-left: 133px !important;
+				        }
+		
+		/* ===== サイドバーとの干渉を防ぐための余白調整 ===== */
+		        /* サイドバーの幅（例: 250px）に合わせて、ヘッダーとメインコンテンツを右側にずらす */
+		        .page-header,
+		        main.reservation-main {
+		            margin-left: 250px; /* サイドバーの実際の幅に合わせて調整してください */
+		        }
+
+		        /* レスポンシブ対応（スマホ画面など、サイドバーが消えたり上部に行ったりする場合） */
+		        @media (max-width: 900px) {
+		            .page-header,
+		            main.reservation-main {
+		                margin-left: 0;
+		            }
+		        }
+
+        #matrixRain {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: .30;
+            pointer-events: none;
+        }
+
+        /* ===== ヘッダー ===== */
+        .page-header {
+            position: relative;
+            padding: 22px 5%;
+            border-bottom: 1px solid var(--green-dim);
+            background: rgba(0, 5, 2, .92);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 0 20px rgba(0, 255, 65, .08);
+        }
+
+        .brand {
+            color: var(--green);
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            text-shadow: 0 0 12px rgba(0, 255, 65, .45);
+        }
+
+        .brand-sub {
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        .header-label {
+            color: var(--green);
+            font-size: 12px;
+            letter-spacing: 2px;
+            border: 1px solid var(--green-dim);
+            padding: 10px 14px;
+            background: rgba(0, 255, 65, .04);
+        }
+
+        /* ===== メイン ===== */
+        main.reservation-main {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 22px 60px;
+        }
+
+        h1 {
+            color: var(--green);
+            font-size: 28px;
+            letter-spacing: 3px;
+            margin: 0 0 8px;
+            text-shadow: 0 0 12px rgba(0, 255, 65, .25);
+        }
+
+        .description {
+            color: var(--muted);
+            margin-bottom: 30px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--green);
+            font-size: 11px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 10px var(--green);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .35; }
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 0 20px rgba(0, 255, 65, .04);
+            position: relative;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 45px;
+            height: 3px;
+            background: var(--green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, .4);
+        }
+
+        .reservation-main h2 {
+            color: var(--green);
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin: 0 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ===== フォーム ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .reservation-main label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .reservation-main input,
+        .reservation-main select {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            color: var(--text);
+            background: #030805;
+            border: 1px solid #205b30;
+            border-radius: 0;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .reservation-main input:focus,
+        .reservation-main select:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 12px rgba(0, 255, 65, .08);
+        }
+
+        .reservation-main input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+
+        /* ===== ボタン ===== */
+        .reservation-main button,
+        .reservation-main .link-button {
+            border: 1px solid var(--green);
+            border-radius: 0;
+            padding: 11px 17px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            transition: .2s;
+            font-family: inherit;
+            letter-spacing: 1px;
+        }
+
+        .reservation-main .primary {
+            background: var(--green);
+            color: #001b07;
+        }
+
+        .reservation-main .primary:hover {
+            background: #9dffb2;
+            box-shadow: 0 0 15px rgba(0, 255, 65, .25);
+        }
+
+        .reservation-main .secondary {
+            background: transparent;
+            color: var(--green);
+        }
+
+        .reservation-main .secondary:hover {
+            background: rgba(0, 255, 65, .08);
+        }
+
+        .reservation-main .danger {
+            background: transparent;
+            color: var(--danger);
+            border-color: #763939;
+            padding: 7px 13px;
+        }
+
+        .reservation-main .danger:hover {
+            background: rgba(255, 102, 102, .12);
+            border-color: var(--danger);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        /* ===== メッセージ ===== */
+        .message {
+            padding: 13px 16px;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            background: rgba(0, 0, 0, .7);
+        }
+
+        .error {
+            color: var(--danger);
+            border: 1px solid #763939;
+        }
+
+        .success {
+            color: var(--success);
+            border: 1px solid var(--green-dim);
+        }
+
+        /* ===== テーブル ===== */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 820px;
+            border-collapse: collapse;
+        }
+
+        .reservation-main th,
+        .reservation-main td {
+            padding: 13px 10px;
+            border-bottom: 1px solid #174026;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .reservation-main th {
+            background: rgba(0, 255, 65, .07);
+            color: var(--green);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .reservation-main td {
+            font-size: 13px;
+        }
+
+        .reservation-main tbody tr:hover {
+            background: rgba(0, 255, 65, .035);
+        }
+
+        .id-cell {
+            color: var(--green);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .count {
+            color: var(--green);
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .hint {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 12px;
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .back-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .footer-line {
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            color: var(--green-dim);
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            main.reservation-main {
+                padding: 24px 12px 40px;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .page-header {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<canvas id="matrixRain" aria-hidden="true"></canvas>
+
+<!-- 共通サイドメニューを読み込む -->
+<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+
+<div class="page-header">
+    <div>
+        <div class="brand">FUJICHAKU</div>
+        <div class="brand-sub">MEMBER RESERVATION HISTORY</div>
+    </div>
+
+    <div class="header-label">MALL ADMINISTRATOR</div>
+</div>
+
+<main class="reservation-main">
+
+    <div class="system-status">
+        <span class="status-dot"></span>
+        SYSTEM ONLINE
+    </div>
+
+    <h1>会員の予約履歴</h1>
+
+    <div class="description">
+        会員ID：<span th:text="${memberId}">1</span>
+        の予約履歴です。予約の追加と削除ができます。
+    </div>
+
+    <div class="message error"
+         th:if="${errorMessage != null}"
+         th:text="${errorMessage}">
+    </div>
+
+    <div class="message success"
+         th:if="${successMessage != null}"
+         th:text="${successMessage}">
+    </div>
+
+    <!-- 予約一覧 -->
+    <section class="panel">
+        <h2>RESERVATION LIST</h2>
+
+        <div class="count">
+            表示件数：
+            <span th:text="${#lists.size(reservations)}">0</span>
+            件
+        </div>
+
+        <div class="table-wrap"
+             th:if="${!#lists.isEmpty(reservations)}">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>予約ID</th>
+                    <th>店舗</th>
+                    <th>予約日時</th>
+                    <th>人数</th>
+                    <th>ステータス</th>
+                    <th>登録日時</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="reservation : ${reservations}">
+
+                    <td class="id-cell" th:text="${reservation.id}">1</td>
+
+                    <td th:text="${storeNames[reservation.storeId] != null
+                                  ? storeNames[reservation.storeId]
+                                  : '店舗ID：' + reservation.storeId}">
+                        店舗名
+                    </td>
+
+                    <td th:text="${#temporals.format(
+                                  reservation.reservationDate,
+                                  'yyyy-MM-dd HH:mm')}">
+                        2026-11-30 13:00
+                    </td>
+
+                    <td th:text="${reservation.number} + '人'">2人</td>
+
+                    <td th:text="${reservation.status}">予約済み</td>
+
+                    <td th:text="${reservation.createdAt != null
+                                  ? #temporals.format(
+                                      reservation.createdAt,
+                                      'yyyy-MM-dd HH:mm')
+                                  : '—'}">—</td>
+
+                    <td>
+                        <!-- 削除後にこの会員の履歴へ戻るため、memberId も送る -->
+                        <form method="post"
+                              th:action="@{/admin/reservations/delete}"
+                              onsubmit="return confirm('この予約を削除しますか？');">
+                            <input type="hidden"
+                                   name="reservationId"
+                                   th:value="${reservation.id}">
+                            <input type="hidden"
+                                   name="memberId"
+                                   th:value="${memberId}">
+                            <button class="danger" type="submit">削除</button>
+                        </form>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="empty"
+             th:if="${#lists.isEmpty(reservations)}">
+            この会員の予約はまだありません。
+        </div>
+    </section>
+
+    <!-- 予約の追加 -->
+    <section class="panel">
+        <h2>ADD RESERVATION</h2>
+
+        <form method="post"
+              th:action="@{/admin/members/{id}/reservations/add(id=${memberId})}">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="storeId">店舗</label>
+                    <select id="storeId" name="storeId" required>
+                        <option value="">店舗を選択してください</option>
+                        <option th:each="store : ${stores}"
+                                th:value="${store.id}"
+                                th:text="${store.name}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="newReservationDateTime">予約日時</label>
+                    <input type="datetime-local"
+                           id="newReservationDateTime"
+                           name="reservationDateTime"
+                           required>
+                </div>
+
+                <div class="field">
+                    <label for="newNumber">予約人数</label>
+                    <select id="newNumber" name="number" required>
+                        <option th:each="n : ${#numbers.sequence(1, 10)}"
+                                th:value="${n}"
+                                th:text="${n} + '人'">
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="hint">
+                この会員の予約として登録します。
+                新規予約のステータスは「予約済み」になります。
+                過去の日時は指定できません。
+            </div>
+
+            <div class="actions">
+                <button class="primary" type="submit">予約を追加</button>
+            </div>
+        </form>
+
+        <div class="back-actions">
+            <a class="link-button secondary"
+               href="javascript:history.back()">
+                ← 前の画面に戻る
+            </a>
+
+            <a class="link-button secondary"
+               th:href="@{/admin/members}">
+                会員一覧に戻る
+            </a>
+        </div>
+    </section>
+
+    <div class="footer-line">
+        FUJICHAKU // MEMBER RESERVATION HISTORY // END OF LINE
+    </div>
+
+</main>
+
+<script>
+/* ==============================
+   MATRIX DIGITAL RAIN
+============================== */
+(function () {
+    const canvas = document.getElementById("matrixRain");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const characters =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+        "予約完了不時着FUJICHAKU";
+
+    const fontSize = 14;
+    let drops = [];
+
+    function resizeCanvas() {
+        const ratio = window.devicePixelRatio || 1;
+
+        canvas.width = Math.floor(window.innerWidth * ratio);
+        canvas.height = Math.floor(window.innerHeight * ratio);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        const columns = Math.ceil(window.innerWidth / fontSize);
+
+        drops = Array.from(
+            { length: columns },
+            () => Math.random() * -100
+        );
+    }
+
+    function draw() {
+        ctx.fillStyle = "rgba(3, 7, 5, 0.10)";
+        ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = characters.charAt(
+                Math.floor(Math.random() * characters.length)
+            );
+
+            ctx.fillStyle = Math.random() > 0.96
+                ? "#c4ffd0"
+                : "#00ff41";
+
+            ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+            if (
+                drops[i] * fontSize > window.innerHeight &&
+                Math.random() > 0.975
+            ) {
+                drops[i] = 0;
+            }
+
+            drops[i] += 0.55;
+        }
+    }
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+    window.setInterval(draw, 45);
+})();
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>title</title>
+</head>
+<body>
+
+</body>
+</html>

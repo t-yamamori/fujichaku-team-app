@@ -38,6 +38,42 @@ public class PasswordResetController {
             BindingResult result,
             HttpSession session,
             Model model) {
+    	
+
+        // 名前の入力形式をチェック
+        String name = form.getName();
+
+        // 名前が空欄でない場合だけチェックする
+        if (name != null && !name.isBlank()) {
+
+
+            // 姓と名の間に全角または半角スペースがあるか確認
+            int fullWidthSpaceIndex = name.indexOf('　');
+            int halfWidthSpaceIndex = name.indexOf(' ');
+
+            boolean hasValidSpace =
+                    (fullWidthSpaceIndex > 0
+                            && fullWidthSpaceIndex < name.length() - 1)
+                    || (halfWidthSpaceIndex > 0
+                            && halfWidthSpaceIndex < name.length() - 1);
+
+            if (!hasValidSpace) {
+                result.rejectValue(
+                        "name",
+                        "name.space",
+                        "姓と名の間に空白をいれてください");
+            }
+
+
+            // 半角の中点・ハイフンが含まれているか確認
+            if (name.contains("･") || name.contains("-")) {
+                result.rejectValue(
+                        "name",
+                        "name.connector",
+                        "中点、ハイフンなど接続文字は全角で入れてください");
+            }
+        }
+
 
         // 未入力などの入力エラーを確認
         if (result.hasErrors()) {
@@ -88,6 +124,16 @@ public class PasswordResetController {
                         "パスワードが一致しません。もう一度入力してください。");
                 return "password/reset";
             }
+            
+
+            // パスワードが8文字未満の場合
+            if (password.length() < 8) {
+                model.addAttribute(
+                        "errorMessage",
+                        "パスワードは8文字以上で入力してください。");
+                return "password/reset";
+            }
+
 
             // パスワードを更新
             passwordResetService.resetPassword(memberId, password);

@@ -17,10 +17,19 @@ public class PasswordResetService {
     private final MembersMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
 
+
     // 名前と生年月日で本人確認
     public Members verifyMember(String name, LocalDate birthDate) {
-        return memberMapper.findByNameAndBirthDate(name, birthDate);
+
+        // 全角スペースを半角スペースに統一する
+        String normalizedName = name.replace('　', ' ');
+
+        // 名前と生年月日で会員を検索
+        return memberMapper.findByNameAndBirthDate(
+                normalizedName,
+                birthDate);
     }
+
     
     // パスワードを再設定
     public void resetPassword(int memberId, String password) {

@@ -317,6 +317,7 @@ a:hover { color: var(--main); }
     position: absolute; left: 0; bottom: calc(var(--ground-h) - 14px);
     width: 90px;
     animation: camel-walk 38s linear infinite;
+	pointer-events: visible;
 }
 .camel svg { display: block; width: 100%; animation: camel-bob .6s ease-in-out infinite alternate; }
 .camel .leg { transform-box: fill-box; transform-origin: 50% 0; animation: camel-step .6s ease-in-out infinite alternate; }
