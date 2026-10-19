@@ -1,4 +1,3 @@
-
 package com.example.demo.controller;
 
 import java.security.Principal;
@@ -36,10 +35,33 @@ public class ReservationController {
     private final MembersService membersService;
     private final UsersMapper usersMapper;
 
+    /**
+     * メールアドレスの形式チェック
+     * 例：taro@gmail.com は有効
+     *     aaaa@aaaa は無効
+     */
+    private boolean isValidEmail(String mail) {
+        if (mail == null || mail.isBlank()) {
+            return false;
+        }
+
+        if (mail.length() > 255) {
+            return false;
+        }
+
+        return mail.matches(
+                "^[A-Za-z0-9_%+\\-]+(?:\\.[A-Za-z0-9_%+\\-]+)*"
+                + "@[A-Za-z0-9](?:[A-Za-z0-9\\-]{0,61}[A-Za-z0-9])?"
+                + "(?:\\.[A-Za-z0-9](?:[A-Za-z0-9\\-]{0,61}[A-Za-z0-9])?)*"
+                + "\\.[A-Za-z]{2,}$"
+        );
+    }
+
     private Members getLoginMember(Principal principal) {
         if (principal == null) {
             return null;
         }
+
         return membersService.findByLoginId(principal.getName());
     }
 
@@ -65,12 +87,17 @@ public class ReservationController {
         model.addAttribute("store", store);
         model.addAttribute("shopId", shopId);
         model.addAttribute("isMember", member != null);
-        model.addAttribute("memberName",
+        model.addAttribute(
+                "memberName",
                 member != null ? member.getName() : null);
-        model.addAttribute("memberId",
+        model.addAttribute(
+                "memberId",
                 member != null ? member.getId() : null);
-        model.addAttribute("historyUrl",
-                member != null ? "/reservations/history" : "/register");
+        model.addAttribute(
+                "historyUrl",
+                member != null
+                        ? "/reservations/history"
+                        : "/register");
     }
 
     /**
@@ -180,6 +207,15 @@ public class ReservationController {
                         name, mail, date, time, number);
             }
 
+            // メールアドレスの形式チェック
+            if (!isValidEmail(trimmedMail)) {
+                return returnToForm(
+                        model, store, shopId, principal,
+                        "メールアドレスの形式が正しくありません。"
+                        + "（例：taro@gmail.com）",
+                        name, mail, date, time, number);
+            }
+
             Users user = usersMapper.findByMail(trimmedMail);
 
             if (user == null) {
@@ -187,8 +223,6 @@ public class ReservationController {
                 user.setName(trimmedName);
                 user.setMail(trimmedMail);
                 usersMapper.insert(user);
-
-                // insert時にIDが設定されるMapper設定が必要です。
             }
 
             model.addAttribute("userId", user.getId());
@@ -209,7 +243,9 @@ public class ReservationController {
 
         model.addAttribute(
                 "name",
-                loginMember == null ? trimmedName : loginMember.getName());
+                loginMember == null
+                        ? trimmedName
+                        : loginMember.getName());
 
         model.addAttribute(
                 "mail",
@@ -219,7 +255,7 @@ public class ReservationController {
     }
 
     /**
-     * 入力エラー時にフォームを再表示する
+     * 入力エラー時にフォームを再表示
      */
     private String returnToForm(
             Model model,
@@ -329,6 +365,15 @@ public class ReservationController {
                         name, mail, date, time, number);
             }
 
+            // 予約確定時にも必ず形式を再チェック
+            if (!isValidEmail(trimmedMail)) {
+                return returnToForm(
+                        model, store, shopId, principal,
+                        "メールアドレスの形式が正しくありません。"
+                        + "（例：taro@gmail.com）",
+                        name, mail, date, time, number);
+            }
+
             Users user = usersMapper.findByMail(trimmedMail);
 
             if (user == null) {
@@ -338,8 +383,6 @@ public class ReservationController {
                 usersMapper.insert(user);
             }
 
-            // 既存ユーザーの場合も、登録済みのユーザーIDで予約します。
-            // UsersMapperに存在しないupdateNameById()は呼び出しません。
             userId = user.getId();
         }
 
@@ -440,7 +483,8 @@ public class ReservationController {
         }
 
         if (reservation.getUserId() != null) {
-            Users user = usersMapper.findById(reservation.getUserId());
+            Users user =
+                    usersMapper.findById(reservation.getUserId());
 
             if (user != null) {
                 model.addAttribute("userName", user.getName());
