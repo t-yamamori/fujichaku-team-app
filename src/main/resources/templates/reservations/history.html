@@ -212,6 +212,19 @@
             border: 1px solid #bcd8ea;
             font-size: .82rem; font-weight: 700;
         }
+		
+		/* 来店済み：グレー（終わった予約） */
+		.status.status-visited {
+		    background: #f1f3f4;
+		    color: #6b7479;
+		    border-color: #d9dee1;
+		}
+		/* キャンセル：赤っぽい色 */
+		.status.status-cancel {
+		    background: #fdecea;
+		    color: #a5281b;
+		    border-color: #f5c9c3;
+		}
 
         /* 詳細ボタン */
         .detail-button {
@@ -391,14 +404,18 @@
                                 2名
                             </td>
 
-                            <!-- 予約状況 -->
-                            <td>
-                                <span
-                                    class="status"
-                                    th:text="${reservation.status}">
-                                    予約済み
-                                </span>
-                            </td>
+							<!-- 予約状況
+							     【変更】キャンセル以外で、予約日時を過ぎたものは「来店済み」と表示する
+							     （DBの status は変えず、画面の表示だけ切りかえる） -->
+							<td th:with="isPast=${reservation.reservationDate != null
+							                      and reservation.reservationDate.isBefore(#temporals.createNow())},
+							             isCancel=${reservation.status == 'キャンセル'}">
+							    <span class="status"
+							          th:classappend="${isCancel} ? 'status-cancel' : (${isPast} ? 'status-visited' : '')"
+							          th:text="${isCancel} ? 'キャンセル' : (${isPast} ? '来店済み' : ${reservation.status})">
+							        予約済み
+							    </span>
+							</td>
 
                             <!-- 予約詳細 -->
                             <td>
