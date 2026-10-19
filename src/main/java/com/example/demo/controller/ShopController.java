@@ -27,6 +27,7 @@ import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Reviews;
 import com.example.demo.entity.ShopAdmin;
 import com.example.demo.entity.Stores;
+import com.example.demo.mapper.ReviewsMapper;
 import com.example.demo.mapper.ShopAdminMapper;
 import com.example.demo.mapper.StoresMapper;
 import com.example.demo.service.ReviewService;
@@ -43,7 +44,7 @@ public class ShopController {
 
 	//フィールド
 	private final StoresMapper storesMapper;
-
+	
 	// 会員(members)へのアクセスは必ず Service を通す
 	// 型はインターフェース(MembersService)にしておき、実体は Spring が MembersServiceImpl を入れてくれる
 	private final MembersService membersService;
@@ -59,6 +60,9 @@ public class ShopController {
 
 	// 【追加】店舗検索で、入力された漢字を読みがな（ひらがな）に変換するために使う
 	private final ReadingConverter readingConverter;
+	
+	// 【追加】口コミの平均・件数を出すために使う（ShopDashboardController と同じ使い方）
+	private final ReviewsMapper reviewsMapper;
 
 	//店舗一覧表示（トップ画面）  GET /shops
 	//同じ shops.html の中で「未ログイン」と「ログイン済み」の表示を切り替える
@@ -298,6 +302,9 @@ public class ShopController {
 		model.addAttribute("isShopAdmin", false);
 		// 自分の口コミにだけ削除ボタンを出す判定に使う
 		model.addAttribute("loginId", loginId);
+		// 【追加】口コミの平均と件数（会員・非会員どちらも、全部の口コミで計算する）
+		model.addAttribute("averageGrade", reviewsMapper.selectAverageGrade(shopId));
+		model.addAttribute("reviewCount", reviewsMapper.countByStoreId(shopId));
 		return "shops/detail";
 	}
 

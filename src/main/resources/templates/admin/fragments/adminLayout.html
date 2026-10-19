@@ -2,29 +2,79 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-    <!-- 管理者画面共通サイドバー -->
-    <header th:fragment="sidebar" class="admin-sidebar">
-        <nav>
-            <a th:href="@{/admin/index}">管理者TOP</a>
-            <a th:href="@{/admin/tenants}">店舗管理</a>
-            <a th:href="@{/admin/shop-admins}">店舗管理者管理</a>
-            <a th:href="@{/admin/members}">会員管理</a>
-            <a th:href="@{/admin/reviews}">口コミ管理</a>
-            <a th:href="@{/admin/reservations}">予約管理</a>
+    <aside class="admin-sidebar" th:fragment="sidebar">
 
-            <form th:action="@{/adminLogout}" method="post">
-                <button type="submit">ログアウト</button>
-            </form>
+        <!-- ロゴ・システム情報 -->
+        <div class="admin-sidebar-brand">
+            <div class="admin-sidebar-logo">FUJICHAKU</div>
+            <div class="admin-sidebar-subtitle">
+                MATRIX ADMIN TERMINAL
+            </div>
 
-        </nav>
-
-        <div class="admin-sidebar-footer">
-            <span class="admin-footer-line"></span>
-            <span>FUJICHAKU SYSTEM</span>
-            <span class="admin-footer-version">MATRIX TERMINAL</span>
+            <div class="admin-sidebar-status">
+                <span class="admin-status-dot"></span>
+                SYSTEM ONLINE
+            </div>
         </div>
 
-    </header>
+        <!-- 共通メニュー -->
+        <nav class="admin-sidebar-nav">
+            <div class="admin-menu-label">ADMIN MENU</div>
+
+            <a class="admin-menu-link" th:href="@{/admin/index}">
+                <span class="admin-menu-icon">01</span>
+                <span>管理者TOP</span>
+            </a>
+
+           <a class="admin-menu-link" th:href="@{/admin/tenants}">
+                <span class="admin-menu-icon">02</span>
+                <span>店舗管理</span>
+            </a>
+
+            <a class="admin-menu-link" th:href="@{/admin/shop-admins}">
+                <span class="admin-menu-icon">03</span>
+                <span>店舗管理者管理</span>
+            </a>
+
+            <a class="admin-menu-link" th:href="@{/admin/members}">
+                <span class="admin-menu-icon">04</span>
+                <span>会員管理</span>
+            </a>
+
+            <a class="admin-menu-link" th:href="@{/admin/reviews}">
+                <span class="admin-menu-icon">05</span>
+                <span>口コミ管理</span>
+            </a>
+
+            <a class="admin-menu-link" th:href="@{/admin/reservations}">
+                <span class="admin-menu-icon">06</span>
+                <span>予約管理</span>
+            </a>
+
+            <div class="admin-sidebar-divider"></div>
+
+            <!-- ログアウト -->
+            <form class="admin-logout-form"
+                  th:action="@{/adminLogout}"
+                  method="post">
+
+                <button type="submit" class="admin-logout-button">
+                    <span class="admin-menu-icon">OUT</span>
+                    <span>ログアウト</span>
+                </button>
+            </form>
+        </nav>
+
+        <!-- サイドバー下部 -->
+        <div class="admin-sidebar-footer">
+            <div class="admin-footer-line"></div>
+            <span>FUJICHAKU SYSTEM</span>
+            <span class="admin-footer-version">
+                ADMIN TERMINAL v1.0
+            </span>
+        </div>
+
+    </aside>
 
 </body>
 </html>

@@ -207,7 +207,7 @@
 	<section class="section point-card" th:unless="${isShopAdmin}">
 	    <div class="point-badge" aria-hidden="true">P</div>
 	    <div class="point-body">
-	        <p class="point-title">このお店でポイントがたまります</p>
+	        <p class="point-title">ポイントGETでさらにお得に！</p>
 	        <ul class="point-list">
 	            <li>口コミを投稿すると<b>5P</b></li>
 	            <li th:if="${store.reservable}">予約すると<b>10P</b></li>
@@ -219,8 +219,16 @@
 	</section>
 	
     <!-- ③ 口コミ -->
-    <section class="section">
+    <section class="section" id="reviews">
         <h2>口コミ</h2>
+		
+	<!-- 【追加】口コミの平均（押すと口コミの場所へ移動） -->
+		<a class="rating-summary" href="#reviews" th:if="${averageGrade != null}">
+		    <span class="rating-stars" th:style="|--rate: ${averageGrade}|" aria-hidden="true">★★★★★</span>
+		    <span class="rating-score" th:text="${#numbers.formatDecimal(averageGrade, 1, 1)}">4.2</span>
+		    <span class="rating-count" th:text="|（口コミ ${reviewCount}件）|">（口コミ 12件）</span>
+		</a>
+		<p class="rating-summary rating-none" th:if="${averageGrade == null}">口コミはまだありません</p>
 
         <div th:if="${#lists.isEmpty(reviews)}" class="note">まだ口コミはありません。</div>
 
