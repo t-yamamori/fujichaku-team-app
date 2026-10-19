@@ -63,6 +63,16 @@
           FROM reviews
          WHERE id = #{id}
     </select>
+    
+        <!-- 【追加】店舗の口コミの平均（小数1けた）。口コミが0件のときは null -->
+    <select id="selectAverageGrade" resultType="java.lang.Double">
+        SELECT ROUND(AVG(grade), 1) FROM reviews WHERE store_id = #{storeId}
+    </select>
+
+    <!-- 【追加】店舗の口コミの件数 -->
+    <select id="countByStoreId" resultType="int">
+        SELECT COUNT(*) FROM reviews WHERE store_id = #{storeId}
+    </select>
 </mapper>
 
 

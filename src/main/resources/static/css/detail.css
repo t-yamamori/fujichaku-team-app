@@ -344,3 +344,23 @@ body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color
     background: #f1f3f4; border-color: var(--line); color: var(--text-sub);
 }
 
+/* ===== 【追加】口コミの平均（「口コミ」見出しのすぐ下） ===== */
+.rating-summary {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0 0 12px;
+    padding: 12px 16px;
+    background: var(--sky-pale);
+    border-radius: 4px;
+	background: none;   /* ← 追加：青い帯を消す */
+	padding: 4px 0;     /* ← 追加：帯がなくなるので、左の余白をなくして見出しと左端をそろえる */
+}
+/* 星：平均の割合だけ金色にぬる（4.2 なら 4つと少し） */
+.rating-stars {
+    font-size: 1.4rem; letter-spacing: .1em; line-height: 1;
+    background: linear-gradient(90deg, #e0a526 calc(var(--rate, 0) / 5 * 100%), rgba(150, 165, 175, .45) 0);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+}
+.rating-score { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.rating-count { font-size: .85rem; color: var(--text-sub); }
+
