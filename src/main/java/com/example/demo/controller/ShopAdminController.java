@@ -1,3 +1,4 @@
+
 package com.example.demo.controller;
 
 import java.time.LocalDate;
@@ -93,10 +94,36 @@ public class ShopAdminController {
                         ? new ArrayList<>()
                         : form.getShopAdmins();
 
-        if (bindingResult.hasErrors()) {
-            List<ShopAdmin> filteredShopAdmins =
-                    filterShopAdmins(shopAdminService.findAll(), filters);
+        /*
+         * 店舗IDの存在チェック
+         *
+         * Bean Validationのチェックに加え、
+         * データベースに存在しない店舗IDが指定されていないか確認する。
+         *
+         * 1件でも不正な店舗IDがあればBindingResultにエラーを追加する。
+         * その後のエラー判定によって、一括更新全体を中止する。
+         */
+        for (int i = 0; i < submitted.size(); i++) {
+            ShopAdmin submittedAdmin = submitted.get(i);
 
+            if (submittedAdmin.getId() <= 0) {
+                continue;
+            }
+
+            Integer storeId = submittedAdmin.getStoreId();
+
+            if (storeId != null
+                    && !shopAdminService.existsStoreId(storeId)) {
+
+                bindingResult.rejectValue(
+                        "shopAdmins[" + i + "].storeId",
+                        "invalid.storeId",
+                        "存在する店舗IDを入力してください");
+            }
+        }
+
+        // 入力エラーがあれば更新せず、入力値とエラーを表示する
+        if (bindingResult.hasErrors()) {
             model.addAttribute("filters", filters);
             model.addAttribute("shopAdmins", submitted);
             model.addAttribute("newShopAdmin", new ShopAdmin());
@@ -278,11 +305,6 @@ public class ShopAdminController {
         try {
             shopAdminService.create(shopAdmin);
         } catch (DuplicateKeyException e) {
-            /*
-             * DBの一意性制約によりメール重複が検出された場合。
-             * 同時登録などで事前チェックをすり抜けた場合も
-             * 入力画面のメール欄にエラーを表示する。
-             */
             bindingResult.rejectValue(
                     "mail",
                     "duplicate.mail",

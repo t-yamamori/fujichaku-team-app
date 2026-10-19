@@ -4,90 +4,91 @@
 
 <mapper namespace="com.example.demo.mapper.ShopAdminMapper">
 
-	<resultMap id="shopAdminResultMap"
-		type="com.example.demo.entity.ShopAdmin">
-		<id property="id" column="id" />
-		<result property="storeId" column="store_id" />
-		<result property="name" column="name" />
-		<result property="mail" column="mail" />
-		<result property="password" column="password" />
-		<result property="isDeleted" column="is_deleted" />
-		<result property="birthDate" column="birth_date" />
-	</resultMap>
+    <resultMap id="shopAdminResultMap"
+        type="com.example.demo.entity.ShopAdmin">
+        <id property="id" column="id" />
+        <result property="storeId" column="store_id" />
+        <result property="name" column="name" />
+        <result property="mail" column="mail" />
+        <result property="password" column="password" />
+        <result property="isDeleted" column="is_deleted" />
+        <result property="birthDate" column="birth_date" />
+    </resultMap>
 
-	<!-- 論理削除されていない店舗管理者を取得 -->
-	<select id="findAll" resultMap="shopAdminResultMap">
-		SELECT
-		id,
-		store_id,
-		name,
-		mail,
-		password,
-		is_deleted,
-		birth_date
-		FROM shop_admins
-		WHERE is_deleted = false
-		ORDER BY id
-	</select>
+    <!-- 論理削除されていない店舗管理者を取得 -->
+    <select id="findAll" resultMap="shopAdminResultMap">
+        SELECT
+            id,
+            store_id,
+            name,
+            mail,
+            password,
+            is_deleted,
+            birth_date
+        FROM shop_admins
+        WHERE is_deleted = false
+        ORDER BY id
+    </select>
 
-	<!-- ID指定で店舗管理者を取得 -->
-	<select id="findById" resultMap="shopAdminResultMap">
-		SELECT
-		id,
-		store_id,
-		name,
-		mail,
-		password,
-		is_deleted,
-		birth_date
-		FROM shop_admins
-		WHERE id = #{id}
-		AND is_deleted = false
-	</select>
+    <!-- ID指定で店舗管理者を取得 -->
+    <select id="findById" resultMap="shopAdminResultMap">
+        SELECT
+            id,
+            store_id,
+            name,
+            mail,
+            password,
+            is_deleted,
+            birth_date
+        FROM shop_admins
+        WHERE id = #{id}
+          AND is_deleted = false
+    </select>
 
-	<!-- 店舗管理者情報を更新。パスワードは更新しない -->
-	<update id="update">
-		UPDATE shop_admins
-		SET
-		store_id = #{storeId},
-		name = #{name},
-		mail = #{mail},
-		birth_date = #{birthDate}
-		WHERE id = #{id}
-		AND is_deleted = false
-	</update>
+    <!-- 店舗管理者情報を更新。パスワードは更新しない -->
+    <update id="update">
+        UPDATE shop_admins
+        SET
+            store_id = #{storeId},
+            name = #{name},
+            mail = #{mail},
+            birth_date = #{birthDate}
+        WHERE id = #{id}
+          AND is_deleted = false
+    </update>
 
-	<!-- 論理削除 -->
-	<update id="deleteByIds">
-		UPDATE shop_admins
-		SET is_deleted = true
-		WHERE is_deleted = false
-		AND id IN
-		<foreach item="id" collection="list" open="(" separator=","
-			close=")">
-			#{id}
-		</foreach>
-	</update>
+    <!-- 論理削除 -->
+    <update id="deleteByIds">
+        UPDATE shop_admins
+        SET is_deleted = true
+        WHERE is_deleted = false
+          AND id IN
+        <foreach item="id" collection="list" open="(" separator=","
+            close=")">
+            #{id}
+        </foreach>
+    </update>
 
-	<!-- 新規登録 -->
-	<insert id="create">
-		INSERT INTO shop_admins (
-		store_id,
-		name,
-		mail,
-		password,
-		is_deleted,
-		birth_date
-		)
-		VALUES (
-		#{storeId},
-		#{name},
-		#{mail},
-		#{password},
-		false,
-		#{birthDate}
-		)
-	</insert>
+    <!-- 新規登録 -->
+    <insert id="create">
+        INSERT INTO shop_admins (
+            store_id,
+            name,
+            mail,
+            password,
+            is_deleted,
+            birth_date
+        )
+        VALUES (
+            #{storeId},
+            #{name},
+            #{mail},
+            #{password},
+            false,
+            #{birthDate}
+        )
+    </insert>
+
 	<!-- 店舗IDが存在するか確認 -->
 	<select id="existsStoreId" resultType="boolean">
 		SELECT EXISTS (
@@ -96,4 +97,5 @@
 		WHERE id = #{storeId}
 		)
 	</select>
+
 </mapper>
