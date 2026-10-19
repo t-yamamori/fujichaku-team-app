@@ -3,67 +3,320 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>店舗検索</title>
-    <link rel="stylesheet" th:href="@{/css/shops.css}">
+    <title>店舗検索 | FUJICHAKU TOWN</title>
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
+    <style>
+        /* =========================================================
+           店舗検索 shops/search.html
+           トップ画面と同じ「砂漠の空」デザイン（shops.css は使わない）
+           ========================================================= */
+        :root {
+            --main:      #8b4a2b;   /* ボタン（ブラウン） */
+            --main-dark: #6e3a21;
+            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
+            --sky-pale:  #eaf4fa;
+            --line:      #d9e3ea;
+            --text:      #2f3437;
+            --text-sub:  #6b7479;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+            color: var(--text);
+            line-height: 1.7;
+            background: linear-gradient(#9fcbe8 0, #cfe6f4 45%, #f3f7fa 100%) fixed;
+            overflow-x: hidden;
+        }
+
+        /* ゆっくり流れる雲（2つ） */
+        body::before {
+            content: "";
+            position: fixed; top: 18%; left: -260px; z-index: 0;
+            width: 220px; height: 60px; border-radius: 60px;
+            background: #fff; opacity: .85;
+            box-shadow:
+                40px -26px 0 6px #fff,
+                110px -14px 0 0 #fff,
+                520px 70px 0 -8px rgba(255,255,255,.75),
+                580px 52px 0 -4px rgba(255,255,255,.75);
+            animation: cloud-drift 60s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes cloud-drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(calc(100vw + 900px)); }
+        }
+
+        /* 画面の一番下の砂丘 */
+        body::after {
+            content: "";
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
+            height: 120px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+            pointer-events: none;
+        }
+
+        /* ===== ヘッダー（トップ画面と同じ白いヘッダー） ===== */
+        .site-header {
+            position: sticky; top: 0; z-index: 50;
+            height: 64px;
+            padding: 0 clamp(16px, 4vw, 48px);
+            display: flex; align-items: center; justify-content: space-between; gap: 16px;
+            background: #fff;
+            border-bottom: 1px solid var(--line);
+        }
+        .logo { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; }
+        .logo img { display: block; }
+        .logo-text { font-size: 1.15rem; font-weight: 700; letter-spacing: .06em; line-height: 1; }
+        .logo-text span { margin-left: .35em; font-weight: 400; color: var(--sky-deep); letter-spacing: .14em; }
+        .header-link { color: var(--text); font-size: .9rem; text-decoration: none; }
+        .header-link:hover { color: var(--sky-deep); text-decoration: underline; }
+
+        /* ===== 本文 ===== */
+        .container {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 1080px;
+            margin: 0 auto;
+            padding: 18px clamp(16px, 3vw, 32px) 160px;   /* 下は砂丘のぶん空ける */
+        }
+
+        /* パンくずリスト */
+        .crumbs { margin: 0 0 14px; font-size: .8rem; color: var(--text-sub); }
+        .crumbs a { color: var(--sky-deep); text-decoration: none; }
+        .crumbs a:hover { text-decoration: underline; }
+        .crumbs span { margin: 0 8px; }
+
+        /* 見出し＋「＜」戻るボタン（店舗詳細画面と同じ形） */
+        .title-row {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 18px; padding-bottom: 12px;
+            border-bottom: 2px solid var(--sky-deep);
+        }
+        .back-btn {
+            flex: none;
+            width: 36px; height: 36px;
+            display: grid; place-items: center;
+            border-radius: 4px;
+            background: var(--sky-deep); color: #fff;
+            text-decoration: none;
+            transition: background .2s;
+        }
+        .back-btn:hover { background: var(--main); }
+        .page-title { margin: 0; font-size: clamp(1.3rem, 3.5vw, 1.6rem); letter-spacing: .08em; }
+
+        /* ===== 検索ボックス ===== */
+        .search-box {
+            padding: 20px 24px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--sky-deep);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(31, 79, 112, .12);
+        }
+        .search-form { display: flex; }
+        .search-form input {
+            flex: 1; min-width: 0;
+            height: 50px; padding: 0 16px;
+            border: 1px solid #bfd0db; border-right: none;
+            border-radius: 3px 0 0 3px;
+            background: #fff; color: var(--text);
+            font: inherit; font-size: 1rem;
+        }
+        .search-form input::placeholder { color: #a3adb3; }
+        .search-form input:focus { outline: none; border-color: var(--sky-deep); box-shadow: inset 0 0 0 1px var(--sky-deep); }
+        .search-form button {
+            flex: none;
+            height: 50px; padding: 0 28px;
+            border: 1px solid var(--main);
+            border-radius: 0 3px 3px 0;
+            background: var(--main); color: #fff;
+            font: inherit; font-size: 1rem; font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .search-form button:hover { background: var(--main-dark); }
+        .search-hint { margin: 8px 0 0; font-size: .78rem; color: var(--text-sub); }
+
+        /* ===== 結果の上（件数・並び替え） ===== */
+        .result-head {
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+            margin: 28px 0 16px;
+        }
+        .result-count { margin: 0; font-size: .95rem; }
+        .result-count .keyword { font-weight: 700; color: var(--main); }
+        .result-count .num { margin: 0 2px; font-size: 1.4rem; font-weight: 700; color: var(--text); }
+
+        .sort { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text-sub); }
+        .sort select {
+            height: 38px; padding: 0 10px;
+            border: 1px solid #bfd0db; border-radius: 3px;
+            background: #fff; color: var(--text);
+            font: inherit; cursor: pointer;
+        }
+
+        /* ===== 検索結果（トップ画面と同じカード） ===== */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+            gap: 28px 20px;
+            margin: 0; padding: 0; list-style: none;
+        }
+        .shop { min-width: 0; }
+        .shop a {
+            display: block; height: 100%;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            overflow: hidden;
+            color: var(--text); text-decoration: none;
+            transition: box-shadow .2s, transform .2s;
+        }
+        .shop a:hover { box-shadow: 0 8px 20px rgba(31, 79, 112, .15); transform: translateY(-2px); }
+        .shop-thumb { aspect-ratio: 4 / 3; overflow: hidden; background: var(--sky-pale); }
+        .shop-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+        .shop a:hover .shop-thumb img { transform: scale(1.04); }
+        .no-image {
+            width: 100%; height: 100%;
+            display: grid; place-items: center;
+            color: #9fb6c5; font-size: .78rem; letter-spacing: .2em;
+        }
+        .shop-body { padding: 10px 12px 12px; }
+        .shop-name {
+            margin: 0 0 6px;
+            font-weight: 700; font-size: .98rem; line-height: 1.4;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .shop a:hover .shop-name { color: var(--sky-deep); text-decoration: underline; }
+        .shop-floor {
+            display: inline-block;
+            margin: 0;
+            padding: 1px 10px;
+            border-radius: 999px;
+            background: var(--sky-pale); color: var(--sky-deep);
+            font-size: .75rem; font-weight: 700;
+        }
+
+        /* 0件のとき */
+        .empty {
+            padding: 40px 16px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            text-align: center;
+        }
+        .empty p { margin: 0 0 6px; }
+        .empty .sub { color: var(--text-sub); font-size: .85rem; }
+        .empty a {
+            display: inline-flex; align-items: center;
+            height: 44px; margin-top: 16px; padding: 0 24px;
+            border: 1px solid var(--main); border-radius: 3px;
+            color: var(--main); font-weight: 700; text-decoration: none;
+        }
+        .empty a:hover { background: #fbf4f0; }
+
+        /* ===== スマホ ===== */
+        @media (max-width: 600px) {
+            .site-header { height: 56px; }
+            .logo-text { font-size: .9rem; }
+            .logo img { width: 28px; height: 28px; }
+            .search-box { padding: 16px; }
+            .search-form button { padding: 0 18px; }
+            .shop-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
+        }
+    </style>
 </head>
 <body>
+
+<!-- ヘッダー（トップ画面と同じ） -->
+<header class="site-header">
+    <a class="logo" th:href="@{/shops}">
+        <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
+        <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+    </a>
+    <a class="header-link" th:href="@{/shops}">店舗一覧へ</a>
+</header>
+
 <div class="container">
 
-    <h1 class="page-title">店舗検索</h1>
+    <!-- パンくずリスト -->
+    <p class="crumbs">
+        <a th:href="@{/shops}">TOP</a><span>＞</span>店舗検索
+    </p>
 
-    <!-- 検索入力（左上） -->
-    <div class="top-bar">
-        <form class="search-form" th:action="@{/shops/search}" method="get">
-            <!-- 【変更】ひらがな・カタカナ・漢字のどれでも検索できることを案内 -->
-            <input type="text" name="name" th:value="${name}" placeholder="店舗名で検索（ひらがな・カタカナ・漢字OK）" required>
-            <button type="submit" class="btn btn-primary">検索</button>
+    <!-- 見出し（左の「＜」でトップ画面へ戻る） -->
+    <div class="title-row">
+        <a class="back-btn" th:href="@{/shops}" aria-label="トップ画面に戻る">&lt;</a>
+        <h1 class="page-title">店舗検索</h1>
+    </div>
+
+    <!-- 検索入力 -->
+    <div class="search-box">
+        <form class="search-form" th:action="@{/shops/search}" method="get" role="search">
+            <input type="search" name="name" th:value="${name}"
+                   placeholder="店舗名を入力" aria-label="店舗名" required>
+            <button type="submit">検索</button>
         </form>
-        <a class="btn btn-secondary" th:href="@{/shops}">店舗一覧へ</a>
+        <p class="search-hint">ひらがな・カタカナ・漢字・英字のどれでも検索できます。</p>
     </div>
 
     <!-- 検索結果があるときだけ表示（検索前は name が null） -->
     <th:block th:if="${name != null}">
 
-        <p class="result-count">
-            「<span th:text="${name}">キーワード</span>」の検索結果：
-            <span th:text="${#lists.size(stores)}">0</span>件
-        </p>
+        <div class="result-head">
+            <p class="result-count">
+                「<span class="keyword" th:text="${name}">キーワード</span>」の検索結果
+                <span class="num" th:text="${#lists.size(stores)}">0</span>件
+            </p>
 
-        <div class="result-layout">
-
-            <!-- 店舗検索結果（左） -->
-            <div>
-                <ul class="result-list shop-list" id="resultList" th:if="${!#lists.isEmpty(stores)}">
-                    <li class="shop-card" th:each="s : ${stores}" th:attr="data-name=${s.name}">
-                        <a th:href="@{/shops/{shopId}(shopId=${s.id})}">
-                            <img th:if="${s.pictureUrl != null}" th:src="${s.pictureUrl}" th:alt="${s.name}">
-                            <div th:unless="${s.pictureUrl != null}" class="no-image">No Image</div>
-                            <div class="body">
-                                <p class="name" th:text="${s.name}">店舗名</p>
-                                <p class="address" th:text="${s.address}">住所</p>
-                            </div>
-                        </a>
-                    </li>
-                </ul>
-                <div class="empty" th:if="${#lists.isEmpty(stores)}">該当する店舗が見つかりませんでした。</div>
-            </div>
-
-            <!-- プルダウン（右）：検索結果の並び替え（画面内で並び替えるだけ） -->
-            <aside class="side-panel">
-                <label for="sortSelect">並び替え</label>
+            <!-- 並び替え（画面内で並び替えるだけ）：結果が2件以上のときだけ表示 -->
+            <label class="sort" th:if="${#lists.size(stores) > 1}">
+                <span>並び替え</span>
                 <select id="sortSelect">
                     <option value="default">標準</option>
                     <option value="asc">店舗名（昇順）</option>
                     <option value="desc">店舗名（降順）</option>
                 </select>
-            </aside>
+            </label>
+        </div>
 
+        <!-- 検索結果（トップ画面と同じカード） -->
+        <ul class="shop-grid" id="resultList" th:if="${!#lists.isEmpty(stores)}">
+            <li class="shop" th:each="s : ${stores}" th:attr="data-name=${s.name}">
+                <a th:href="@{/shops/{shopId}(shopId=${s.id})}">
+                    <div class="shop-thumb">
+                        <img th:if="${s.pictureUrl != null}" th:src="@{${s.pictureUrl}}" th:alt="${s.name}"
+                             loading="lazy" decoding="async">
+                        <div th:unless="${s.pictureUrl != null}" class="no-image">NO IMAGE</div>
+                    </div>
+                    <div class="shop-body">
+                        <p class="shop-name" th:text="${s.name}">店舗名</p>
+                        <p class="shop-floor" th:text="${s.address}">1階</p>
+                    </div>
+                </a>
+            </li>
+        </ul>
+
+        <!-- 0件のとき -->
+        <div class="empty" th:if="${#lists.isEmpty(stores)}">
+            <p>該当する店舗が見つかりませんでした。</p>
+            <p class="sub">別のことばで検索するか、店舗一覧からお探しください。</p>
+            <a th:href="@{/shops}">店舗一覧を見る</a>
         </div>
     </th:block>
 
 </div>
 
 <script>
+    // 並び替え（今までと同じ動き）
     (function () {
         const select = document.getElementById('sortSelect');
         const list = document.getElementById('resultList');
@@ -81,8 +334,6 @@
             items.forEach(li => list.appendChild(li));
         });
     })();
-	
-	
 </script>
 </body>
 </html>
