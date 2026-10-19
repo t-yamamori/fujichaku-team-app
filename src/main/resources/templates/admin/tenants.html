@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -10,11 +11,11 @@
 </head>
 
 <body>
-    <canvas id="matrixRain" aria-hidden="true"></canvas>
-    <div class="screen-overlay" aria-hidden="true"></div>
+	<canvas id="matrixRain" aria-hidden="true"></canvas>
+	<div class="screen-overlay" aria-hidden="true"></div>
 
-    <!-- 共通サイドメニュー -->
-    <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+	<!-- 共通サイドメニュー -->
+	<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
 
     <main>
         <h1>テナント管理</h1>
@@ -89,7 +90,6 @@
               th:action="@{/admin/tenants/update}"
               th:object="${updateForm}"
               method="post">
-
             <input type="hidden" name="id" th:value="${filters.id}">
             <input type="hidden" name="name" th:value="${filters.name}">
             <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
@@ -106,24 +106,21 @@
               th:action="@{/admin/tenants/create}"
               th:object="${newStore}"
               method="post">
-
-            <!-- 検索条件は登録項目と異なるパラメータ名で送信する -->
-            <input type="hidden" name="filterId" th:value="${filters.id}">
-            <input type="hidden" name="filterName" th:value="${filters.name}">
-            <input type="hidden" name="filterNameKana" th:value="${filters.nameKana}">
-            <input type="hidden" name="filterMail" th:value="${filters.mail}">
-            <input type="hidden" name="filterPhone" th:value="${filters.phone}">
-            <input type="hidden" name="filterRepresentative" th:value="${filters.representative}">
-            <input type="hidden" name="filterAddress" th:value="${filters.address}">
-            <input type="hidden" name="filterDescription" th:value="${filters.description}">
-            <input type="hidden" name="filterPictureUrl" th:value="${filters.pictureUrl}">
+            <input type="hidden" name="id" th:value="${filters.id}">
+            <input type="hidden" name="name" th:value="${filters.name}">
+            <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
+            <input type="hidden" name="mail" th:value="${filters.mail}">
+            <input type="hidden" name="phone" th:value="${filters.phone}">
+            <input type="hidden" name="representative" th:value="${filters.representative}">
+            <input type="hidden" name="address" th:value="${filters.address}">
+            <input type="hidden" name="description" th:value="${filters.description}">
+            <input type="hidden" name="pictureUrl" th:value="${filters.pictureUrl}">
         </form>
 
         <!-- 削除フォーム -->
         <form id="deleteForm"
               th:action="@{/admin/tenants/delete}"
               method="post">
-
             <input type="hidden" name="id" th:value="${filters.id}">
             <input type="hidden" name="name" th:value="${filters.name}">
             <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
@@ -137,13 +134,8 @@
 
         <!-- 一括削除・一括更新ボタン -->
         <div class="table-actions">
-            <button type="submit" form="deleteForm">
-                チェックした店舗を削除
-            </button>
-
-            <button type="submit" form="bulkUpdateForm">
-                一括更新
-            </button>
+            <button type="submit" form="deleteForm">チェックした店舗を削除</button>
+            <button type="submit" form="bulkUpdateForm">一括更新</button>
         </div>
 
         <!-- テナント一覧全体の横スクロール領域 -->
@@ -229,6 +221,8 @@
                                 <input type="text"
                                        th:name="|stores[${stat.index}].nameKana|"
                                        th:value="${store.nameKana}"
+                                       pattern="[ぁ-ゖー 　：・＝]+"
+                                       title="ひらがな、半角・全角スペース、：・＝のみ入力できます"
                                        form="bulkUpdateForm">
                                 <div class="error-message"
                                      th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('nameKana')}"
@@ -240,6 +234,8 @@
                                 <input type="text"
                                        th:name="|stores[${stat.index}].mail|"
                                        th:value="${store.mail}"
+                                       pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+"
+                                       title="メールアドレスは半角英数字と使用可能な記号で入力してください"
                                        form="bulkUpdateForm">
                                 <div class="error-message"
                                      th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('mail')}"
@@ -262,6 +258,8 @@
                                 <input type="text"
                                        th:name="|stores[${stat.index}].representative|"
                                        th:value="${store.representative}"
+                                       maxlength="20"
+                                       title="代表者名は20文字以内で入力してください"
                                        form="bulkUpdateForm">
                                 <div class="error-message"
                                      th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('representative')}"
@@ -270,10 +268,16 @@
                             </td>
 
                             <td>
-                                <input type="text"
-                                       th:name="|stores[${stat.index}].address|"
-                                       th:value="${store.address}"
-                                       form="bulkUpdateForm">
+                                <select th:name="|stores[${stat.index}].address|"
+                                        form="bulkUpdateForm"
+                                        class="tenant-address-select">
+                                    <option value="地下1階"
+                                            th:selected="${store.address == '地下1階'}">地下1階</option>
+                                    <option value="1階"
+                                            th:selected="${store.address == '1階' or store.address == null or store.address == ''}">1階</option>
+                                    <option value="2階"
+                                            th:selected="${store.address == '2階'}">2階</option>
+                                </select>
                                 <div class="error-message"
                                      th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('address')}"
                                      th:text="${updateErrors[stat.index]['address']}">
@@ -331,7 +335,9 @@
                         <td>新規</td>
 
                         <td>
-                            <input type="text" th:field="*{name}" form="createForm">
+                            <input type="text"
+                                   th:field="*{name}"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('name')}"
                                  th:errors="*{name}">
@@ -339,7 +345,11 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{nameKana}" form="createForm">
+                            <input type="text"
+                                   th:field="*{nameKana}"
+                                   pattern="[ぁ-ゖー 　：・＝]+"
+                                   title="ひらがな、半角・全角スペース、：・＝のみ入力できます"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('nameKana')}"
                                  th:errors="*{nameKana}">
@@ -347,7 +357,11 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{mail}" form="createForm">
+                            <input type="text"
+                                   th:field="*{mail}"
+                                   pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+"
+                                   title="メールアドレスは半角英数字と使用可能な記号で入力してください"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('mail')}"
                                  th:errors="*{mail}">
@@ -355,7 +369,9 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{phone}" form="createForm">
+                            <input type="text"
+                                   th:field="*{phone}"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('phone')}"
                                  th:errors="*{phone}">
@@ -363,7 +379,11 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{representative}" form="createForm">
+                            <input type="text"
+                                   th:field="*{representative}"
+                                   maxlength="20"
+                                   title="代表者名は20文字以内で入力してください"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('representative')}"
                                  th:errors="*{representative}">
@@ -371,7 +391,13 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{address}" form="createForm">
+                            <select th:field="*{address}"
+                                    form="createForm"
+                                    class="tenant-address-select">
+                                <option value="地下1階">地下1階</option>
+                                <option value="1階" selected>1階</option>
+                                <option value="2階">2階</option>
+                            </select>
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('address')}"
                                  th:errors="*{address}">
@@ -379,7 +405,9 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{description}" form="createForm">
+                            <input type="text"
+                                   th:field="*{description}"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('description')}"
                                  th:errors="*{description}">
@@ -387,7 +415,9 @@
                         </td>
 
                         <td>
-                            <input type="text" th:field="*{pictureUrl}" form="createForm">
+                            <input type="text"
+                                   th:field="*{pictureUrl}"
+                                   form="createForm">
                             <div class="error-message"
                                  th:if="${#fields.hasErrors('pictureUrl')}"
                                  th:errors="*{pictureUrl}">
@@ -404,7 +434,6 @@
                                  th:if="${#fields.hasErrors('password')}"
                                  th:errors="*{password}">
                             </div>
-
                             <button type="submit" form="createForm">作成</button>
                         </td>
                     </tr>
@@ -415,5 +444,4 @@
 
     <script th:src="@{/js/matrixRain.js}"></script>
 </body>
-
 </html>

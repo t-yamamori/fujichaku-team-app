@@ -23,9 +23,7 @@
 
     </resultMap>
 
-    <!-- =========================
-         一覧取得
-         ========================= -->
+    <!-- 一覧取得 -->
     <select id="findAll" resultMap="storeResultMap">
         SELECT
             id,
@@ -44,9 +42,7 @@
         ORDER BY id
     </select>
 
-    <!-- =========================
-         更新
-         ========================= -->
+    <!-- 更新 -->
     <update id="update">
         UPDATE "stores"
         SET
@@ -61,9 +57,7 @@
         WHERE id = #{id}
     </update>
 
-    <!-- =========================
-         論理削除
-         ========================= -->
+    <!-- 論理削除 -->
     <update id="deleteByIds">
         UPDATE "stores"
         SET is_deleted = true
@@ -77,9 +71,7 @@
         </foreach>
     </update>
 
-    <!-- =========================
-         新規登録
-         ========================= -->
+    <!-- 新規登録 -->
     <insert id="create">
         INSERT INTO "stores" (
             name,
@@ -106,5 +98,61 @@
             #{phone}
         )
     </insert>
+
+    <!-- 名前・ふりがな・メールアドレスがすべて一致する店舗を確認 -->
+    <select id="existsSameStore" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM "stores"
+            WHERE name = #{name}
+              AND name_kana = #{nameKana}
+              AND mail = #{mail}
+        )
+    </select>
+
+    <!-- メールアドレス単独の重複を確認 -->
+    <select id="existsMail" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM "stores"
+            WHERE mail = #{mail}
+        )
+    </select>
+
+    <!-- 一括更新対象のID群を除外して、同じ店舗が存在するか確認 -->
+    <select id="existsSameStoreExcludingIds" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM "stores"
+            WHERE name = #{name}
+              AND name_kana = #{nameKana}
+              AND mail = #{mail}
+              AND id NOT IN
+              <foreach item="id"
+                       collection="excludedIds"
+                       open="("
+                       separator=","
+                       close=")">
+                  #{id}
+              </foreach>
+        )
+    </select>
+
+    <!-- 一括更新対象のID群を除外して、メールアドレスが存在するか確認 -->
+    <select id="existsMailExcludingIds" resultType="boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM "stores"
+            WHERE mail = #{mail}
+              AND id NOT IN
+              <foreach item="id"
+                       collection="excludedIds"
+                       open="("
+                       separator=","
+                       close=")">
+                  #{id}
+              </foreach>
+        )
+    </select>
 
 </mapper>
