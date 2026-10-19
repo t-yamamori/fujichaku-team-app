@@ -4,15 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>テナント管理</title>
-	<link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
+    <link rel="stylesheet" th:href="@{/css/adminLayoutTop.css}">
     <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
     <link rel="stylesheet" th:href="@{/css/tenants.css}">
-	
 </head>
 
 <body>
     <canvas id="matrixRain" aria-hidden="true"></canvas>
     <div class="screen-overlay" aria-hidden="true"></div>
+
     <!-- 共通サイドメニュー -->
     <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
 
@@ -89,6 +89,7 @@
               th:action="@{/admin/tenants/update}"
               th:object="${updateForm}"
               method="post">
+
             <input type="hidden" name="id" th:value="${filters.id}">
             <input type="hidden" name="name" th:value="${filters.name}">
             <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
@@ -105,21 +106,24 @@
               th:action="@{/admin/tenants/create}"
               th:object="${newStore}"
               method="post">
-            <input type="hidden" name="id" th:value="${filters.id}">
-            <input type="hidden" name="name" th:value="${filters.name}">
-            <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
-            <input type="hidden" name="mail" th:value="${filters.mail}">
-            <input type="hidden" name="phone" th:value="${filters.phone}">
-            <input type="hidden" name="representative" th:value="${filters.representative}">
-            <input type="hidden" name="address" th:value="${filters.address}">
-            <input type="hidden" name="description" th:value="${filters.description}">
-            <input type="hidden" name="pictureUrl" th:value="${filters.pictureUrl}">
+
+            <!-- 検索条件は登録項目と異なるパラメータ名で送信する -->
+            <input type="hidden" name="filterId" th:value="${filters.id}">
+            <input type="hidden" name="filterName" th:value="${filters.name}">
+            <input type="hidden" name="filterNameKana" th:value="${filters.nameKana}">
+            <input type="hidden" name="filterMail" th:value="${filters.mail}">
+            <input type="hidden" name="filterPhone" th:value="${filters.phone}">
+            <input type="hidden" name="filterRepresentative" th:value="${filters.representative}">
+            <input type="hidden" name="filterAddress" th:value="${filters.address}">
+            <input type="hidden" name="filterDescription" th:value="${filters.description}">
+            <input type="hidden" name="filterPictureUrl" th:value="${filters.pictureUrl}">
         </form>
 
         <!-- 削除フォーム -->
         <form id="deleteForm"
               th:action="@{/admin/tenants/delete}"
               method="post">
+
             <input type="hidden" name="id" th:value="${filters.id}">
             <input type="hidden" name="name" th:value="${filters.name}">
             <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
@@ -131,7 +135,7 @@
             <input type="hidden" name="pictureUrl" th:value="${filters.pictureUrl}">
         </form>
 
-        <!-- 一括削除・一括更新ボタン：同じ行に配置 -->
+        <!-- 一括削除・一括更新ボタン -->
         <div class="table-actions">
             <button type="submit" form="deleteForm">
                 チェックした店舗を削除
@@ -194,7 +198,6 @@
                         <col class="col-operation">
                     </colgroup>
                     <tbody>
-                        <!-- 既存テナント -->
                         <tr th:each="store, stat : ${stores}">
                             <td>
                                 <input type="checkbox"
@@ -307,7 +310,7 @@
                 </table>
             </div>
 
-            <!-- 新規登録行：縦スクロールの外側、横スクロールの内側 -->
+            <!-- 新規登録行 -->
             <table class="tenant-table tenant-new-table">
                 <colgroup>
                     <col class="col-delete">
@@ -401,6 +404,7 @@
                                  th:if="${#fields.hasErrors('password')}"
                                  th:errors="*{password}">
                             </div>
+
                             <button type="submit" form="createForm">作成</button>
                         </td>
                     </tr>
@@ -408,6 +412,8 @@
             </table>
         </div>
     </main>
-	<script th:src="@{/js/matrixRain.js}"></script>
+
+    <script th:src="@{/js/matrixRain.js}"></script>
 </body>
+
 </html>
