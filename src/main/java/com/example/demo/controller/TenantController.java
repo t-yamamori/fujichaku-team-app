@@ -323,9 +323,49 @@ public class TenantController {
     public String create(
             @Valid @ModelAttribute("newStore") Stores store,
             BindingResult bindingResult,
-            @ModelAttribute("filters") TenantSearchForm filters,
+
+            @RequestParam(value = "filterId", required = false)
+            String filterId,
+
+            @RequestParam(value = "filterName", required = false)
+            String filterName,
+
+            @RequestParam(value = "filterNameKana", required = false)
+            String filterNameKana,
+
+            @RequestParam(value = "filterMail", required = false)
+            String filterMail,
+
+            @RequestParam(value = "filterPhone", required = false)
+            String filterPhone,
+
+            @RequestParam(value = "filterRepresentative", required = false)
+            String filterRepresentative,
+
+            @RequestParam(value = "filterAddress", required = false)
+            String filterAddress,
+
+            @RequestParam(value = "filterDescription", required = false)
+            String filterDescription,
+
+            @RequestParam(value = "filterPictureUrl", required = false)
+            String filterPictureUrl,
+
             Model model,
             RedirectAttributes redirectAttributes) {
+
+        // 検索条件を専用パラメータから組み立てる
+        TenantSearchForm filters = buildFilters(
+                filterId,
+                filterName,
+                filterNameKana,
+                filterMail,
+                filterPhone,
+                filterRepresentative,
+                filterAddress,
+                filterDescription,
+                filterPictureUrl
+        );
 
         // パスワードチェック
         if (store.getPassword() == null
@@ -349,6 +389,8 @@ public class TenantController {
         // バリデーションエラーがある場合
         if (bindingResult.hasErrors()) {
 
+            model.addAttribute("filters", filters);
+
             model.addAttribute(
                     "stores",
                     filterStores(tenantService.findAll(), filters)
@@ -370,6 +412,33 @@ public class TenantController {
         addFilters(redirectAttributes, filters);
 
         return "redirect:/admin/tenants";
+    }
+
+    // 新規登録フォームから送信された検索条件を組み立てる
+    private TenantSearchForm buildFilters(
+            String id,
+            String name,
+            String nameKana,
+            String mail,
+            String phone,
+            String representative,
+            String address,
+            String description,
+            String pictureUrl) {
+
+        TenantSearchForm filters = new TenantSearchForm();
+
+        filters.setId(id);
+        filters.setName(name);
+        filters.setNameKana(nameKana);
+        filters.setMail(mail);
+        filters.setPhone(phone);
+        filters.setRepresentative(representative);
+        filters.setAddress(address);
+        filters.setDescription(description);
+        filters.setPictureUrl(pictureUrl);
+
+        return filters;
     }
 
     // 検索条件に一致する店舗だけを返す
