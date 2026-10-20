@@ -1,6 +1,5 @@
-package com.example.demo.service;
 
-import java.time.LocalDate;
+package com.example.demo.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,20 +24,21 @@ public class RegisterService {
 
         member.setName(form.getName());
 
-        member.setBirthDate(
-        		LocalDate.parse(form.getBirthDate()));
+        // RegisterFormのbirthDateはLocalDate型のため、そのまま設定
+        member.setBirthDate(form.getBirthDate());
 
         member.setMail(form.getMail());
 
         // パスワードをハッシュ化
-        member.setPassword(passwordEncoder.encode(form.getPassword()));
+        member.setPassword(
+            passwordEncoder.encode(form.getPassword())
+        );
 
         memberMapper.insert(member);
     }
-    
-   // メールがすでに使われているか
+
+    // メールがすでに使われているか
     public boolean existsByMail(String mail) {
         return memberMapper.existsByMail(mail);
-        
     }
 }
