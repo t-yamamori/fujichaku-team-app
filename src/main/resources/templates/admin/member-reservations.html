@@ -480,6 +480,9 @@
                         <form method="post"
                               th:action="@{/admin/reservations/delete}"
                               onsubmit="return confirm('この予約を削除しますか？');">
+							<input type="hidden"
+							         th:name="${_csrf.parameterName}"
+							         th:value="${_csrf.token}">
                             <input type="hidden"
                                    name="reservationId"
                                    th:value="${reservation.id}">
