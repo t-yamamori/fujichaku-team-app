@@ -1,4 +1,3 @@
-
 package com.example.demo.entity;
 
 import jakarta.validation.constraints.NotBlank;
@@ -70,10 +69,11 @@ public class Stores {
     )
     private String phone;
 
-    // 店舗名の読みかな：ひらがなのみ（長音記号「ー」は許可）
+    // 店舗名のふりがな
+    // ひらがな、長音記号、半角・全角スペース、指定記号のみ許可
     @NotBlank(message = "ふりがなを入力してください")
     @Pattern(
-        regexp = "^[ぁ-ゖー 　：・＝:／=]+$",
+        regexp = "^[ぁ-ゖー 　：・／＝/=:]+$",
         message = "ふりがなはひらがな、スペース、：・／＝のみで入力してください"
     )
     private String nameKana;
