@@ -74,9 +74,7 @@ public class TenantController {
             submittedStores = new ArrayList<>();
         }
 
-        // Bean Validationのエラーを行ごとにまとめる
         if (bindingResult.hasErrors()) {
-
             Map<Integer, Map<String, String>> updateErrors =
                     new HashMap<>();
 
@@ -110,18 +108,15 @@ public class TenantController {
                     "更新対象の店舗はありませんでした。");
 
             addFilters(redirectAttributes, filters);
-
             return "redirect:/admin/tenants";
         }
 
-        // 更新前のDBデータを取得
         Map<Integer, Stores> originalStores = tenantService.findAll()
                 .stream()
                 .collect(Collectors.toMap(
                         Stores::getId,
                         store -> store));
 
-        // 実際に変更された店舗と、画面上の行番号を取得
         List<Stores> changedStores = new ArrayList<>();
         List<Integer> changedIndexes = new ArrayList<>();
 
@@ -136,9 +131,7 @@ public class TenantController {
             }
         }
 
-        // 変更がある場合、DB更新前に重複チェックを行う
         if (!changedStores.isEmpty()) {
-
             Map<Integer, Map<String, String>> updateErrors =
                     new HashMap<>();
 
@@ -147,9 +140,7 @@ public class TenantController {
                     .distinct()
                     .collect(Collectors.toList());
 
-            // 変更対象以外のDBデータとの重複を確認
             for (int i = 0; i < changedStores.size(); i++) {
-
                 Stores store = changedStores.get(i);
                 int rowIndex = changedIndexes.get(i);
 
@@ -159,43 +150,31 @@ public class TenantController {
 
                     if (tenantService.existsSameStoreExcludingIds(
                             store, changedIds)) {
-
                         addUpdateError(
-                                updateErrors,
-                                rowIndex,
-                                "name",
+                                updateErrors, rowIndex, "name",
                                 "同じ店舗が存在します");
 
                     } else if (tenantService.existsMailExcludingIds(
                             store.getMail(), changedIds)) {
-
                         addUpdateError(
-                                updateErrors,
-                                rowIndex,
-                                "mail",
+                                updateErrors, rowIndex, "mail",
                                 "このメールアドレスは既に使用されています");
                     }
 
                 } else if (hasText(store.getMail())
                         && tenantService.existsMailExcludingIds(
                                 store.getMail(), changedIds)) {
-
                     addUpdateError(
-                            updateErrors,
-                            rowIndex,
-                            "mail",
+                            updateErrors, rowIndex, "mail",
                             "このメールアドレスは既に使用されています");
                 }
             }
 
-            // 今回の一括更新対象同士の重複も確認
             for (int i = 0; i < changedStores.size(); i++) {
-
                 Stores first = changedStores.get(i);
                 int firstIndex = changedIndexes.get(i);
 
                 for (int j = i + 1; j < changedStores.size(); j++) {
-
                     Stores second = changedStores.get(j);
                     int secondIndex = changedIndexes.get(j);
 
@@ -211,66 +190,43 @@ public class TenantController {
 
                         if (sameStore) {
                             addUpdateError(
-                                    updateErrors,
-                                    secondIndex,
-                                    "name",
+                                    updateErrors, secondIndex, "name",
                                     "同じ店舗が存在します");
                         } else {
                             addUpdateError(
-                                    updateErrors,
-                                    secondIndex,
-                                    "mail",
+                                    updateErrors, secondIndex, "mail",
                                     "このメールアドレスは既に使用されています");
                         }
                     }
                 }
             }
 
-            // 重複エラーがあれば、DBを更新せず画面を再表示
             if (!updateErrors.isEmpty()) {
                 prepareUpdateErrorModel(
-                        model,
-                        filters,
-                        form,
-                        submittedStores,
-                        updateErrors);
-
+                        model, filters, form, submittedStores, updateErrors);
                 return "admin/tenants";
             }
 
-            // DB制約による重複エラーも白画面にしない
             try {
                 tenantService.updateAll(changedStores);
 
             } catch (DuplicateKeyException e) {
-
-                // メールアドレスの一意制約違反を想定
                 int rowIndex = changedIndexes.get(0);
 
                 addUpdateError(
-                        updateErrors,
-                        rowIndex,
-                        "mail",
+                        updateErrors, rowIndex, "mail",
                         "このメールアドレスは既に使用されています");
 
                 prepareUpdateErrorModel(
-                        model,
-                        filters,
-                        form,
-                        submittedStores,
-                        updateErrors);
-
+                        model, filters, form, submittedStores, updateErrors);
                 return "admin/tenants";
             }
 
-            // 項目ごとの変更前・変更後をメッセージにまとめる
             String message = buildUpdateMessage(
-                    changedStores,
-                    originalStores);
+                    changedStores, originalStores);
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage",
-                    message);
+                    "successMessage", message);
 
         } else {
             redirectAttributes.addFlashAttribute(
@@ -278,11 +234,10 @@ public class TenantController {
                     "変更された店舗はありませんでした。");
         }
 
-        // 更新後も検索条件を保持
         addFilters(redirectAttributes, filters);
-
         return "redirect:/admin/tenants";
     }
+
 
     // 一括更新エラー時に画面表示に必要なデータを設定
     private void prepareUpdateErrorModel(
@@ -495,7 +450,6 @@ public class TenantController {
         }
 
         // 重複確認
-        // 名前・ふりがな・メールがすべて一致する場合を優先する
         if (hasText(store.getName())
                 && hasText(store.getNameKana())
                 && hasText(store.getMail())) {
@@ -518,7 +472,7 @@ public class TenantController {
 
         // バリデーションエラーがある場合
         if (bindingResult.hasErrors()) {
-            prepareCreateErrorModel(model, filters);
+            prepareCreateErrorModel(model, filters, store);
             return "admin/tenants";
         }
 
@@ -528,13 +482,12 @@ public class TenantController {
 
         } catch (DuplicateKeyException e) {
 
-            // DB制約で重複が検出された場合も白画面にしない
             bindingResult.rejectValue(
                     "mail",
                     "tenant.duplicateMail",
                     "このメールアドレスは既に使用されています");
 
-            prepareCreateErrorModel(model, filters);
+            prepareCreateErrorModel(model, filters, store);
             return "admin/tenants";
         }
 
@@ -552,9 +505,11 @@ public class TenantController {
     // 新規登録エラー時に画面表示に必要なデータを再設定
     private void prepareCreateErrorModel(
             Model model,
-            TenantSearchForm filters) {
+            TenantSearchForm filters,
+            Stores store) {
 
         model.addAttribute("filters", filters);
+        model.addAttribute("newStore", store);
 
         model.addAttribute(
                 "stores",

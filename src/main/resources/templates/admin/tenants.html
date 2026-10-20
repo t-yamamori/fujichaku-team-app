@@ -101,21 +101,23 @@
             <input type="hidden" name="pictureUrl" th:value="${filters.pictureUrl}">
         </form>
 
-        <!-- 新規登録フォーム -->
-        <form id="createForm"
-              th:action="@{/admin/tenants/create}"
-              th:object="${newStore}"
-              method="post">
-            <input type="hidden" name="id" th:value="${filters.id}">
-            <input type="hidden" name="name" th:value="${filters.name}">
-            <input type="hidden" name="nameKana" th:value="${filters.nameKana}">
-            <input type="hidden" name="mail" th:value="${filters.mail}">
-            <input type="hidden" name="phone" th:value="${filters.phone}">
-            <input type="hidden" name="representative" th:value="${filters.representative}">
-            <input type="hidden" name="address" th:value="${filters.address}">
-            <input type="hidden" name="description" th:value="${filters.description}">
-            <input type="hidden" name="pictureUrl" th:value="${filters.pictureUrl}">
-        </form>
+		<!-- 新規登録フォーム -->
+		<form id="createForm"
+		      th:action="@{/admin/tenants/create}"
+		      th:object="${newStore}"
+		      method="post">
+
+		    <!-- 検索条件は登録データと異なる名前で送信 -->
+		    <input type="hidden" name="filterId" th:value="${filters.id}">
+		    <input type="hidden" name="filterName" th:value="${filters.name}">
+		    <input type="hidden" name="filterNameKana" th:value="${filters.nameKana}">
+		    <input type="hidden" name="filterMail" th:value="${filters.mail}">
+		    <input type="hidden" name="filterPhone" th:value="${filters.phone}">
+		    <input type="hidden" name="filterRepresentative" th:value="${filters.representative}">
+		    <input type="hidden" name="filterAddress" th:value="${filters.address}">
+		    <input type="hidden" name="filterDescription" th:value="${filters.description}">
+		    <input type="hidden" name="filterPictureUrl" th:value="${filters.pictureUrl}">
+		</form>
 
         <!-- 削除フォーム -->
         <form id="deleteForm"
@@ -217,18 +219,19 @@
                                 </div>
                             </td>
 
-                            <td>
-                                <input type="text"
-                                       th:name="|stores[${stat.index}].nameKana|"
-                                       th:value="${store.nameKana}"
-                                       pattern="[ぁ-ゖー 　：・＝]+"
-                                       title="ひらがな、半角・全角スペース、：・＝のみ入力できます"
-                                       form="bulkUpdateForm">
-                                <div class="error-message"
-                                     th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('nameKana')}"
-                                     th:text="${updateErrors[stat.index]['nameKana']}">
-                                </div>
-                            </td>
+							<td>
+							    <input type="text"
+							           th:name="|stores[${stat.index}].nameKana|"
+							           th:value="${store.nameKana}"
+							           pattern="[ぁ-ゖー 　：・／＝]+"
+							           title="ふりがなはひらがな、スペース、：・／＝のみで入力してください"
+							           form="bulkUpdateForm">
+							    <div class="error-message"
+							         th:if="${updateErrors[stat.index] != null and updateErrors[stat.index].containsKey('nameKana')}"
+							         th:text="${updateErrors[stat.index]['nameKana']}">
+							    </div>
+							</td>
+
 
                             <td>
                                 <input type="text"
@@ -344,17 +347,19 @@
                             </div>
                         </td>
 
-                        <td>
-                            <input type="text"
-                                   th:field="*{nameKana}"
-                                   pattern="[ぁ-ゖー 　：・＝]+"
-                                   title="ひらがな、半角・全角スペース、：・＝のみ入力できます"
-                                   form="createForm">
-                            <div class="error-message"
-                                 th:if="${#fields.hasErrors('nameKana')}"
-                                 th:errors="*{nameKana}">
-                            </div>
-                        </td>
+
+						<td>
+						    <input type="text"
+						           th:field="*{nameKana}"
+						           pattern="[ぁ-ゖー 　：・／＝]+"
+						           title="ふりがなはひらがな、スペース、：・／＝のみで入力してください"
+						           form="createForm">
+						    <div class="error-message"
+						         th:if="${#fields.hasErrors('nameKana')}"
+						         th:errors="*{nameKana}">
+						    </div>
+						</td>
+
 
                         <td>
                             <input type="text"
