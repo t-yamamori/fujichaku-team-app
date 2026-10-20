@@ -1,80 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.example.demo.mapper.StoresMapper">
 
-<!-- カラム名とEntity(Stores)のフィールド名の対応 -->
-<resultMap id="storesMap" type="com.example.demo.entity.Stores">
-    <id     property="id"             column="id"/>
-    <result property="name"           column="name"/>
-    <result property="mail"           column="mail"/>
-    <result property="representative" column="representative"/>
-    <result property="isDeleted"      column="is_deleted"/>
-    <result property="address"        column="address"/>
-    <result property="description"    column="description"/>
-    <result property="pictureUrl"     column="picture_url"/>
-    <!-- 追加：電話番号 -->
-    <result property="phone"          column="phone"/>
-    <!-- 【追加】店舗名の読みかな（ひらがな） -->
-    <result property="nameKana"       column="name_kana"/>
-    <!-- 【追加】予約できる店舗かどうか（true＝予約あり） -->
-    <result property="reservable"     column="reservable"/>
-</resultMap>
+    <!-- カラム名とEntity(Stores)のフィールド名の対応 -->
+    <resultMap id="storesMap" type="com.example.demo.entity.Stores">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="mail" column="mail"/>
+        <result property="representative" column="representative"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="address" column="address"/>
+        <result property="description" column="description"/>
+        <result property="pictureUrl" column="picture_url"/>
+        <result property="phone" column="phone"/>
+        <result property="nameKana" column="name_kana"/>
+        <result property="reservable" column="reservable"/>
+    </resultMap>
 
-<!-- 画面表示用のカラム（パスワードは画面に不要なので取得しない） -->
-<!-- 追加：phone（電話番号） -->
-<!-- 【追加】name_kana（店舗名の読みかな） -->
-<sql id="storeColumns">
-    id, name, mail, representative, is_deleted, 
-    address, description, picture_url, phone, name_kana, reservable
-</sql>
+    <!-- 画面表示用のカラム（パスワードは取得しない） -->
+    <sql id="storeColumns">
+        id, name, mail, representative, is_deleted,
+        address, description, picture_url, phone, name_kana, reservable
+    </sql>
 
-<!-- 店舗一覧表示（過去フラグが立っている店舗は除く） -->
-<select id="selectList" resultMap="storesMap">
-    select <include refid="storeColumns"/>
-      from stores
-     where is_deleted is not true
-     order by id
-</select>
+    <!-- 店舗一覧表示（論理削除された店舗は除く） -->
+    <select id="selectList" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE is_deleted IS NOT TRUE
+        ORDER BY id
+    </select>
 
-<!-- 店舗を名前で検索（部分一致）※既存。店舗検索画面は selectByKeyword を使用 -->
-<select id="selectByName" resultMap="storesMap">
-    select <include refid="storeColumns"/>
-      from stores
-     where name like '%' || #{name} || '%'
-       and is_deleted is not true
-     order by id
-</select>
+    <!-- 予約可能な店舗一覧（モール管理者の予約追加フォーム用） -->
+    <select id="selectReservableList" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE is_deleted IS NOT TRUE
+          AND reservable IS TRUE
+        ORDER BY id
+    </select>
 
-<!-- 【追加】店舗名・読みかなで検索（部分一致）
-     ・name      ilike : 店舗名（漢字・英字）。ilike なので大文字小文字を区別しない（Cafe / cafe / CAFE）
-     ・name_kana like  : 入力をひらがなに揃えたもの（かふぇ / カフェ / ｶﾌｪ）
-     ・name_kana like  : 入力の漢字を読みに変換したもの（珈琲 → こーひー）
-     パラメータは Java 側で LIKE エスケープ済みなので escape '\' を指定する -->
-<select id="selectByKeyword" resultMap="storesMap">
-    select <include refid="storeColumns"/>
-      from stores
-     where (name      ilike '%' || #{name}    || '%' escape '\'
-         or name_kana  like '%' || #{kana}    || '%' escape '\'
-         or name_kana  like '%' || #{reading} || '%' escape '\')
-       and is_deleted is not true
-     order by id
-</select>
+    <!-- 店舗を名前で検索（部分一致）※既存 -->
+    <select id="selectByName" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE name LIKE '%' || #{name} || '%'
+          AND is_deleted IS NOT TRUE
+        ORDER BY id
+    </select>
 
-<!-- 店舗を名前で検索して詳細を表示（完全一致） -->
-<select id="selectDetailByName" resultMap="storesMap">
-    select <include refid="storeColumns"/>
-      from stores
-     where name = #{name}
-       and is_deleted is not true
-     limit 1
-</select>
+    <!-- 店舗名・読みかなで検索（部分一致） -->
+    <select id="selectByKeyword" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE (
+               name ILIKE '%' || #{name} || '%' ESCAPE '\\'
+            OR name_kana LIKE '%' || #{kana} || '%' ESCAPE '\\'
+            OR name_kana LIKE '%' || #{reading} || '%' ESCAPE '\\'
+        )
+          AND is_deleted IS NOT TRUE
+        ORDER BY id
+    </select>
 
-<!-- 店舗IDから取得（インターフェースに宣言済みだったので追加） -->
-<select id="selectById" resultMap="storesMap">
-    select <include refid="storeColumns"/>
-      from stores
-     where id = #{id}
-       and is_deleted is not true
-</select>
+    <!-- 店舗を名前で検索して詳細を表示（完全一致） -->
+    <select id="selectDetailByName" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE name = #{name}
+          AND is_deleted IS NOT TRUE
+        LIMIT 1
+    </select>
+
+    <!-- 店舗IDから取得 -->
+    <select id="selectById" resultMap="storesMap">
+        SELECT
+            <include refid="storeColumns"/>
+        FROM stores
+        WHERE id = #{id}
+          AND is_deleted IS NOT TRUE
+    </select>
 
 </mapper>

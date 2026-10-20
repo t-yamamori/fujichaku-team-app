@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -22,11 +23,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.entity.Members;
 import com.example.demo.entity.Reservations;
 import com.example.demo.entity.Reviews;
 import com.example.demo.entity.ShopAdmin;
 import com.example.demo.entity.Stores;
 import com.example.demo.entity.Users;
+import com.example.demo.mapper.MembersMapper;
 import com.example.demo.mapper.ReservationMapper;
 import com.example.demo.mapper.ReviewsMapper;
 import com.example.demo.mapper.ShopAdminMapper;
@@ -46,6 +49,7 @@ public class ShopDashboardController {
     private final ReservationMapper reservationMapper;
     private final ShopAdminMapper shopAdminMapper;
     private final UsersMapper usersMapper;
+    private final MembersMapper membersMapper;
 
     private static final LocalTime RESERVE_FIRST = LocalTime.of(11, 0);
     private static final LocalTime RESERVE_LAST = LocalTime.of(21, 30);
@@ -54,6 +58,9 @@ public class ShopDashboardController {
             Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     private static final String STATUS_RESERVED = "予約済み";
+
+    private static final DateTimeFormatter RESERVATION_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
 
     /*
      * 店舗管理者向け店舗詳細
@@ -150,15 +157,16 @@ public class ShopDashboardController {
     /*
      * 店舗管理者：店舗詳細画面から予約を追加
      *
-     * モール管理者の createReservation と同じ登録ルールを適用する。
-     * ゲスト氏名・メールアドレスが入力された場合は、
-     * 既存ユーザーを検索し、存在しなければ新規登録する。
+     * ・日時を30分単位に切り上げて保存
+     * ・会員ID／ゲストユーザーIDの存在確認
+     * ・ゲストの新規登録と既存ユーザーの再利用
+     * ・登録後、予約者名・予約ID・予約日時をメッセージ表示
      */
-    @PostMapping("/shop-admin/{storeId}/reservations/add-detail")
+    @PostMapping("/shop-admin/{storeId:\\d+}/reservations/add-detail")
     @Transactional
     public String addReservationFromDetail(
-            @PathVariable int storeId,
-            @RequestParam String reservationDateTime,
+            @PathVariable("storeId") int storeId,
+            @RequestParam(required = false) String reservationDateTime,
             @RequestParam(required = false) Integer number,
             @RequestParam(required = false) Integer memberId,
             @RequestParam(required = false) Integer userId,
@@ -175,7 +183,7 @@ public class ShopDashboardController {
         }
 
         try {
-            createReservation(
+            Reservations reservation = createReservation(
                     storeId,
                     reservationDateTime,
                     number,
@@ -184,8 +192,20 @@ public class ShopDashboardController {
                     guestName,
                     guestMail);
 
+            String reservationerName = getReservationerName(
+                    reservation.getMemberId(),
+                    reservation.getUserId(),
+                    guestName);
+
+            String formattedDateTime =
+                    reservation.getReservationDate()
+                            .format(RESERVATION_FORMATTER);
+
             redirectAttributes.addFlashAttribute(
-                    "rsvMessage", "予約を追加しました。");
+                    "rsvMessage",
+                    "予約を追加しました。予約者：" + reservationerName
+                            + "、予約ID：" + reservation.getId()
+                            + "、予約日時：" + formattedDateTime);
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(
@@ -306,11 +326,8 @@ public class ShopDashboardController {
 
     /*
      * 共通：予約追加
-     *
-     * ReservationManagementController の createReservation と同じ考え方で、
-     * ユーザー確認・ゲスト登録・予約登録を行う。
      */
-    private void createReservation(
+    private Reservations createReservation(
             int storeId,
             String reservationDateTime,
             Integer number,
@@ -359,9 +376,12 @@ public class ShopDashboardController {
                     "予約日時を正しく入力してください。");
         }
 
+        // 30分単位に切り上げてから検証・保存する
+        dateTime = roundUpToHalfHour(dateTime);
+
         validateNewReservation(dateTime, number);
 
-        // 会員ID・ゲストユーザーIDが未入力なら、ゲスト氏名とメールから登録
+        // 会員ID・ゲストユーザーIDが未入力なら、氏名とメールから登録
         if (memberId == null && userId == null) {
             String normalizedGuestName =
                     guestName == null ? "" : guestName.trim();
@@ -395,7 +415,7 @@ public class ShopDashboardController {
             if (existingUser != null) {
                 userId = existingUser.getId();
             } else {
-                // 未登録のメールアドレスならゲストユーザーを新規登録
+                // 未登録ならゲストユーザーを新規登録
                 Users newUser = new Users();
                 newUser.setName(normalizedGuestName);
                 newUser.setMail(normalizedGuestMail);
@@ -421,6 +441,60 @@ public class ShopDashboardController {
         reservation.setCreatedAt(LocalDateTime.now());
 
         reservationMapper.insertReservation(reservation);
+
+        return reservation;
+    }
+
+    /*
+     * 予約日時を30分単位で切り上げる
+     *
+     * 18:00 → 18:00
+     * 18:05 → 18:30
+     * 18:30 → 18:30
+     * 18:35 → 19:00
+     */
+    private LocalDateTime roundUpToHalfHour(LocalDateTime dateTime) {
+        int minute = dateTime.getMinute();
+        int remainder = minute % 30;
+
+        if (remainder != 0) {
+            dateTime = dateTime.plusMinutes(30 - remainder);
+        }
+
+        return dateTime.withSecond(0).withNano(0);
+    }
+
+    /*
+     * 予約者名を取得
+     */
+    private String getReservationerName(
+            Integer memberId,
+            Integer userId,
+            String guestName) {
+
+        if (memberId != null) {
+            Members member = membersMapper.findById(memberId);
+
+            if (member != null && member.getName() != null
+                    && !member.getName().isBlank()) {
+                return member.getName() + "（会員ID：" + memberId + "）";
+            }
+
+            return "会員（会員ID：" + memberId + "）";
+        }
+
+        if (userId != null) {
+            String normalizedGuestName =
+                    guestName == null ? "" : guestName.trim();
+
+            if (!normalizedGuestName.isEmpty()) {
+                return normalizedGuestName + "（ユーザーID：" + userId + "）";
+            }
+
+            return "ゲストユーザー（ユーザーID：" + userId + "）";
+        }
+
+        return "不明";
     }
 
     /*
@@ -440,9 +514,17 @@ public class ShopDashboardController {
                     "人数は1～10人で入力してください。");
         }
 
+        LocalTime time = reservationDate.toLocalTime();
+
+        if (time.isBefore(RESERVE_FIRST) || time.isAfter(RESERVE_LAST)) {
+            throw new IllegalArgumentException(
+                    "予約時刻は11:00〜21:30の間で指定してください。"
+                    + "30分単位に切り上げた結果が受付時間外になる場合は予約できません。");
+        }
+
         if (reservationDate.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException(
-                    "新規予約に過去の日時は指定できません。");
+                    "30分単位に切り上げた予約日時が過去になるため、予約できません。");
         }
     }
 
