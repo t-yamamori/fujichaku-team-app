@@ -75,7 +75,10 @@ public class ReservationManagementController {
                 reservationMapper.searchAllForAdmin(reservationId, searchDate);
 
         prepareModel(model, reservations, "/admin/reservations", true, null);
-        model.addAttribute("stores", storesMapper.selectList());
+
+        // 予約追加フォームには、予約可能な店舗だけを表示する
+        model.addAttribute("stores", storesMapper.selectReservableList());
+
         model.addAttribute("searchReservationId", reservationId);
         model.addAttribute("searchReservationDate", reservationDate);
 
@@ -99,6 +102,7 @@ public class ReservationManagementController {
         }
 
         Stores store = storesMapper.selectById(assignedStoreId);
+
         if (store == null) {
             throw new AccessDeniedException("担当店舗が見つかりません。");
         }
@@ -590,6 +594,12 @@ public class ReservationManagementController {
                     "指定された店舗が存在しないか、利用できません。");
         }
 
+        // モール管理者の新規予約では、予約可能な店舗だけを許可する
+        if (mallAdmin && !Boolean.TRUE.equals(store.isReservable())) {
+            throw new IllegalArgumentException(
+                    "この店舗は予約を受け付けていません。別の店舗を選択してください。");
+        }
+
         // 会員ID・ゲストユーザーIDが両方入力されている場合
         if (memberId != null && userId != null) {
             throw new IllegalArgumentException(
@@ -701,6 +711,7 @@ public class ReservationManagementController {
             boolean mallAdmin,
             String currentStoreName) {
 
+        // 既存予約の店舗名表示には、予約可否を問わず全店舗を使う
         List<Stores> stores = storesMapper.selectList();
         Map<Integer, String> storeNames = new LinkedHashMap<>();
 

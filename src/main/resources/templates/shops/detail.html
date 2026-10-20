@@ -1,481 +1,464 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${store.name} + ' | FUJICHAKU TOWN'">店舗詳細 | FUJICHAKU TOWN</title>
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/detail.css}">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${store.name} + ' | FUJICHAKU TOWN'">店舗詳細 | FUJICHAKU TOWN</title>
+	<link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css" rel="stylesheet">
+	<link rel="stylesheet" th:href="@{/css/detail.css}">
 </head>
 
 <body th:classappend="${(store.address == '地下1階' ? 'floor-b1' : (store.address == '2階' ? 'floor-2' : 'floor-1'))
                        + (store.reservable ? ' is-restaurant' : '')}">
 
-<header class="site-header">
-    <div class="header-inner">
-        <a class="logo" th:href="${isShopAdmin} ? null : @{/shops}">
-            <img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
-            <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
-        </a>
-
-        <nav class="account-nav" th:unless="${isMember or isShopAdmin}" aria-label="アカウント">
-            <a class="btn btn-outline" th:href="@{/register/register}">会員登録</a>
-            <a class="btn" th:href="@{/login}">ログイン</a>
-            <a class="forgot-link" th:href="@{/password/reset/verify}">パスワードをお忘れの方</a>
-        </nav>
-
-        <nav class="account-nav" th:if="${isMember}" aria-label="アカウント">
-            <a th:href="@{/members/showEdit}">会員情報</a>
-            <a th:href="@{/reservations/history}">予約履歴</a>
-            <form th:action="@{/shops/logout}" method="post">
-                <button type="submit" class="link-button">ログアウト</button>
-            </form>
-        </nav>
-    </div>
-</header>
-
-<div class="container">
-
-    <div class="admin-bar" th:if="${isShopAdmin}">
-        <span>店舗管理者としてログイン中</span>
-        <form th:action="@{/shop-admin/logout}" method="post">
-            <button type="submit" class="btn btn-secondary btn-small">ログアウト</button>
-        </form>
-    </div>
-
-    <p class="crumbs" th:unless="${isShopAdmin}">
-        <a th:href="@{/shops}">TOP</a><span>＞</span>
-        <a th:href="@{/shops#shops-title}">ショップ一覧</a><span>＞</span>
-        <th:block th:text="${store.name}">店舗名</th:block>
-    </p>
-
-    <div class="tags">
-        <span class="tag tag-floor"
-              th:text="${store.address == '地下1階' ? 'B1' : (store.address == '2階' ? '2F' : '1F')}">1F</span>
-        <span class="tag tag-cat" th:if="${store.reservable}">レストラン</span>
-    </div>
-
-    <h1 class="page-title">
-        <a class="back-btn" th:href="@{/shops}" th:unless="${isShopAdmin}" aria-label="トップ画面に戻る">&lt;</a>
-        <span th:text="${store.name}">店舗名</span>
-    </h1>
-
-    <div class="flash flash-success" th:if="${message}" th:text="${message}">口コミを投稿しました。</div>
-    <div class="flash flash-error" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</div>
-
-    <!-- ① 店舗情報 -->
-    <section class="section">
-        <div class="shop-detail">
-            <div>
-                <img th:if="${store.pictureUrl != null}" th:src="@{${store.pictureUrl}}" th:alt="${store.name}">
-                <div th:unless="${store.pictureUrl != null}" class="no-image">NO IMAGE</div>
-            </div>
-
-            <div>
-                <dl>
-                    <th:block th:if="${isShopAdmin}">
-                        <dt>店舗名</dt>
-                        <dd th:text="${store.name}">店舗名</dd>
-                        <dt>代表者</dt>
-                        <dd th:text="${store.representative}">代表者</dd>
-                    </th:block>
-
-                    <dt>フロア</dt>
-                    <dd th:text="${store.address}">1階</dd>
-
-                    <th:block th:if="${isShopAdmin}">
-                        <dt>連絡先</dt>
-                        <dd th:text="${store.mail}">mail</dd>
-                    </th:block>
-
-                    <dt>電話番号</dt>
-                    <dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
-
-                    <dt>説明</dt>
-                    <dd th:text="${store.description}">説明</dd>
-                </dl>
-
-                <th:block th:if="${store.reservable}">
-                    <div class="reserve-area" th:unless="${isShopAdmin}">
-                        <a class="btn btn-block"
-                           th:href="@{/shops/{shopId}/reservations/new(shopId=${store.id})}">この店舗を予約する</a>
-                    </div>
-                </th:block>
-
-                <p class="no-reserve" th:unless="${store.reservable or isShopAdmin}">
-                    この店舗では予約を受け付けていません。
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ② 予約履歴・新規予約（店舗管理者のみ） -->
-    <section class="section" id="rsv" th:if="${isShopAdmin}">
-        <h2>これまでの予約履歴</h2>
-
-        <div class="flash flash-success flash-closable" th:if="${rsvMessage}">
-            <span th:text="${rsvMessage}">予約内容を変更しました。</span>
-            <button type="button" class="flash-close" aria-label="閉じる"
-                    onclick="this.parentElement.remove()">×</button>
-        </div>
-
-        <div class="flash flash-error flash-closable" th:if="${rsvErrorMessage}">
-            <span th:text="${rsvErrorMessage}">エラーメッセージ</span>
-            <button type="button" class="flash-close" aria-label="閉じる"
-                    onclick="this.parentElement.remove()">×</button>
-        </div>
-
-        <!-- 新規予約フォーム -->
-        <div class="review-form">
-            <h3>新規予約を追加</h3>
-
-            <p class="note">
-                会員ID、ゲストユーザーID、またはゲスト氏名・メールアドレスのいずれかで登録してください。
-                ゲストのメールアドレスが登録済みの場合は、既存ユーザーを使用します。
-            </p>
-
-            <form method="post"
-                  th:action="@{/shop-admin/{storeId}/reservations/add-detail(storeId=${store.id})}">
-
-                <label for="newReservationDateTime">予約日時</label>
-                <input type="datetime-local"
-                       id="newReservationDateTime"
-                       name="reservationDateTime"
-                       min="2000-01-01T00:00"
-                       required>
-
-                <label for="newReservationNumber">人数（1～10人）</label>
-                <input type="number"
-                       id="newReservationNumber"
-                       name="number"
-                       min="1"
-                       max="10"
-                       value="1"
-                       required>
-
-                <label for="newReservationMemberId">会員ID（会員の場合）</label>
-                <input type="number"
-                       id="newReservationMemberId"
-                       name="memberId"
-                       min="1"
-                       placeholder="会員ID">
-
-                <label for="newReservationUserId">ゲストユーザーID（既存ユーザーの場合）</label>
-                <input type="number"
-                       id="newReservationUserId"
-                       name="userId"
-                       min="1"
-                       placeholder="ゲストユーザーID">
-
-                <p class="note">会員ID・ゲストユーザーIDを指定しない場合は、以下の氏名・メールアドレスからゲストを登録します。</p>
-
-                <label for="newReservationGuestName">ゲスト氏名</label>
-                <input type="text"
-                       id="newReservationGuestName"
-                       name="guestName"
-                       maxlength="255"
-                       placeholder="ゲスト氏名">
-
-                <label for="newReservationGuestMail">ゲストメールアドレス</label>
-                <input type="email"
-                       id="newReservationGuestMail"
-                       name="guestMail"
-                       maxlength="255"
-                       placeholder="guest@example.com">
-
-                <button type="submit" class="btn"
-                        onclick="return confirm('この内容で予約を追加しますか？');">
-                    予約を追加
-                </button>
-            </form>
-        </div>
-
-        <!-- 既存予約一覧 -->
-        <table class="reservation-table rsv-table" th:if="${!#lists.isEmpty(storeReservations)}">
-            <thead>
-                <tr>
-                    <th>予約日時</th>
-                    <th>予約者</th>
-                    <th>人数</th>
-                    <th>予約状況</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="rsv-row" th:each="sr : ${storeReservations}">
-                    <td class="rsv-datetime">
-                        <input type="date"
-                               name="reservationDay"
-                               class="rsv-field rsv-lockable"
-                               required
-                               readonly
-                               th:attr="form=${'rsv-' + sr.id}"
-                               th:value="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy-MM-dd')} : ''">
-
-                        <select name="reservationTime"
-                                class="rsv-field rsv-lockable"
-                                required
-                                disabled
-                                th:attr="form=${'rsv-' + sr.id}"
-                                th:with="cur=${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'HH:mm')} : ''">
-                            <option th:each="i : ${#numbers.sequence(22, 43)}"
-                                    th:with="t=${T(java.lang.String).format('%02d:%02d', i / 2, (i % 2) * 30)}"
-                                    th:value="${t}"
-                                    th:text="${t}"
-                                    th:selected="${t == cur}">11:00</option>
-                        </select>
-                    </td>
-
-                    <td th:text="${sr.memberId != null}
-                                 ? '会員（会員ID：' + ${sr.memberId} + '）'
-                                 : '非会員（ユーザーID：' + ${sr.userId} + '）'">
-                        会員（会員ID：10001）
-                    </td>
-
-                    <td class="rsv-num">
-                        <input type="number"
-                               name="number"
-                               class="rsv-field rsv-lockable"
-                               min="1"
-                               max="30"
-                               required
-                               readonly
-                               th:attr="form=${'rsv-' + sr.id}"
-                               th:value="${sr.number}">名
-                    </td>
-
-                    <td>
-                        <select name="status"
-                                class="rsv-field"
-                                required
-                                disabled
-                                th:attr="form=${'rsv-' + sr.id}">
-                            <option value="予約済み" th:selected="${sr.status == '予約済み'}">予約済み</option>
-                            <option value="予約確定" th:selected="${sr.status == '予約確定'}">予約確定</option>
-                            <option value="キャンセル" th:selected="${sr.status == 'キャンセル'}">キャンセル</option>
-                        </select>
-                    </td>
-
-                    <td class="rsv-actions">
-                        <form th:id="${'rsv-' + sr.id}"
-                              method="post"
-                              th:action="@{/shop-admin/{storeId}(storeId=${store.id})}">
-                            <input type="hidden" name="action" value="updateReservation">
-                            <input type="hidden" name="reservationId" th:value="${sr.id}">
-                            <button type="button" class="btn btn-small btn-outline rsv-edit">編集</button>
-                            <button type="submit" class="btn btn-small rsv-save" hidden>保存</button>
-                            <button type="button" class="btn btn-small btn-secondary rsv-cancel" hidden>戻る</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <p class="note" th:if="${#lists.isEmpty(storeReservations)}">
-            この店舗の予約はまだありません。
-        </p>
-    </section>
-
-    <!-- ポイントの案内（店舗管理者には出さない） -->
-    <section class="section point-card" th:unless="${isShopAdmin}">
-        <div class="point-badge" aria-hidden="true">P</div>
-        <div class="point-body">
-            <p class="point-title">ポイントGETでさらにお得に！</p>
-            <ul class="point-list">
-                <li>口コミを投稿すると<b>5P</b></li>
-                <li th:if="${store.reservable}">予約すると<b>10P</b></li>
-                <li>会員情報ページのガチャでもポイントGET!</li>
-            </ul>
-        </div>
-        <a class="btn btn-outline" th:href="@{/register/register}" th:unless="${isMember}">会員登録してためる</a>
-    </section>
-
-    <!-- ③ 口コミ -->
-    <section class="section" id="reviews">
-        <h2>口コミ</h2>
-
-        <a class="rating-summary" href="#reviews" th:if="${averageGrade != null}">
-            <span class="rating-stars" th:style="|--rate: ${averageGrade}|" aria-hidden="true">★★★★★</span>
-            <span class="rating-score" th:text="${#numbers.formatDecimal(averageGrade, 1, 1)}">4.2</span>
-            <span class="rating-count" th:text="|（口コミ ${reviewCount}件）|">（口コミ 12件）</span>
-        </a>
-
-        <p class="rating-summary rating-none" th:if="${averageGrade == null}">口コミはまだありません</p>
-
-        <div th:if="${#lists.isEmpty(reviews)}" class="note">まだ口コミはありません。</div>
-
-        <div class="review" th:each="r : ${reviews}">
-            <div class="meta">
-                <span class="stars"
-                      th:text="${#strings.repeat('★', r.grade) + #strings.repeat('☆', 5 - r.grade)}">★★★☆☆</span>
-
-                <span th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
-
-                <form class="delete-form"
-                      method="post"
-                      th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
-                      th:action="${isShopAdmin} ? @{/shop-admin/{storeId}(storeId=${store.id})} : @{/shops/{shopId}(shopId=${store.id})}"
-                      onsubmit="return confirm('この口コミを削除しますか？');">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="reviewId" th:value="${r.id}">
-                    <button type="submit" class="btn btn-secondary btn-small">削除</button>
-                </form>
-            </div>
-
-            <p class="comment" th:text="${r.comment}">コメント</p>
-        </div>
-
-        <p class="note" th:unless="${isMember or isShopAdmin}">
-            ※会員の方はすべての口コミを見ることができます。
-        </p>
-
-        <!-- 口コミ追加：会員のみ -->
-        <form class="review-form"
-              method="post"
-              th:if="${isMember}"
-              th:action="@{/shops/{shopId}(shopId=${store.id})}">
-            <input type="hidden" name="action" value="add">
-
-            <label for="grade">評価</label>
-            <select id="grade" name="grade" required>
-                <option value="" selected disabled>選択してください</option>
-                <option value="5">★★★★★（5）</option>
-                <option value="4">★★★★☆（4）</option>
-                <option value="3">★★★☆☆（3）</option>
-                <option value="2">★★☆☆☆（2）</option>
-                <option value="1">★☆☆☆☆（1）</option>
-            </select>
-
-            <label for="comment">口コミ</label>
-            <textarea id="comment" name="comment" maxlength="500" required
-                      placeholder="お店の感想を書いてください"></textarea>
-
-            <button type="submit" class="btn">口コミを投稿する</button>
-        </form>
-    </section>
-
-    <!-- ④ あなたの予約（会員かつ予約できる店のみ） -->
-    <th:block th:if="${store.reservable}">
-        <section class="section" th:if="${isMember}">
-            <h2>あなたの予約</h2>
-
-            <table class="reservation-table" th:if="${!#lists.isEmpty(reservations)}">
-                <thead>
-                    <tr>
-                        <th>予約日時</th>
-                        <th>予約状況</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="rs : ${reservations}">
-                        <td th:text="${#temporals.format(rs.reservationDate, 'yyyy/MM/dd(E) HH:mm')}">2026/10/10 18:00</td>
-                        <td th:text="${rs.status}">予約済み</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
-        </section>
-    </th:block>
-
-</div>
-
-<footer class="site-footer">
-    <span class="logo logo-small">
-        <img th:src="@{/images/logo-mark.svg}" alt="" width="26" height="26">
-        <span class="logo-text">FUJICHAKU<span>TOWN</span></span>
-    </span>
-
-    <dl class="footer-hours">
-        <dt>営業時間</dt>
-        <dd>ショップ 10:00〜21:00</dd>
-        <dd>2F レストラン・フードコート 11:00〜22:00</dd>
-    </dl>
-
-    <p class="footer-note">※一部店舗により営業時間が異なります</p>
-    <p>&copy; FUJICHAKU TOWN</p>
-</footer>
-
-<script>
-    // 予約履歴：「編集」で入力可能にし、「戻る」で元の内容に戻す
-    document.querySelectorAll('.rsv-row').forEach(function (row) {
-        var form = row.querySelector('form');
-        var fields = row.querySelectorAll('.rsv-field');
-        var edit = row.querySelector('.rsv-edit');
-        var save = row.querySelector('.rsv-save');
-        var cancel = row.querySelector('.rsv-cancel');
-
-        var statusSelect = row.querySelector('select[name="status"]');
-
-        function lockIfCanceled() {
-            var canceled = statusSelect.value === 'キャンセル';
-
-            row.querySelectorAll('.rsv-lockable').forEach(function (field) {
-                field.classList.toggle('is-locked', canceled);
-            });
-        }
-
-        function setEditing(on) {
-            fields.forEach(function (field) {
-                if (field.tagName === 'SELECT') {
-                    field.disabled = !on;
-                } else {
-                    field.readOnly = !on;
-                }
-            });
-
-            row.classList.toggle('is-editing', on);
-            edit.hidden = on;
-            save.hidden = !on;
-            cancel.hidden = !on;
-
-            lockIfCanceled();
-        }
-
-        statusSelect.addEventListener('change', lockIfCanceled);
-
-        edit.addEventListener('click', function () {
-            setEditing(true);
-            fields[0].focus();
-        });
-
-        cancel.addEventListener('click', function () {
-            form.reset();
-            setEditing(false);
-        });
-    });
-
-    // 会員ID・ゲストユーザーID・ゲスト氏名メールの入力を切り替える
-    (function () {
-        var memberId = document.getElementById('newReservationMemberId');
-        var userId = document.getElementById('newReservationUserId');
-        var guestName = document.getElementById('newReservationGuestName');
-        var guestMail = document.getElementById('newReservationGuestMail');
-
-        if (!memberId || !userId || !guestName || !guestMail) {
-            return;
-        }
-
-        function updateGuestFields() {
-            var hasMemberId = memberId.value.trim() !== '';
-            var hasUserId = userId.value.trim() !== '';
-            var useGuestDetails = !hasMemberId && !hasUserId;
-
-            guestName.disabled = !useGuestDetails;
-            guestMail.disabled = !useGuestDetails;
-
-            if (!useGuestDetails) {
-                guestName.value = '';
-                guestMail.value = '';
-            }
-        }
-
-        memberId.addEventListener('input', updateGuestFields);
-        userId.addEventListener('input', updateGuestFields);
-        updateGuestFields();
-    })();
-</script>
+	<header class="site-header">
+		<div class="header-inner">
+			<a class="logo" th:href="${isShopAdmin} ? null : @{/shops}">
+				<img th:src="@{/images/logo-mark.svg}" alt="" width="34" height="34">
+				<span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+			</a>
+
+			<nav class="account-nav" th:unless="${isMember or isShopAdmin}" aria-label="アカウント">
+				<a class="btn btn-outline" th:href="@{/register/register}">会員登録</a>
+				<a class="btn" th:href="@{/login}">ログイン</a>
+				<a class="forgot-link" th:href="@{/password/reset/verify}">パスワードをお忘れの方</a>
+			</nav>
+
+			<nav class="account-nav" th:if="${isMember}" aria-label="アカウント">
+				<a th:href="@{/members/showEdit}">会員情報</a>
+				<a th:href="@{/reservations/history}">予約履歴</a>
+				<form th:action="@{/shops/logout}" method="post">
+					<button type="submit" class="link-button">ログアウト</button>
+				</form>
+			</nav>
+		</div>
+	</header>
+
+	<div class="container">
+
+		<div class="admin-bar" th:if="${isShopAdmin}">
+			<span>店舗管理者としてログイン中</span>
+			<form th:action="@{/shop-admin/logout}" method="post">
+				<button type="submit" class="btn btn-secondary btn-small">ログアウト</button>
+			</form>
+		</div>
+
+		<p class="crumbs" th:unless="${isShopAdmin}">
+			<a th:href="@{/shops}">TOP</a><span>＞</span>
+			<a th:href="@{/shops#shops-title}">ショップ一覧</a><span>＞</span>
+			<th:block th:text="${store.name}">店舗名</th:block>
+		</p>
+
+		<div class="tags">
+			<span class="tag tag-floor"
+				th:text="${store.address == '地下1階' ? 'B1' : (store.address == '2階' ? '2F' : '1F')}">1F</span>
+			<span class="tag tag-cat" th:if="${store.reservable}">レストラン</span>
+		</div>
+
+		<h1 class="page-title">
+			<a class="back-btn" th:href="@{/shops}" th:unless="${isShopAdmin}" aria-label="トップ画面に戻る">&lt;</a>
+			<span th:text="${store.name}">店舗名</span>
+		</h1>
+
+		<div class="flash flash-success" th:if="${message}" th:text="${message}">口コミを投稿しました。</div>
+		<div class="flash flash-error" th:if="${errorMessage}" th:text="${errorMessage}">エラーメッセージ</div>
+
+		<!-- ① 店舗情報 -->
+		<section class="section">
+			<div class="shop-detail">
+				<div>
+					<img th:if="${store.pictureUrl != null}" th:src="@{${store.pictureUrl}}" th:alt="${store.name}">
+					<div th:unless="${store.pictureUrl != null}" class="no-image">NO IMAGE</div>
+				</div>
+
+				<div>
+					<dl>
+						<th:block th:if="${isShopAdmin}">
+							<dt>店舗名</dt>
+							<dd th:text="${store.name}">店舗名</dd>
+							<dt>代表者</dt>
+							<dd th:text="${store.representative}">代表者</dd>
+						</th:block>
+
+						<dt>フロア</dt>
+						<dd th:text="${store.address}">1階</dd>
+
+						<th:block th:if="${isShopAdmin}">
+							<dt>連絡先</dt>
+							<dd th:text="${store.mail}">mail</dd>
+						</th:block>
+
+						<dt>電話番号</dt>
+						<dd th:text="${#strings.isEmpty(store.phone)} ? '未登録' : ${store.phone}">06-0000-0000</dd>
+
+						<dt>説明</dt>
+						<dd th:text="${store.description}">説明</dd>
+					</dl>
+
+					<th:block th:if="${store.reservable}">
+						<div class="reserve-area" th:unless="${isShopAdmin}">
+							<a class="btn btn-block"
+								th:href="@{/shops/{shopId}/reservations/new(shopId=${store.id})}">この店舗を予約する</a>
+						</div>
+					</th:block>
+
+					<p class="no-reserve" th:unless="${store.reservable or isShopAdmin}">
+						この店舗では予約を受け付けていません。
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- ② 予約履歴・新規予約（店舗管理者のみ） -->
+		<section class="section" id="rsv" th:if="${isShopAdmin}">
+			<h2>これまでの予約履歴</h2>
+
+			<div class="flash flash-success flash-closable" th:if="${rsvMessage}">
+				<span th:text="${rsvMessage}">予約内容を変更しました。</span>
+				<button type="button" class="flash-close" aria-label="閉じる"
+					onclick="this.parentElement.remove()">×</button>
+			</div>
+
+			<div class="flash flash-error flash-closable" th:if="${rsvErrorMessage}">
+				<span th:text="${rsvErrorMessage}">エラーメッセージ</span>
+				<button type="button" class="flash-close" aria-label="閉じる"
+					onclick="this.parentElement.remove()">×</button>
+			</div>
+
+			<!-- 新規予約フォーム -->
+			<div class="review-form">
+				<h3>新規予約を追加</h3>
+
+				<p class="note">
+					会員ID、ゲストユーザーID、またはゲスト氏名・メールアドレスのいずれかで登録してください。
+					ゲストのメールアドレスが登録済みの場合は、既存ユーザーを使用します。
+				</p>
+
+				<form method="post" th:action="@{/shop-admin/{storeId}/reservations/add-detail(storeId=${store.id})}">
+
+					<label for="newReservationDateTime">予約日時</label>
+					<input type="datetime-local" id="newReservationDateTime" name="reservationDateTime"
+						min="2000-01-01T00:00" required>
+
+					<label for="newReservationNumber">人数（1～10人）</label>
+					<input type="number" id="newReservationNumber" name="number" min="1" max="10" value="1" required>
+
+					<label for="newReservationMemberId">会員ID（会員の場合）</label>
+					<input type="number" id="newReservationMemberId" name="memberId" min="1" placeholder="会員ID">
+
+					<label for="newReservationUserId">ゲストユーザーID（既存ユーザーの場合）</label>
+					<input type="number" id="newReservationUserId" name="userId" min="1" placeholder="ゲストユーザーID">
+
+					<p class="note">会員ID・ゲストユーザーIDを指定しない場合は、以下の氏名・メールアドレスからゲストを登録します。</p>
+
+					<label for="newReservationGuestName">ゲスト氏名</label>
+					<input type="text" id="newReservationGuestName" name="guestName" maxlength="255"
+						placeholder="ゲスト氏名">
+
+					<label for="newReservationGuestMail">ゲストメールアドレス</label>
+					<input type="email" id="newReservationGuestMail" name="guestMail" maxlength="255"
+						placeholder="guest@example.com">
+
+					<button type="submit" class="btn" onclick="return confirm('この内容で予約を追加しますか？');">
+						予約を追加
+					</button>
+				</form>
+			</div>
+
+			<!-- 既存予約一覧 -->
+			<div class="rsv-table-scroll"
+			     th:if="${!#lists.isEmpty(storeReservations)}">
+			    <table class="reservation-table rsv-table">
+			        <thead>
+			            <tr>
+			                <th>予約日時</th>
+			                <th>予約者</th>
+			                <th>人数</th>
+			                <th>予約状況</th>
+			                <th>操作</th>
+			            </tr>
+			        </thead>
+			        <tbody>
+			            <tr class="rsv-row" th:each="sr : ${storeReservations}">
+			                <td class="rsv-datetime">
+			                    <input type="date"
+			                           name="reservationDay"
+			                           class="rsv-field rsv-lockable"
+			                           required
+			                           readonly
+			                           th:attr="form=${'rsv-' + sr.id}"
+			                           th:value="${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'yyyy-MM-dd')} : ''">
+
+			                    <select name="reservationTime"
+			                            class="rsv-field rsv-lockable"
+			                            required
+			                            disabled
+			                            th:attr="form=${'rsv-' + sr.id}"
+			                            th:with="cur=${sr.reservationDate != null} ? ${#temporals.format(sr.reservationDate, 'HH:mm')} : ''">
+			                        <option th:each="i : ${#numbers.sequence(22, 43)}"
+			                                th:with="t=${T(java.lang.String).format('%02d:%02d', i / 2, (i % 2) * 30)}"
+			                                th:value="${t}"
+			                                th:text="${t}"
+			                                th:selected="${t == cur}">11:00</option>
+			                    </select>
+			                </td>
+
+			                <td th:text="${sr.memberId != null}
+			                             ? '会員（会員ID：' + ${sr.memberId} + '）'
+			                             : '非会員（ユーザーID：' + ${sr.userId} + '）'">
+			                    会員（会員ID：10001）
+			                </td>
+
+			                <td class="rsv-num">
+			                    <input type="number"
+			                           name="number"
+			                           class="rsv-field rsv-lockable"
+			                           min="1"
+			                           max="30"
+			                           required
+			                           readonly
+			                           th:attr="form=${'rsv-' + sr.id}"
+			                           th:value="${sr.number}">名
+			                </td>
+
+			                <td>
+			                    <select name="status"
+			                            class="rsv-field"
+			                            required
+			                            disabled
+			                            th:attr="form=${'rsv-' + sr.id}">
+			                        <option value="予約済み"
+			                                th:selected="${sr.status == '予約済み'}">予約済み</option>
+			                        <option value="予約確定"
+			                                th:selected="${sr.status == '予約確定'}">予約確定</option>
+			                        <option value="キャンセル"
+			                                th:selected="${sr.status == 'キャンセル'}">キャンセル</option>
+			                    </select>
+			                </td>
+
+			                <td class="rsv-actions">
+			                    <form th:id="${'rsv-' + sr.id}"
+			                          method="post"
+			                          th:action="@{/shop-admin/{storeId}(storeId=${store.id})}">
+			                        <input type="hidden" name="action" value="updateReservation">
+			                        <input type="hidden" name="reservationId" th:value="${sr.id}">
+			                        <button type="button"
+			                                class="btn btn-small btn-outline rsv-edit">編集</button>
+			                        <button type="submit"
+			                                class="btn btn-small rsv-save" hidden>保存</button>
+			                        <button type="button"
+			                                class="btn btn-small btn-secondary rsv-cancel" hidden>戻る</button>
+			                    </form>
+			                </td>
+			            </tr>
+			        </tbody>
+			    </table>
+			</div>
+			<p class="note" th:if="${#lists.isEmpty(storeReservations)}">
+				この店舗の予約はまだありません。
+			</p>
+		</section>
+
+		<!-- ポイントの案内（店舗管理者には出さない） -->
+		<section class="section point-card" th:unless="${isShopAdmin}">
+			<div class="point-badge" aria-hidden="true">P</div>
+			<div class="point-body">
+				<p class="point-title">ポイントGETでさらにお得に！</p>
+				<ul class="point-list">
+					<li>口コミを投稿すると<b>5P</b></li>
+					<li th:if="${store.reservable}">予約すると<b>10P</b></li>
+					<li>会員情報ページのガチャでもポイントGET!</li>
+				</ul>
+			</div>
+			<a class="btn btn-outline" th:href="@{/register/register}" th:unless="${isMember}">会員登録してためる</a>
+		</section>
+
+		<!-- ③ 口コミ -->
+		<section class="section" id="reviews">
+			<h2>口コミ</h2>
+
+			<a class="rating-summary" href="#reviews" th:if="${averageGrade != null}">
+				<span class="rating-stars" th:style="|--rate: ${averageGrade}|" aria-hidden="true">★★★★★</span>
+				<span class="rating-score" th:text="${#numbers.formatDecimal(averageGrade, 1, 1)}">4.2</span>
+				<span class="rating-count" th:text="|（口コミ ${reviewCount}件）|">（口コミ 12件）</span>
+			</a>
+
+			<p class="rating-summary rating-none" th:if="${averageGrade == null}">口コミはまだありません</p>
+
+			<div th:if="${#lists.isEmpty(reviews)}" class="note">まだ口コミはありません。</div>
+
+			<div class="review" th:each="r : ${reviews}">
+				<div class="meta">
+					<span class="stars"
+						th:text="${#strings.repeat('★', r.grade) + #strings.repeat('☆', 5 - r.grade)}">★★★☆☆</span>
+
+					<span
+						th:text="${r.createdAt != null} ? ${#temporals.format(r.createdAt, 'yyyy/MM/dd HH:mm')} : ''">2026/10/01</span>
+
+					<form class="delete-form" method="post"
+						th:if="${isShopAdmin or (isMember and r.memberId == loginId)}"
+						th:action="${isShopAdmin} ? @{/shop-admin/{storeId}(storeId=${store.id})} : @{/shops/{shopId}(shopId=${store.id})}"
+						onsubmit="return confirm('この口コミを削除しますか？');">
+						<input type="hidden" name="action" value="delete">
+						<input type="hidden" name="reviewId" th:value="${r.id}">
+						<button type="submit" class="btn btn-secondary btn-small">削除</button>
+					</form>
+				</div>
+
+				<p class="comment" th:text="${r.comment}">コメント</p>
+			</div>
+
+			<p class="note" th:unless="${isMember or isShopAdmin}">
+				※会員の方はすべての口コミを見ることができます。
+			</p>
+
+			<!-- 口コミ追加：会員のみ -->
+			<form class="review-form" method="post" th:if="${isMember}"
+				th:action="@{/shops/{shopId}(shopId=${store.id})}">
+				<input type="hidden" name="action" value="add">
+
+				<label for="grade">評価</label>
+				<select id="grade" name="grade" required>
+					<option value="" selected disabled>選択してください</option>
+					<option value="5">★★★★★（5）</option>
+					<option value="4">★★★★☆（4）</option>
+					<option value="3">★★★☆☆（3）</option>
+					<option value="2">★★☆☆☆（2）</option>
+					<option value="1">★☆☆☆☆（1）</option>
+				</select>
+
+				<label for="comment">口コミ</label>
+				<textarea id="comment" name="comment" maxlength="500" required placeholder="お店の感想を書いてください"></textarea>
+
+				<button type="submit" class="btn">口コミを投稿する</button>
+			</form>
+		</section>
+
+		<!-- ④ あなたの予約（会員かつ予約できる店のみ） -->
+		<th:block th:if="${store.reservable}">
+			<section class="section" th:if="${isMember}">
+				<h2>あなたの予約</h2>
+
+				<table class="reservation-table" th:if="${!#lists.isEmpty(reservations)}">
+					<thead>
+						<tr>
+							<th>予約日時</th>
+							<th>予約状況</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="rs : ${reservations}">
+							<td th:text="${#temporals.format(rs.reservationDate, 'yyyy/MM/dd(E) HH:mm')}">2026/10/10
+								18:00</td>
+							<td th:text="${rs.status}">予約済み</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<p class="note" th:if="${#lists.isEmpty(reservations)}">この店舗の予約はありません。</p>
+			</section>
+		</th:block>
+
+	</div>
+
+	<footer class="site-footer">
+		<span class="logo logo-small">
+			<img th:src="@{/images/logo-mark.svg}" alt="" width="26" height="26">
+			<span class="logo-text">FUJICHAKU<span>TOWN</span></span>
+		</span>
+
+		<dl class="footer-hours">
+			<dt>営業時間</dt>
+			<dd>ショップ 10:00〜21:00</dd>
+			<dd>2F レストラン・フードコート 11:00〜22:00</dd>
+		</dl>
+
+		<p class="footer-note">※一部店舗により営業時間が異なります</p>
+		<p>&copy; FUJICHAKU TOWN</p>
+	</footer>
+
+	<script>
+		// 予約履歴：「編集」で入力可能にし、「戻る」で元の内容に戻す
+		document.querySelectorAll('.rsv-row').forEach(function (row) {
+			var form = row.querySelector('form');
+			var fields = row.querySelectorAll('.rsv-field');
+			var edit = row.querySelector('.rsv-edit');
+			var save = row.querySelector('.rsv-save');
+			var cancel = row.querySelector('.rsv-cancel');
+
+			var statusSelect = row.querySelector('select[name="status"]');
+
+			function lockIfCanceled() {
+				var canceled = statusSelect.value === 'キャンセル';
+
+				row.querySelectorAll('.rsv-lockable').forEach(function (field) {
+					field.classList.toggle('is-locked', canceled);
+				});
+			}
+
+			function setEditing(on) {
+				fields.forEach(function (field) {
+					if (field.tagName === 'SELECT') {
+						field.disabled = !on;
+					} else {
+						field.readOnly = !on;
+					}
+				});
+
+				row.classList.toggle('is-editing', on);
+				edit.hidden = on;
+				save.hidden = !on;
+				cancel.hidden = !on;
+
+				lockIfCanceled();
+			}
+
+			statusSelect.addEventListener('change', lockIfCanceled);
+
+			edit.addEventListener('click', function () {
+				setEditing(true);
+				fields[0].focus();
+			});
+
+			cancel.addEventListener('click', function () {
+				form.reset();
+				setEditing(false);
+			});
+		});
+
+		// 会員ID・ゲストユーザーID・ゲスト氏名メールの入力を切り替える
+		(function () {
+			var memberId = document.getElementById('newReservationMemberId');
+			var userId = document.getElementById('newReservationUserId');
+			var guestName = document.getElementById('newReservationGuestName');
+			var guestMail = document.getElementById('newReservationGuestMail');
+
+			if (!memberId || !userId || !guestName || !guestMail) {
+				return;
+			}
+
+			function updateGuestFields() {
+				var hasMemberId = memberId.value.trim() !== '';
+				var hasUserId = userId.value.trim() !== '';
+				var useGuestDetails = !hasMemberId && !hasUserId;
+
+				guestName.disabled = !useGuestDetails;
+				guestMail.disabled = !useGuestDetails;
+
+				if (!useGuestDetails) {
+					guestName.value = '';
+					guestMail.value = '';
+				}
+			}
+
+			memberId.addEventListener('input', updateGuestFields);
+			userId.addEventListener('input', updateGuestFields);
+			updateGuestFields();
+		})();
+	</script>
 
 </body>
+
 </html>
