@@ -3,76 +3,103 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 対応インターフェース：com.example.demo.mapper.ReviewsMapper
-     （旧 ReviewMapper.xml / ReviewMapper.java はこのファイルに統合済み） -->
+<!-- 対応インターフェース：com.example.demo.mapper.ReviewsMapper -->
 <mapper namespace="com.example.demo.mapper.ReviewsMapper">
 
-    <!-- 取得カラム（スネークケース → Entity(Reviews) のキャメルケースに別名を付ける） -->
+    <!-- 取得カラム（スネークケース → キャメルケース） -->
     <sql id="reviewColumns">
         id,
-        store_id   AS storeId,
-        member_id  AS memberId,
+        store_id AS storeId,
+        member_id AS memberId,
         comment,
         created_at AS createdAt,
         grade
     </sql>
 
-    <!-- 店舗の口コミ全件（新しい順） -->
-    <select id="selectAllReviews" resultType="com.example.demo.entity.Reviews">
+    <!-- 店舗の口コミ全件（会員向け・論理削除済みを除外） -->
+    <select id="selectAllReviews"
+            resultType="com.example.demo.entity.Reviews">
         SELECT <include refid="reviewColumns"/>
-          FROM reviews
-         WHERE store_id = #{storeId}
-         ORDER BY id DESC
+        FROM reviews
+        WHERE store_id = #{storeId}
+          AND is_deleted = FALSE
+        ORDER BY id DESC
     </select>
 
-    <!-- 店舗の最新口コミ1件 -->
-    <select id="selectOneReview" resultType="com.example.demo.entity.Reviews">
+    <!-- 店舗の最新口コミ1件（非会員向け） -->
+    <select id="selectOneReview"
+            resultType="com.example.demo.entity.Reviews">
         SELECT <include refid="reviewColumns"/>
-          FROM reviews
-         WHERE store_id = #{storeId}
-         ORDER BY id DESC
-         LIMIT 1
+        FROM reviews
+        WHERE store_id = #{storeId}
+          AND is_deleted = FALSE
+        ORDER BY id DESC
+        LIMIT 1
     </select>
 
-    <!-- 口コミ追加（引数は Reviews。登録日時はDB側の現在時刻） -->
-    <insert id="addReview" parameterType="com.example.demo.entity.Reviews">
-        INSERT INTO reviews (store_id, member_id, comment, grade, created_at)
-        VALUES (#{storeId}, #{memberId}, #{comment}, #{grade}, CURRENT_TIMESTAMP)
+    <!-- 口コミ追加（論理削除フラグは false で登録） -->
+    <insert id="addReview"
+            parameterType="com.example.demo.entity.Reviews">
+        INSERT INTO reviews (
+            store_id,
+            member_id,
+            comment,
+            grade,
+            created_at,
+            is_deleted
+        )
+        VALUES (
+            #{storeId},
+            #{memberId},
+            #{comment},
+            #{grade},
+            CURRENT_TIMESTAMP,
+            FALSE
+        )
     </insert>
 
-    <!-- 口コミ削除（自分の口コミのみ）
-         口コミID・店舗ID・会員IDがすべて一致したときだけ削除される -->
-    <delete id="deleteReview">
-        DELETE FROM reviews
-         WHERE id        = #{id}
-           AND store_id  = #{storeId}
-           AND member_id = #{memberId}
-    </delete>
-    
-        <!-- 口コミ削除（店舗管理者用）
-         口コミID・店舗IDが一致したときだけ削除される（自店舗の口コミなら誰のものでも削除できる） -->
-    <delete id="deleteByIdAndStoreId">
-        DELETE FROM reviews
-         WHERE id       = #{id}
-           AND store_id = #{storeId}
-    </delete>
+    <!-- 口コミ削除（会員本人の口コミのみ・論理削除） -->
+    <update id="deleteReview">
+        UPDATE reviews
+        SET is_deleted = TRUE
+        WHERE id = #{id}
+          AND store_id = #{storeId}
+          AND member_id = #{memberId}
+          AND is_deleted = FALSE
+    </update>
 
-    <!-- 口コミを1件取得（店舗管理者が削除するとき、書いた会員を調べてポイントを減らすため） -->
-    <select id="selectReviewById" resultType="com.example.demo.entity.Reviews">
+    <!-- 口コミ削除（店舗管理者用・論理削除） -->
+    <update id="deleteByIdAndStoreId">
+        UPDATE reviews
+        SET is_deleted = TRUE
+        WHERE id = #{id}
+          AND store_id = #{storeId}
+          AND is_deleted = FALSE
+    </update>
+
+    <!-- 口コミを1件取得（店舗管理者の削除処理などで使用） -->
+    <select id="selectReviewById"
+            resultType="com.example.demo.entity.Reviews">
         SELECT <include refid="reviewColumns"/>
-          FROM reviews
-         WHERE id = #{id}
+        FROM reviews
+        WHERE id = #{id}
+          AND is_deleted = FALSE
     </select>
-    
-        <!-- 【追加】店舗の口コミの平均（小数1けた）。口コミが0件のときは null -->
+
+    <!-- 店舗の口コミ平均（小数1桁・対象口コミ0件なら null） -->
     <select id="selectAverageGrade" resultType="java.lang.Double">
-        SELECT ROUND(AVG(grade), 1) FROM reviews WHERE store_id = #{storeId}
+        SELECT ROUND(AVG(grade), 1)
+        FROM reviews
+        WHERE store_id = #{storeId}
+          AND is_deleted = FALSE
     </select>
 
-    <!-- 【追加】店舗の口コミの件数 -->
+    <!-- 店舗の口コミ件数（論理削除済みを除外） -->
     <select id="countByStoreId" resultType="int">
-        SELECT COUNT(*) FROM reviews WHERE store_id = #{storeId}
+        SELECT COUNT(*)
+        FROM reviews
+        WHERE store_id = #{storeId}
+          AND is_deleted = FALSE
     </select>
+
 </mapper>
-
-
