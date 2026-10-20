@@ -2,9 +2,9 @@ package com.example.demo.entity;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,10 +28,10 @@ public class ShopAdmin {
 
     // メールアドレス
     @NotBlank(message = "メールアドレスを入力してください")
-    @Pattern(
-        regexp = "^$|^[^@]+@[^@]+\\.[^@]+$",
-        message = "メールアドレスはxxx@yyy.zzzの形式で入力してください"
-    )
+	@Email(
+	        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*\\.[A-Za-z]{2,}$",
+	        message = "メールアドレスの形式が正しくありません（例：taro@gmail.com）"
+	    )
     private String mail;
 
     // パスワード

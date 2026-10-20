@@ -18,9 +18,14 @@
         }
 
         const chars =
-            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-            "アイウエオカキクケコサシスセソタチツテト" +
-            "ナニヌネノハヒフヘホマミムメモヤユヨラリルレロ";
+		"SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" 
+		+ "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" 
+		+ "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" 
+		+ "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+		+"砂漠の不時着" + "男梅" + "もうやりたくない" + "テストやりたくない"
+		+ "Springやりたくない" + "墜落最中でも保険に入れますか？" + "FUJICHAKU"
+		+ "ウォッカおいてますか？"　+ "5Lウォッカ" + "matrix" + "SETO" + "YAMAMORI"
+		+ "NAKAMURA" + "KITAYAMA" + "KANAI" + "VALDEZ" + "NEO" + "MORPHEUS";
 
         const fontSize = 16;
         let columns = 0;

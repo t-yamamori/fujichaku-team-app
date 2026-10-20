@@ -6,198 +6,253 @@
     <title>会員登録</title>
 
     <style>
-        * {
-            box-sizing: border-box;
+		/* =========================================================
+           会員登録（入力） register
+           トップ画面と同じ「砂漠の空」デザイン（<style> の中身をまるごと差し替え）
+           ========================================================= */
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css");
+        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css");
+
+        :root {
+            --main:      #8b4a2b;   /* ボタン（ブラウン） */
+            --main-dark: #6e3a21;
+            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
+            --sky-pale:  #eaf4fa;
+            --line:      #d9e3ea;
+            --text:      #2f3437;
+            --text-sub:  #6b7479;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            background:
-                radial-gradient(circle at top left, #252525 0%, #111 40%, #070707 100%);
-            color: #f5f5f5;
-            font-family:
-                "Noto Sans JP",
-                "Yu Gothic",
-                "Meiryo",
-                sans-serif;
             min-height: 100vh;
+            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+            color: var(--text);
+            line-height: 1.7;
+            background: linear-gradient(#9fcbe8 0, #cfe6f4 45%, #f3f7fa 100%) fixed;
+            overflow-x: hidden;
         }
 
-        /* ヘッダー */
+        /* ゆっくり流れる雲（2つ） */
+        body::before {
+            content: "";
+            position: fixed; top: 18%; left: -260px; z-index: 0;
+            width: 220px; height: 60px; border-radius: 60px;
+            background: #fff; opacity: .85;
+            box-shadow:
+                40px -26px 0 6px #fff,
+                110px -14px 0 0 #fff,
+                520px 70px 0 -8px rgba(255,255,255,.75),
+                580px 52px 0 -4px rgba(255,255,255,.75);
+            animation: cloud-drift 60s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes cloud-drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(calc(100vw + 900px)); }
+        }
+
+        /* 画面の一番下の砂丘 */
+        body::after {
+            content: "";
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
+            height: 120px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
+            pointer-events: none;
+        }
+
+        /* ===== ヘッダー（トップ画面と同じ白いヘッダー） ===== */
         .header {
-            height: 76px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 50px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.25);
-            background: rgba(10, 10, 10, 0.94);
+            position: sticky; top: 0; z-index: 50;
+            height: 64px;
+            padding: 0 clamp(16px, 4vw, 48px);
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff;
+            border-bottom: 1px solid var(--line);
         }
 
-		.logo {
-		    color: #d4af37;
-		    font-size: 24px;
-		    font-weight: 700;
-		    letter-spacing: 3px;
-		}
+        /* ロゴ：HTMLの「FUJICHAKU」の前にマーク、後ろに「TOWN」をCSSで足す */
+        .logo {
+            display: inline-flex; align-items: center; gap: 10px;
+            color: var(--text);
+            font-size: 1.15rem; font-weight: 700;
+            letter-spacing: .06em; line-height: 1;
+        }
+        .logo::before {
+            content: "";
+            width: 34px; height: 34px;
+            background: url("/images/logo-mark.svg") center / contain no-repeat;
+        }
+        .logo::after {
+            content: "TOWN";
+            margin-left: -.3em;
+            font-weight: 400; color: var(--sky-deep); letter-spacing: .14em;
+        }
 
+        /* 右上の「ログイン」：トップ画面と同じブラウンのボタン */
         .back-link {
-            color: #bbb;
+            display: inline-flex; align-items: center;
+            height: 38px; padding: 0 20px;
+            border-radius: 3px;
+            background: var(--main); color: #fff;
+            font-size: .9rem; font-weight: 700;
             text-decoration: none;
-            font-size: 14px;
-            transition: 0.2s;
+            transition: background .2s;
         }
+        .back-link:hover { background: var(--main-dark); }
 
-        .back-link:hover {
-            color: #d4af37;
-        }
-
-        /* メイン */
+        /* ===== メイン ===== */
         .container {
-            width: min(600px, 92%);
-            margin: 55px auto 80px;
+            position: relative; z-index: 1;
+            width: 100%; max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 16px 160px;          /* 下は砂丘のぶん空ける */
         }
 
-        /* ページタイトル */
-        .page-title {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
+        /* ===== 見出し ===== */
+        .page-title { margin-bottom: 20px; text-align: center; }
         .page-title .sub {
-            color: #d4af37;
-            font-size: 12px;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
+            color: var(--sky-deep);
+            font-size: .75rem; font-weight: 700;
+            letter-spacing: .3em;
         }
-
         .page-title h1 {
             margin: 0;
-            font-size: 34px;
-            letter-spacing: 2px;
+            font-size: clamp(1.5rem, 4vw, 1.9rem);
+            letter-spacing: .08em;
         }
-
         .page-title p {
-            color: #999;
-            font-size: 13px;
-            margin-top: 12px;
+            margin: 8px 0 0;
+            color: var(--text-sub);
+            font-size: .9rem;
+        }
+        /* 「※ 予約履歴の確認は会員のみ」：HTMLに金色の指定があるので上書きする */
+        .page-title p:last-child {
+            display: inline-block;
+            margin-top: 12px !important;
+            padding: 4px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .75);
+            color: var(--sky-deep) !important;
+            font-size: .8rem !important;
+            font-weight: 700;
         }
 
-        /* 登録フォーム */
+        /* ===== 白いカード ===== */
         .register-card {
-            background: linear-gradient(145deg, #1c1c1c, #0e0e0e);
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+            padding: 30px 36px 32px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--sky-deep);
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(31, 79, 112, .14);
+            animation: card-in .6s ease-out both;
+        }
+        @keyframes card-in {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: none; }
         }
 
         .section-title {
-            font-size: 20px;
-            margin: 0 0 28px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            margin: 0 0 22px;
+            padding-left: 10px;
+            border-left: 3px solid var(--sky-deep);
+            font-size: 1rem;
         }
 
-        /* 入力項目 */
-        .form-group {
-            margin-bottom: 25px;
-        }
+        /* ===== 入力項目 ===== */
+        .form-group { margin-bottom: 20px; }
 
         .form-label {
             display: block;
-            color: #d4af37;
-            font-size: 13px;
-            margin-bottom: 9px;
-            letter-spacing: 1px;
+            margin-bottom: 6px;
+            color: var(--text);
+            font-size: .9rem; font-weight: 700;
         }
 
         input {
             width: 100%;
-            padding: 14px 15px;
-            background: #101010;
-            color: #fff;
-            border: 1px solid #444;
-            font-size: 15px;
+            height: 48px;
+            padding: 0 14px;
+            border: 1px solid #c5d4de;
+            border-radius: 3px;
+            background: #fff;
+            color: var(--text);
+            font: inherit; font-size: 1rem;
             outline: none;
+            color-scheme: light;               /* カレンダー・目のマークを明るい色に戻す */
+            transition: border-color .15s, box-shadow .15s;
         }
-
+        input::placeholder { color: #a3adb3; }
         input:focus {
-            border-color: #d4af37;
-            box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.25);
+            border-color: var(--sky-deep);
+            box-shadow: 0 0 0 3px rgba(63, 130, 173, .18);
         }
-		
-		/* ブラウザの部品(カレンダー・目のマーク)を、暗い背景用の色にする */
-		input {
-		    color-scheme: dark;
-		}
 
-        /* エラーメッセージ */
+        /* ===== エラーメッセージ ===== */
         .error-message {
-            color: #e58b8b;
-            font-size: 12px;
-            margin-top: 7px;
+            margin: 6px 0 0;
+            color: #c0392b;
+            font-size: .82rem;
         }
+        .error-message::before { content: "⚠ "; }
+        /* フォームの上に出る全体のエラーは、赤い枠で目立たせる */
+        .section-title + .error-message {
+            margin: 0 0 20px;
+            padding: 10px 14px;
+            background: #fdecea;
+            border: 1px solid #f5c9c3;
+            border-radius: 4px;
+        }
+        /* エラーがある入力欄は赤いふちに */
+        .form-group:has(.error-message) input { border-color: #e2a59e; }
 
-        /* ボタン */
-        .button-area {
-            margin-top: 30px;
-        }
+        /* ===== ボタン ===== */
+        .button-area { margin-top: 28px; }
 
         .confirm-button {
             width: 100%;
-            padding: 17px;
-            border: 1px solid #d4af37;
-            background: linear-gradient(135deg, #d4af37, #a98219);
-            color: #090909;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            height: 54px;
+            border: 1px solid var(--main);
+            border-radius: 3px;
+            background: var(--main); color: #fff;
+            font: inherit; font-size: 1rem; font-weight: 700;
+            letter-spacing: .08em;
             cursor: pointer;
-            transition: 0.2s;
+            box-shadow: 0 6px 16px rgba(139, 74, 43, .25);
+            transition: background .2s, transform .2s;
         }
+        .confirm-button:hover { background: var(--main-dark); transform: translateY(-2px); }
 
-        .confirm-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.25);
-        }
-
-        /* ログインリンク */
+        /* ===== ログインへのリンク ===== */
         .login-link {
             display: block;
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
             text-align: center;
-            margin-top: 20px;
-            color: #888;
+            color: var(--sky-deep);
+            font-size: .88rem;
             text-decoration: none;
-            font-size: 13px;
+        }
+        .login-link:hover { color: var(--main); text-decoration: underline; }
+
+        /* ===== スマホ ===== */
+        @media (max-width: 600px) {
+            .header { height: 56px; }
+            .logo { font-size: .9rem; }
+            .logo::before { width: 28px; height: 28px; }
+            .back-link { height: 34px; padding: 0 14px; font-size: .8rem; }
+            .container { padding-top: 28px; }
+            .register-card { padding: 22px 16px 24px; }
         }
 
-        .login-link:hover {
-            color: #d4af37;
-        }
-
-        /* スマホ */
-        @media (max-width: 500px) {
-
-            .header {
-                padding: 0 20px;
-            }
-
-            .logo {
-                font-size: 20px;
-            }
-
-            .container {
-                width: 94%;
-                margin-top: 35px;
-            }
-
-            .page-title h1 {
-                font-size: 27px;
-            }
-
-            .register-card {
-                padding: 25px 20px;
-            }
+        /* 「動きを減らす」設定のときはアニメーションを止める */
+        @media (prefers-reduced-motion: reduce) {
+            body::before, .register-card { animation: none; }
         }
     </style>
 </head>
@@ -230,11 +285,11 @@
 
             <h1>会員登録</h1>
 
-			`<p>
+			<p>
 			    会員情報をご入力ください
 			</p>
 
-			`<p style="color: #d4af37; font-size: 13px; margin-top: 12px;">
+			<p style="color: #d4af37; font-size: 13px; margin-top: 12px;">
 			    ※ 予約履歴の確認は会員のみになります。
 			</p>
 
@@ -347,7 +402,7 @@
 
 
             <a th:href="@{/login}" class="login-link">
-                すでに会員の方はこちら → ログイン
+                すでに会員の方はこちら → 
             </a>
 
         </div>

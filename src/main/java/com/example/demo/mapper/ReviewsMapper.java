@@ -40,6 +40,12 @@ public interface ReviewsMapper {
 	);
 	
 	// 【追加】口コミを1件取得（店舗管理者が削除するとき、書いた会員を調べてポイントを減らすため）
-		Reviews selectReviewById(Integer id);
+	Reviews selectReviewById(Integer id);
+		
+    // 【追加】店舗の口コミの平均（0件なら null）
+    Double selectAverageGrade(@Param("storeId") Integer storeId);
+
+    // 【追加】店舗の口コミの件数
+    int countByStoreId(@Param("storeId") Integer storeId);
 
 }

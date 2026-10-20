@@ -139,6 +139,9 @@ public class ShopDashboardController {
 
         model.addAttribute("store", st);
         model.addAttribute("reviews", rv);
+        // 【追加】口コミの平均と件数
+        model.addAttribute("averageGrade", reviewsMapper.selectAverageGrade(storeId));
+        model.addAttribute("reviewCount", reviewsMapper.countByStoreId(storeId));
         model.addAttribute("storeReservations", storeReservations);
 
         // detail.html の表示切り替え用
