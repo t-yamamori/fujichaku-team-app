@@ -56,7 +56,6 @@
 		    "RECORD_NOT_FOUND",
 		    "CONNECTION_ESTABLISHED",
 		    "PROCESSING_REQUEST...",
-
 		    "KERNEL::INITIALIZED",
 		    "ACCESS_LEVEL::ROOT",
 		    "NETWORK_NODE_0x3A",
@@ -90,7 +89,7 @@
 
         const FONT_SIZE_MIN = 10;
         const FONT_SIZE_MAX = 17;
-        const GROUP_COUNT = 18;
+        const GROUP_COUNT = 46;
 
         let width = 0;
         let height = 0;

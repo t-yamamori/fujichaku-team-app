@@ -33,16 +33,16 @@
             font-family: "Consolas", "Yu Gothic", monospace;
         }
 
-		#matrixRain {
-		    position: fixed;
-		    inset: 0;
-		    width: 100%;
-		    height: 100%;
-		    z-index: -1;
-		    opacity: .58;
-		    filter: brightness(1.35) contrast(1.15);
-		    pointer-events: none;
-		}
+        #matrixRain {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: .58;
+            filter: brightness(1.35) contrast(1.15);
+            pointer-events: none;
+        }
 
         .page-header {
             position: relative;
@@ -638,11 +638,41 @@
                            placeholder="未指定なら空欄">
                 </div>
 
+                <!-- モール管理者のみ：ゲスト氏名・メールアドレス -->
+                <div class="field" th:if="${mallAdmin}">
+                    <label for="guestName">ゲスト氏名</label>
+                    <input type="text"
+                           id="guestName"
+                           name="guestName"
+                           maxlength="255"
+                           autocomplete="name"
+                           placeholder="ゲストの氏名">
+                </div>
+
+                <div class="field" th:if="${mallAdmin}">
+                    <label for="guestMail">ゲストメールアドレス</label>
+                    <input type="email"
+                           id="guestMail"
+                           name="guestMail"
+                           maxlength="255"
+                           autocomplete="email"
+                           placeholder="guest@example.com">
+                </div>
+
             </div>
 
             <div class="hint">
                 会員IDとゲストユーザーIDは同時に入力できません。
-                両方空欄の場合は、顧客IDを紐づけずに登録します。
+                会員IDまたはゲストユーザーIDを入力した場合は、
+                ゲスト氏名・メールアドレスは使用しません。
+                <span th:if="${mallAdmin}">
+                    両方のIDを空欄にしてゲスト氏名・メールアドレスを入力すると、
+                    メールアドレスに一致するユーザーを検索し、
+                    未登録の場合はゲストユーザーを新規作成して予約に紐づけます。
+                </span>
+                <span th:unless="${mallAdmin}">
+                    会員IDとゲストユーザーIDの両方が空欄の場合は登録できません。
+                </span>
                 新規予約のステータスは「予約済み」になります。
             </div>
 
@@ -822,36 +852,39 @@
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-	const characters =
-				    "テストしたくない" +
-				    "テストめんどくさい" + "テストいやだ" +
-				    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
-				    "reservation" + "reserve" + "FUJICHAKU" +
-				    "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
-				    "完了" + "予約完了" + "不時着" + "不時着しました" +
-				    "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
-				    "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
-				    "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
-				    "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
-				    "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
-				    "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
-				    "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
-				    "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
-				    "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
-				    "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
-				    "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
-				    "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
-				    "CONFIRMED" + "TRANSACTION" + "OPERATION" +
-				    "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
-				    "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
-				    "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
-				    "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
-				    "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
-				    "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION" +
-					"砂漠の不時着" + "男梅" + "もうやりたくない" + "テストやりたくない" + 
-					"Springやりたくない" + "墜落最中でも保険に入れますか？" + "FUJICHAKU" + 
-					"ウォッカおいてますか？"　+ "5Lウォッカ" + "matrix" + "SETO" + "YAMAMORI"+
-					"NAKAMURA" + "KITAYAMA" + "KANAI" + "VALDEZ" + "NEO" + "MORPHEUS";
+    const characters =
+        "テストしたくない" +
+        "テストめんどくさい" + "テストいやだ" +
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
+        "reservation" + "reserve" + "FUJICHAKU" +
+        "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
+        "完了" + "予約完了" + "不時着" + "不時着しました" +
+        "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
+        "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
+        "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
+        "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
+        "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
+        "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
+        "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
+        "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
+        "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
+        "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
+        "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
+        "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
+        "CONFIRMED" + "TRANSACTION" + "OPERATION" +
+        "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
+        "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
+        "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
+        "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
+        "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
+        "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION" +
+        "砂漠の不時着" + "男梅" + "もうやりたくない" + "テストやりたくない" +
+        "Springやりたくない" + "墜落最中でも保険に入れますか？" +
+        "FUJICHAKU" + "ウォッカおいてますか？" + "5Lウォッカ" +
+        "matrix" + "SETO" + "YAMAMORI" +
+        "NAKAMURA" + "KITAYAMA" + "KANAI" + "VALDEZ" +
+        "NEO" + "MORPHEUS";
+
     const fontSize = 14;
     let drops = [];
 
@@ -911,6 +944,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     const memberId = document.getElementById("memberId");
     const userId = document.getElementById("userId");
+    const guestName = document.getElementById("guestName");
+    const guestMail = document.getElementById("guestMail");
 
     function validateCustomerIds() {
         if (!memberId || !userId) return;
@@ -930,6 +965,89 @@ document.addEventListener("DOMContentLoaded", function () {
     if (memberId && userId) {
         memberId.addEventListener("input", validateCustomerIds);
         userId.addEventListener("input", validateCustomerIds);
+    }
+
+    /*
+     * ゲスト氏名・メールアドレスの入力補助。
+     * 会員IDまたはゲストIDが入力されている場合、
+     * 氏名・メールアドレスは予約登録に使用しない。
+     *
+     * 氏名・メールアドレスを使ったゲスト登録は、
+     * サーバー側で必須チェックを行う。
+     */
+    const addReservationForm = document.querySelector(
+        'form[action$="/reservations/add"], form[action$="/add"]'
+    );
+
+    if (addReservationForm) {
+        addReservationForm.addEventListener("submit", function (event) {
+            validateCustomerIds();
+
+            if (
+                memberId &&
+                userId &&
+                memberId.value.trim() !== "" &&
+                userId.value.trim() !== ""
+            ) {
+                event.preventDefault();
+                memberId.reportValidity();
+                return;
+            }
+
+            const hasMemberId =
+                memberId && memberId.value.trim() !== "";
+
+            const hasUserId =
+                userId && userId.value.trim() !== "";
+
+            const hasGuestName =
+                guestName && guestName.value.trim() !== "";
+
+            const hasGuestMail =
+                guestMail && guestMail.value.trim() !== "";
+
+            // どちらかのIDが入力されている場合は従来のID登録を使う
+            if (hasMemberId || hasUserId) {
+                return;
+            }
+
+            // モール管理者のゲスト氏名・メール欄が存在する場合のみチェック
+            if (guestName && guestMail) {
+                if (!hasGuestName) {
+                    event.preventDefault();
+                    guestName.setCustomValidity(
+                        "ゲストの氏名を入力してください。"
+                    );
+                    guestName.reportValidity();
+                    return;
+                }
+
+                guestName.setCustomValidity("");
+
+                if (!hasGuestMail) {
+                    event.preventDefault();
+                    guestMail.setCustomValidity(
+                        "ゲストのメールアドレスを入力してください。"
+                    );
+                    guestMail.reportValidity();
+                    return;
+                }
+
+                guestMail.setCustomValidity("");
+            }
+        });
+    }
+
+    if (guestName) {
+        guestName.addEventListener("input", function () {
+            guestName.setCustomValidity("");
+        });
+    }
+
+    if (guestMail) {
+        guestMail.addEventListener("input", function () {
+            guestMail.setCustomValidity("");
+        });
     }
 
     /* ==============================
