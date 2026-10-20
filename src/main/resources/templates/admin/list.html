@@ -2,28 +2,28 @@
 <html lang="ja">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>FUJICHAKU - 会員管理</title>
+	<title>FUJICHAKU - 会員管理</title>
 
-   
+
 	<link rel="stylesheet" th:href="@{/css/adminLayout.css}">
 	<link rel="stylesheet" th:href="@{/css/list.css}">
-	
-	
+
+
 </head>
 
 <body>
-	
-	<!-- 共通サイドメニューを読み込む -->
-	   <header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
 
-    <!-- =========================
+	<!-- 共通サイドメニューを読み込む -->
+	<header th:replace="~{admin/fragments/adminLayout :: sidebar}"></header>
+
+	<!-- =========================
          ヘッダー
     ========================== -->
 
-   <!-- <header class="header">
+	<!-- <header class="header">
 
         <div class="logo">
             FUJICHAKU
@@ -36,367 +36,403 @@
     </header>-->
 
 
-    <!-- =========================
+	<!-- =========================
          全体レイアウト
     ========================== -->
 
-    <div class="layout">
+	<div class="layout">
 
 
 
 
-        <!-- =========================
+		<!-- =========================
              メイン
         ========================== -->
 
-        <main class="main">
+		<main class="main">
 
-            <h1 class="page-title">
-                会員管理
-            </h1>
+			<h1 class="page-title">
+				会員管理
+			</h1>
 
-            <div class="page-subtitle">
-                MEMBER MANAGEMENT
-            </div>
-			
-			<div class="error-message"
-			     th:if="${errorMessage != null}"
-			     th:text="${errorMessage}"></div>
+			<div class="page-subtitle">
+				MEMBER MANAGEMENT
+			</div>
+
+			<div class="error-message" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 
 
-            <!-- =========================
+			<!-- =========================
                  会員一覧カード
             ========================== -->
 
-            <div class="member-card">
+			<div class="member-card">
 
-                <h2 class="card-title">
-                    会員一覧
-                    <span>MEMBER LIST</span>
-                </h2>
-				
-				
-				<p th:if="${param.updated != null}"
-				   style="color: orange; font-weight: bold;">
-				    会員情報を更新しました。
+				<h2 class="card-title">
+					会員一覧
+					<span>MEMBER LIST</span>
+				</h2>
+
+
+				<p th:if="${param.updated != null}" style="color: orange; font-weight: bold;">
+					会員情報を更新しました。
 				</p>
-				
-				<p th:if="${param.created != null}"
-				   style="color: aqua; font-weight: bold;">
-				    会員を登録しました。
+
+				<p th:if="${param.created != null}" style="color: aqua; font-weight: bold;">
+					会員を登録しました。
 				</p>
-				
-				<p th:if="${param.deleted != null}"
-				   style="color: deeppink; font-weight: bold;">
-				    会員を削除しました。
+
+				<p th:if="${param.deleted != null}" style="color: deeppink; font-weight: bold;">
+					会員を削除しました。
 				</p>
 
 
-                <!-- テーブル -->
+				<!-- テーブル -->
 
-                <div class="table-wrapper">
+				<div class="table-wrapper">
 
-                    <table>
+					<table>
 
-                        <thead>
+						<thead>
 
-                            <tr>
-                                <th>選択</th>
-                                <th>会員ID</th>
-                                <th>氏名</th>
-                                <th>生年月日</th>
-                                <th>メールアドレス</th>
-                                <th>ポイント</th>
-                                <th>予約履歴</th>
-                            </tr>
+							<tr>
+								<th>選択</th>
+								<th>会員ID</th>
+								<th>氏名</th>
+								<th>生年月日</th>
+								<th>メールアドレス</th>
+								<th>ポイント</th>
+								<th>予約履歴</th>
+							</tr>
 
-                        </thead>
+						</thead>
 
 
-                  
+
 
 						<tbody>
-						    <tr th:each="member : ${members}"
-						        th:attr="data-id=${member.id},
-						                 data-name=${member.name},
-						                 data-birth-date=${member.birthDate},
-										 data-mail=${member.mail},
-										 data-point=${member.point}"
-										 >
-
-						        <td>
-						            <input type="checkbox"
-						                   name="selectedId"
-						                   th:value="${member.id}">
-						        </td>
-
-						        <td th:text="${member.id}"></td>
-						        <td th:text="${member.name}"></td>
-						        <td th:text="${member.birthDate}"></td>
-						        <td th:text="${member.mail}"></td>
-						        <td th:text="${member.point}"></td>
+							<tr th:each="member : ${members}"
+							    th:attr="data-id=${member.id},
+							             data-name=${member.name},
+							             data-birth-date=${member.birthDate},
+							             data-mail=${member.mail},
+							             data-point=${member.point}">
 
 								<td>
-								    <form th:action="@{/admin/members/{id}/reservations(id=${member.id})}" method="get">
-								        <button type="submit">確認</button>
-								    </form>
+									<input type="checkbox" name="selectedId" th:value="${member.id}">
 								</td>
 
-						    </tr>
+								<td th:text="${member.id}"></td>
+								<td th:text="${member.name}"></td>
+								<td th:text="${member.birthDate}"></td>
+								<td th:text="${member.mail}"></td>
+								<td th:text="${member.point}"></td>
+
+								<td>
+									<form th:action="@{/admin/members/{id}/reservations(id=${member.id})}" method="get">
+										<button type="submit">確認</button>
+									</form>
+								</td>
+
+							</tr>
 						</tbody>
-					
-                        
-
-                    </table>
-
-                </div>
 
 
-                <!-- =========================
+
+					</table>
+
+				</div>
+
+
+				<!-- =========================
                      下部ボタン
                 ========================== -->
 
 				<div class="button-area">
-				    <button type="button"
-				            class="update-button"
-				            onclick="openEditModal()">
-				        更新
-				    </button>
+					<button type="button" class="update-button" onclick="openEditModal()">
+						更新
+					</button>
 
-				    <button type="button"
-				            class="delete-button"
-				            onclick="openDeleteModal()">
-				        削除
-				    </button>
+					<button type="button" class="delete-button" onclick="openDeleteModal()">
+						削除
+					</button>
 
-				    <button type="button"
-				            class="create-button"
-				            onclick="openCreateModal()">
-				        ＋ 新規登録
-				    </button>
+					<button type="button" class="create-button" onclick="openCreateModal()">
+						＋ 新規登録
+					</button>
 				</div>
 
-            </div>
-			
+			</div>
+
 			<!-- 編集モーダル -->
-			<div id="editModal" class="modal"
-			th:attr="data-open=${editErrors != null},
+			<div id="editModal" class="modal" th:attr="data-open=${editErrors != null},
 			              data-id=${editId},
 			              data-name=${editName},
 			              data-birth-date=${editBirthDate},
 			              data-mail=${editMail},
 			              data-point=${editPoint}">
-			
-			    <div class="modal-content">
-			        <h2>会員情報の更新</h2>
-					
+
+				<div class="modal-content">
+					<h2>会員情報の更新</h2>
+
 					<!-- エラー文の表示 -->
-					       <div class="error-message" th:if="${editErrors != null}">
-					           <div th:each="e : ${editErrors}" th:text="${e}"></div>
-					       </div>
+					<div class="error-message" th:if="${editErrors != null}">
+						<div th:each="e : ${editErrors}" th:text="${e}"></div>
+					</div>
 
 					<form th:action="@{/admin/members/update}" method="post">
 
-					    <!-- CSRFトークン -->
-					    <input type="hidden"
-					           th:name="${_csrf.parameterName}"
-					           th:value="${_csrf.token}">
+						<!-- CSRFトークン -->
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-					    <!-- 更新する会員ID -->
-					    <input type="hidden" id="editId" name="id">
+						<!-- 更新する会員ID -->
+						<input type="hidden" id="editId" name="id">
 
-			            <p>氏名</p>
-			            <input type="text" id="editName" name="name"
-			                   required>
-
-			            <p>生年月日</p>
-			            <input type="date" id="editBirthDate" name="birthDate"
-			                   required>
-
-			            <p>メールアドレス</p>
-			            <input type="email" id="editMail" name="mail"
-			                   required>
+						<p>氏名</p>
+						<input type="text"
+						       id="editName"
+						       name="name"
+						       maxlength="20"
+						       required>
 							   
-						<p>ポイント</p>
-						<input type="number"
-							          id="editPoint"
-							          name="point"
-							          min="0"
-							          step="1"
-							          required>	   
+						<p>生年月日</p>
+						<input type="date" id="editBirthDate" name="birthDate" required>
 
-			            <div class="modal-button-area">
-			                <button type="submit" class="save-button">
-			                    保存
-			                </button>
-			                <button type="button" class="close-button"
-			                        onclick="closeModal('editModal')">
-			                    キャンセル
-			                </button>
-			            </div>
-			        </form>
-			    </div>
+						<p>メールアドレス</p>
+						<input type="email" id="editMail" name="mail" required>
+
+						<p>ポイント</p>
+						<input type="number" id="editPoint" name="point" min="0" step="1" required>
+
+						<div class="modal-button-area">
+							<button type="submit" class="save-button">
+								保存
+							</button>
+							<button type="button" class="close-button" onclick="closeModal('editModal')">
+								キャンセル
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
 			<!-- 削除確認モーダル -->
 			<div id="deleteModal" class="modal">
-			    <div class="delete-modal-content">
-			        <h2>会員の削除</h2>
-			        <p>この会員を削除してもよろしいですか？</p>
-			        <p id="deleteMemberName"></p>
+				<div class="delete-modal-content">
+					<h2>会員の削除</h2>
+					<p>この会員を削除してもよろしいですか？</p>
+					<p id="deleteMemberName"></p>
 
-			        <form action="/admin/members/delete" method="post">
+					<form action="/admin/members/delete" method="post">
 						<!-- CSRFトークン -->
-						   <input type="hidden"
-						          th:name="${_csrf.parameterName}"
-						          th:value="${_csrf.token}">
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-						   <!-- 削除する会員ID -->
-						   <input type="hidden" id="deleteId" name="id">
+						<!-- 削除する会員ID -->
+						<input type="hidden" id="deleteId" name="id">
 
-			            <div class="delete-modal-buttons">
-			                <button type="submit"
-			                        class="delete-confirm-button">
-			                    削除する
-			                </button>
-			                <button type="button"
-			                        class="delete-cancel-button"
-			                        onclick="closeModal('deleteModal')">
-			                    キャンセル
-			                </button>
-			            </div>
-			        </form>
-			    </div>
+						<div class="delete-modal-buttons">
+							<button type="submit" class="delete-confirm-button">
+								削除する
+							</button>
+							<button type="button" class="delete-cancel-button" onclick="closeModal('deleteModal')">
+								キャンセル
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
 			<!-- 新規登録モーダル -->
-			<div id="createModal" class="modal"
-			     th:attr="data-open=${createErrors != null}">
-			    <div class="modal-content">
-			        <h2>新規会員登録</h2>
-					
+			<div id="createModal" class="modal" th:attr="data-open=${createErrors != null}">
+				<div class="modal-content">
+					<h2>新規会員登録</h2>
+
 					<!-- エラー文の表示 -->
 					<div class="error-message" th:if="${createErrors != null}">
-					    <div th:each="e : ${createErrors}" th:text="${e}"></div>
+						<div th:each="e : ${createErrors}" th:text="${e}"></div>
 					</div>
 
-			        <form action="/admin/members/create" method="post">
+					<form action="/admin/members/create" method="post">
 						<!-- CSRFトークン -->
-						    <input type="hidden"
-						           th:name="${_csrf.parameterName}"
-						           th:value="${_csrf.token}">
-						
-			            <p>氏名</p>
-						<input type="text" name="name" required
-						                   th:value="${createName}">                
+						<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-						            <p>生年月日</p>
-						            <input type="date" name="birthDate" required
-						                   th:value="${createBirthDate}">            
+						<p>氏名</p>
+						<input type="text"
+						       name="name"
+						       maxlength="20"
+						       required>
+							   
+							   
+						<p>生年月日</p>
+						<input type="date" name="birthDate" required th:value="${createBirthDate}">
 
-						            <p>メールアドレス</p>
-						            <input type="email" name="mail" required
-						                   th:value="${createMail}">                 
+						<p>メールアドレス</p>
+						<input type="email" name="mail" required th:value="${createMail}">
 
-						            <p>パスワード(8文字以上)</p>                   
-						            <input type="password" name="password" required
-						                   minlength="8">                           
+						<p>パスワード(8文字以上)</p>
+						<input type="password" name="password" required minlength="8">
 
-			            <div class="modal-button-area">
-			                <button type="submit" class="save-button">
-			                    登録
-			                </button>
-			                <button type="button" class="close-button"
-			                        onclick="closeModal('createModal')">
-			                    キャンセル
-			                </button>
-			            </div>
-			        </form>
-			    </div>
+						<div class="modal-button-area">
+							<button type="submit" class="save-button">
+								登録
+							</button>
+							<button type="button" class="close-button" onclick="closeModal('createModal')">
+								キャンセル
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
-        </main>
+		</main>
 
-    </div>
+	</div>
 	<script>
-	    // 選択されている会員を取得する
-	    function getSelectedMember() {
-	        const checked = document.querySelectorAll(
-	            'input[name="selectedId"]:checked'
-	        );
+		// 選択されている会員を取得する
+		function getSelectedMember() {
+			const checked = document.querySelectorAll(
+				'input[name="selectedId"]:checked'
+			);
 
-	        if (checked.length !== 1) {
-	            alert("会員を1人だけ選択してください。");
-	            return null;
-	        }
+			if (checked.length !== 1) {
+				alert("会員を1人だけ選択してください。");
+				return null;
+			}
 
-	        return checked[0].closest("tr");
-	    }
+			return checked[0].closest("tr");
+		}
 
-	    // 更新モーダルを開く
-	    function openEditModal() {
-	        const row = getSelectedMember();
-	        if (!row) return;
+		// 更新モーダルを開く
+		function openEditModal() {
+		    const row = getSelectedMember();
+		    if (!row) return;
 
-	        document.getElementById("editId").value =
-	            row.dataset.id;
-	        document.getElementById("editName").value =
-	            row.dataset.name;
-	        document.getElementById("editBirthDate").value =
-	            row.dataset.birthDate;
-	        document.getElementById("editMail").value =
-	            row.dataset.mail;
-			document.getElementById("editPoint").value =
-				row.dataset.point;
+		    const ids = [
+		        "editId",
+		        "editName",
+		        "editBirthDate",
+		        "editMail",
+		        "editPoint",
+		        "editModal"
+		    ];
 
-	        document.getElementById("editModal").style.display =
-	            "block";
-	    }
+		    const elements = {};
+		    ids.forEach(id => {
+		        elements[id] = document.getElementById(id);
+		    });
 
-	    // 削除確認モーダルを開く
-	    function openDeleteModal() {
-	        const row = getSelectedMember();
-	        if (!row) return;
+		    const missingIds = ids.filter(id => elements[id] === null);
 
-	        document.getElementById("deleteId").value =
-	            row.dataset.id;
-	        document.getElementById("deleteMemberName").textContent =
-	            row.dataset.name + " さん";
+		    if (missingIds.length > 0) {
+		        console.error("見つからないHTML要素:", missingIds);
+		        return;
+		    }
 
-	        document.getElementById("deleteModal").style.display =
-	            "block";
-	    }
+		    // 選択行の値を更新モーダルに設定
+		    elements.editId.value = row.dataset.id;
+		    elements.editName.value = row.dataset.name;
+		    elements.editBirthDate.value = row.dataset.birthDate;
+		    elements.editMail.value = row.dataset.mail;
+		    elements.editPoint.value = row.dataset.point;
 
-	    // 新規登録モーダルを開く
-	    function openCreateModal() {
-	        document.getElementById("createModal").style.display =
-	            "block";
-	    }
+		    // 設定結果を確認
+		    console.log("代入後の氏名欄:", elements.editName.value);
 
-	    // モーダルを閉じる
-	    function closeModal(id) {
-	        document.getElementById(id).style.display = "none";
-	    }
-		
+			// モーダルを表示
+			elements.editModal.style.display = "block";
+
+			console.log(
+			    "表示後の氏名欄:",
+			    document.getElementById("editName").value
+			);
+
+			console.log(
+			    "氏名欄の表示状態:",
+			    getComputedStyle(elements.editName).display,
+			    getComputedStyle(elements.editName).visibility
+			);
+			
+			console.log(
+			    "氏名欄のHTML:",
+			    elements.editName.outerHTML
+			);
+
+			console.log(
+			    "氏名欄の幅:",
+			    getComputedStyle(elements.editName).width
+			);
+
+			console.log(
+			    "氏名欄の文字色:",
+			    getComputedStyle(elements.editName).color
+			);
+
+			console.log(
+			    "氏名欄の背景色:",
+			    getComputedStyle(elements.editName).backgroundColor
+			);
+			console.log(
+			    "氏名欄の位置:",
+			    elements.editName.getBoundingClientRect()
+			);
+
+			console.log(
+			    "氏名欄の親要素:",
+			    elements.editName.parentElement
+			);
+
+			console.log(
+			    "氏名欄のフォントサイズ:",
+			    getComputedStyle(elements.editName).fontSize
+			);
+		}
+
+
+
+		// 削除確認モーダルを開く
+		function openDeleteModal() {
+			const row = getSelectedMember();
+			if (!row) return;
+
+			document.getElementById("deleteId").value =
+				row.dataset.id;
+			document.getElementById("deleteMemberName").textContent =
+				row.dataset.name + " さん";
+
+			document.getElementById("deleteModal").style.display =
+				"block";
+		}
+
+		// 新規登録モーダルを開く
+		function openCreateModal() {
+			document.getElementById("createModal").style.display =
+				"block";
+		}
+
+		// モーダルを閉じる
+		function closeModal(id) {
+			document.getElementById(id).style.display = "none";
+		}
+
 		// エラーがあるとき、新規登録モーダルを開いたままにする
 		document.addEventListener("DOMContentLoaded", function () {
-		    const modal = document.getElementById("createModal");
-		    if (modal && modal.dataset.open === "true") {
-		        openCreateModal();
-		    }
-			
+			const modal = document.getElementById("createModal");
+			if (modal && modal.dataset.open === "true") {
+				openCreateModal();
+			}
+
 			// 更新モーダル(今回足す)
-				        const editModal = document.getElementById("editModal");
-				        if (editModal && editModal.dataset.open === "true") {
-				            document.getElementById("editId").value = editModal.dataset.id;
-				            document.getElementById("editName").value = editModal.dataset.name;
-				            document.getElementById("editBirthDate").value = editModal.dataset.birthDate;
-				            document.getElementById("editMail").value = editModal.dataset.mail;
-				            document.getElementById("editPoint").value = editModal.dataset.point;
-				            editModal.style.display = "block";
-				        }
+			const editModal = document.getElementById("editModal");
+			if (editModal && editModal.dataset.open === "true") {
+				document.getElementById("editId").value = editModal.dataset.id;
+				document.getElementById("editName").value = editModal.dataset.name;
+				document.getElementById("editBirthDate").value = editModal.dataset.birthDate;
+				document.getElementById("editMail").value = editModal.dataset.mail;
+				document.getElementById("editPoint").value = editModal.dataset.point;
+				editModal.style.display = "block";
+			}
 		});
-		
+
 	</script>
 
 </body>
