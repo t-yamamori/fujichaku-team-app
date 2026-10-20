@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>会員の予約履歴 | FUJICHAKU</title>
+
+    <!-- サイドバーと、サイドバー分の余白(260px)は adminLayout.css が管理する -->
     <link rel="stylesheet" th:href="@{/css/adminLayout.css}">
 
     <style>
@@ -30,43 +32,11 @@
             color: var(--text);
             font-family: "Consolas", "Yu Gothic", monospace;
         }
-		
-		
-		/* サイドバー（幅133px）を避けるためのマージン設定 */
-		        .page-header,
-		        main.reservation-main {
-		            margin-left: 133px;
-		        }
 
-		        /* 画面幅が狭い場合のレス対応（スマホなど） */
-		        @media (max-width: 900px) {
-		            .page-header,
-		            main.reservation-main {
-		                margin-left: 0;
-		            }
-		        }
-				
-				
-				/* 強制的にサイドバーの幅（133px）分だけ右側にずらす */
-				        .page-header,
-				        main.reservation-main {
-				            margin-left: 133px !important;
-				        }
-		
-		/* ===== サイドバーとの干渉を防ぐための余白調整 ===== */
-		        /* サイドバーの幅（例: 250px）に合わせて、ヘッダーとメインコンテンツを右側にずらす */
-		        .page-header,
-		        main.reservation-main {
-		            margin-left: 250px; /* サイドバーの実際の幅に合わせて調整してください */
-		        }
-
-		        /* レスポンシブ対応（スマホ画面など、サイドバーが消えたり上部に行ったりする場合） */
-		        @media (max-width: 900px) {
-		            .page-header,
-		            main.reservation-main {
-		                margin-left: 0;
-		            }
-		        }
+        /* ※ margin-left の指定はここに書かない。
+           adminLayout.css の
+           body:has(.reservation-main) が、画面幅に合わせて
+           260px / 220px / 190px を自動で付けてくれる */
 
         #matrixRain {
             position: fixed;
@@ -669,15 +639,6 @@
     window.setInterval(draw, 45);
 })();
 </script>
-
-</body>
-</html><!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<title>title</title>
-</head>
-<body>
 
 </body>
 </html>
