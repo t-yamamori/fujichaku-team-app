@@ -1,4 +1,3 @@
-
 package com.example.demo.mapper;
 
 import java.time.LocalDate;
@@ -74,12 +73,12 @@ public interface ReservationMapper {
     int updateStatusForAdmin(
             @Param("reservationId") int reservationId,
             @Param("status") String status);
-    
-    // 論理削除(モール管理者:全店舗が対象)
+
+    // 論理削除（モール管理者：全店舗が対象）
     int logicalDeleteForAdmin(
             @Param("reservationId") int reservationId);
 
-    // 論理削除(店舗管理者:担当店舗だけ)
+    // 論理削除（店舗管理者：担当店舗だけ）
     int logicalDeleteForStore(
             @Param("reservationId") int reservationId,
             @Param("storeId") int storeId);
@@ -91,6 +90,8 @@ public interface ReservationMapper {
     // ゲストユーザーIDの存在確認
     int countUserId(
             @Param("userId") int userId);
-    
-   
+
+    // 会員が退会済みか確認
+    int countDeletedMemberId(
+            @Param("memberId") int memberId);
 }

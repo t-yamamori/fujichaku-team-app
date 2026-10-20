@@ -1,4 +1,3 @@
-
 package com.example.demo.controller;
 
 import java.time.LocalDate;
@@ -8,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -24,9 +24,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.demo.entity.Reservations;
 import com.example.demo.entity.ShopAdmin;
 import com.example.demo.entity.Stores;
+import com.example.demo.entity.Users;
 import com.example.demo.mapper.ReservationMapper;
 import com.example.demo.mapper.ShopAdminMapper;
 import com.example.demo.mapper.StoresMapper;
+import com.example.demo.mapper.UsersMapper;
 
 @Controller
 public class ReservationManagementController {
@@ -34,6 +36,7 @@ public class ReservationManagementController {
     private final ReservationMapper reservationMapper;
     private final StoresMapper storesMapper;
     private final ShopAdminMapper shopAdminMapper;
+    private final UsersMapper usersMapper;
 
     private static final String STATUS_RESERVED = "予約済み";
     private static final String STATUS_VISITED = "来店済み";
@@ -42,13 +45,18 @@ public class ReservationManagementController {
     private static final List<String> ALLOWED_STATUSES = List.of(
             STATUS_RESERVED, STATUS_VISITED, STATUS_CANCELLED);
 
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+
     public ReservationManagementController(
             ReservationMapper reservationMapper,
             StoresMapper storesMapper,
-            ShopAdminMapper shopAdminMapper) {
+            ShopAdminMapper shopAdminMapper,
+            UsersMapper usersMapper) {
         this.reservationMapper = reservationMapper;
         this.storesMapper = storesMapper;
         this.shopAdminMapper = shopAdminMapper;
+        this.usersMapper = usersMapper;
     }
 
     // モール管理者：予約一覧・検索
@@ -116,7 +124,10 @@ public class ReservationManagementController {
     }
 
     // モール管理者：予約追加
+    // ゲスト氏名・メールアドレスが入力された場合は、
+    // usersテーブルの既存ユーザーを検索し、なければ新規登録する。
     @PostMapping("/admin/reservations/add")
+    @Transactional
     public String addReservationByMallAdmin(
             Authentication authentication,
             @RequestParam int storeId,
@@ -124,13 +135,23 @@ public class ReservationManagementController {
             @RequestParam int number,
             @RequestParam(required = false) Integer memberId,
             @RequestParam(required = false) Integer userId,
+            @RequestParam(required = false) String guestName,
+            @RequestParam(required = false) String guestMail,
             RedirectAttributes redirectAttributes) {
 
         requireRole(authentication, "ROLE_ADMIN");
 
         try {
             createReservation(
-                    storeId, reservationDateTime, number, memberId, userId);
+                    storeId,
+                    reservationDateTime,
+                    number,
+                    memberId,
+                    userId,
+                    guestName,
+                    guestMail,
+                    true);
+
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約を追加しました。");
         } catch (IllegalArgumentException e) {
@@ -143,6 +164,7 @@ public class ReservationManagementController {
 
     // 店舗管理者：担当店舗の予約追加
     @PostMapping("/shop-admin/{storeId}/reservations/add")
+    @Transactional
     public String addReservationByShopAdmin(
             @PathVariable int storeId,
             Authentication authentication,
@@ -161,8 +183,15 @@ public class ReservationManagementController {
 
         try {
             createReservation(
-                    assignedStoreId, reservationDateTime,
-                    number, memberId, userId);
+                    assignedStoreId,
+                    reservationDateTime,
+                    number,
+                    memberId,
+                    userId,
+                    null,
+                    null,
+                    false);
+
             redirectAttributes.addFlashAttribute(
                     "successMessage", "予約を追加しました。");
         } catch (IllegalArgumentException e) {
@@ -549,7 +578,10 @@ public class ReservationManagementController {
             String reservationDateTime,
             int number,
             Integer memberId,
-            Integer userId) {
+            Integer userId,
+            String guestName,
+            String guestMail,
+            boolean mallAdmin) {
 
         Stores store = storesMapper.selectById(storeId);
 
@@ -558,17 +590,26 @@ public class ReservationManagementController {
                     "指定された店舗が存在しないか、利用できません。");
         }
 
+        // 会員ID・ゲストユーザーIDが両方入力されている場合
         if (memberId != null && userId != null) {
             throw new IllegalArgumentException(
                     "会員IDとゲストユーザーIDは同時に指定できません。");
         }
 
-        if (memberId != null
-                && reservationMapper.countMemberId(memberId) == 0) {
-            throw new IllegalArgumentException(
-                    "指定された会員IDが存在しません。");
+        // 会員IDの存在確認・退会確認
+        if (memberId != null) {
+            if (reservationMapper.countMemberId(memberId) == 0) {
+                throw new IllegalArgumentException(
+                        "指定された会員IDが存在しません。");
+            }
+
+            if (reservationMapper.countDeletedMemberId(memberId) > 0) {
+                throw new IllegalArgumentException(
+                        "退会済みです。予約できません。");
+            }
         }
 
+        // ゲストユーザーIDが直接指定された場合の存在確認
         if (userId != null
                 && reservationMapper.countUserId(userId) == 0) {
             throw new IllegalArgumentException(
@@ -580,6 +621,65 @@ public class ReservationManagementController {
 
         // 新規予約では過去の日時を禁止する
         validateNewReservation(dateTime, number);
+
+        // 会員ID・ゲストユーザーIDが未入力の場合
+        if (memberId == null && userId == null) {
+
+            // ゲスト氏名・メールアドレスから登録できるのはモール管理者のみ
+            if (!mallAdmin) {
+                throw new IllegalArgumentException(
+                        "会員IDかゲストユーザーIDのどちらかにIDを入力してください。");
+            }
+
+            String normalizedGuestName =
+                    guestName == null ? "" : guestName.trim();
+
+            String normalizedGuestMail =
+                    guestMail == null ? "" : guestMail.trim();
+
+            if (normalizedGuestName.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "ゲストの氏名を入力してください。");
+            }
+
+            if (normalizedGuestMail.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "ゲストのメールアドレスを入力してください。");
+            }
+
+            if (normalizedGuestMail.length() > 255) {
+                throw new IllegalArgumentException(
+                        "メールアドレスは255文字以内で入力してください。");
+            }
+
+            if (!EMAIL_PATTERN.matcher(normalizedGuestMail).matches()) {
+                throw new IllegalArgumentException(
+                        "メールアドレスの形式が正しくありません。");
+            }
+
+            // 同じメールアドレスのユーザーが存在する場合は、そのIDを再利用する
+            Users existingUser =
+                    usersMapper.findByMail(normalizedGuestMail);
+
+            if (existingUser != null) {
+                userId = existingUser.getId();
+            } else {
+                // 未登録のメールアドレスならゲストユーザーを新規作成する
+                Users newUser = new Users();
+                newUser.setName(normalizedGuestName);
+                newUser.setMail(normalizedGuestMail);
+
+                usersMapper.insert(newUser);
+
+                // MyBatisのuseGeneratedKeysで採番されたIDを取得する
+                userId = newUser.getId();
+
+                if (userId == null || userId <= 0) {
+                    throw new IllegalStateException(
+                            "ゲストユーザーIDを取得できませんでした。");
+                }
+            }
+        }
 
         Reservations reservation = new Reservations();
         reservation.setMemberId(memberId);
@@ -627,7 +727,7 @@ public class ReservationManagementController {
         model.addAttribute("currentStoreName", currentStoreName);
         model.addAttribute("reservationStatuses", ALLOWED_STATUSES);
 
-        // 追加：トップ画面へのリンク
+        // トップ画面へのリンク
         model.addAttribute("topPath", topPath);
     }
 

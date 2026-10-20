@@ -16,7 +16,7 @@
         number
     </sql>
 
-    <!-- 予約登録(変更なし:is_deleted は DEFAULT false が入る) -->
+    <!-- 予約登録（is_deleted は DEFAULT false が入る） -->
     <insert id="insertReservation"
             parameterType="com.example.demo.entity.Reservations"
             useGeneratedKeys="true"
@@ -47,7 +47,7 @@
         SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE id = #{reservationId}
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
     </select>
 
     <!-- 会員IDから予約取得 -->
@@ -57,7 +57,7 @@
         FROM reservations
         WHERE member_id = #{memberId}
           AND user_id IS NULL
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
         ORDER BY reservation_date DESC
     </select>
 
@@ -68,7 +68,7 @@
         FROM reservations
         WHERE user_id = #{userId}
           AND member_id IS NULL
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
         ORDER BY reservation_date DESC
     </select>
 
@@ -77,7 +77,7 @@
             resultType="com.example.demo.entity.Reservations">
         SELECT <include refid="reservationColumns"/>
         FROM reservations
-        WHERE is_deleted = false  <!-- ★追加 -->
+        WHERE is_deleted = false
         ORDER BY reservation_date DESC
     </select>
 
@@ -89,7 +89,7 @@
         WHERE store_id = #{storeId}
           AND member_id = #{memberId}
           AND user_id IS NULL
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
         ORDER BY reservation_date DESC
     </select>
 
@@ -99,7 +99,7 @@
         SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE store_id = #{storeId}
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
         ORDER BY reservation_date DESC
     </select>
 
@@ -111,7 +111,7 @@
         WHERE id = #{reservationId}
           AND store_id = #{storeId}
           AND status != 'キャンセル'
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
     </update>
 
     <!-- 店舗管理者：ステータスを変更 -->
@@ -120,7 +120,7 @@
         SET status = #{status}
         WHERE id = #{reservationId}
           AND store_id = #{storeId}
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
     </update>
 
     <!-- モール管理者：全店舗を対象に予約検索 -->
@@ -129,7 +129,7 @@
         SELECT <include refid="reservationColumns"/>
         FROM reservations
         <where>
-            is_deleted = false  <!-- ★追加(<where> の先頭に置く) -->
+            is_deleted = false
             <if test="reservationId != null">
                 AND id = #{reservationId}
             </if>
@@ -146,7 +146,7 @@
         SELECT <include refid="reservationColumns"/>
         FROM reservations
         WHERE store_id = #{storeId}
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
         <if test="reservationId != null">
             AND id = #{reservationId}
         </if>
@@ -163,7 +163,7 @@
             number = #{number}
         WHERE id = #{reservationId}
           AND status != 'キャンセル'
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
     </update>
 
     <!-- モール管理者：ステータスを変更 -->
@@ -171,10 +171,10 @@
         UPDATE reservations
         SET status = #{status}
         WHERE id = #{reservationId}
-          AND is_deleted = false  <!-- ★追加 -->
+          AND is_deleted = false
     </update>
 
-    <!-- ★新規:論理削除(モール管理者:全店舗が対象) -->
+    <!-- 論理削除（モール管理者：全店舗が対象） -->
     <update id="logicalDeleteForAdmin">
         UPDATE reservations
         SET is_deleted = true
@@ -182,7 +182,7 @@
           AND is_deleted = false
     </update>
 
-    <!-- ★新規:論理削除(店舗管理者:担当店舗だけ) -->
+    <!-- 論理削除（店舗管理者：担当店舗だけ） -->
     <update id="logicalDeleteForStore">
         UPDATE reservations
         SET is_deleted = true
@@ -191,18 +191,26 @@
           AND is_deleted = false
     </update>
 
-    <!-- 会員IDの存在確認(変更なし) -->
+    <!-- 会員IDの存在確認 -->
     <select id="countMemberId" resultType="int">
-      SELECT COUNT(*) 
-      FROM members
-      WHERE id = #{memberId}
+        SELECT COUNT(*)
+        FROM members
+        WHERE id = #{memberId}
     </select>
 
-    <!-- ゲストユーザーIDの存在確認(変更なし) -->
+    <!-- ゲストユーザーIDの存在確認 -->
     <select id="countUserId" resultType="int">
         SELECT COUNT(*)
         FROM users
         WHERE id = #{userId}
+    </select>
+
+    <!-- 退会済み会員の存在確認 -->
+    <select id="countDeletedMemberId" resultType="int">
+        SELECT COUNT(*)
+        FROM members
+        WHERE id = #{memberId}
+          AND is_deleted = TRUE
     </select>
 
 </mapper>
