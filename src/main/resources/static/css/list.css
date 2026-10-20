@@ -54,6 +54,7 @@
        .layout {
            display: flex;
            min-height: calc(100vh - 76px);
+		   margin-left: 260px;   /* ← 追加。サイドバーの幅 */
        }
 
        /* =========================
@@ -309,12 +310,13 @@
            height: 100%;
            background-color: rgba(10, 8, 15, 0.75);
            backdrop-filter: blur(6px);
+		   overflow-y: auto;
        }
 
        .modal-content {
            width: 430px;
            max-width: 90%;
-           margin: 90px auto;
+           margin: 40px auto;
            padding: 30px;
            background: linear-gradient(145deg, #2f253e, #1a1425);
            border: 1px solid rgba(220, 160, 190, 0.3);
