@@ -276,8 +276,8 @@
 						<input type="email" name="mail" required th:value="${createMail}">
 
 						<p>パスワード(8文字以上)</p>
-						<input type="password" name="password" required minlength="8">
-
+						<input type="password" name="password" required minlength="8" maxlength="64">
+						
 						<div class="modal-button-area">
 							<button type="submit" class="save-button">
 								登録

@@ -64,12 +64,11 @@ public class RegisterForm {
     private String mail;
 
     /*
-     * パスワード：必須、8文字以上
+     * パスワード：必須、8文字以上64文字以内
      */
     @NotBlank(message = "パスワードは必須です。")
-    @Size(min = 8, message = "パスワードは8文字以上で入力してください。")
+    @Size(min = 8, max = 64, message = "パスワードは8文字以上64文字以内で入力してください。")
     private String password;
-
     /*
      * 名前の半角・全角スペースなどを除去
      */
