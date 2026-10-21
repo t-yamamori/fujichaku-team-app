@@ -366,6 +366,8 @@ body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color
 
 
 /* 店舗管理者の予約履歴：一覧部分だけ縦スクロール */
+
+/* 店舗管理者の予約履歴：一覧部分だけ縦スクロール */
 .rsv-table-scroll {
     max-height: 320px;
     overflow-y: auto;
@@ -385,4 +387,40 @@ body.is-restaurant .back-btn:hover { background: #fff; border-color: #fff; color
     position: sticky;
     top: 0;
     z-index: 2;
+}
+
+/* 店舗管理者：新規予約フォームの余白調整 */
+#rsv .reservation-add-form {
+    margin-top: 0;
+    gap: 4px;
+}
+
+#rsv .reservation-add-form h2 {
+    margin-bottom: 0;
+}
+
+#rsv .reservation-add-form > .note {
+    margin-top: 0;
+    margin-bottom: 4px;
+}
+
+#rsv .reservation-add-form form {
+    margin-top: 0;
+}
+
+/* フォーム内の説明文の余白 */
+#rsv .reservation-add-form form .note {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+/* 新規予約フォームと予約履歴の間隔 */
+#rsv .reservation-history-section {
+    margin-top: 40px;
+}
+
+/* 予約履歴の見出し周辺 */
+#rsv .reservation-history-section h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
 }

@@ -113,7 +113,6 @@
 
 		<!-- ② 予約履歴・新規予約（店舗管理者のみ） -->
 		<section class="section" id="rsv" th:if="${isShopAdmin}">
-			<h2>これまでの予約履歴</h2>
 
 			<div class="flash flash-success flash-closable" th:if="${rsvMessage}">
 				<span th:text="${rsvMessage}">予約内容を変更しました。</span>
@@ -128,46 +127,78 @@
 			</div>
 
 			<!-- 新規予約フォーム -->
-			<div class="review-form">
-				<h3>新規予約を追加</h3>
+			<div class="review-form reservation-add-form">
+			    <h2>新規予約を追加</h2>
 
-				<p class="note">
-					会員ID、ゲストユーザーID、またはゲスト氏名・メールアドレスのいずれかで登録してください。
-					ゲストのメールアドレスが登録済みの場合は、既存ユーザーを使用します。
-				</p>
+			    <p class="note">
+			        会員ID、ゲストユーザーID、またはゲスト氏名・メールアドレスのいずれかで登録してください。
+			        <br>
+			        ゲストのメールアドレスが登録済みの場合は、既存ユーザーを使用します。
+			    </p>
 
-				<form method="post" th:action="@{/shop-admin/{storeId}/reservations/add-detail(storeId=${store.id})}">
+			    <form method="post"
+			          th:action="@{/shop-admin/{storeId}/reservations/add-detail(storeId=${store.id})}">
 
-					<label for="newReservationDateTime">予約日時</label>
-					<input type="datetime-local" id="newReservationDateTime" name="reservationDateTime"
-						min="2000-01-01T00:00" required>
+			        <label for="newReservationDateTime">　予約日時</label>
+			        <input type="datetime-local"
+			               id="newReservationDateTime"
+			               name="reservationDateTime"
+			               min="2000-01-01T00:00"
+			               required>
 
-					<label for="newReservationNumber">人数（1～10人）</label>
-					<input type="number" id="newReservationNumber" name="number" min="1" max="10" value="1" required>
+			        <label for="newReservationNumber">人数（1～10人）</label>
+			        <input type="number"
+			               id="newReservationNumber"
+			               name="number"
+			               min="1"
+			               max="10"
+			               value="1"
+			               required>
+					<br>
+			        <label for="newReservationMemberId">　会員ID（会員の場合）</label>
+			        <input type="number"
+			               id="newReservationMemberId"
+			               name="memberId"
+			               min="1"
+			               placeholder="会員ID">
 
-					<label for="newReservationMemberId">会員ID（会員の場合）</label>
-					<input type="number" id="newReservationMemberId" name="memberId" min="1" placeholder="会員ID">
+			        <label for="newReservationUserId">ゲストユーザーID（既存ユーザーの場合）</label>
+			        <input type="number"
+			               id="newReservationUserId"
+			               name="userId"
+			               min="1"
+			               placeholder="ゲストユーザーID">
 
-					<label for="newReservationUserId">ゲストユーザーID（既存ユーザーの場合）</label>
-					<input type="number" id="newReservationUserId" name="userId" min="1" placeholder="ゲストユーザーID">
+			        <p class="note">
+			            会員ID・ゲストユーザーIDを指定しない場合は、以下の氏名・メールアドレスからゲストを登録します。
+			        </p>
 
-					<p class="note">会員ID・ゲストユーザーIDを指定しない場合は、以下の氏名・メールアドレスからゲストを登録します。</p>
+			        <label for="newReservationGuestName">　ゲスト氏名</label>
+			        <input type="text"
+			               id="newReservationGuestName"
+			               name="guestName"
+			               maxlength="255"
+			               placeholder="ゲスト氏名">
 
-					<label for="newReservationGuestName">ゲスト氏名</label>
-					<input type="text" id="newReservationGuestName" name="guestName" maxlength="255"
-						placeholder="ゲスト氏名">
+			        <label for="newReservationGuestMail">ゲストメールアドレス</label>
+			        <input type="email"
+			               id="newReservationGuestMail"
+			               name="guestMail"
+			               maxlength="255"
+			               placeholder="guest@example.com">
 
-					<label for="newReservationGuestMail">ゲストメールアドレス</label>
-					<input type="email" id="newReservationGuestMail" name="guestMail" maxlength="255"
-						placeholder="guest@example.com">
-
-					<button type="submit" class="btn" onclick="return confirm('この内容で予約を追加しますか？');">
-						予約を追加
-					</button>
-				</form>
+			        <button type="submit"
+			                class="btn"
+			                onclick="return confirm('この内容で予約を追加しますか？');">
+			            予約を追加
+			        </button>
+			    </form>
 			</div>
 
 			<!-- 既存予約一覧 -->
+			<div class="reservation-history-section">
+			    <h2>これまでの予約履歴</h2>
+			</div>
 			<div class="rsv-table-scroll"
 			     th:if="${!#lists.isEmpty(storeReservations)}">
 			    <table class="reservation-table rsv-table">
