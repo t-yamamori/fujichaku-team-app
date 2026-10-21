@@ -23,15 +23,15 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(location);
         
         
-        System.out.println("画像フォルダの絶対パス: "
-                + IMAGE_DIR.toAbsolutePath());
-
-        System.out.println("画像フォルダが存在する: "
-                + java.nio.file.Files.isDirectory(IMAGE_DIR));
-
-        System.out.println("対象画像が存在する: "
-                + java.nio.file.Files.exists(
-                    IMAGE_DIR.resolve("bakeryKomugi-top.jpg")));
-        
+//        System.out.println("画像フォルダの絶対パス: "
+//                + IMAGE_DIR.toAbsolutePath());
+//
+//        System.out.println("画像フォルダが存在する: "
+//                + java.nio.file.Files.isDirectory(IMAGE_DIR));
+//
+//        System.out.println("対象画像が存在する: "
+//                + java.nio.file.Files.exists(
+//                    IMAGE_DIR.resolve("bakeryKomugi-top.jpg")));
+//        
     }
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import com.example.demo.mapper.UsersMapper;
 import com.example.demo.service.serviceInterface.MembersService;
 
 import lombok.RequiredArgsConstructor;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -105,7 +107,11 @@ public class ReservationController {
     public String showReservationForm(
             @PathVariable Integer shopId,
             Principal principal,
-            Model model) {
+            Model model,
+            CsrfToken csrfToken) {
+
+        // Thymeleafで画面を描画する前にCSRFトークンを確定させる
+        csrfToken.getToken();
 
         Stores store = storesMapper.selectById(shopId);
 
@@ -117,7 +123,6 @@ public class ReservationController {
 
         return "reservations/newreserve";
     }
-
     /**
      * 予約内容の確認
      */
