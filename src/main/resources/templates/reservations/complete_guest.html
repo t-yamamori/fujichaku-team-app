@@ -5,277 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>予約完了 | FUJICHAKU</title>
 
-    <style>
-		/* =========================================================
-		           予約完了（非会員）complete_guest.html
-		           トップ画面と同じ「砂漠の空」デザイン（<style> の中身をまるごと差し替え）
-		           ========================================================= */
-		        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css");
-		        @import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css");
-
-		        :root {
-		            --main:      #8b4a2b;   /* ボタン（ブラウン） */
-		            --main-dark: #6e3a21;
-		            --sky-deep:  #3f82ad;   /* 見出し・アクセント（空色） */
-		            --sky-pale:  #eaf4fa;
-		            --line:      #d9e3ea;
-		            --text:      #2f3437;
-		            --text-sub:  #6b7479;
-		            --caution:   #b7791f;   /* 注意（砂色） */
-		        }
-
-		        * { box-sizing: border-box; }
-
-		        html { min-height: 100%; }
-
-		        body {
-		            margin: 0;
-		            min-height: 100vh;
-		            padding: 40px 16px 140px;          /* 下は砂丘のぶん空ける */
-		            font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
-		            color: var(--text);
-		            line-height: 1.7;
-		            background: linear-gradient(#9fcbe8 0, #cfe6f4 45%, #f3f7fa 100%) fixed;
-		            overflow-x: hidden;
-		        }
-
-		        /* 緑の文字の雨（canvas）は使わない */
-		        #matrix-canvas { display: none; }
-
-		        /* ゆっくり流れる雲（2つ） */
-		        body::before {
-		            content: "";
-		            position: fixed; top: 8%; left: -260px; z-index: 0;
-		            width: 220px; height: 60px; border-radius: 60px;
-		            background: #fff; opacity: .85;
-		            box-shadow:
-		                40px -26px 0 6px #fff,
-		                110px -14px 0 0 #fff,
-		                520px 70px 0 -8px rgba(255,255,255,.75),
-		                580px 52px 0 -4px rgba(255,255,255,.75);
-		            animation: cloud-drift 60s linear infinite;
-		            pointer-events: none;
-		        }
-		        @keyframes cloud-drift {
-		            from { transform: translateX(0); }
-		            to   { transform: translateX(calc(100vw + 900px)); }
-		        }
-
-		        /* 画面の一番下の砂丘 */
-		        body::after {
-		            content: "";
-		            position: fixed; left: 0; right: 0; bottom: 0; z-index: 0;
-		            height: 120px;
-		            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E") bottom / 100% 100% no-repeat;
-		            pointer-events: none;
-		        }
-
-		        .page-content {
-		            position: relative; z-index: 1;
-		            width: 100%; max-width: 760px;
-		            margin: 0 auto;
-		        }
-
-		        /* ===== 白いカード ===== */
-		        .container {
-		            padding: 40px 44px 44px;
-		            background: #fff;
-		            border: 1px solid var(--line);
-		            border-top: 4px solid var(--sky-deep);
-		            border-radius: 6px;
-		            box-shadow: 0 10px 30px rgba(31, 79, 112, .12);
-		            animation: card-in .6s ease-out both;
-		        }
-		        @keyframes card-in {
-		            from { opacity: 0; transform: translateY(16px); }
-		            to   { opacity: 1; transform: none; }
-		        }
-
-		        .system-label {
-		            margin: 0 0 6px;
-		            color: var(--sky-deep);
-		            font-size: .72rem; font-weight: 700;
-		            letter-spacing: .25em;
-		            text-align: center;
-		        }
-
-		        .page-title {
-		            margin: 0 0 22px;
-		            font-size: clamp(1.6rem, 4.5vw, 2rem);
-		            letter-spacing: .12em;
-		            text-align: center;
-		        }
-
-		        /* ===== 完了メッセージ＋チェックマーク ===== */
-		        .success-message {
-		            margin: 0 0 28px;
-		            font-size: 1rem;
-		            line-height: 1.9;
-		            text-align: center;
-		        }
-		        .success-icon {
-		            position: relative;
-		            display: grid; place-items: center;
-		            width: 72px; height: 72px;
-		            margin: 0 auto 16px;
-		            border-radius: 50%;
-		            background: var(--sky-deep);
-		            color: #fff;
-		            font-size: 2.2rem; font-weight: 700; line-height: 1;
-		            box-shadow: 0 6px 16px rgba(63, 130, 173, .35);
-		            animation: check-pop .55s cubic-bezier(.2, 1.6, .4, 1) .25s both;
-		        }
-		        /* チェックのまわりに広がる輪 */
-		        .success-icon::after {
-		            content: "";
-		            position: absolute; inset: 0;
-		            border-radius: 50%;
-		            border: 3px solid var(--sky-deep);
-		            animation: ring 1.2s ease-out .6s both;
-		        }
-		        @keyframes check-pop {
-		            from { transform: scale(0); }
-		            to   { transform: scale(1); }
-		        }
-		        @keyframes ring {
-		            from { transform: scale(1);   opacity: .7; }
-		            to   { transform: scale(1.8); opacity: 0; }
-		        }
-
-		        /* ===== 非会員向けの注意 ===== */
-		        .note {
-		            margin-bottom: 30px;
-		            padding: 16px 20px;
-		            background: #fdf6e9;
-		            border: 1px solid #f0dcb4;
-		            border-left: 4px solid var(--caution);
-		            border-radius: 4px;
-		            font-size: .88rem;
-		            line-height: 1.9;
-		        }
-		        .note strong {
-		            display: block;
-		            margin-bottom: 4px;
-		            color: #8a5a12;
-		            font-size: .95rem;
-		        }
-
-		        /* ===== 予約内容 ===== */
-		        .section { margin-bottom: 30px; }
-		        .section h2 {
-		            margin: 0 0 14px;
-		            padding-left: 12px;
-		            font-size: 1.15rem;
-		            border-left: 3px solid var(--sky-deep);
-		        }
-		        .section h2::before { content: none; }
-
-		        .reservation-table {
-		            width: 100%;
-		            border-collapse: collapse;
-		            table-layout: fixed;
-		            overflow-wrap: anywhere;
-		            border-top: 1px solid var(--line);
-		        }
-		        .reservation-table th,
-		        .reservation-table td {
-		            padding: 14px 16px;
-		            border-bottom: 1px solid var(--line);
-		            text-align: left;
-		        }
-		        .reservation-table th {
-		            width: 30%;
-		            background: var(--sky-pale);
-		            color: var(--sky-deep);
-		            font-size: .85rem; font-weight: 700;
-		        }
-
-		        .reservation-number {
-		            color: var(--main);
-		            font-size: 1.6rem; font-weight: 700;
-		            letter-spacing: .06em;
-		            font-variant-numeric: tabular-nums;
-		        }
-
-		        .status {
-		            display: inline-block;
-		            padding: 2px 12px;
-		            border-radius: 999px;
-		            background: var(--sky-pale);
-		            color: var(--sky-deep);
-		            border: 1px solid #bcd8ea;
-		            font-size: .85rem; font-weight: 700;
-		        }
-
-		        /* ===== 店舗一覧へ戻る ===== */
-		        .top-bar {
-		            display: flex; justify-content: center;
-		            margin-top: 28px;
-		        }
-		        .btn {
-		            display: inline-flex; align-items: center; justify-content: center;
-		            min-width: 240px; height: 48px; padding: 0 28px;
-		            border: none; border-radius: 3px;
-		            background: var(--main); color: #fff;
-		            font: inherit; font-size: .95rem; font-weight: 700;
-		            text-decoration: none;
-		            transition: background .2s, transform .2s;
-		        }
-		        .btn:hover,
-		        .btn:focus-visible {
-		            background: var(--main-dark);
-		            transform: translateY(-1px);
-		            outline: none;
-		        }
-
-		        /* ===== 「RESERVATION COMPLETE」スタンプ ===== */
-		        .footer-text {
-		            display: flex; justify-content: center;
-		            margin: 36px 0 4px;
-		        }
-		        .complete-frame {
-		            display: inline-block;
-		            padding: 8px 20px;
-		            border: 2px solid var(--main);
-		            border-radius: 4px;
-		            color: var(--main);
-		            font-size: .85rem; font-weight: 700;
-		            letter-spacing: .2em;
-		            transform: rotate(-3deg);
-		            opacity: .85;
-		            animation: stamp .5s cubic-bezier(.2, 1.4, .4, 1) .9s both;
-		        }
-		        .complete-frame::before,
-		        .complete-frame::after { content: none; }
-		        @keyframes stamp {
-		            from { transform: rotate(-3deg) scale(2); opacity: 0; }
-		            to   { transform: rotate(-3deg) scale(1); opacity: .85; }
-		        }
-
-		        /* ===== スマホ ===== */
-		        @media (max-width: 600px) {
-		            body { padding: 20px 10px 110px; }
-		            body::after { height: 90px; }
-		            .container { padding: 28px 18px 32px; }
-		            .reservation-table th,
-		            .reservation-table td { padding: 11px 10px; font-size: .88rem; }
-		            .reservation-table th { width: 34%; }
-		            .reservation-number { font-size: 1.35rem; }
-		            .btn { width: 100%; min-width: 0; }
-		        }
-
-		        /* 「動きを減らす」設定のときはアニメーションを止める */
-		        @media (prefers-reduced-motion: reduce) {
-		            body::before, .container, .success-icon, .success-icon::after, .complete-frame { animation: none; }
-		            .success-icon::after { display: none; }
-		        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/completeGuest.css}">
 </head>
 
 <body>
-    <!-- 背景のデジタルレイン -->
-    <canvas id="matrix-canvas"></canvas>
-
     <main class="page-content">
         <div class="container">
 
@@ -286,9 +19,11 @@
             <h1 class="page-title">予約完了</h1>
 
             <div class="success-message">
-                <span class="success-icon">✓</span>
-                予約が完了しました。<br>
-                ご予約ありがとうございます。
+                <span class="success-icon" aria-hidden="true">✓</span>
+                <p>
+                    予約が完了しました。<br>
+                    ご予約ありがとうございます。
+                </p>
             </div>
 
             <!-- 非会員向け注意 -->
@@ -305,39 +40,54 @@
                 <table class="reservation-table">
                     <tbody>
                         <tr>
-                            <th>予約番号</th>
+                            <th scope="row">予約番号</th>
                             <td>
                                 <strong
                                     class="reservation-number"
-                                    th:text="${reservation.id}">100</strong>
+                                    th:text="${reservation.id}">
+                                    100
+                                </strong>
                             </td>
                         </tr>
 
                         <tr>
-                            <th>店舗</th>
+                            <th scope="row">お名前</th>
+                            <td th:text="${reservationName}">山田 太郎</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">メールアドレス</th>
+                            <td th:text="${reservationMail}">example@example.com</td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">店舗</th>
                             <td th:text="${store.name}">店舗名</td>
                         </tr>
 
                         <tr>
-                            <th>予約日時</th>
-                            <td th:text="${#temporals.format(reservation.reservationDate, 'yyyy年MM月dd日 HH:mm')}">
+                            <th scope="row">予約日時</th>
+                            <td
+                                th:text="${#temporals.format(reservation.reservationDate, 'yyyy年MM月dd日 HH:mm')}">
                                 2026年10月07日 18:00
                             </td>
                         </tr>
 
                         <tr>
-                            <th>人数</th>
+                            <th scope="row">人数</th>
                             <td>
                                 <span th:text="${reservation.number}">2</span> 名
                             </td>
                         </tr>
 
                         <tr>
-                            <th>状況</th>
+                            <th scope="row">状況</th>
                             <td>
                                 <span
                                     class="status"
-                                    th:text="${reservation.status}">予約済み</span>
+                                    th:text="${reservation.status}">
+                                    予約済み
+                                </span>
                             </td>
                         </tr>
                     </tbody>
@@ -351,7 +101,7 @@
                 </a>
             </div>
 
-            <!-- 完了メッセージ -->
+            <!-- 完了スタンプ -->
             <div class="footer-text">
                 <span class="complete-frame">
                     &gt;&gt; RESERVATION COMPLETE &lt;&lt;
@@ -360,157 +110,5 @@
 
         </div>
     </main>
-
-    <!-- Matrix Digital Rain -->
-    <script>
-        (() => {
-            const canvas = document.getElementById("matrix-canvas");
-
-            if (!canvas) {
-                return;
-            }
-
-            const ctx = canvas.getContext("2d");
-
-            if (!ctx) {
-                return;
-            }
-
-            /* 流れる文字：日本語・予約関連・サイバー系英単語 */
-            const characters =
-                "アイウエオカキクケコサシスセソタチツテトナニヌネノ" +
-                "ハヒフヘホマミムメモヤユヨラリルレロワヲン" +
-                "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&" +
-                "reservation" + "reserve" + "FUJICHAKU" +
-                "予約" + "yoyaku" + "ウォッカ" + "Vodka" +
-                "完了" + "予約完了" + "不時着" + "不時着しました" +
-                "SYSTEM" + "ACCESS" + "DATABASE" + "NETWORK" +
-                "DIGITAL" + "CYBER" + "MATRIX" + "PROTOCOL" +
-                "ENCRYPT" + "DECRYPT" + "TERMINAL" + "SERVER" +
-                "CLIENT" + "ADMIN" + "LOGIN" + "LOGOUT" +
-                "SUCCESS" + "ERROR" + "WARNING" + "PROCESS" +
-                "EXECUTE" + "INITIALIZE" + "CONNECT" + "DISCONNECT" +
-                "SECURITY" + "FIREWALL" + "PASSWORD" + "AUTHENTICATION" +
-                "ACCESS GRANTED" + "ACCESS DENIED" + "LOADING" +
-                "COMPLETE" + "CONFIRM" + "CANCEL" + "UPDATE" +
-                "DELETE" + "SEARCH" + "REGISTER" + "MANAGEMENT" +
-                "BOOKING" + "SCHEDULE" + "CUSTOMER" + "STORE" +
-                "MEMBER" + "GUEST" + "MANAGER" + "RESERVED" +
-                "CONFIRMED" + "TRANSACTION" + "OPERATION" +
-                "SHADOW" + "GHOST" + "DARKNESS" + "UNKNOWN" +
-                "CLASSIFIED" + "TOP SECRET" + "BLACKOUT" +
-                "UNDERGROUND" + "FREAKSHOW" + "CHAOS" + "GLITCH" +
-                "VOID" + "PHANTOM" + "OBLIVION" + "NIGHTMARE" +
-                "REBOOT" + "OVERRIDE" + "RESTRICTED" + "WARNING" +
-                "2026" + "10-15" + "SYSTEM ONLINE" + "END TRANSMISSION" +
-                "ACCESS GRANTED" + "RESERVATION COMPLETE" +
-                "NO SIGNAL" + "UNKNOWN USER" + "DATA STREAM";
-
-            const fontSize = 16;
-
-            let columns = 0;
-            let drops = [];
-            let speeds = [];
-            let animationId = null;
-
-            function resizeCanvas() {
-                const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-
-                canvas.width = Math.floor(width * dpr);
-                canvas.height = Math.floor(height * dpr);
-                canvas.style.width = width + "px";
-                canvas.style.height = height + "px";
-
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-                columns = Math.ceil(width / fontSize);
-
-                drops = Array.from(
-                    { length: columns },
-                    () => Math.random() * -(height / fontSize)
-                );
-
-                speeds = Array.from(
-                    { length: columns },
-                    () => 0.7 + Math.random() * 1.5
-                );
-
-                /* リサイズ直後の背景を黒く初期化 */
-                ctx.fillStyle = "#000000";
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            function drawMatrix() {
-                const width = window.innerWidth;
-                const height = window.innerHeight;
-
-                /* 文字の軌跡を残す */
-                ctx.fillStyle = "rgba(0, 0, 0, 0.045)";
-                ctx.fillRect(0, 0, width, height);
-
-                ctx.font = "bold " + fontSize + "px monospace";
-                ctx.textBaseline = "top";
-
-                for (let i = 0; i < drops.length; i++) {
-                    const x = i * fontSize;
-                    const y = drops[i] * fontSize;
-
-                    const character = characters.charAt(
-                        Math.floor(Math.random() * characters.length)
-                    );
-
-                    /* 文字を発光させる */
-                    ctx.shadowBlur = 12;
-
-                    if (Math.random() > 0.92) {
-                        ctx.fillStyle = "#ffffff";
-                        ctx.shadowColor = "#baffc5";
-                    } else {
-                        ctx.fillStyle = "#00ff41";
-                        ctx.shadowColor = "#00ff41";
-                    }
-
-                    ctx.fillText(character, x, y);
-
-                    ctx.shadowBlur = 0;
-
-                    /* 明るい緑色の文字を追加 */
-                    if (Math.random() > 0.75) {
-                        ctx.fillStyle = "#39ff70";
-
-                        ctx.fillText(
-                            characters.charAt(
-                                Math.floor(Math.random() * characters.length)
-                            ),
-                            x,
-                            y - fontSize
-                        );
-                    }
-
-                    drops[i] += speeds[i];
-
-                    if (y > height && Math.random() > 0.96) {
-                        drops[i] = 0;
-                        speeds[i] = 0.7 + Math.random() * 1.5;
-                    }
-                }
-
-                animationId = window.requestAnimationFrame(drawMatrix);
-            }
-
-            resizeCanvas();
-
-            window.addEventListener("resize", resizeCanvas);
-
-            /* 二重起動を防止してアニメーションを開始 */
-            if (animationId !== null) {
-                window.cancelAnimationFrame(animationId);
-            }
-
-            drawMatrix();
-        })();
-    </script>
 </body>
 </html>

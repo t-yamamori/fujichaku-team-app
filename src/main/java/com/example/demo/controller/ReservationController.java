@@ -37,8 +37,6 @@ public class ReservationController {
 
     /**
      * メールアドレスの形式チェック
-     * 例：taro@gmail.com は有効
-     *     aaaa@aaaa は無効
      */
     private boolean isValidEmail(String mail) {
         if (mail == null || mail.isBlank()) {
@@ -207,12 +205,11 @@ public class ReservationController {
                         name, mail, date, time, number);
             }
 
-            // メールアドレスの形式チェック
             if (!isValidEmail(trimmedMail)) {
                 return returnToForm(
                         model, store, shopId, principal,
                         "メールアドレスの形式が正しくありません。"
-                        + "（例：taro@gmail.com）",
+                                + "（例：taro@gmail.com）",
                         name, mail, date, time, number);
             }
 
@@ -247,9 +244,13 @@ public class ReservationController {
                         ? trimmedName
                         : loginMember.getName());
 
+        // 会員はDBに登録されているメールアドレス、
+        // 非会員は入力されたメールアドレスを表示する。
         model.addAttribute(
                 "mail",
-                loginMember == null ? trimmedMail : "");
+                loginMember != null
+                        ? loginMember.getMail()
+                        : trimmedMail);
 
         return "reservations/reservation";
     }
@@ -347,6 +348,10 @@ public class ReservationController {
 
         Integer userId = null;
 
+        // 完了画面に表示する予約者情報
+        String reservationName;
+        String reservationMail;
+
         if (loginMember == null) {
             String trimmedName = name == null ? "" : name.trim();
             String trimmedMail = mail == null ? "" : mail.trim();
@@ -365,12 +370,11 @@ public class ReservationController {
                         name, mail, date, time, number);
             }
 
-            // 予約確定時にも必ず形式を再チェック
             if (!isValidEmail(trimmedMail)) {
                 return returnToForm(
                         model, store, shopId, principal,
                         "メールアドレスの形式が正しくありません。"
-                        + "（例：taro@gmail.com）",
+                                + "（例：taro@gmail.com）",
                         name, mail, date, time, number);
             }
 
@@ -384,6 +388,15 @@ public class ReservationController {
             }
 
             userId = user.getId();
+
+            // 予約に紐づくUsersの登録情報を表示する
+            reservationName = user.getName();
+            reservationMail = user.getMail();
+
+        } else {
+            // ログイン中の会員情報を表示する
+            reservationName = loginMember.getName();
+            reservationMail = loginMember.getMail();
         }
 
         Reservations reservation = new Reservations();
@@ -417,6 +430,10 @@ public class ReservationController {
         model.addAttribute("reservation", reservation);
         model.addAttribute("store", store);
         model.addAttribute("reservationId", reservation.getId());
+
+        // 会員・非会員共通の予約者情報
+        model.addAttribute("reservationName", reservationName);
+        model.addAttribute("reservationMail", reservationMail);
 
         if (loginMember != null) {
             return "reservations/complete";

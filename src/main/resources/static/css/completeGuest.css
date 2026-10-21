@@ -1,0 +1,399 @@
+@charset "UTF-8";
+
+/* =========================================================
+   予約完了（非会員）complete_guest.html
+   デザイン：砂漠の空
+   ========================================================= */
+
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/400.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/biz-udpgothic@5.2.8/700.css");
+
+:root {
+    --main: #8b4a2b;
+    --main-dark: #6e3a21;
+    --sky-deep: #3f82ad;
+    --sky-pale: #eaf4fa;
+    --line: #d9e3ea;
+    --text: #2f3437;
+    --text-sub: #6b7479;
+    --caution: #b7791f;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 40px 16px 140px;
+    font-family: "BIZ UDPGothic", "Hiragino Kaku Gothic ProN",
+        "Yu Gothic", "Meiryo", sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    background: linear-gradient(
+        #9fcbe8 0,
+        #cfe6f4 45%,
+        #f3f7fa 100%
+    ) fixed;
+    overflow-x: hidden;
+}
+
+/* ===== ゆっくり流れる雲 ===== */
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 8%;
+    left: -260px;
+    z-index: 0;
+    width: 220px;
+    height: 60px;
+    border-radius: 60px;
+    background: #fff;
+    opacity: 0.85;
+    box-shadow:
+        40px -26px 0 6px #fff,
+        110px -14px 0 0 #fff,
+        520px 70px 0 -8px rgba(255, 255, 255, 0.75),
+        580px 52px 0 -4px rgba(255, 255, 255, 0.75);
+    animation: cloud-drift 60s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes cloud-drift {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(calc(100vw + 900px));
+    }
+}
+
+/* ===== 画面下部の砂丘 ===== */
+
+body::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    height: 120px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 220' preserveAspectRatio='none'%3E%3Cpath d='M0 120 C220 70 380 90 560 120 C760 155 900 80 1100 95 C1260 105 1360 130 1440 120 V220 H0 Z' fill='%23ecdcb6'/%3E%3Cpath d='M0 165 C180 135 360 140 540 165 C720 190 900 150 1080 160 C1240 170 1360 185 1440 175 V220 H0 Z' fill='%23e2cc9f'/%3E%3C/svg%3E")
+        bottom / 100% 100% no-repeat;
+    pointer-events: none;
+}
+
+/* ===== ページ全体 ===== */
+
+.page-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* ===== 白いカード ===== */
+
+.container {
+    padding: 40px 44px 44px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--sky-deep);
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(31, 79, 112, 0.12);
+    animation: card-in 0.6s ease-out both;
+}
+
+@keyframes card-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ===== システム名・ページタイトル ===== */
+
+.system-label {
+    margin: 0 0 6px;
+    color: var(--sky-deep);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-align: center;
+}
+
+.page-title {
+    margin: 0 0 22px;
+    font-size: clamp(1.6rem, 4.5vw, 2rem);
+    letter-spacing: 0.12em;
+    text-align: center;
+}
+
+/* ===== 完了メッセージ・チェックマーク ===== */
+
+.success-message {
+    margin: 0 0 28px;
+    font-size: 1rem;
+    line-height: 1.9;
+    text-align: center;
+}
+
+.success-message p {
+    margin: 0;
+}
+
+.success-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: var(--sky-deep);
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 6px 16px rgba(63, 130, 173, 0.35);
+    animation: check-pop 0.55s cubic-bezier(0.2, 1.6, 0.4, 1) 0.25s both;
+}
+
+/* チェックマークの周囲に広がる輪 */
+
+.success-icon::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid var(--sky-deep);
+    animation: ring 1.2s ease-out 0.6s both;
+}
+
+@keyframes check-pop {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes ring {
+    from {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    to {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* ===== 非会員向け注意 ===== */
+
+.note {
+    margin-bottom: 30px;
+    padding: 16px 20px;
+    background: #fdf6e9;
+    border: 1px solid #f0dcb4;
+    border-left: 4px solid var(--caution);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    line-height: 1.9;
+}
+
+.note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #8a5a12;
+    font-size: 0.95rem;
+}
+
+/* ===== 予約内容 ===== */
+
+.section {
+    margin-bottom: 30px;
+}
+
+.section h2 {
+    margin: 0 0 14px;
+    padding-left: 12px;
+    font-size: 1.15rem;
+    border-left: 3px solid var(--sky-deep);
+}
+
+.reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+    border-top: 1px solid var(--line);
+}
+
+.reservation-table th,
+.reservation-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+}
+
+.reservation-table th {
+    width: 30%;
+    background: var(--sky-pale);
+    color: var(--sky-deep);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.reservation-number {
+    color: var(--main);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+}
+
+.status {
+    display: inline-block;
+    padding: 2px 12px;
+    border-radius: 999px;
+    background: var(--sky-pale);
+    color: var(--sky-deep);
+    border: 1px solid #bcd8ea;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* ===== 店舗一覧へ戻る ===== */
+
+.top-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 240px;
+    height: 48px;
+    padding: 0 28px;
+    border: none;
+    border-radius: 3px;
+    background: var(--main);
+    color: #fff;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.btn:hover,
+.btn:focus-visible {
+    background: var(--main-dark);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+/* ===== 完了スタンプ ===== */
+
+.footer-text {
+    display: flex;
+    justify-content: center;
+    margin: 36px 0 4px;
+}
+
+.complete-frame {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 2px solid var(--main);
+    border-radius: 4px;
+    color: var(--main);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    transform: rotate(-3deg);
+    opacity: 0.85;
+    animation: stamp 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) 0.9s both;
+}
+
+@keyframes stamp {
+    from {
+        transform: rotate(-3deg) scale(2);
+        opacity: 0;
+    }
+
+    to {
+        transform: rotate(-3deg) scale(1);
+        opacity: 0.85;
+    }
+}
+
+/* ===== スマートフォン対応 ===== */
+
+@media (max-width: 600px) {
+    body {
+        padding: 20px 10px 110px;
+    }
+
+    body::after {
+        height: 90px;
+    }
+
+    .container {
+        padding: 28px 18px 32px;
+    }
+
+    .reservation-table th,
+    .reservation-table td {
+        padding: 11px 10px;
+        font-size: 0.88rem;
+    }
+
+    .reservation-table th {
+        width: 34%;
+    }
+
+    .reservation-number {
+        font-size: 1.35rem;
+    }
+
+    .btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* ===== 動きを減らす設定への対応 ===== */
+
+@media (prefers-reduced-motion: reduce) {
+    body::before,
+    .container,
+    .success-icon,
+    .success-icon::after,
+    .complete-frame {
+        animation: none;
+    }
+
+    .success-icon::after {
+        display: none;
+    }
+}
