@@ -76,8 +76,8 @@ public class ReservationManagementController {
 
         prepareModel(model, reservations, "/admin/reservations", true, null);
 
-        // 予約追加フォームには、予約可能な店舗だけを表示する
-        model.addAttribute("stores", storesMapper.selectReservableList());
+        // 予約追加フォームには、予約可否を問わず全店舗を表示する
+        model.addAttribute("stores", storesMapper.selectList());
 
         model.addAttribute("searchReservationId", reservationId);
         model.addAttribute("searchReservationDate", reservationDate);
@@ -594,11 +594,6 @@ public class ReservationManagementController {
                     "指定された店舗が存在しないか、利用できません。");
         }
 
-        // モール管理者の新規予約では、予約可能な店舗だけを許可する
-        if (mallAdmin && !Boolean.TRUE.equals(store.isReservable())) {
-            throw new IllegalArgumentException(
-                    "この店舗は予約を受け付けていません。別の店舗を選択してください。");
-        }
 
         // 会員ID・ゲストユーザーIDが両方入力されている場合
         if (memberId != null && userId != null) {
