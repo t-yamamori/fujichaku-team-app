@@ -1,3 +1,4 @@
+
 package com.example.demo.service;
 
 import java.time.LocalDate;
@@ -13,58 +14,72 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AdminMemberService {
-	private final MembersMapper membersMapper;
 
-	// 会員一覧取得
-	public List<Members> findAll() {
-		return membersMapper.selectAll();
-	}	
-		
+    private final MembersMapper membersMapper;
+
+    private static final int MIN_POINT = 0;
+    private static final int MAX_POINT = 1_000_000_000;
+
+    // 会員一覧取得
+    public List<Members> findAll() {
+        return membersMapper.selectAll();
+    }
+
     // 会員情報を1件取得
-	public Members findById(int id) {
-		 return membersMapper.findById(id);
-		}
-	
-	
-	public void update(
-	        Integer id,
-	        String name,
-	        LocalDate birthDate,
-	        String mail,
-	        Integer point) {
+    public Members findById(int id) {
+        return membersMapper.findById(id);
+    }
 
-	    // 存在しない（または削除済みの）会員は更新しない
-	    if (!membersMapper.existsById(id)) {
-	        throw new IllegalArgumentException(
-	                "会員が見つかりません: " + id);
-	    }
+    // 会員情報更新
+    public void update(
+            Integer id,
+            String name,
+            LocalDate birthDate,
+            String mail,
+            Integer point) {
 
-	    // 更新する会員情報を設定
-	    Members member = new Members();
-	    member.setId(id);
-	    member.setName(name);
-	    member.setBirthDate(birthDate);
-	    member.setMail(mail);
-	    member.setPoint(point);
+        // ポイントの範囲チェック
+        if (point == null || point < MIN_POINT || point > MAX_POINT) {
+            throw new IllegalArgumentException(
+                "ポイントは0～1,000,000,000の範囲で入力してください"
+            );
+        }
 
-	    // データベースを更新
-	    membersMapper.update(member);
-	}
-	
-	public void delete(Integer id) {
+        // 存在しない（または削除済みの）会員は更新しない
+        if (!membersMapper.existsById(id)) {
+            throw new IllegalArgumentException(
+                "会員が見つかりません: " + id
+            );
+        }
 
-	    // 存在しない(または削除済みの)会員は削除しない
-	    if (!membersMapper.existsById(id)) {
-	        throw new IllegalArgumentException("会員が見つかりません: " + id);
-	    }
+        // 更新する会員情報を設定
+        Members member = new Members();
+        member.setId(id);
+        member.setName(name);
+        member.setBirthDate(birthDate);
+        member.setMail(mail);
+        member.setPoint(point);
 
-	    membersMapper.delete(id);
-	}
-	
-	// 自分以外の会員が、同じメールアドレスを使っているか(削除済みも含む)
-	public boolean existsByMailExceptId(String mail, Integer id) {
-		return membersMapper.existsByMailExceptId(mail, id);
-	}
+        // データベースを更新
+        membersMapper.update(member);
+    }
 
-	}
+    // 会員の削除（論理削除）
+    public void delete(Integer id) {
 
+        // 存在しない（または削除済みの）会員は削除しない
+        if (!membersMapper.existsById(id)) {
+            throw new IllegalArgumentException(
+                "会員が見つかりません: " + id
+            );
+        }
+
+        membersMapper.delete(id);
+    }
+
+    // 自分以外の会員が同じメールアドレスを使っているか
+    // （削除済み会員も含む）
+    public boolean existsByMailExceptId(String mail, Integer id) {
+        return membersMapper.existsByMailExceptId(mail, id);
+    }
+}
