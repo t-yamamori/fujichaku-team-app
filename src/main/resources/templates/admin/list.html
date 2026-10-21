@@ -202,8 +202,14 @@
 						<input type="email" id="editMail" name="mail" required>
 
 						<p>ポイント</p>
-						<input type="number" id="editPoint" name="point" min="0" step="1" required>
-
+						<input type="number"
+						       id="editPoint"
+						       name="point"
+						       min="0"
+						       max="1000000000"
+						       step="1"
+						       required>
+							   
 						<div class="modal-button-area">
 							<button type="submit" class="save-button">
 								保存

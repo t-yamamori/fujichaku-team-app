@@ -61,9 +61,9 @@
             <include refid="storeColumns"/>
         FROM stores
         WHERE (
-               name ILIKE '%' || #{name} || '%' ESCAPE '\\'
-            OR name_kana LIKE '%' || #{kana} || '%' ESCAPE '\\'
-            OR name_kana LIKE '%' || #{reading} || '%' ESCAPE '\\'
+               name ILIKE '%' || #{name} || '%' ESCAPE '\'
+            OR name_kana LIKE '%' || #{kana} || '%' ESCAPE '\'
+            OR name_kana LIKE '%' || #{reading} || '%' ESCAPE '\'
         )
           AND is_deleted IS NOT TRUE
         ORDER BY id
