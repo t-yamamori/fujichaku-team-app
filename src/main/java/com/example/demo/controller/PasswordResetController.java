@@ -114,6 +114,14 @@ public class PasswordResetController {
                     "パスワードは8文字以上で入力してください。");
             return "password/reset";
         }
+        
+        // パスワードが64文字を超える場合
+        if (password.length() > 64) {
+            model.addAttribute(
+                    "errorMessage",
+                    "パスワードは64文字以内で入力してください。");
+            return "password/reset";
+        }
 
         // パスワードを更新
         passwordResetService.resetPassword(memberId, password);
