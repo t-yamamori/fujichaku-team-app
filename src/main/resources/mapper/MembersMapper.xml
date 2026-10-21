@@ -73,7 +73,7 @@
 
 
     <!-- 新規登録 -->
-    <insert id="insert">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO members (name, birth_date, mail, password, point, is_deleted)
         VALUES (#{name}, #{birthDate}, #{mail}, #{password}, 0, false)
     </insert>
