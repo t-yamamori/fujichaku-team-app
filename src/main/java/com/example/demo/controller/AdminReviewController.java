@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,8 +55,6 @@ public class AdminReviewController {
 
     /*
      * ID入力時に店舗名・会員名を取得する。
-     * GET /admin/reviews/lookup?type=store&id=1
-     * GET /admin/reviews/lookup?type=member&id=10000
      */
     @GetMapping("/lookup")
     @ResponseBody
@@ -86,6 +85,7 @@ public class AdminReviewController {
         }
 
         boolean found = name != null && !name.isBlank();
+
         response.put("found", found);
         response.put("name", found ? name : "");
         response.put("message",
@@ -97,6 +97,7 @@ public class AdminReviewController {
     @PostMapping("/update")
     public String updateAll(
             @ModelAttribute("updateForm") AdminReviewUpdateForm form,
+            BindingResult bindingResult,
             @RequestParam(value = "filterId", required = false) String filterId,
             @RequestParam(value = "filterStoreId", required = false) String filterStoreId,
             @RequestParam(value = "filterStoreName", required = false) String filterStoreName,
@@ -110,6 +111,35 @@ public class AdminReviewController {
         AdminReviewSearchForm filters = buildFilters(filterId, filterStoreId,
                 filterStoreName, filterMemberId, filterMemberName,
                 filterComment, filterGrade, filterCreatedAt);
+
+        /*
+         * 店舗ID・会員IDがIntegerの範囲を超えるなど、
+         * フォームのデータ変換に失敗した場合は更新を中止する。
+         *
+         * BindingResultは対象のModelAttributeの直後に置く。
+         */
+        if (bindingResult.hasErrors()) {
+            String message = bindingResult.getFieldErrors().stream()
+                    .filter(error ->
+                            error.getField().endsWith(".storeId")
+                            || error.getField().endsWith(".memberId"))
+                    .map(error -> {
+                        if (error.getField().endsWith(".storeId")) {
+                            return "店舗IDは1～2147483647の整数で入力してください。";
+                        }
+                        return "会員IDは1～2147483647の整数で入力してください。";
+                    })
+                    .distinct()
+                    .collect(Collectors.joining(" "));
+
+            if (message.isBlank()) {
+                message = "入力値が正しくありません。各項目を確認してください。";
+            }
+
+            redirectAttributes.addFlashAttribute("successMessage", message);
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
 
         List<AdminReview> allActive = adminReviewService.findAllActive();
 
@@ -177,7 +207,7 @@ public class AdminReviewController {
             if (submittedReview.getComment().length() > 2000) {
                 redirectAttributes.addFlashAttribute("successMessage",
                         "レビューID " + id
-                        + " のコメントは2000文字以内で入力してください。");
+                        + " のコメントは2000文字以内で入力してください。更新を中止しました。");
                 addFilters(redirectAttributes, filters);
                 return "redirect:/admin/reviews";
             }
@@ -187,7 +217,7 @@ public class AdminReviewController {
                     || submittedReview.getGrade() > 5) {
                 redirectAttributes.addFlashAttribute("successMessage",
                         "レビューID " + id
-                        + " の評価は1～5で入力してください。");
+                        + " の評価は1～5で入力してください。更新を中止しました。");
                 addFilters(redirectAttributes, filters);
                 return "redirect:/admin/reviews";
             }
@@ -212,7 +242,8 @@ public class AdminReviewController {
             detail.append("レビューID ").append(id);
 
             if (original.getStoreName() != null) {
-                detail.append("（店舗：").append(original.getStoreName()).append("）");
+                detail.append("（店舗：")
+                        .append(original.getStoreName()).append("）");
             }
 
             detail.append("：");
@@ -224,9 +255,11 @@ public class AdminReviewController {
                         submittedReview.getStoreId());
 
                 fields.add("店舗ID "
-                        + original.getStoreId() + "（" + display(original.getStoreName()) + "）"
+                        + original.getStoreId() + "（"
+                        + display(original.getStoreName()) + "）"
                         + " → "
-                        + submittedReview.getStoreId() + "（" + display(newStoreName) + "）");
+                        + submittedReview.getStoreId() + "（"
+                        + display(newStoreName) + "）");
             }
 
             if (memberChanged) {
@@ -234,9 +267,11 @@ public class AdminReviewController {
                         submittedReview.getMemberId());
 
                 fields.add("会員ID "
-                        + original.getMemberId() + "（" + display(original.getMemberName()) + "）"
+                        + original.getMemberId() + "（"
+                        + display(original.getMemberName()) + "）"
                         + " → "
-                        + submittedReview.getMemberId() + "（" + display(newMemberName) + "）");
+                        + submittedReview.getMemberId() + "（"
+                        + display(newMemberName) + "）");
             }
 
             if (commentChanged) {
@@ -331,6 +366,7 @@ public class AdminReviewController {
     @PostMapping("/create")
     public String create(
             @ModelAttribute("newReview") AdminReview review,
+            BindingResult bindingResult,
             @RequestParam(value = "filterId", required = false) String filterId,
             @RequestParam(value = "filterStoreId", required = false) String filterStoreId,
             @RequestParam(value = "filterStoreName", required = false) String filterStoreName,
@@ -344,6 +380,38 @@ public class AdminReviewController {
         AdminReviewSearchForm filters = buildFilters(filterId, filterStoreId,
                 filterStoreName, filterMemberId, filterMemberName,
                 filterComment, filterGrade, filterCreatedAt);
+
+        if (bindingResult.hasFieldErrors("storeId")) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "店舗IDは1～2147483647の整数で入力してください。");
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
+
+        if (bindingResult.hasFieldErrors("memberId")) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "会員IDは1～2147483647の整数で入力してください。");
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
+
+        if (bindingResult.hasFieldErrors("grade")) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "評価は1～5の整数で選択してください。");
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "入力値が正しくありません。各項目を確認してください。");
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
 
         String error = validateNewReview(review);
 
@@ -377,27 +445,34 @@ public class AdminReviewController {
 
     private String validateNewReview(AdminReview review) {
         if (review.getStoreId() == null || review.getStoreId() <= 0) {
-            return "店舗IDを正しく入力してください。";
+            return "店舗IDは1～2147483647の整数で入力してください。";
         }
+
         if (review.getMemberId() == null || review.getMemberId() <= 0) {
-            return "会員IDを正しく入力してください。";
+            return "会員IDは1～2147483647の整数で入力してください。";
         }
+
         if (review.getComment() == null || review.getComment().isBlank()) {
             return "コメントを入力してください。";
         }
+
         if (review.getComment().length() > 2000) {
             return "コメントは2000文字以内で入力してください。";
         }
+
         if (review.getGrade() == null
                 || review.getGrade() < 1 || review.getGrade() > 5) {
             return "評価は1～5で入力してください。";
         }
+
         if (!adminReviewService.existsActiveStore(review.getStoreId())) {
             return "指定された店舗IDが存在しないか、削除済みです。";
         }
+
         if (!adminReviewService.existsActiveMember(review.getMemberId())) {
             return "指定された会員IDが存在しないか、削除済みです。";
         }
+
         return null;
     }
 
@@ -405,6 +480,7 @@ public class AdminReviewController {
             String id, String storeId, String storeName,
             String memberId, String memberName, String comment,
             String grade, String createdAt) {
+
         AdminReviewSearchForm filters = new AdminReviewSearchForm();
         filters.setId(id);
         filters.setStoreId(storeId);
@@ -414,11 +490,13 @@ public class AdminReviewController {
         filters.setComment(comment);
         filters.setGrade(grade);
         filters.setCreatedAt(createdAt);
+
         return filters;
     }
 
     private List<AdminReview> filterReviews(
             List<AdminReview> reviews, AdminReviewSearchForm filters) {
+
         return reviews.stream()
                 .filter(r -> matches(number(r.getId()), filters.getId()))
                 .filter(r -> matches(number(r.getStoreId()), filters.getStoreId()))
@@ -437,6 +515,7 @@ public class AdminReviewController {
         if (keyword == null || keyword.isBlank()) {
             return true;
         }
+
         return value != null && value.toLowerCase(Locale.ROOT)
                 .contains(keyword.trim().toLowerCase(Locale.ROOT));
     }
@@ -461,6 +540,7 @@ public class AdminReviewController {
 
     private void addFilters(
             RedirectAttributes attributes, AdminReviewSearchForm filters) {
+
         attributes.addAttribute("id", filters.getId());
         attributes.addAttribute("storeId", filters.getStoreId());
         attributes.addAttribute("storeName", filters.getStoreName());

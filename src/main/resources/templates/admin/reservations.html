@@ -590,16 +590,18 @@
         <form method="get" th:action="${basePath}">
             <div class="form-grid">
 
-                <div class="field">
-                    <label for="reservationId">予約ID</label>
-                    <input type="number"
-                           id="reservationId"
-                           name="reservationId"
-                           min="1"
-                           placeholder="例：100"
-                           th:value="${searchReservationId}">
-                </div>
-
+				<div class="field">
+				    <label for="reservationId">予約ID</label>
+				    <input type="number"
+				           id="reservationId"
+				           name="reservationId"
+				           min="1"
+				           max="2147483647"
+				           step="1"
+				           placeholder="例：100"
+				           th:value="${searchReservationId}">
+				</div>
+				
                 <div class="field">
                     <label for="reservationDate">予約日</label>
                     <input type="date"
