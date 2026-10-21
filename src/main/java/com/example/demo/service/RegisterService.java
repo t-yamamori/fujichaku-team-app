@@ -1,4 +1,3 @@
-
 package com.example.demo.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +17,8 @@ public class RegisterService {
     private final PasswordEncoder passwordEncoder;
 
     // 会員新規登録
-    public void register(RegisterForm form) {
+    // 【変更】void → Integer（登録した会員IDを返す）
+    public Integer register(RegisterForm form) {
 
         Members member = new Members();
 
@@ -34,10 +34,14 @@ public class RegisterService {
             passwordEncoder.encode(form.getPassword())
         );
 
+        // INSERT すると、useGeneratedKeys の設定で member の id に会員IDが入る
         memberMapper.insert(member);
+
+        // 【追加】DBが決めた会員IDを返す
+        return member.getId();
     }
 
-    // メールがすでに使われているか
+    // メールがすでに使われているか（今までと同じ）
     public boolean existsByMail(String mail) {
         return memberMapper.existsByMail(mail);
     }

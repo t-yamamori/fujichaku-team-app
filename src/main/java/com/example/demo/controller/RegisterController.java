@@ -75,9 +75,9 @@ public class RegisterController {
         return "register/confirm";
     }
 
- // 3. DB登録
+    // 3. DB登録
     @PostMapping("/register/complete")
-    public String complete(HttpSession session) {
+    public String complete(HttpSession session, Model model) {   // 【変更】Model を追加
 
         RegisterForm form =
                 (RegisterForm) session.getAttribute(SESSION_KEY);
@@ -86,9 +86,13 @@ public class RegisterController {
             return "redirect:/register/register";
         }
 
-        service.register(form);
+        // 【変更】登録して、DBが決めた会員IDを受け取る
+        Integer memberId = service.register(form);
 
         session.removeAttribute(SESSION_KEY);
+
+        // 【追加】完了画面に会員IDを渡す
+        model.addAttribute("memberId", memberId);
 
         return "register/complete";
     }

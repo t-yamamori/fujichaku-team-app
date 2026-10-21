@@ -6,7 +6,7 @@
     <title>会員登録完了 - 不時着タウン</title>
 
     <style>
-		/* =========================================================
+        /* =========================================================
            会員登録完了 register complete
            トップ画面と同じ「砂漠の空」デザイン（<style> の中身をまるごと差し替え）
            ========================================================= */
@@ -196,6 +196,32 @@
         @media (prefers-reduced-motion: reduce) {
             body::before, .complete-card, .check { animation: none; }
         }
+
+        /* ===== 【追加】会員ID（ログインに使う番号を大きく目立たせる） ===== */
+        .member-id-box {
+            margin: 0 0 28px;
+            padding: 18px 20px;
+            border: 2px dashed var(--sky-deep);
+            border-radius: 6px;
+            background: #fff;
+        }
+        .member-id-label {
+            margin: 0;
+            color: var(--sky-deep);
+            font-size: .85rem; font-weight: 700;
+        }
+        .member-id-number {
+            margin: 4px 0;
+            color: var(--main);
+            font-size: 2.4rem; font-weight: 700;
+            letter-spacing: .08em; line-height: 1.3;
+            font-variant-numeric: tabular-nums;
+        }
+        .member-id-note {
+            margin: 0;
+            color: var(--text-sub);
+            font-size: .8rem;
+        }
     </style>
 </head>
 
@@ -222,6 +248,13 @@
                 会員登録が正常に完了しました。<br>
                 ご登録ありがとうございます。
             </p>
+
+            <!-- 【追加】会員ID（ログインに使う番号）：Controller から memberId を受け取って表示 -->
+            <div class="member-id-box" th:if="${memberId != null}">
+                <p class="member-id-label">あなたの会員ID</p>
+                <p class="member-id-number" th:text="${memberId}">10011</p>
+                <p class="member-id-note">ログインの際に使用します。忘れないようお控えください。</p>
+            </div>
 
             <a th:href="@{/shops}" class="top-button">トップ画面へ</a>
 
