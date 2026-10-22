@@ -33,6 +33,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminReviewController {
 
+    private static final int MAX_CHANGED_REVIEWS = 50;
+
     private final AdminReviewService adminReviewService;
 
     @GetMapping
@@ -205,7 +207,8 @@ public class AdminReviewController {
             }
 
             if (submittedReview.getComment().length() > 2000) {
-                redirectAttributes.addFlashAttribute("successMessage",
+                redirectAttributes.addFlashAttribute(
+                        "successMessage",
                         "レビューID " + id
                         + " のコメントは2000文字以内で入力してください。更新を中止しました。");
                 addFilters(redirectAttributes, filters);
@@ -297,6 +300,15 @@ public class AdminReviewController {
             changed.add(update);
         }
 
+        if (changed.size() > MAX_CHANGED_REVIEWS) {
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "一度に更新できるレビューは50件までです。入力内容は保持されています。"
+                    + "変更件数：" + changed.size() + "件");
+            addFilters(redirectAttributes, filters);
+            return "redirect:/admin/reviews";
+        }
+
         try {
             adminReviewService.updateAll(changed);
         } catch (IllegalArgumentException ex) {
@@ -305,6 +317,8 @@ public class AdminReviewController {
             addFilters(redirectAttributes, filters);
             return "redirect:/admin/reviews";
         }
+
+        redirectAttributes.addFlashAttribute("reviewUpdateSucceeded", true);
 
         if (changed.isEmpty()) {
             redirectAttributes.addFlashAttribute(

@@ -2,6 +2,8 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,7 @@ public class Reviews {
 	private int memberId;
 	
 	//コメント
+	@Size(max = 255, message = "口コミは255文字以内で入力してください。")
 	private String comment;
 	
 	//登録時間
